@@ -6,7 +6,7 @@ export class UserMapper{
     static prismaModelToUserEntity(prismaModel: users): UserEntity {
         return new UserEntity({
             discordId: Number(prismaModel.discord_id) ?? 0,
-            userName: prismaModel.username,
+            userName: prismaModel.discord_username,
             discordHandle: prismaModel.discord_handle,
             magatamaPoints: prismaModel.magatama_points ?? 0,
             magatamaBag: prismaModel.magatama_bag ?? 0,

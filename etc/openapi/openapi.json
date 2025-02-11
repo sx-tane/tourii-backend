@@ -20,7 +20,16 @@
       "get": {
         "description": "Get user by username",
         "operationId": "TouriiBackendController_getUserByUsername",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "username",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
