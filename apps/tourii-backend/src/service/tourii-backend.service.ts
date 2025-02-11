@@ -15,7 +15,6 @@ export class TouriiBackendService {
    * @returns The user with the given username.
    */
   async getUserByUsername(username: string) {
-    
     return this.userRepository.getUserInfoByUsername(username);
   }
 }

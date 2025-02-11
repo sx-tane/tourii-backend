@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 
@@ -20,7 +20,8 @@ export class TouriiBackendController {
     summary: 'Get User API',
     description: 'Get user by username',
   })
-  async getUserByUsername(username: string) {
-    return this.touriiBackendService.getUserByUsername(username);
+  async getUserByUsername(@Param('username') username: string): Promise<any> {
+    const user = await this.touriiBackendService.getUserByUsername(username);
+    return user;
   }
 }
