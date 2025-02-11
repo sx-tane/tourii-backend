@@ -1,0 +1,42 @@
+{
+    "editor.defaultFormatter": "biomejs.biome",
+    "[javascript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascriptreact]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[json]": {
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[typescriptreact]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[yaml]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll.stylelint": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "editor.formatOnSave": false,
+    "eslint.packageManager": "npm",
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "editor.formatOnType": true,
+    "editor.tabSize": 2,
+    "files.autoSave": "onFocusChange",
+    "prettier.prettierPath": "./node_modules/prettier",
+    /*"jest.jestCommandLine": "npm test:ci",*/
+}
