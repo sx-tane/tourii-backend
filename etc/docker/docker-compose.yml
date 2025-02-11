@@ -1,0 +1,70 @@
+networks:
+  dev_network:
+  stg_network:
+  prod_network:
+
+services:
+  # tourii-backend:
+  #   build:
+  #     context: ./tourii-backend
+  #     dockerfile: ./dev/Dockerfile
+  #   container_name: tourii-backend
+  #   ports:
+  #     - 7776:7776
+  #   depends_on:
+  #     - db
+  #   volumes:
+  #     # mount repo root
+  #     # TODO: etcなど不要なファイル群もマウントされているのでアプリ関連のファイルは /repo_root/app に集約してもいいかも
+  #     - ../../:/usr/local/service/tourii-backend
+  #   env_file:
+  #     - .env
+
+  # tourii-onchain:
+  #   build:
+  #     context: ./tourii-onchain
+  #     dockerfile: ./dev/Dockerfile
+  #   container_name: tourii-onchain
+  #   depends_on:
+  #     - db
+  #   volumes:
+  #     # mount repo root
+  #     # TODO: etcなど不要なファイル群もマウントされているのでアプリ関連のファイルは /repo_root/app に集約してもいいかも
+  #     - ../../:/usr/local/service/tourii-onchain
+  #   env_file:
+  #     - .env
+
+  db:
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
+    container_name: tourii-backend_db
+    ports:
+      - 7432:5432
+    expose:
+      - 5432
+    volumes:
+      - ./db/postgresql/data:/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_PASSWORD: touriibackenddev
+      POSTGRES_USER: touriibackenddev
+      POSTGRES_DB: tourii_backend
+      PGDATA: /data/pgdata
+
+  test_db:
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
+    container_name: tourii-backend_db_test
+    ports:
+      - 7433:5432
+    expose:
+      - 5432
+    volumes:
+      - ./db/postgresql/test-data:/data
+    environment:
+      POSTGRES_PASSWORD: touriibackendtest
+      POSTGRES_USER: touriibackendtest
+      POSTGRES_DB: tourii_backend_test
+      PGDATA: /data/pgdata

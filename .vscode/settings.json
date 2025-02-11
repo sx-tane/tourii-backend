@@ -32,11 +32,11 @@
         "source.organizeImports": "explicit"
     },
     "editor.formatOnSave": false,
-    "eslint.packageManager": "npm",
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnType": true,
     "editor.tabSize": 2,
     "files.autoSave": "onFocusChange",
     "prettier.prettierPath": "./node_modules/prettier",
+    "biome.lspBin": "./node_modules/.bin/biome-lsp",
     /*"jest.jestCommandLine": "npm test:ci",*/
 }

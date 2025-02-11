@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider                  = "prisma-erd-generator"
+  theme                     = "forest"
+  output                    = "tourii-backend.md"
+  includeRelationFromFields = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MIGRATION_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  user_id           BigInt              @id(map: "users_pkc") @default(autoincrement())
+  discord_id        BigInt              @unique
+  discord_username  String              @db.VarChar(255)
+  discord_handle    String              @db.VarChar(255)
+  magatama_points   Int?                @default(0)
+  magatama_bag      Int?                @default(0)
+  prayer_bead       Int?                @default(0)
+  sword             Int?                @default(0)
+  orge_mask         Int?                @default(0)
+  sprint_shard      Int?                @default(0)
+  ins_date_time     DateTime?           @default(now()) @db.Timestamp(6)
+  gachapon_shard    Int?                @default(0)
+  gachapon_ticket   Int?                @default(0)
+  tourii_omamori    Int?                @default(0)
+  multiplier_1hr    Int?                @default(0)
+  multiplier_3hr    Int?                @default(0)
+  user_roles        user_roles[]
+  rewarded_roles    rewarded_roles[]
+  item_logs         item_log[]
+  invites           invites[]
+  invite_reward_log invite_reward_log[]
+  activity_log      activity_log[]
+
+  @@index([discord_id], name: "discord_id")
+  @@index([discord_username], name: "discord_username")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model activity_log {
+  id               Int       @id(map: "activity_log_pkc") @default(autoincrement())
+  user_id          BigInt
+  activity_type    String    @db.VarChar(255)
+  points_awarded   Int
+  activity_details String?
+  activity_date    DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
+  users            users?    @relation(fields: [user_id], references: [user_id])
+
+  @@index([activity_type], name: "activity_type")
+  @@index([activity_date], name: "activity_date")
+}
+
+model invite_reward_log {
+  id             Int       @id(map: "invite_reward_log_pkc") @default(autoincrement())
+  inviter_id     BigInt
+  invitee_id     BigInt    @unique(map: "invite_reward_log_unique")
+  points_awarded Int
+  rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
+  users          users     @relation(fields: [inviter_id], references: [user_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model invites {
+  id            Int       @id(map: "invites_pkc") @default(autoincrement())
+  invitee_id    BigInt    @unique(map: "invites_unique")
+  inviter_id    BigInt
+  invite_date   DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
+  users         users     @relation(fields: [inviter_id], references: [user_id])
+}
+
+model item_log {
+  id               Int       @id(map: "item_log_pkc") @default(autoincrement())
+  user_id          BigInt
+  item_type        String    @db.VarChar(255)
+  item_amount      Int
+  item_get_details String?
+  item_get_date    DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
+  users            users?    @relation(fields: [user_id], references: [user_id])
+
+  @@index([item_type], name: "item_type")
+  @@index([item_get_date], name: "item_get_date")
+}
+
+model kendama_random_range {
+  id            Int       @id @default(autoincrement())
+  landed        Decimal   @db.Decimal
+  missed        Decimal   @db.Decimal
+  win_rate      Decimal   @db.Decimal
+  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model level_requirement {
+  role_id         BigInt    @id
+  min_points      Int
+  max_points      Int
+  goshuin         Int       @default(0)
+  sprint_shard    Int       @default(0)
+  prayer_bead     Int       @default(0)
+  sword           Int       @default(0)
+  orge_mask       Int       @default(0)
+  magatama_points Int       @default(0)
+  hunter          Int       @default(0)
+  purifier        Int       @default(0)
+  ins_date_time   DateTime? @default(now()) @db.Timestamp(6)
+  roles           roles     @relation(fields: [role_id], references: [role_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model rewarded_roles {
+  id             Int       @id(map: "rewarded_roles_pkc") @default(autoincrement())
+  user_id        BigInt
+  role_id        BigInt
+  points_awarded Int
+  rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
+  users          users     @relation(fields: [user_id], references: [user_id])
+
+  @@unique([user_id, role_id])
+  @@index([role_id], name: "role_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model roles {
+  id                Int                 @id(map: "roles_pkc") @default(autoincrement())
+  role_id           BigInt              @unique
+  name              String              @unique @db.VarChar(255)
+  description       String?
+  ins_date_time     DateTime?           @default(now()) @db.Timestamp(6)
+  user_roles        user_roles[]
+  level_requirement level_requirement[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user_roles {
+  id            Int       @id(map: "user_roles_pkc") @default(autoincrement())
+  user_id       BigInt
+  role_id       BigInt
+  assigned_at   DateTime? @default(now()) @db.Timestamp(6)
+  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
+  roles         roles     @relation(fields: [role_id], references: [role_id])
+  users         users     @relation(fields: [user_id], references: [user_id])
+
+  @@unique([user_id, role_id])
+}

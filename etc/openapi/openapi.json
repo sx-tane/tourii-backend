@@ -1,0 +1,52 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health-check": {
+      "get": {
+        "operationId": "TouriiBackendController_checkHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "summary": "Health Check",
+        "tags": [
+          "Health Check"
+        ]
+      }
+    },
+    "/{username}/user": {
+      "get": {
+        "description": "Get user by username",
+        "operationId": "TouriiBackendController_getUserByUsername",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get User API",
+        "tags": [
+          "User"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Tourii Backend API",
+    "description": "Tourii Backend API Def",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "v1.0.0",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}

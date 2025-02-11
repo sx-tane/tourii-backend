@@ -10,23 +10,32 @@
 	"monorepo": true,
 	"root": "apps/tourii-backend",
 	"projects": {
-		"tourii-backend": {
-			"type": "application",
-			"root": "apps/tourii-backend",
-			"entryFile": "main",
-			"sourceRoot": "apps/tourii-backend/src",
+		"core": {
+			"type": "library",
+			"root": "libs/core",
+			"entryFile": "index",
+			"sourceRoot": "libs/core/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/tourii-backend/tsconfig.app.json"
+				"tsConfigPath": "libs/core/tsconfig.lib.json"
 			}
-		},
-		"tourii-onchain": {
-			"type": "application",
-			"root": "apps/tourii-onchain",
-			"entryFile": "main",
-			"sourceRoot": "apps/tourii-onchain/src",
-			"compilerOptions": {
-				"tsConfigPath": "apps/tourii-onchain/tsconfig.app.json"
-			}
+		}
+	},
+	"tourii-backend": {
+		"type": "application",
+		"root": "apps/tourii-backend",
+		"entryFile": "main",
+		"sourceRoot": "apps/tourii-backend/src",
+		"compilerOptions": {
+			"tsConfigPath": "apps/tourii-backend/tsconfig.app.json"
+		}
+	},
+	"tourii-onchain": {
+		"type": "application",
+		"root": "apps/tourii-onchain",
+		"entryFile": "main",
+		"sourceRoot": "apps/tourii-onchain/src",
+		"compilerOptions": {
+			"tsConfigPath": "apps/tourii-onchain/tsconfig.app.json"
 		}
 	}
 }
