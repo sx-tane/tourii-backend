@@ -1,6 +1,6 @@
 import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
+import { getEnv } from '@app/core/utils/env-utils';
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import bodyParser from 'body-parser';
@@ -12,12 +12,13 @@ async function bootstrap() {
   const app = await NestFactory.create(TouriiOnchainModule, {
     logger: new TouriiCoreLoggingService('debug'),
   });
-  const configService = app.get(ConfigService);
   app.use(compression());
   app.use(bodyParser.json({ limit: '1mb' }));
   app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
-  if (configService.get('EXPORT_OPENAPI_JSON') === 'true') {
+  if (
+    getEnv({ key: 'EXPORT_OPENAPI_JSON', defaultValue: 'false' }) === 'true'
+  ) {
     const config = new DocumentBuilder()
       .setTitle('Tourii Onchain API')
       .setDescription('Tourii Onchain API Def')
@@ -33,7 +34,7 @@ async function bootstrap() {
     );
     SwaggerModule.setup('api/docs', app, documentFactory);
   }
-  await app.listen(configService.get('TOURII_ONCHAIN_PORT') || 3000);
+  await app.listen(getEnv({ key: 'TOURII_ONCHAIN_PORT' }) || 3001);
 
   process.on('SIGINT', async () => {
     Logger.log('Closing server...');

@@ -1,5 +1,5 @@
 import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
-import { ConfigService } from '@nestjs/config';
+import { getEnv } from '@app/core/utils/env-utils';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
@@ -11,12 +11,13 @@ async function bootstrap() {
   const app = await NestFactory.create(TouriiBackendModule, {
     logger: new TouriiCoreLoggingService('debug'),
   });
-  const configService = app.get(ConfigService);
   app.use(compression());
   app.use(bodyParser.json({ limit: '1mb' }));
   app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
-  if (configService.get('EXPORT_OPENAPI_JSON') === 'true') {
+  if (
+    getEnv({ key: 'EXPORT_OPENAPI_JSON', defaultValue: 'false' }) === 'true'
+  ) {
     const config = new DocumentBuilder()
       .setTitle('Tourii Backend API')
       .setDescription('Tourii Backend API Def')
@@ -32,6 +33,6 @@ async function bootstrap() {
     );
     SwaggerModule.setup('api/docs', app, documentFactory);
   }
-  await app.listen(configService.get('TOURII_BACKEND_PORT') || 3000);
+  await app.listen(getEnv({ key: 'TOURII_BACKEND_PORT' }) || 3000);
 }
 bootstrap();

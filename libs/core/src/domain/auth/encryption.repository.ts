@@ -1,3 +1,5 @@
+import { HexString } from '@gear-js/api/types';
+
 export interface EncryptionRepository {
   /**
    * Decrypt string
@@ -13,5 +15,5 @@ export interface EncryptionRepository {
    * @returns encrypted string
    * @throws TouriiBackendAppException
    */
-  decodeAddress(publicKey: string): string;
+  decodeAddress(publicKey: string): HexString;
 }

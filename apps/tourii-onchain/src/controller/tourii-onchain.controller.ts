@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { TouriiOnchainService } from '../service/tourii-onchain.service';
 import { userDataSchema } from './model/request/user-data-request-dto';
@@ -7,36 +18,54 @@ import { userDataSchema } from './model/request/user-data-request-dto';
 export class TouriiOnchainController {
   constructor(private readonly touriiOnchainService: TouriiOnchainService) {}
 
-  @Get()
-  getHello(): string {
-    return 'Hello, Sails!';
+  @Get('/health-check')
+  @ApiTags('Health Check')
+  @ApiOperation({ summary: 'Health Check' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Success' })
+  checkHealth(): string {
+    return 'OK';
   }
 
   @Get('keyring/address')
+  @ApiOperation({ summary: 'Get user keyring address' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Success' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Error',
+  })
   async userKeyringAddress(@Req() req: Request, @Res() res: Response) {
-    const token = req.cookies.token;
+    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+    const token = req.cookies['token'];
 
     try {
-      const userKeyringAddress =
-        await this.touriiOnchainService.userKeyringAddress(token);
-      res.json({ userKeyringAddress });
+      res.json(await this.touriiOnchainService.userKeyringAddress(token));
     } catch (e) {
-      res.status(500).send(`Error: ${JSON.stringify(e)}`);
+      Logger.log(`Error: ${JSON.stringify(e)}`);
+      res
+        .status(500)
+        .send(
+          new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001),
+        );
     }
   }
 
   @Post('keyring/login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Success' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Credentials',
+  })
   async loginUser(@Req() req: Request, @Res() res: Response) {
     const data = req.body;
     const result = userDataSchema.safeParse(data);
 
     if (!result.success) {
-      const response = {
-        message: 'bad parameters',
-        expected: '{ username: string, password: string }',
-      };
-
-      res.status(400).send(response);
+      res
+        .status(400)
+        .send(
+          new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005),
+        );
       return;
     }
 
@@ -50,22 +79,32 @@ export class TouriiOnchainController {
       res.cookie('token', token, { httpOnly: true, maxAge: 3600000 });
       res.send('User logged in successfully');
     } catch (e) {
-      res.status(401).send(`Error: ${JSON.stringify(e)}`);
+      Logger.log(`Error: ${JSON.stringify(e)}`);
+      res
+        .status(401)
+        .send(
+          new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001),
+        );
     }
   }
 
   @Post('keyring/register')
+  @ApiOperation({ summary: 'Register user' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Success' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Credentials',
+  })
   async registerUser(@Req() req: Request, @Res() res: Response) {
     const data = req.body;
     const result = userDataSchema.safeParse(data);
 
     if (!result.success) {
-      const response = {
-        message: 'bad parameters',
-        expected: '{ username: string, password: string }',
-      };
-
-      res.status(400).send(response);
+      res
+        .status(400)
+        .send(
+          new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005),
+        );
       return;
     }
 
@@ -79,7 +118,12 @@ export class TouriiOnchainController {
       res.cookie('token', token, { httpOnly: true, maxAge: 3600000 });
       res.send('User registered');
     } catch (e) {
-      res.status(500).send(`Error: ${JSON.stringify(e)}`);
+      Logger.log(`Error: ${JSON.stringify(e)}`);
+      res
+        .status(500)
+        .send(
+          new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001),
+        );
     }
   }
 
@@ -91,7 +135,8 @@ export class TouriiOnchainController {
 
   @Post('send-green')
   async sendGreen(@Req() req: Request, @Res() res: Response) {
-    const token = req.cookies.token;
+    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+    const token = req.cookies['token'];
 
     try {
       const response = await this.touriiOnchainService.sendGreen(token);
@@ -103,7 +148,8 @@ export class TouriiOnchainController {
 
   @Post('send-yellow')
   async sendYellow(@Req() req: Request, @Res() res: Response) {
-    const token = req.cookies.token;
+    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+    const token = req.cookies['token'];
 
     try {
       const response = await this.touriiOnchainService.sendYellow(token);
@@ -115,7 +161,8 @@ export class TouriiOnchainController {
 
   @Post('send-red')
   async sendRed(@Req() req: Request, @Res() res: Response) {
-    const token = req.cookies.token;
+    // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+    const token = req.cookies['token'];
 
     try {
       const response = await this.touriiOnchainService.sendRed(token);

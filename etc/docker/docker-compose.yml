@@ -15,7 +15,6 @@ services:
   #     - db
   #   volumes:
   #     # mount repo root
-  #     # TODO: etcなど不要なファイル群もマウントされているのでアプリ関連のファイルは /repo_root/app に集約してもいいかも
   #     - ../../:/usr/local/service/tourii-backend
   #   env_file:
   #     - .env
@@ -29,7 +28,6 @@ services:
   #     - db
   #   volumes:
   #     # mount repo root
-  #     # TODO: etcなど不要なファイル群もマウントされているのでアプリ関連のファイルは /repo_root/app に集約してもいいかも
   #     - ../../:/usr/local/service/tourii-onchain
   #   env_file:
   #     - .env

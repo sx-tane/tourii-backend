@@ -100,13 +100,13 @@ importers:
         version: 7.8.1
       sails-js:
         specifier: 0.3.1
-        version: 0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@15.5.2)(sails-js-types@0.0.1)(sails-js-util@0.0.1)
+        version: 0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@13.2.1)(sails-js-types@0.0.1)(sails-js-util@0.0.1)
       sails-js-parser:
         specifier: 0.3.1
         version: 0.3.1(sails-js-types@0.0.1)
       sailscalls:
         specifier: Vara-Lab/SailsCalls#types-test
-        version: https://codeload.github.com/Vara-Lab/SailsCalls/tar.gz/74f6ff8200acf9d19dc27618258e76d72b906655(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(sails-js-parser@0.3.1(sails-js-types@0.0.1))(sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@15.5.2)(sails-js-types@0.0.1)(sails-js-util@0.0.1))
+        version: https://codeload.github.com/Vara-Lab/SailsCalls/tar.gz/74f6ff8200acf9d19dc27618258e76d72b906655(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(sails-js-parser@0.3.1(sails-js-types@0.0.1))(sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@13.2.1)(sails-js-types@0.0.1)(sails-js-util@0.0.1))
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2)
@@ -135,9 +135,12 @@ importers:
       '@nestjs/testing':
         specifier: ^10.4.15
         version: 10.4.15(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/platform-express@10.4.15)
+      '@polkadot/keyring':
+        specifier: 13.3.1
+        version: 13.3.1(@polkadot/util-crypto@13.3.1(@polkadot/util@13.3.1))(@polkadot/util@13.3.1)
       '@polkadot/types':
-        specifier: 15.5.2
-        version: 15.5.2
+        specifier: 13.2.1
+        version: 13.2.1
       '@redocly/cli':
         specifier: ^1.27.0
         version: 1.28.5
@@ -1315,24 +1318,12 @@ packages:
     resolution: {integrity: sha512-FpV7/2kIJmmswRmwUbp41lixdNX15olueUjHnSweFk0xEn2Ur43oC0Y3eU3Ab7Y5gPJpceMCfwYz+PjCUGedDA==}
     engines: {node: '>=18'}
 
-  '@polkadot/types-augment@15.5.2':
-    resolution: {integrity: sha512-Za5ifsiu2gSQkOBjwcCtCr5nz+PojsBoptdHKjMm0JHLgilNn0kNqriqRRrCiPkUO1656UXRQNCHpP6Vs8tncg==}
-    engines: {node: '>=18'}
-
   '@polkadot/types-codec@13.2.1':
     resolution: {integrity: sha512-tFAzzS8sMYItoD5a91sFMD+rskWyv4WjSmUZaj0Y4OfLtDAiQvgO0KncdGJIB6D+zZ/T7khpgsv/CZbN3YnezA==}
     engines: {node: '>=18'}
 
-  '@polkadot/types-codec@15.5.2':
-    resolution: {integrity: sha512-caQNGQ+QHVZV4hGSolYN9L9pMRZeo9rJzYoybT5LMIxX8QVdW3RM5HDesj1SKGSrgIJmooN4/5JzPjrFZ4C7Vw==}
-    engines: {node: '>=18'}
-
   '@polkadot/types-create@13.2.1':
     resolution: {integrity: sha512-O/WKdsrNuMaZLf+XRCdum2xJYs5OKC6N3EMPF5Uhg10b80Y/hQCbzA/iWd3/aMNDLUA5XWhixwzJdrZWIMVIzg==}
-    engines: {node: '>=18'}
-
-  '@polkadot/types-create@15.5.2':
-    resolution: {integrity: sha512-PbrT2mP5x7VTpwCZa/BCl8jl3y/s6UOwrjBL+pq8TErLEbkackn5a3cR4GaH9toeP5qlEaLbSWRFm24YcW8FOg==}
     engines: {node: '>=18'}
 
   '@polkadot/types-known@13.2.1':
@@ -1345,10 +1336,6 @@ packages:
 
   '@polkadot/types@13.2.1':
     resolution: {integrity: sha512-5yQ0mHMNvwgXeHQ1RZOuHaeak3utAdcBqCpHoagnYrAnGHqtO7kg7YLtT4LkFw2nwL85axu8tOQMv6/3kpFy9w==}
-    engines: {node: '>=18'}
-
-  '@polkadot/types@15.5.2':
-    resolution: {integrity: sha512-TANrhfovLgbG00ldFvZbOuwyzqibOOMAU9egGqnoFwz4x4vTNTBgNJRvQGF5w4+FhjcEepdxlLU/3yqFM98yzA==}
     engines: {node: '>=18'}
 
   '@polkadot/util-crypto@13.3.1':
@@ -7442,20 +7429,7 @@ snapshots:
       '@polkadot/util': 13.3.1
       tslib: 2.8.1
 
-  '@polkadot/types-augment@15.5.2':
-    dependencies:
-      '@polkadot/types': 15.5.2
-      '@polkadot/types-codec': 15.5.2
-      '@polkadot/util': 13.3.1
-      tslib: 2.8.1
-
   '@polkadot/types-codec@13.2.1':
-    dependencies:
-      '@polkadot/util': 13.3.1
-      '@polkadot/x-bigint': 13.3.1
-      tslib: 2.8.1
-
-  '@polkadot/types-codec@15.5.2':
     dependencies:
       '@polkadot/util': 13.3.1
       '@polkadot/x-bigint': 13.3.1
@@ -7464,12 +7438,6 @@ snapshots:
   '@polkadot/types-create@13.2.1':
     dependencies:
       '@polkadot/types-codec': 13.2.1
-      '@polkadot/util': 13.3.1
-      tslib: 2.8.1
-
-  '@polkadot/types-create@15.5.2':
-    dependencies:
-      '@polkadot/types-codec': 15.5.2
       '@polkadot/util': 13.3.1
       tslib: 2.8.1
 
@@ -7493,17 +7461,6 @@ snapshots:
       '@polkadot/types-augment': 13.2.1
       '@polkadot/types-codec': 13.2.1
       '@polkadot/types-create': 13.2.1
-      '@polkadot/util': 13.3.1
-      '@polkadot/util-crypto': 13.3.1(@polkadot/util@13.3.1)
-      rxjs: 7.8.1
-      tslib: 2.8.1
-
-  '@polkadot/types@15.5.2':
-    dependencies:
-      '@polkadot/keyring': 13.3.1(@polkadot/util-crypto@13.3.1(@polkadot/util@13.3.1))(@polkadot/util@13.3.1)
-      '@polkadot/types-augment': 15.5.2
-      '@polkadot/types-codec': 15.5.2
-      '@polkadot/types-create': 15.5.2
       '@polkadot/util': 13.3.1
       '@polkadot/util-crypto': 13.3.1(@polkadot/util@13.3.1)
       rxjs: 7.8.1
@@ -11759,19 +11716,19 @@ snapshots:
 
   sails-js-util@0.0.1: {}
 
-  sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@15.5.2)(sails-js-types@0.0.1)(sails-js-util@0.0.1):
+  sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@13.2.1)(sails-js-types@0.0.1)(sails-js-util@0.0.1):
     dependencies:
       '@gear-js/api': 0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1)
       '@polkadot/api': 13.2.1
-      '@polkadot/types': 15.5.2
+      '@polkadot/types': 13.2.1
       sails-js-types: 0.0.1
       sails-js-util: 0.0.1
 
-  sailscalls@https://codeload.github.com/Vara-Lab/SailsCalls/tar.gz/74f6ff8200acf9d19dc27618258e76d72b906655(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(sails-js-parser@0.3.1(sails-js-types@0.0.1))(sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@15.5.2)(sails-js-types@0.0.1)(sails-js-util@0.0.1)):
+  sailscalls@https://codeload.github.com/Vara-Lab/SailsCalls/tar.gz/74f6ff8200acf9d19dc27618258e76d72b906655(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(sails-js-parser@0.3.1(sails-js-types@0.0.1))(sails-js@0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@13.2.1)(sails-js-types@0.0.1)(sails-js-util@0.0.1)):
     dependencies:
       '@gear-js/api': 0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1)
       '@polkadot/api': 13.2.1
-      sails-js: 0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@15.5.2)(sails-js-types@0.0.1)(sails-js-util@0.0.1)
+      sails-js: 0.3.1(@gear-js/api@0.38.3(@polkadot/api@13.2.1)(@polkadot/wasm-crypto@7.4.1(@polkadot/util@13.3.1)(@polkadot/x-randomvalues@13.3.1(@polkadot/util@13.3.1)(@polkadot/wasm-util@7.4.1(@polkadot/util@13.3.1))))(rxjs@7.8.1))(@polkadot/api@13.2.1)(@polkadot/types@13.2.1)(sails-js-types@0.0.1)(sails-js-util@0.0.1)
       sails-js-parser: 0.3.1(sails-js-types@0.0.1)
 
   scale-ts@1.6.1:

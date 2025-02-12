@@ -1,201 +1,145 @@
 import { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
-import { JWTData } from '@app/core/domain/auth/jwt';
 import { JwtRepository } from '@app/core/domain/auth/jwt.repository';
-import { SailsCallsRepository } from '@app/core/domain/vara/sails-calls-repository';
+import { SailsCallsRepository } from '@app/core/domain/vara/sails/sails-calls-repository';
+import {
+  INITIAL_BLOCKS_FOR_VOUCHER,
+  INITIAL_VOUCHER_TOKENS,
+  VOUCHER_EXPIRATION_BLOCKS,
+} from '@app/core/domain/vara/vara-contract-constant';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import type { HexString } from '@gear-js/api/types';
-import { Injectable, Logger } from '@nestjs/common';
-import { INITIAL_BLOCKS_FOR_VOUCHER, INITIAL_VOUCHER_TOKENS } from '../consts';
-import { GearApiRepository } from '../infrastructure/api/api-gearjs/gear-api.repository';
-import keyringModel from '../models/keyringModel';
-import trafficLightContractModel from '../models/trafficLightContractModel';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { KeyringPair$Json } from '@polkadot/keyring/types';
+import { SailsCalls } from 'sailscalls';
+import { TouriiOnchainConstants } from '../tourii-onchain.constant';
+import { JWTData } from './dto/jwt-dto';
 
 @Injectable()
 export class TouriiOnchainService {
   constructor(
+    @Inject(TouriiOnchainConstants.SAILS_CALLS_REPOSITORY_TOKEN)
     private readonly sailsCallsRepository: SailsCallsRepository,
-    private readonly gearApiRepository: GearApiRepository,
+    @Inject(TouriiOnchainConstants.JWT_REPOSITORY_TOKEN)
     private readonly jwtRepository: JwtRepository,
+    @Inject(TouriiOnchainConstants.ENCRYPTION_REPOSITORY_TOKEN)
     private readonly encryptionRepository: EncryptionRepository,
   ) {}
 
-  async initSailsCalls() {
-    await this.sailsCallsRepository.initSailsCalls();
-  }
-
-  async initGearApi(network: string) {
-    await this.gearApiRepository.initGearApi(network);
-  }
-
-  async sendGreen(token: string) {
-    const userData = (await this.jwtRepository.dataFromToken(token)) as JWTData;
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
+  private async initSailsCalls() {
+    const sailsCalls = await this.sailsCallsRepository.initSailsCalls();
+    if (!sailsCalls) {
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_003);
     }
+    return sailsCalls;
+  }
 
+  private async getUserDataFromToken(token: string): Promise<JWTData> {
+    return this.jwtRepository.dataFromToken(token);
+  }
+
+  private async encryptString(data: string): Promise<string> {
+    return this.encryptionRepository.encryptString(data);
+  }
+
+  private async handleVoucherBalance(
+    sailsCalls: SailsCalls,
+    userData: JWTData,
+  ) {
     try {
-      const voucherBalance = await sailscalls.voucherBalance(
-        userData.keyringVoucherId as HexString,
+      const voucherBalance = await sailsCalls.voucherBalance(
+        userData.keyringVoucherId,
       );
-
       if (voucherBalance < 1) {
-        await sailscalls.addTokensToVoucher({
+        await sailsCalls.addTokensToVoucher({
           userAddress: userData.keyringAddress,
           voucherId: userData.keyringVoucherId,
           numOfTokens: 1,
         });
       }
-    } catch (e) {
-      throw new Error(
-        `Error while trying to add tokens to voucher: ${JSON.stringify(e)}`,
-      );
+    } catch (error) {
+      Logger.log(`Error while adding tokens to voucher ${error}`);
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_008);
     }
+  }
 
+  private async handleVoucherExpiration(
+    sailsCalls: SailsCalls,
+    userData: JWTData,
+  ) {
     try {
-      const voucherIsExpired = await sailscalls.voucherIsExpired(
+      const voucherIsExpired = await sailsCalls.voucherIsExpired(
         userData.keyringAddress,
-        userData.keyringVoucherId as HexString,
+        userData.keyringVoucherId,
       );
-
       if (voucherIsExpired) {
-        await sailscalls.renewVoucherAmountOfBlocks({
+        await sailsCalls.renewVoucherAmountOfBlocks({
           userAddress: userData.keyringAddress,
           voucherId: userData.keyringVoucherId,
-          numOfBlocks: 1_200,
+          numOfBlocks: VOUCHER_EXPIRATION_BLOCKS,
         });
       }
-    } catch (e) {
-      throw new Error('Error while renewing voucher: ' + JSON.stringify(e));
+    } catch (error) {
+      Logger.log(`Error while renewing voucher: ${JSON.stringify(error)}`);
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_009);
     }
+  }
 
-    const unlockKeyringData = sailscalls.unlockKeyringPair(
+  private async unlockKeyringData(sailsCalls: SailsCalls, userData: JWTData) {
+    return sailsCalls.unlockKeyringPair(
       userData.lockedKeyringData,
       userData.password,
     );
-    const response = await trafficLightContractModel.sendGreen(
-      this.encryptionRepository.encryptString(userData.username),
-      userData.keyringVoucherId as HexString,
-      unlockKeyringData,
-    );
-
-    return response;
-  }
-
-  async sendYellow(token: string) {
-    const userData = (await this.jwtRepository.dataFromToken(token)) as JWTData;
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    // Implement the logic for sending yellow signal
-    // Similar to sendGreen method
-  }
-
-  async sendRed(token: string) {
-    const userData = (await this.jwtRepository.dataFromToken(token)) as JWTData;
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    try {
-      const voucherIsExpired = await sailscalls.voucherIsExpired(
-        userData.keyringAddress,
-        userData.keyringVoucherId as HexString,
-      );
-
-      if (voucherIsExpired) {
-        await sailscalls.renewVoucherAmountOfBlocks({
-          userAddress: userData.keyringAddress,
-          voucherId: userData.keyringVoucherId,
-          numOfBlocks: 1_200,
-        });
-      }
-    } catch (e) {
-      throw new Error(`Error while renewing voucher: ${JSON.stringify(e)}`);
-    }
-
-    const unlockKeyringData = sailscalls.unlockKeyringPair(
-      userData.lockedKeyringData,
-      userData.password,
-    );
-    const response = await trafficLightContractModel.sendRed(
-      this.encryptionRepository.encryptString(userData.username),
-      userData.keyringVoucherId as HexString,
-      unlockKeyringData,
-    );
-
-    return response;
-  }
-
-  async readState() {
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    const response = await trafficLightContractModel.readState();
-    return response;
   }
 
   async userKeyringAddress(token: string) {
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    const data = (await this.jwtRepository.dataFromToken(token)) as JWTData;
-    const hashedUsername = this.encryptionRepository.encryptString(
-      data.username,
+    const sailsCalls = await this.initSailsCalls();
+    const data: JWTData = await this.getUserDataFromToken(token);
+    const hashedUsername = await this.encryptString(data.username);
+    const userKeyringAddress = await this.sailsCallsRepository.sailsCallsQuery(
+      sailsCalls,
+      {
+        serviceName: 'Keyring',
+        methodName: 'KeyringAddressFromUserCodedName',
+        callArguments: [hashedUsername],
+      },
     );
-    const userKeyringAddress =
-      await keyringModel.userKeyringAddress(hashedUsername);
-
     return userKeyringAddress;
   }
 
   async loginUser(username: string, password: string) {
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    const hashedUsername = this.encryptionRepository.encryptString(username);
-    const hashedPassword = this.encryptionRepository.encryptString(password);
-
-    const userKeyringAddress =
-      await keyringModel.userKeyringAddress(hashedUsername);
+    const sailsCalls = await this.initSailsCalls();
+    const hashedUsername = await this.encryptString(username);
+    const hashedPassword = await this.encryptString(password);
+    const userKeyringAddress = await this.sailsCallsRepository.sailsCallsQuery(
+      sailsCalls,
+      {
+        serviceName: 'Keyring',
+        methodName: 'KeyringAddressFromUserCodedName',
+        callArguments: [hashedUsername],
+      },
+    );
 
     if (!userKeyringAddress) {
-      throw new Error('User is not registered');
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
     }
 
-    const formatedKeyringData = await keyringModel.userKeyringData(
-      userKeyringAddress as HexString,
-    );
-    let lockedKeyringData;
-
+    let lockedKeyringData: KeyringPair$Json;
     try {
-      lockedKeyringData = sailscalls.formatContractSignlessData(
-        formatedKeyringData,
+      lockedKeyringData = sailsCalls.formatContractSignlessData(
+        await this.sailsCallsRepository.sailsCallsQuery(sailsCalls, {
+          serviceName: 'Keyring',
+          methodName: 'KeyringAccountData',
+          callArguments: [userKeyringAddress],
+        }),
         username,
       );
-      sailscalls.unlockKeyringPair(lockedKeyringData, hashedPassword);
-    } catch (e) {
-      throw new Error('Bad credentials');
+      sailsCalls.unlockKeyringPair(lockedKeyringData, hashedPassword);
+    } catch (_error) {
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
     }
 
-    const vouchersId = await sailscalls.vouchersInContract(
-      userKeyringAddress as HexString,
-    );
-
+    const vouchersId = await sailsCalls.vouchersInContract(userKeyringAddress);
     const token = this.jwtRepository.generateJwtToken(
       {
         username,
@@ -211,34 +155,34 @@ export class TouriiOnchainService {
   }
 
   async registerUser(username: string, password: string) {
-    const sailscalls = this.sailsCallsRepository.initSailsCalls();
-
-    if (!sailscalls) {
-      throw new Error('SailsCalls is not ready');
-    }
-
-    const hashedUsername = this.encryptionRepository.encryptString(username);
-    const hashedPassword = this.encryptionRepository.encryptString(password);
-
-    const userKeyringAddress =
-      await keyringModel.userKeyringAddress(hashedUsername);
+    const sailsCalls = await this.initSailsCalls();
+    const hashedUsername = await this.encryptString(username);
+    const hashedPassword = await this.encryptString(password);
+    const userKeyringAddress = await this.sailsCallsRepository.sailsCallsQuery(
+      sailsCalls,
+      {
+        serviceName: 'Keyring',
+        methodName: 'KeyringAddressFromUserCodedName',
+        callArguments: [hashedUsername],
+      },
+    );
 
     if (userKeyringAddress) {
-      throw new Error('User already exists');
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_006);
     }
 
-    const newKeyringPair = await sailscalls.createNewKeyringPair(username);
-    const lockedSignlessAccount = await sailscalls.lockkeyringPair(
+    const newKeyringPair = await sailsCalls.createNewKeyringPair(username);
+    const lockedSignlessAccount = await sailsCalls.lockkeyringPair(
       newKeyringPair,
       hashedPassword,
     );
-    const formatedLockedSignlessAccount = sailscalls.modifyPairToContract(
+    const formatedLockedSignlessAccount = sailsCalls.modifyPairToContract(
       lockedSignlessAccount,
     );
 
-    let keyringVoucherId = '';
+    let keyringVoucherId: HexString;
     try {
-      keyringVoucherId = await sailscalls.createVoucher({
+      keyringVoucherId = await sailsCalls.createVoucher({
         userAddress: this.encryptionRepository.decodeAddress(
           newKeyringPair.address,
         ),
@@ -259,15 +203,16 @@ export class TouriiOnchainService {
     } catch (e) {
       Logger.log('Error while issue a voucher to a singless account!');
       Logger.log(e);
-      throw new Error('Error while issue a voucher to a singless account!');
+      throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_007);
     }
 
-    await keyringModel.registerUser(
-      newKeyringPair,
-      keyringVoucherId as HexString,
-      hashedUsername,
-      formatedLockedSignlessAccount,
-    );
+    await this.sailsCallsRepository.sailsCallsCommand(sailsCalls, {
+      signerData: newKeyringPair,
+      voucherId: keyringVoucherId,
+      serviceName: 'Keyring',
+      methodName: 'BindKeyringDataToUserCodedName',
+      callArguments: [hashedUsername, formatedLockedSignlessAccount],
+    });
 
     const token = this.jwtRepository.generateJwtToken(
       {
@@ -283,5 +228,96 @@ export class TouriiOnchainService {
     );
 
     return token;
+  }
+
+  async sendGreen(token: string) {
+    const sailsCalls = await this.initSailsCalls();
+    const userData: JWTData = await this.getUserDataFromToken(token);
+
+    await this.handleVoucherBalance(sailsCalls, userData);
+    await this.handleVoucherExpiration(sailsCalls, userData);
+
+    const unlockKeyringData = await this.unlockKeyringData(
+      sailsCalls,
+      userData,
+    );
+
+    const response = await this.sailsCallsRepository.sailsCallsCommand(
+      sailsCalls,
+      {
+        signerData: unlockKeyringData,
+        voucherId: userData.keyringVoucherId,
+        serviceName: 'TrafficLight',
+        methodName: 'Green',
+        callArguments: [await this.encryptString(userData.username)],
+      },
+    );
+
+    return response;
+  }
+
+  async sendYellow(token: string) {
+    const sailsCalls = await this.initSailsCalls();
+    const userData: JWTData = await this.getUserDataFromToken(token);
+
+    await this.handleVoucherBalance(sailsCalls, userData);
+    await this.handleVoucherExpiration(sailsCalls, userData);
+
+    const unlockKeyringData = await this.unlockKeyringData(
+      sailsCalls,
+      userData,
+    );
+
+    const response = await this.sailsCallsRepository.sailsCallsCommand(
+      sailsCalls,
+      {
+        signerData: unlockKeyringData,
+        voucherId: userData.keyringVoucherId,
+        serviceName: 'TrafficLight',
+        methodName: 'Yellow',
+        callArguments: [await this.encryptString(userData.username)],
+      },
+    );
+
+    return response;
+  }
+
+  async sendRed(token: string) {
+    const sailsCalls = await this.initSailsCalls();
+    const userData: JWTData = await this.getUserDataFromToken(token);
+
+    await this.handleVoucherBalance(sailsCalls, userData);
+    await this.handleVoucherExpiration(sailsCalls, userData);
+
+    const unlockKeyringData = await this.unlockKeyringData(
+      sailsCalls,
+      userData,
+    );
+
+    const response = await this.sailsCallsRepository.sailsCallsCommand(
+      sailsCalls,
+      {
+        signerData: unlockKeyringData,
+        voucherId: userData.keyringVoucherId,
+        serviceName: 'TrafficLight',
+        methodName: 'Red',
+        callArguments: [await this.encryptString(userData.username)],
+      },
+    );
+
+    return response;
+  }
+
+  async readState() {
+    const sailsCalls = await this.initSailsCalls();
+
+    const response = await this.sailsCallsRepository.sailsCallsQuery(
+      sailsCalls,
+      {
+        serviceName: 'TrafficLight',
+        methodName: 'TrafficLight',
+      },
+    );
+    return response;
   }
 }

@@ -2,9 +2,10 @@ import { HexString } from '@gear-js/api/types';
 
 export const INITIAL_BLOCKS_FOR_VOUCHER: number = 1_200;
 export const INITIAL_VOUCHER_TOKENS: number = 2;
+export const VOUCHER_EXPIRATION_BLOCKS: number = 1_200;
 export const NETWORK: string = 'wss://testnet.vara.network';
 export const SPONSOR_NAME: string = 'admindavid';
-// TODO: Move this to env
+// FIXME: Move this to env
 export const SPONSOR_MNEMONIC: string =
   'strong orchard plastic arena pyramid lobster lonely rich stomach label clog rubber';
 export const CONTRACT_ID: HexString =
