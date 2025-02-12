@@ -26,6 +26,13 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Gear JS
+Primarily used for deploying contracts, managing keys, sending messages, and other low-level interactions with the Vara Network. It's more about the foundational interactions with the blockchain.
+
+
+## Sails JS
+Focuses on higher-level application logic. It helps with tasks like managing vouchers, handling gas reservations, and automatically renewing contracts or tokens when they run out. It abstracts away some of the complexities, allowing you to focus more on the application-specific logic.
+
 ## Project setup
 
 ```bash
