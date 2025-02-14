@@ -16,7 +16,7 @@ datasource db {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  user_id           BigInt              @id(map: "users_pkc") @default(autoincrement())
+  user_id           BigInt              @id(map: "users_pkc")
   discord_id        BigInt              @unique
   discord_username  String              @db.VarChar(255)
   discord_handle    String              @db.VarChar(255)
@@ -45,7 +45,7 @@ model users {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model activity_log {
-  id               Int       @id(map: "activity_log_pkc") @default(autoincrement())
+  id               Int       @id(map: "activity_log_pkc")
   user_id          BigInt
   activity_type    String    @db.VarChar(255)
   points_awarded   Int
@@ -79,7 +79,7 @@ model invites {
 }
 
 model item_log {
-  id               Int       @id(map: "item_log_pkc") @default(autoincrement())
+  id               Int       @id(map: "item_log_pkc")
   user_id          BigInt
   item_type        String    @db.VarChar(255)
   item_amount      Int
@@ -118,7 +118,7 @@ model level_requirement {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model rewarded_roles {
-  id             Int       @id(map: "rewarded_roles_pkc") @default(autoincrement())
+  id             Int       @id(map: "rewarded_roles_pkc")
   user_id        BigInt
   role_id        BigInt
   points_awarded Int
@@ -132,7 +132,7 @@ model rewarded_roles {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model roles {
-  id                Int                 @id(map: "roles_pkc") @default(autoincrement())
+  id                Int                 @id(map: "roles_pkc")
   role_id           BigInt              @unique
   name              String              @unique @db.VarChar(255)
   description       String?
@@ -143,7 +143,7 @@ model roles {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user_roles {
-  id            Int       @id(map: "user_roles_pkc") @default(autoincrement())
+  id            Int       @id(map: "user_roles_pkc")
   user_id       BigInt
   role_id       BigInt
   assigned_at   DateTime? @default(now()) @db.Timestamp(6)
