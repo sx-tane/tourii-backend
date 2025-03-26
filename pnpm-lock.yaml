@@ -42,11 +42,11 @@ importers:
         specifier: 13.3.1
         version: 13.3.1
       '@prisma/client':
-        specifier: ^6.1.0
-        version: 6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
+        specifier: ^6.5.0
+        version: 6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
       '@prisma/extension-read-replicas':
         specifier: ^0.4.1
-        version: 0.4.1(@prisma/client@6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))
+        version: 0.4.1(@prisma/client@6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -215,7 +215,7 @@ importers:
         version: 3.4.2
       prisma-erd-generator:
         specifier: ^2.0.4
-        version: 2.0.4(@prisma/client@6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))(puppeteer@23.11.1(typescript@5.7.2))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2))(typescript@5.7.2)
+        version: 2.0.4(@prisma/client@6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))(puppeteer@23.11.1(typescript@5.7.2))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2))(typescript@5.7.2)
       source-map-support:
         specifier: ^0.5.20
         version: 0.5.21
@@ -1568,8 +1568,8 @@ packages:
     resolution: {integrity: sha512-ytqkC7FwVs4BlzNFAmPMFp+xD1KIdMMP/mvCSOrnxjlsyM5DVGop4x4c2ZgDUBmrFqmIiVkWDfMIZeOxui2OLQ==}
     engines: {node: '>=18'}
 
-  '@prisma/client@6.3.1':
-    resolution: {integrity: sha512-ARAJaPs+eBkemdky/XU3cvGRl+mIPHCN2lCXsl5Vlb0E2gV+R6IN7aCI8CisRGszEZondwIsW9Iz8EJkTdykyA==}
+  '@prisma/client@6.5.0':
+    resolution: {integrity: sha512-M6w1Ql/BeiGoZmhMdAZUXHu5sz5HubyVcKukbLs3l0ELcQb8hTUJxtGEChhv4SVJ0QJlwtLnwOLgIRQhpsm9dw==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
@@ -7842,7 +7842,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@prisma/client@6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)':
+  '@prisma/client@6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)':
     optionalDependencies:
       prisma: 6.5.0(typescript@5.7.2)
       typescript: 5.7.2
@@ -7867,9 +7867,9 @@ snapshots:
       '@prisma/fetch-engine': 6.5.0
       '@prisma/get-platform': 6.5.0
 
-  '@prisma/extension-read-replicas@0.4.1(@prisma/client@6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))':
+  '@prisma/extension-read-replicas@0.4.1(@prisma/client@6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))':
     dependencies:
-      '@prisma/client': 6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
+      '@prisma/client': 6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
 
   '@prisma/fetch-engine@6.5.0':
     dependencies:
@@ -11762,10 +11762,10 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.3.1
 
-  prisma-erd-generator@2.0.4(@prisma/client@6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))(puppeteer@23.11.1(typescript@5.7.2))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2))(typescript@5.7.2):
+  prisma-erd-generator@2.0.4(@prisma/client@6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2))(puppeteer@23.11.1(typescript@5.7.2))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2))(typescript@5.7.2):
     dependencies:
       '@mermaid-js/mermaid-cli': 11.4.2(puppeteer@23.11.1(typescript@5.7.2))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@20.17.17)(typescript@5.7.2))(typescript@5.7.2)
-      '@prisma/client': 6.3.1(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
+      '@prisma/client': 6.5.0(prisma@6.5.0(typescript@5.7.2))(typescript@5.7.2)
       '@prisma/generator-helper': 6.3.1
       dotenv: 16.4.7
     transitivePeerDependencies:
