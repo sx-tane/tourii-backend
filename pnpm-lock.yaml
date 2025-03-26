@@ -45,8 +45,8 @@ importers:
         specifier: ^6.1.0
         version: 6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2)
       '@prisma/extension-read-replicas':
-        specifier: ^0.4.0
-        version: 0.4.0(@prisma/client@6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2))
+        specifier: ^0.4.1
+        version: 0.4.1(@prisma/client@6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2))
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -1439,10 +1439,10 @@ packages:
   '@prisma/engines@6.3.1':
     resolution: {integrity: sha512-sXdqEVLyGAJ5/iUoG/Ea5AdHMN71m6PzMBWRQnLmhhOejzqAaEr8rUd623ql6OJpED4s/U4vIn4dg1qkF7vGag==}
 
-  '@prisma/extension-read-replicas@0.4.0':
-    resolution: {integrity: sha512-0KVjOgYJO9ymOACwLXebXB1XZCrfXXZMDkZrdZQOm9rqraC1rguwpPzXUdgv2txMLyJNSe+i5DOruDCU4FfvCA==}
+  '@prisma/extension-read-replicas@0.4.1':
+    resolution: {integrity: sha512-mCMDloqUKUwx2o5uedTs1FHX3Nxdt1GdRMoeyp1JggjiwOALmIYWhxfIN08M2BZ0w8SKwvJqicJZMjkQYkkijw==}
     peerDependencies:
-      '@prisma/client': ^5.2.0
+      '@prisma/client': ^6.5.0
 
   '@prisma/fetch-engine@6.3.1':
     resolution: {integrity: sha512-HOf/0umOgt+/S2xtZze+FHKoxpVg4YpVxROr6g2YG09VsI3Ipyb+rGvD6QGbCqkq5NTWAAZoOGNL+oy7t+IhaQ==}
@@ -7617,7 +7617,7 @@ snapshots:
       '@prisma/fetch-engine': 6.3.1
       '@prisma/get-platform': 6.3.1
 
-  '@prisma/extension-read-replicas@0.4.0(@prisma/client@6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2))':
+  '@prisma/extension-read-replicas@0.4.1(@prisma/client@6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2))':
     dependencies:
       '@prisma/client': 6.3.1(prisma@6.3.1(typescript@5.7.2))(typescript@5.7.2)
 
