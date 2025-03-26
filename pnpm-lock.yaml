@@ -85,7 +85,7 @@ importers:
         version: 3.16.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@types/inquirer@8.2.10)(typescript@5.7.2)
       nestjs-zod:
         specifier: ^4.2.0
-        version: 4.2.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.1)
+        version: 4.2.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.2)
       pnpm:
         specifier: 9.15.5
         version: 9.15.5
@@ -117,8 +117,8 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0
       zod:
-        specifier: ^3.24.1
-        version: 3.24.1
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -1796,8 +1796,8 @@ packages:
     peerDependencies:
       '@swc/core': '*'
 
-  '@swc/types@0.1.17':
-    resolution: {integrity: sha512-V5gRru+aD8YVyCOMAjMpWR1Ui577DD5KSJsHP8RAxopAH22jFz6GZd/qxqjO6MJHQhcsjvjOFXyDhyLQUnMveQ==}
+  '@swc/types@0.1.20':
+    resolution: {integrity: sha512-/rlIpxwKrhz4BIplXf6nsEHtqlhzuNN34/k3kMAXH4/lvVoA3cdq+60aqVNnyvw2uITEaCi0WV3pxBe4dQqoXQ==}
 
   '@tanstack/virtual-core@3.13.0':
     resolution: {integrity: sha512-NBKJP3OIdmZY3COJdWkSonr50FMVIi+aj5ZJ7hI/DTpEKg2RMfo/KvP8A3B/zOSpMgIe52B5E2yn7rryULzA6g==}
@@ -2018,6 +2018,9 @@ packages:
 
   '@types/node@20.17.17':
     resolution: {integrity: sha512-/WndGO4kIfMicEQLTi/mDANUu/iVUhT7KboZPdEqqHQ4aTS+3qT3U5gIqWDFV+XouorjfgGqvKILJeHhuQgFYg==}
+
+  '@types/node@20.17.27':
+    resolution: {integrity: sha512-U58sbKhDrthHlxHRJw7ZLiLDZGmAUOZUbpw0S6nL27sYUdhvgBLCRu/keSd6qcTsfArd1sRFCCBxzWATGr/0UA==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -2351,13 +2354,18 @@ packages:
   bare-events@2.5.4:
     resolution: {integrity: sha512-+gFfDkR8pj4/TrWCGUGWmJIkBwuxPS5F+a5yWjOHQt2hHvNZd5YLzadjmDUtFmMM4y429bnKLa8bYBMHcYdnQA==}
 
-  bare-fs@4.0.1:
-    resolution: {integrity: sha512-ilQs4fm/l9eMfWY2dY0WCIUplSUp7U0CT1vrqMg1MUdeZl4fypu5UP0XcDBK5WBQPJAKP1b7XEodISmekH/CEg==}
-    engines: {bare: '>=1.7.0'}
+  bare-fs@4.0.2:
+    resolution: {integrity: sha512-S5mmkMesiduMqnz51Bfh0Et9EX0aTCJxhsI4bvzFFLs8Z1AV8RDHadfY5CyLwdoLHgXbNBEN1gQcbEtGwuvixw==}
+    engines: {bare: '>=1.16.0'}
+    peerDependencies:
+      bare-buffer: '*'
+    peerDependenciesMeta:
+      bare-buffer:
+        optional: true
 
-  bare-os@3.4.0:
-    resolution: {integrity: sha512-9Ous7UlnKbe3fMi7Y+qh0DwAup6A1JkYgPnjvMDNOlmnxNRQvQ/7Nst+OnUQKzk0iAT0m9BisbDVp9gCv8+ETA==}
-    engines: {bare: '>=1.6.0'}
+  bare-os@3.6.1:
+    resolution: {integrity: sha512-uaIjxokhFidJP+bmmvKSgiMzj2sV5GPHaZVAIktcxcpCyBFFWO+YlikVAdhmUo2vYFvFhOXIAlldqV29L8126g==}
+    engines: {bare: '>=1.14.0'}
 
   bare-path@3.0.0:
     resolution: {integrity: sha512-tyfW2cQcB5NN8Saijrhqn0Zh7AnFNsnczRcuWODH0eYAXBsJ5gVxAUuNr7tsHSC6IZ77cA0SitzT+s47kot8Mw==}
@@ -4505,8 +4513,8 @@ packages:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
 
-  pac-proxy-agent@7.1.0:
-    resolution: {integrity: sha512-Z5FnLVVZSnX7WjBg0mhDtydeRZ1xMcATZThjySQUHqr+0ksP8kqaw23fNKkaaN/Z8gwLUs/W7xdl0I75eP2Xyw==}
+  pac-proxy-agent@7.2.0:
+    resolution: {integrity: sha512-TEB8ESquiLMc0lV8vcd5Ql/JAKAoyzHFXaStwjkzpOpC5Yv+pIzLfHvjTSdf3vpa2bMiUQrg9i6276yn8666aA==}
     engines: {node: '>= 14'}
 
   pac-resolver@7.0.1:
@@ -4940,6 +4948,9 @@ packages:
 
   rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
+
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
   safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
@@ -5659,6 +5670,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.18.1:
+    resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xdg-basedir@5.1.0:
     resolution: {integrity: sha512-GCPAHLvrIH13+c0SuacwvRYj2SxJXQ4kaVTT5xgL3kPrz56XxkF21IGhjSE1+W0aw7gpBWRGXLCPnPby6lSpmQ==}
     engines: {node: '>=12'}
@@ -5723,8 +5746,8 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
-  zod@3.24.1:
-    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+  zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
 snapshots:
 
@@ -7102,9 +7125,9 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
-  '@nest-zod/z@2.0.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.1)':
+  '@nest-zod/z@2.0.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.2)':
     dependencies:
-      zod: 3.24.1
+      zod: 3.24.2
     optionalDependencies:
       '@nestjs/common': 10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
       '@nestjs/core': 10.4.15(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.4.15)(reflect-metadata@0.1.14)(rxjs@7.8.1)
@@ -8081,7 +8104,7 @@ snapshots:
   '@swc/core@1.10.15':
     dependencies:
       '@swc/counter': 0.1.3
-      '@swc/types': 0.1.17
+      '@swc/types': 0.1.20
     optionalDependencies:
       '@swc/core-darwin-arm64': 1.10.15
       '@swc/core-darwin-x64': 1.10.15
@@ -8103,7 +8126,7 @@ snapshots:
       '@swc/counter': 0.1.3
       jsonc-parser: 3.3.1
 
-  '@swc/types@0.1.17':
+  '@swc/types@0.1.20':
     dependencies:
       '@swc/counter': 0.1.3
 
@@ -8336,7 +8359,7 @@ snapshots:
   '@types/inquirer@8.2.10':
     dependencies:
       '@types/through': 0.0.33
-      rxjs: 7.8.1
+      rxjs: 7.8.2
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -8367,6 +8390,10 @@ snapshots:
   '@types/ms@2.1.0': {}
 
   '@types/node@20.17.17':
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@20.17.27':
     dependencies:
       undici-types: 6.19.8
 
@@ -8410,7 +8437,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 20.17.17
+      '@types/node': 20.17.27
 
   '@types/triple-beam@1.3.5': {}
 
@@ -8427,7 +8454,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 20.17.17
+      '@types/node': 20.17.27
     optional: true
 
   '@vue/compat@3.5.13(vue@3.5.13(typescript@5.7.2))':
@@ -8820,21 +8847,19 @@ snapshots:
   bare-events@2.5.4:
     optional: true
 
-  bare-fs@4.0.1:
+  bare-fs@4.0.2:
     dependencies:
       bare-events: 2.5.4
       bare-path: 3.0.0
       bare-stream: 2.6.5(bare-events@2.5.4)
-    transitivePeerDependencies:
-      - bare-buffer
     optional: true
 
-  bare-os@3.4.0:
+  bare-os@3.6.1:
     optional: true
 
   bare-path@3.0.0:
     dependencies:
-      bare-os: 3.4.0
+      bare-os: 3.6.1
     optional: true
 
   bare-stream@2.6.5(bare-events@2.5.4):
@@ -11067,11 +11092,11 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  nestjs-zod@4.2.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.1):
+  nestjs-zod@4.2.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.2):
     dependencies:
-      '@nest-zod/z': 2.0.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.1)
+      '@nest-zod/z': 2.0.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(@nestjs/swagger@8.1.1(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(reflect-metadata@0.1.14))(zod@3.24.2)
       deepmerge: 4.3.1
-      zod: 3.24.1
+      zod: 3.24.2
     optionalDependencies:
       '@nestjs/common': 10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
       '@nestjs/core': 10.4.15(@nestjs/common@10.4.15(class-transformer@0.5.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.4.15)(reflect-metadata@0.1.14)(rxjs@7.8.1)
@@ -11239,7 +11264,7 @@ snapshots:
 
   p-try@2.2.0: {}
 
-  pac-proxy-agent@7.1.0:
+  pac-proxy-agent@7.2.0:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
@@ -11470,7 +11495,7 @@ snapshots:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
-      pac-proxy-agent: 7.1.0
+      pac-proxy-agent: 7.2.0
       proxy-from-env: 1.1.0
       socks-proxy-agent: 8.0.5
     transitivePeerDependencies:
@@ -11492,7 +11517,7 @@ snapshots:
       debug: 4.4.0
       devtools-protocol: 0.0.1367902
       typed-query-selector: 2.12.0
-      ws: 8.18.0
+      ws: 8.18.1
     transitivePeerDependencies:
       - bare-buffer
       - bufferutil
@@ -11697,6 +11722,10 @@ snapshots:
   rw@1.3.3: {}
 
   rxjs@7.8.1:
+    dependencies:
+      tslib: 2.8.1
+
+  rxjs@7.8.2:
     dependencies:
       tslib: 2.8.1
 
@@ -12130,7 +12159,7 @@ snapshots:
       pump: 3.0.2
       tar-stream: 3.1.7
     optionalDependencies:
-      bare-fs: 4.0.1
+      bare-fs: 4.0.2
       bare-path: 3.0.0
     transitivePeerDependencies:
       - bare-buffer
@@ -12500,6 +12529,8 @@ snapshots:
 
   ws@8.18.0: {}
 
+  ws@8.18.1: {}
+
   xdg-basedir@5.1.0: {}
 
   xtend@4.0.2: {}
@@ -12557,4 +12588,4 @@ snapshots:
 
   zod@3.23.8: {}
 
-  zod@3.24.1: {}
+  zod@3.24.2: {}
