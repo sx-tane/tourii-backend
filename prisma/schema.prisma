@@ -14,45 +14,85 @@ datasource db {
   url      = env("MIGRATION_URL")
 }
 
+model id_sequence {
+  key       String @id
+  ts_prefix String
+  counter   Int    @default(1)
+}
+
+enum UserRole {
+  PremiumUser
+  User
+  Moderator
+  Admin
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model users {
-  user_id           BigInt              @id(map: "users_pkc")
-  discord_id        BigInt              @unique
-  discord_username  String              @db.VarChar(255)
-  discord_handle    String              @db.VarChar(255)
-  magatama_points   Int?                @default(0)
-  magatama_bag      Int?                @default(0)
-  prayer_bead       Int?                @default(0)
-  sword             Int?                @default(0)
-  orge_mask         Int?                @default(0)
-  sprint_shard      Int?                @default(0)
-  ins_date_time     DateTime?           @default(now()) @db.Timestamp(6)
-  gachapon_shard    Int?                @default(0)
-  gachapon_ticket   Int?                @default(0)
-  tourii_omamori    Int?                @default(0)
-  multiplier_1hr    Int?                @default(0)
-  multiplier_3hr    Int?                @default(0)
-  user_roles        user_roles[]
-  rewarded_roles    rewarded_roles[]
-  item_logs         item_log[]
-  invites           invites[]
-  invite_reward_log invite_reward_log[]
-  activity_log      activity_log[]
+model user {
+  user_id               String              @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255) // TSUYYYYMMDDHHMM-XXXX every minute will have different sequence
+  discord_id            String?             @unique
+  discord_username      String?
+  twitter_id            String?             @unique
+  twitter_username      String?
+  google_email          String?
+  wallet_address        String              @unique
+  latest_ip_address     String?
+  username              String              @unique
+  email                 String?             @unique
+  password              String
+  is_premium            Boolean             @default(false)
+  magatama_points       BigInt              @default(0)
+  magatama_bags         Int                 @default(0)
+  total_quest_completed Int                 @default(0)
+  total_travel_distance Float               @default(0.0)
+  role                  UserRole            @default(User)
+  registered_at         DateTime            @default(now())
+  discord_joined_at     DateTime            @default(now())
+  is_banned             Boolean             @default(false)
+  del_flag              Boolean             @default(false)
+  ins_user_id           String              @default("user")
+  ins_date_time         DateTime            @default(now())
+  upd_user_id           String              @default("user")
+  upd_date_time         DateTime            @default(now())
+  request_id            String?
+  user_achievements     user_achievement[]
+  user_roles            user_roles[]
+  rewarded_roles        rewarded_roles[]
+  item_logs             item_log[]
+  invites               invites[]
+  invite_reward_log     invite_reward_log[]
+  activity_log          activity_log[]
 
   @@index([discord_id], name: "discord_id")
   @@index([discord_username], name: "discord_username")
 }
 
+model user_achievement {
+  user_achievement_id    String   @id @default(dbgenerated("generate_achievement_id()")) @db.VarChar(255)
+  user_id                String
+  achievement_name       String
+  description            String
+  icon_url               String?
+  magatama_point_awarded Int      @default(0)
+  del_flag               Boolean  @default(false)
+  ins_user_id            String   @default("user")
+  ins_date_time          DateTime @default(now())
+  upd_user_id            String   @default("user")
+  upd_date_time          DateTime @default(now())
+  request_id             String?
+  user                   user     @relation(fields: [user_id], references: [user_id])
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model activity_log {
   id               Int       @id(map: "activity_log_pkc")
-  user_id          BigInt
+  user_id          String
   activity_type    String    @db.VarChar(255)
   points_awarded   Int
   activity_details String?
   activity_date    DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
-  users            users?    @relation(fields: [user_id], references: [user_id])
+  user             user?     @relation(fields: [user_id], references: [user_id])
 
   @@index([activity_type], name: "activity_type")
   @@index([activity_date], name: "activity_date")
@@ -60,33 +100,33 @@ model activity_log {
 
 model invite_reward_log {
   id             Int       @id(map: "invite_reward_log_pkc") @default(autoincrement())
-  inviter_id     BigInt
+  inviter_id     String
   invitee_id     BigInt    @unique(map: "invite_reward_log_unique")
   points_awarded Int
   rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
-  users          users     @relation(fields: [inviter_id], references: [user_id])
+  user           user      @relation(fields: [inviter_id], references: [user_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model invites {
   id            Int       @id(map: "invites_pkc") @default(autoincrement())
   invitee_id    BigInt    @unique(map: "invites_unique")
-  inviter_id    BigInt
+  inviter_id    String
   invite_date   DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time DateTime? @default(now()) @db.Timestamp(6)
-  users         users     @relation(fields: [inviter_id], references: [user_id])
+  user          user      @relation(fields: [inviter_id], references: [user_id])
 }
 
 model item_log {
   id               Int       @id(map: "item_log_pkc")
-  user_id          BigInt
+  user_id          String
   item_type        String    @db.VarChar(255)
   item_amount      Int
   item_get_details String?
   item_get_date    DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
-  users            users?    @relation(fields: [user_id], references: [user_id])
+  user             user?     @relation(fields: [user_id], references: [user_id])
 
   @@index([item_type], name: "item_type")
   @@index([item_get_date], name: "item_get_date")
@@ -119,12 +159,12 @@ model level_requirement {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model rewarded_roles {
   id             Int       @id(map: "rewarded_roles_pkc")
-  user_id        BigInt
+  user_id        String
   role_id        BigInt
   points_awarded Int
   rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
-  users          users     @relation(fields: [user_id], references: [user_id])
+  user           user      @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, role_id])
   @@index([role_id], name: "role_id")
@@ -144,12 +184,12 @@ model roles {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user_roles {
   id            Int       @id(map: "user_roles_pkc")
-  user_id       BigInt
+  user_id       String
   role_id       BigInt
   assigned_at   DateTime? @default(now()) @db.Timestamp(6)
   ins_date_time DateTime? @default(now()) @db.Timestamp(6)
   roles         roles     @relation(fields: [role_id], references: [role_id])
-  users         users     @relation(fields: [user_id], references: [user_id])
+  user          user      @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, role_id])
 }

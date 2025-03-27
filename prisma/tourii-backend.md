@@ -1,29 +1,69 @@
 ```mermaid
 erDiagram
 
-  "users" {
-    BigInt user_id "🗝️"
-    BigInt discord_id 
-    String discord_username 
-    String discord_handle 
-    Int magatama_points "❓"
-    Int magatama_bag "❓"
-    Int prayer_bead "❓"
-    Int sword "❓"
-    Int orge_mask "❓"
-    Int sprint_shard "❓"
-    DateTime ins_date_time "❓"
-    Int gachapon_shard "❓"
-    Int gachapon_ticket "❓"
-    Int tourii_omamori "❓"
-    Int multiplier_1hr "❓"
-    Int multiplier_3hr "❓"
+        UserRole {
+            PremiumUser PremiumUser
+User User
+Moderator Moderator
+Admin Admin
+        }
+    
+  "id_sequence" {
+    String key "🗝️"
+    String ts_prefix 
+    Int counter 
+    }
+  
+
+  "user" {
+    String user_id "🗝️"
+    String discord_id "❓"
+    String discord_username "❓"
+    String twitter_id "❓"
+    String twitter_username "❓"
+    String google_email "❓"
+    String wallet_address 
+    String latest_ip_address "❓"
+    String username 
+    String email "❓"
+    String password 
+    Boolean is_premium 
+    BigInt magatama_points 
+    Int magatama_bags 
+    Int total_quest_completed 
+    Float total_travel_distance 
+    UserRole role 
+    DateTime registered_at 
+    DateTime discord_joined_at 
+    Boolean is_banned 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "user_achievement" {
+    String user_achievement_id "🗝️"
+    String user_id 
+    String achievement_name 
+    String description 
+    String icon_url "❓"
+    Int magatama_point_awarded 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
     }
   
 
   "activity_log" {
     Int id "🗝️"
-    BigInt user_id 
+    String user_id 
     String activity_type 
     Int points_awarded 
     String activity_details "❓"
@@ -34,7 +74,7 @@ erDiagram
 
   "invite_reward_log" {
     Int id "🗝️"
-    BigInt inviter_id 
+    String inviter_id 
     BigInt invitee_id 
     Int points_awarded 
     DateTime rewarded_at "❓"
@@ -45,7 +85,7 @@ erDiagram
   "invites" {
     Int id "🗝️"
     BigInt invitee_id 
-    BigInt inviter_id 
+    String inviter_id 
     DateTime invite_date "❓"
     DateTime ins_date_time "❓"
     }
@@ -53,7 +93,7 @@ erDiagram
 
   "item_log" {
     Int id "🗝️"
-    BigInt user_id 
+    String user_id 
     String item_type 
     Int item_amount 
     String item_get_details "❓"
@@ -89,7 +129,7 @@ erDiagram
 
   "rewarded_roles" {
     Int id "🗝️"
-    BigInt user_id 
+    String user_id 
     BigInt role_id 
     Int points_awarded 
     DateTime rewarded_at "❓"
@@ -108,26 +148,29 @@ erDiagram
 
   "user_roles" {
     Int id "🗝️"
-    BigInt user_id 
+    String user_id 
     BigInt role_id 
     DateTime assigned_at "❓"
     DateTime ins_date_time "❓"
     }
   
-    "users" o{--}o "user_roles" : "user_roles"
-    "users" o{--}o "rewarded_roles" : "rewarded_roles"
-    "users" o{--}o "item_log" : "item_logs"
-    "users" o{--}o "invites" : "invites"
-    "users" o{--}o "invite_reward_log" : "invite_reward_log"
-    "users" o{--}o "activity_log" : "activity_log"
-    "activity_log" o|--|o "users" : "users"
-    "invite_reward_log" o|--|| "users" : "users"
-    "invites" o|--|| "users" : "users"
-    "item_log" o|--|o "users" : "users"
+    "user" o|--|| "UserRole" : "enum:role"
+    "user" o{--}o "user_achievement" : "user_achievements"
+    "user" o{--}o "user_roles" : "user_roles"
+    "user" o{--}o "rewarded_roles" : "rewarded_roles"
+    "user" o{--}o "item_log" : "item_logs"
+    "user" o{--}o "invites" : "invites"
+    "user" o{--}o "invite_reward_log" : "invite_reward_log"
+    "user" o{--}o "activity_log" : "activity_log"
+    "user_achievement" o|--|| "user" : "user"
+    "activity_log" o|--|o "user" : "user"
+    "invite_reward_log" o|--|| "user" : "user"
+    "invites" o|--|| "user" : "user"
+    "item_log" o|--|o "user" : "user"
     "level_requirement" o|--|| "roles" : "roles"
-    "rewarded_roles" o|--|| "users" : "users"
+    "rewarded_roles" o|--|| "user" : "user"
     "roles" o{--}o "user_roles" : "user_roles"
     "roles" o{--}o "level_requirement" : "level_requirement"
     "user_roles" o|--|| "roles" : "roles"
-    "user_roles" o|--|| "users" : "users"
+    "user_roles" o|--|| "user" : "user"
 ```
