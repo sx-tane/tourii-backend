@@ -10,7 +10,7 @@ ADMIN ADMIN
 
 
         PassportType {
-            UNKNOWN UNKNOWN
+            BONJIN BONJIN
 AMATSUKAMI AMATSUKAMI
 KUNITSUKAMI KUNITSUKAMI
 YOKAI YOKAI
@@ -40,6 +40,30 @@ PENDING PENDING
             UNKNOWN UNKNOWN
 VARA VARA
 CAMINO CAMINO
+        }
+    
+
+
+        LevelType {
+            BONJIN BONJIN
+E_CLASS_AMATSUKAMI E_CLASS_AMATSUKAMI
+E_CLASS_KUNITSUKAMI E_CLASS_KUNITSUKAMI
+E_CLASS_YOKAI E_CLASS_YOKAI
+D_CLASS_AMATSUKAMI D_CLASS_AMATSUKAMI
+D_CLASS_KUNITSUKAMI D_CLASS_KUNITSUKAMI
+D_CLASS_YOKAI D_CLASS_YOKAI
+C_CLASS_AMATSUKAMI C_CLASS_AMATSUKAMI
+C_CLASS_KUNITSUKAMI C_CLASS_KUNITSUKAMI
+C_CLASS_YOKAI C_CLASS_YOKAI
+B_CLASS_AMATSUKAMI B_CLASS_AMATSUKAMI
+B_CLASS_KUNITSUKAMI B_CLASS_KUNITSUKAMI
+B_CLASS_YOKAI B_CLASS_YOKAI
+A_CLASS_AMATSUKAMI A_CLASS_AMATSUKAMI
+A_CLASS_KUNITSUKAMI A_CLASS_KUNITSUKAMI
+A_CLASS_YOKAI A_CLASS_YOKAI
+S_CLASS_AMATSUKAMI S_CLASS_AMATSUKAMI
+S_CLASS_KUNITSUKAMI S_CLASS_KUNITSUKAMI
+S_CLASS_YOKAI S_CLASS_YOKAI
         }
     
   "id_sequence" {
@@ -113,7 +137,6 @@ CAMINO CAMINO
     Int prayer_bead "❓"
     Int sword "❓"
     Int orge_mask "❓"
-    Int evolve_shard "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -159,6 +182,24 @@ CAMINO CAMINO
     DateTime ins_date_time 
     String upd_user_id 
     DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "level_requirement_master" {
+    LevelType level "🗝️"
+    String discord_role_id "❓"
+    Int min_get_magatama_points 
+    Int max_get_magatama_points 
+    Int total_onchain_item 
+    Int prayer_bead 
+    Int sword 
+    Int orge_mask 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time "❓"
+    String upd_user_id 
+    DateTime upd_date_time "❓"
     String request_id "❓"
     }
   
@@ -213,22 +254,6 @@ CAMINO CAMINO
     }
   
 
-  "level_requirement" {
-    BigInt role_id "🗝️"
-    Int min_points 
-    Int max_points 
-    Int goshuin 
-    Int sprint_shard 
-    Int prayer_bead 
-    Int sword 
-    Int orge_mask 
-    Int magatama_points 
-    Int hunter 
-    Int purifier 
-    DateTime ins_date_time "❓"
-    }
-  
-
   "rewarded_roles" {
     Int id "🗝️"
     String user_id 
@@ -274,14 +299,13 @@ CAMINO CAMINO
     "user_onchain_item" o|--|| "OnchainItemStatus" : "enum:status"
     "user_onchain_item" o|--|o "user" : "user"
     "onchain_item_catalog" o|--|| "OnchainItemType" : "enum:item_type"
+    "level_requirement_master" o|--|| "LevelType" : "enum:level"
     "activity_log" o|--|o "user" : "user"
     "invite_reward_log" o|--|| "user" : "user"
     "invites" o|--|| "user" : "user"
     "item_log" o|--|o "user" : "user"
-    "level_requirement" o|--|| "roles" : "roles"
     "rewarded_roles" o|--|| "user" : "user"
     "roles" o{--}o "discord_user_roles" : "discord_user_roles"
-    "roles" o{--}o "level_requirement" : "level_requirement"
     "discord_user_roles" o|--|| "roles" : "roles"
     "discord_user_roles" o|--|| "user" : "user"
 ```

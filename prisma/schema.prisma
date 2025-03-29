@@ -201,20 +201,20 @@ model onchain_item_catalog {
 }
 
 model level_requirement_master {
-  level LevelType @id
-  discord_role_id String? @db.VarChar(255)
+  level                   LevelType @id
+  discord_role_id         String?   @db.VarChar(255)
   min_get_magatama_points Int
   max_get_magatama_points Int
-  total_onchain_item Int @default(0)
-  prayer_bead Int @default(0)
-  sword Int @default(0)
-  orge_mask Int @default(0)
-  del_flag Boolean @default(false)
-  ins_user_id String @default("user")
-  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
-  upd_user_id String @default("user")
-  upd_date_time DateTime? @default(now()) @db.Timestamp(6)
-  request_id String?
+  total_onchain_item      Int       @default(0)
+  prayer_bead             Int       @default(0)
+  sword                   Int       @default(0)
+  orge_mask               Int       @default(0)
+  del_flag                Boolean   @default(false)
+  ins_user_id             String    @default("user")
+  ins_date_time           DateTime? @default(now()) @db.Timestamp(6)
+  upd_user_id             String    @default("user")
+  upd_date_time           DateTime? @default(now()) @db.Timestamp(6)
+  request_id              String?
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -273,6 +273,7 @@ model kendama_random_range {
   win_rate      Decimal   @db.Decimal
   ins_date_time DateTime? @default(now()) @db.Timestamp(6)
 }
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model rewarded_roles {
   id             Int       @id(map: "rewarded_roles_pkc")
@@ -295,7 +296,6 @@ model roles {
   description        String?
   ins_date_time      DateTime?            @default(now()) @db.Timestamp(6)
   discord_user_roles discord_user_roles[]
-  level_requirement  level_requirement[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
