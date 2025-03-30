@@ -75,48 +75,71 @@ enum LevelType {
   S_CLASS_YOKAI
 }
 
+enum StoryStatus {
+  UNREAD
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum QuestStatus {
+  AVAILABLE
+  ONGOING
+  COMPLETED
+}
+
+enum ItemStatus {
+  SUCCESS
+  FAILED
+}
+
+enum ItemType {
+  ONCHAIN
+  OFFCHAIN
+}
+
+enum KendamaSeason {
+  NORMAL
+  EVENT
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user {
-  user_id                 String              @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255) // TSUYYYYMMDDHHMM-XXXX every minute will have different sequence
-  discord_id              String?             @unique
-  discord_username        String?             @db.VarChar(255)
-  twitter_id              String?             @unique
-  twitter_username        String?             @db.VarChar(255)
-  google_email            String?             @unique
-  passport_wallet_address String?             @unique
-  perks_wallet_address    String              @unique @default("''")
+  user_id                 String                 @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255) // TSUYYYYMMDDHHMM-XXXX every minute will have different sequence
+  discord_id              String?                @unique
+  discord_username        String?                @db.VarChar(255)
+  twitter_id              String?                @unique
+  twitter_username        String?                @db.VarChar(255)
+  google_email            String?                @unique
+  passport_wallet_address String?                @unique
+  perks_wallet_address    String                 @unique @default("''")
   latest_ip_address       String?
-  username                String              @unique
-  email                   String?             @unique
+  username                String                 @unique
+  email                   String?                @unique
   password                String
-  is_premium              Boolean             @default(false)
-  magatama_points         BigInt              @default(0)
-  magatama_bags           Int                 @default(0)
-  total_quest_completed   Int                 @default(0)
-  total_travel_distance   Float               @default(0.0)
-  role                    UserRoleType        @default(USER)
-  registered_at           DateTime            @default(now())
-  discord_joined_at       DateTime            @default(now())
-  is_banned               Boolean             @default(false)
-  del_flag                Boolean             @default(false)
-  ins_user_id             String              @default("user")
-  ins_date_time           DateTime            @default(now())
-  upd_user_id             String              @default("user")
-  upd_date_time           DateTime            @default(now())
+  is_premium              Boolean                @default(false)
+  magatama_points         BigInt                 @default(0)
+  magatama_bags           Int                    @default(0)
+  total_quest_completed   Int                    @default(0)
+  total_travel_distance   Float                  @default(0.0)
+  role                    UserRoleType           @default(USER)
+  registered_at           DateTime               @default(now())
+  discord_joined_at       DateTime               @default(now())
+  is_banned               Boolean                @default(false)
+  del_flag                Boolean                @default(false)
+  ins_user_id             String                 @default("user")
+  ins_date_time           DateTime               @default(now())
+  upd_user_id             String                 @default("user")
+  upd_date_time           DateTime               @default(now())
   request_id              String?
   user_achievements       user_achievement[]
   user_info               user_info?
   user_onchain_item       user_onchain_item[]
+  user_item_claim_log     user_item_claim_log[]
+  discord_activity_log    discord_activity_log[]
 
-  discord_user_roles discord_user_roles[]
-  rewarded_roles     rewarded_roles[]
-  item_logs          item_log[]
-  invites            invites[]
-  invite_reward_log  invite_reward_log[]
-  activity_log       activity_log[]
-
-  @@index([discord_id], name: "discord_id")
-  @@index([discord_username], name: "discord_username")
+  discord_user_roles     discord_user_roles[]
+  discord_rewarded_roles discord_rewarded_roles[]
+  invite_log             invite_log[]
 }
 
 model user_achievement {
@@ -179,6 +202,97 @@ model user_onchain_item {
   user                 user?             @relation(fields: [user_id], references: [user_id])
 }
 
+model user_item_claim_log {
+  user_item_claim_log_id String     @id @default(dbgenerated("generate_user_item_claim_log_id()")) @db.VarChar(255)
+  user_id                String
+  onchain_item_id        String?    @db.VarChar(255)
+  offchain_item_name     String?    @db.VarChar(255)
+  item_amount            Int        @default(0)
+  item_details           String?
+  type                   ItemType   @default(OFFCHAIN)
+  claimed_at             DateTime?  @default(now()) @db.Timestamp(6)
+  status                 ItemStatus @default(SUCCESS)
+  error_msg              String?    @db.VarChar(255)
+  del_flag               Boolean    @default(false)
+  ins_user_id            String     @default("user")
+  ins_date_time          DateTime   @default(now())
+  upd_user_id            String     @default("user")
+  upd_date_time          DateTime   @default(now())
+  request_id             String?
+  user                   user       @relation(fields: [user_id], references: [user_id])
+}
+
+model invite_log {
+  id                     Int      @id(map: "invite_reward_log_pkc") @default(autoincrement())
+  user_id                String
+  invitee_discord_id     String? // Discord System User Id
+  invitee_user_id        String? // Tourii System User Id
+  magatama_point_awarded Int      @default(0)
+  del_flag               Boolean  @default(false)
+  ins_user_id            String   @default("user")
+  ins_date_time          DateTime @default(now())
+  upd_user_id            String   @default("user")
+  upd_date_time          DateTime @default(now())
+  request_id             String?
+  user                   user     @relation(fields: [user_id], references: [user_id])
+}
+
+model discord_activity_log {
+  discord_activity_log_id String   @id @default(dbgenerated("generate_discord_activity_log_id()")) @db.VarChar(255)
+  user_id                 String
+  activity_type           String   @db.VarChar(255)
+  magatama_point_awarded  Int
+  activity_details        String?
+  del_flag                Boolean  @default(false)
+  ins_user_id             String   @default("user")
+  ins_date_time           DateTime @default(now())
+  upd_user_id             String   @default("user")
+  upd_date_time           DateTime @default(now())
+  request_id              String?
+  user                    user?    @relation(fields: [user_id], references: [user_id])
+}
+
+model discord_rewarded_roles {
+  discord_rewarded_roles_id String   @id @default(dbgenerated("generate_discord_rewarded_roles_id()")) @db.VarChar(255)
+  user_id                   String
+  role_id                   BigInt
+  magatama_point_awarded    Int
+  del_flag                  Boolean  @default(false)
+  ins_user_id               String   @default("user")
+  ins_date_time             DateTime @default(now())
+  upd_user_id               String   @default("user")
+  upd_date_time             DateTime @default(now())
+  request_id                String?
+  user                      user     @relation(fields: [user_id], references: [user_id])
+}
+
+model discord_user_roles {
+  discord_user_roles_id String        @id @default(dbgenerated("generate_discord_user_roles_id()")) @db.VarChar(255)
+  user_id               String
+  role_id               BigInt
+  del_flag              Boolean       @default(false)
+  ins_user_id           String        @default("user")
+  ins_date_time         DateTime      @default(now())
+  upd_user_id           String        @default("user")
+  upd_date_time         DateTime      @default(now())
+  request_id            String?
+  discord_roles         discord_roles @relation(fields: [role_id], references: [role_id])
+  user                  user          @relation(fields: [user_id], references: [user_id])
+}
+
+// Master Table
+model discord_roles {
+  role_id            BigInt               @id @unique
+  name               String               @unique @db.VarChar(255)
+  del_flag           Boolean              @default(false)
+  ins_user_id        String               @default("user")
+  ins_date_time      DateTime             @default(now())
+  upd_user_id        String               @default("user")
+  upd_date_time      DateTime             @default(now())
+  request_id         String?
+  discord_user_roles discord_user_roles[]
+}
+
 model onchain_item_catalog {
   onchain_item_id  String          @id @default(dbgenerated("generate_onchain_item_catalog_id()")) @db.VarChar(255)
   item_type        OnchainItemType @default(UNKNOWN)
@@ -217,96 +331,15 @@ model level_requirement_master {
   request_id              String?
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model activity_log {
-  id               Int       @id(map: "activity_log_pkc")
-  user_id          String
-  activity_type    String    @db.VarChar(255)
-  points_awarded   Int
-  activity_details String?
-  activity_date    DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
-  user             user?     @relation(fields: [user_id], references: [user_id])
-
-  @@index([activity_type], name: "activity_type")
-  @@index([activity_date], name: "activity_date")
-}
-
-model invite_reward_log {
-  id             Int       @id(map: "invite_reward_log_pkc") @default(autoincrement())
-  inviter_id     String
-  invitee_id     BigInt    @unique(map: "invite_reward_log_unique")
-  points_awarded Int
-  rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
-  user           user      @relation(fields: [inviter_id], references: [user_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model invites {
-  id            Int       @id(map: "invites_pkc") @default(autoincrement())
-  invitee_id    BigInt    @unique(map: "invites_unique")
-  inviter_id    String
-  invite_date   DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
-  user          user      @relation(fields: [inviter_id], references: [user_id])
-}
-
-model item_log {
-  id               Int       @id(map: "item_log_pkc")
-  user_id          String
-  item_type        String    @db.VarChar(255)
-  item_amount      Int
-  item_get_details String?
-  item_get_date    DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time    DateTime? @default(now()) @db.Timestamp(6)
-  user             user?     @relation(fields: [user_id], references: [user_id])
-
-  @@index([item_type], name: "item_type")
-  @@index([item_get_date], name: "item_get_date")
-}
-
 model kendama_random_range {
-  id            Int       @id @default(autoincrement())
-  landed        Decimal   @db.Decimal
-  missed        Decimal   @db.Decimal
-  win_rate      Decimal   @db.Decimal
-  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model rewarded_roles {
-  id             Int       @id(map: "rewarded_roles_pkc")
-  user_id        String
-  role_id        BigInt
-  points_awarded Int
-  rewarded_at    DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time  DateTime? @default(now()) @db.Timestamp(6)
-  user           user      @relation(fields: [user_id], references: [user_id])
-
-  @@unique([user_id, role_id])
-  @@index([role_id], name: "role_id")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model roles {
-  id                 Int                  @id(map: "roles_pkc")
-  role_id            BigInt               @unique
-  name               String               @unique @db.VarChar(255)
-  description        String?
-  ins_date_time      DateTime?            @default(now()) @db.Timestamp(6)
-  discord_user_roles discord_user_roles[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model discord_user_roles {
-  id            Int       @id(map: "user_roles_pkc")
-  user_id       String
-  role_id       BigInt
-  assigned_at   DateTime? @default(now()) @db.Timestamp(6)
-  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
-  roles         roles     @relation(fields: [role_id], references: [role_id])
-  user          user      @relation(fields: [user_id], references: [user_id])
-
-  @@unique([user_id, role_id])
+  season        KendamaSeason @id @default(NORMAL)
+  landed        Decimal       @db.Decimal
+  missed        Decimal       @db.Decimal
+  win_rate      Decimal       @db.Decimal
+  del_flag      Boolean       @default(false)
+  ins_user_id   String        @default("user")
+  ins_date_time DateTime      @default(now())
+  upd_user_id   String        @default("user")
+  upd_date_time DateTime      @default(now())
+  request_id    String?
 }

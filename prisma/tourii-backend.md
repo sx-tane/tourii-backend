@@ -66,6 +66,43 @@ S_CLASS_KUNITSUKAMI S_CLASS_KUNITSUKAMI
 S_CLASS_YOKAI S_CLASS_YOKAI
         }
     
+
+
+        StoryStatus {
+            UNREAD UNREAD
+IN_PROGRESS IN_PROGRESS
+COMPLETED COMPLETED
+        }
+    
+
+
+        QuestStatus {
+            AVAILABLE AVAILABLE
+ONGOING ONGOING
+COMPLETED COMPLETED
+        }
+    
+
+
+        ItemStatus {
+            SUCCESS SUCCESS
+FAILED FAILED
+        }
+    
+
+
+        ItemType {
+            ONCHAIN ONCHAIN
+OFFCHAIN OFFCHAIN
+        }
+    
+
+
+        KendamaSeason {
+            NORMAL NORMAL
+EVENT EVENT
+        }
+    
   "id_sequence" {
     String key "🗝️"
     String ts_prefix 
@@ -164,6 +201,95 @@ S_CLASS_YOKAI S_CLASS_YOKAI
     }
   
 
+  "user_item_claim_log" {
+    String user_item_claim_log_id "🗝️"
+    String user_id 
+    String onchain_item_id "❓"
+    String offchain_item_name "❓"
+    Int item_amount 
+    String item_details "❓"
+    ItemType type 
+    DateTime claimed_at "❓"
+    ItemStatus status 
+    String error_msg "❓"
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "invite_log" {
+    Int id "🗝️"
+    String user_id 
+    String invitee_discord_id "❓"
+    String invitee_user_id "❓"
+    Int magatama_point_awarded 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "discord_activity_log" {
+    String discord_activity_log_id "🗝️"
+    String user_id 
+    String activity_type 
+    Int magatama_point_awarded 
+    String activity_details "❓"
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "discord_rewarded_roles" {
+    String discord_rewarded_roles_id "🗝️"
+    String user_id 
+    BigInt role_id 
+    Int magatama_point_awarded 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "discord_user_roles" {
+    String discord_user_roles_id "🗝️"
+    String user_id 
+    BigInt role_id 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "discord_roles" {
+    BigInt role_id "🗝️"
+    String name 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
   "onchain_item_catalog" {
     String onchain_item_id "🗝️"
     OnchainItemType item_type 
@@ -204,93 +330,28 @@ S_CLASS_YOKAI S_CLASS_YOKAI
     }
   
 
-  "activity_log" {
-    Int id "🗝️"
-    String user_id 
-    String activity_type 
-    Int points_awarded 
-    String activity_details "❓"
-    DateTime activity_date "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "invite_reward_log" {
-    Int id "🗝️"
-    String inviter_id 
-    BigInt invitee_id 
-    Int points_awarded 
-    DateTime rewarded_at "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "invites" {
-    Int id "🗝️"
-    BigInt invitee_id 
-    String inviter_id 
-    DateTime invite_date "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "item_log" {
-    Int id "🗝️"
-    String user_id 
-    String item_type 
-    Int item_amount 
-    String item_get_details "❓"
-    DateTime item_get_date "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
   "kendama_random_range" {
-    Int id "🗝️"
+    KendamaSeason season "🗝️"
     Decimal landed 
     Decimal missed 
     Decimal win_rate 
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "rewarded_roles" {
-    Int id "🗝️"
-    String user_id 
-    BigInt role_id 
-    Int points_awarded 
-    DateTime rewarded_at "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "roles" {
-    Int id "🗝️"
-    BigInt role_id 
-    String name 
-    String description "❓"
-    DateTime ins_date_time "❓"
-    }
-  
-
-  "discord_user_roles" {
-    Int id "🗝️"
-    String user_id 
-    BigInt role_id 
-    DateTime assigned_at "❓"
-    DateTime ins_date_time "❓"
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
     }
   
     "user" o|--|| "UserRoleType" : "enum:role"
     "user" o{--}o "user_achievement" : "user_achievements"
     "user" o{--}o "user_info" : "user_info"
     "user" o{--}o "user_onchain_item" : "user_onchain_item"
+    "user" o{--}o "user_item_claim_log" : "user_item_claim_log"
+    "user" o{--}o "discord_activity_log" : "discord_activity_log"
     "user" o{--}o "discord_user_roles" : "discord_user_roles"
-    "user" o{--}o "rewarded_roles" : "rewarded_roles"
-    "user" o{--}o "item_log" : "item_logs"
-    "user" o{--}o "invites" : "invites"
-    "user" o{--}o "invite_reward_log" : "invite_reward_log"
-    "user" o{--}o "activity_log" : "activity_log"
+    "user" o{--}o "discord_rewarded_roles" : "discord_rewarded_roles"
+    "user" o{--}o "invite_log" : "invite_log"
     "user_achievement" o|--|| "user" : "user"
     "user_info" o|--|o "PassportType" : "enum:user_digital_passport_type"
     "user_info" o|--|| "user" : "user"
@@ -298,14 +359,16 @@ S_CLASS_YOKAI S_CLASS_YOKAI
     "user_onchain_item" o|--|| "BlockchainType" : "enum:blockchain_type"
     "user_onchain_item" o|--|| "OnchainItemStatus" : "enum:status"
     "user_onchain_item" o|--|o "user" : "user"
+    "user_item_claim_log" o|--|| "ItemType" : "enum:type"
+    "user_item_claim_log" o|--|| "ItemStatus" : "enum:status"
+    "user_item_claim_log" o|--|| "user" : "user"
+    "invite_log" o|--|| "user" : "user"
+    "discord_activity_log" o|--|o "user" : "user"
+    "discord_rewarded_roles" o|--|| "user" : "user"
+    "discord_user_roles" o|--|| "discord_roles" : "discord_roles"
+    "discord_user_roles" o|--|| "user" : "user"
+    "discord_roles" o{--}o "discord_user_roles" : "discord_user_roles"
     "onchain_item_catalog" o|--|| "OnchainItemType" : "enum:item_type"
     "level_requirement_master" o|--|| "LevelType" : "enum:level"
-    "activity_log" o|--|o "user" : "user"
-    "invite_reward_log" o|--|| "user" : "user"
-    "invites" o|--|| "user" : "user"
-    "item_log" o|--|o "user" : "user"
-    "rewarded_roles" o|--|| "user" : "user"
-    "roles" o{--}o "discord_user_roles" : "discord_user_roles"
-    "discord_user_roles" o|--|| "roles" : "roles"
-    "discord_user_roles" o|--|| "user" : "user"
+    "kendama_random_range" o|--|| "KendamaSeason" : "enum:season"
 ```
