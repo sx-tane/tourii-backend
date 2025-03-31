@@ -2,16 +2,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider                  = "prisma-erd-generator"
-  theme                     = "forest"
-  output                    = "../prisma/docs/tourii-db-erd.md"
-  includeRelationFromFields = true
-}
+// generator erd {
+//   provider                  = "prisma-erd-generator"
+//   theme                     = "forest"
+//   output                    = "../prisma/docs/tourii-db-erd.md"
+//   includeRelationFromFields = true
+// }
 
-generator docs {
-  provider = "node node_modules/prisma-docs-generator"
-  output   = "../prisma/docs/tourii-db-model"
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "../prisma/docs/tourii-db-docs.md"
+  title    = "Tourii Database"
 }
 
 datasource db {
@@ -107,43 +108,167 @@ enum KendamaSeason {
   EVENT
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+///-----------------------------------------------------------
+/// USERS & AUTHENTICATION
+///-----------------------------------------------------------
+/// User entity.
+///
+/// Represents a registered user of the Tourii application with all their
+/// authentication information, platform connections, wallet addresses, and
+/// user-specific settings. Users can authenticate through various methods
+/// including Discord, Twitter, and Google.
+///
+/// Users can have multiple achievements, onchain items, and can participate in
+/// various activities tracked through logs. Premium status and role types
+/// define access levels and privileges in the system.
+///
+/// @namespace Users
+/// @author Tourii Team
 model user {
-  user_id                 String                 @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255) // TSUYYYYMMDDHHMM-XXXX every minute will have different sequence
-  discord_id              String?                @unique
-  discord_username        String?                @db.VarChar(255)
-  twitter_id              String?                @unique
-  twitter_username        String?                @db.VarChar(255)
-  google_email            String?                @unique
-  passport_wallet_address String?                @unique
-  perks_wallet_address    String                 @unique @default("''")
-  latest_ip_address       String?
-  username                String                 @unique
-  email                   String?                @unique
+  //----
+  // IDENTIFICATION
+  //----
+  /// User ID with format TSUYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_id                 String  @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255)
+  
+  /// Tourii System Username
+  ///
+  /// @minLength 3
+  /// @maxLength 255
+  username                String  @unique
+  
+  //----
+  // AUTHENTICATION METHODS
+  //----
+  /// Discord System User Id
+  ///
+  /// Unique identifier from Discord authentication
+  discord_id              String? @unique
+  
+  /// Discord User Name
+  ///
+  /// @maxLength 255
+  discord_username        String? @db.VarChar(255)
+  
+  /// Twitter System User Id
+  ///
+  /// Unique identifier from Twitter authentication
+  twitter_id              String? @unique
+  
+  /// Twitter User Name
+  ///
+  /// @maxLength 255
+  twitter_username        String? @db.VarChar(255)
+  
+  /// Google System User Id
+  ///
+  /// User's email address from Google authentication
+  google_email            String? @unique
+  
+  /// User Email
+  ///
+  /// @format email
+  email                   String? @unique
+  
+  /// User Password
+  ///
+  /// Hashed password for native authentication
   password                String
-  is_premium              Boolean                @default(false)
-  magatama_points         BigInt                 @default(0)
-  magatama_bags           Int                    @default(0)
-  total_quest_completed   Int                    @default(0)
-  total_travel_distance   Float                  @default(0.0)
-  role                    UserRoleType           @default(USER)
-  registered_at           DateTime               @default(now())
-  discord_joined_at       DateTime               @default(now())
-  is_banned               Boolean                @default(false)
-  del_flag                Boolean                @default(false)
-  ins_user_id             String                 @default("user")
-  ins_date_time           DateTime               @default(now())
-  upd_user_id             String                 @default("user")
-  upd_date_time           DateTime               @default(now())
+  
+  //----
+  // BLOCKCHAIN & WALLET
+  //----
+  /// Digital passport Wallet Address
+  ///
+  /// Blockchain wallet address for digital passport
+  passport_wallet_address String? @unique
+  
+  /// Travel perk NFT Wallet Address
+  ///
+  /// Blockchain wallet address for travel perks
+  perks_wallet_address    String  @unique @default("''")
+  
+  //----
+  // USER METRICS & STATUS
+  //----
+  /// User's latest IP address
+  ///
+  /// @format ipv4
+  latest_ip_address       String?
+  
+  /// User is premium or not
+  ///
+  /// Indicates whether user has premium subscription
+  is_premium              Boolean @default(false)
+  
+  /// Total number of quests completed by user
+  total_quest_completed   Int     @default(0)
+  
+  /// Total travel distance recorded by user
+  ///
+  /// @unit kilometers
+  total_travel_distance   Float   @default(0.0)
+  
+  /// User role in the system
+  role                    UserRoleType @default(USER)
+  
+  /// Initial registration timestamp
+  registered_at           DateTime     @default(now())
+  
+  /// When user joined Discord
+  discord_joined_at       DateTime     @default(now())
+  
+  /// Indicates if user is banned from the platform
+  is_banned               Boolean      @default(false)
+  
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag                Boolean  @default(false)
+  
+  /// ID of user who created this record
+  ins_user_id             String   @default("user")
+  
+  /// Timestamp of record creation
+  ins_date_time           DateTime @default(now())
+  
+  /// ID of user who last updated this record
+  upd_user_id             String   @default("user")
+  
+  /// Timestamp of last record update
+  upd_date_time           DateTime @default(now())
+  
+  /// Request ID for tracing
   request_id              String?
-  user_achievements       user_achievement[]
-  user_info               user_info?
-  user_onchain_item       user_onchain_item[]
-  user_item_claim_log     user_item_claim_log[]
-  discord_activity_log    discord_activity_log[]
-
+  
+  //----
+  // RELATIONS
+  //----
+  /// User achievements earned
+  user_achievements     user_achievement[]
+  
+  /// User's detailed information
+  user_info             user_info?
+  
+  /// User's blockchain items
+  user_onchain_item     user_onchain_item[]
+  
+  /// History of item claims
+  user_item_claim_log   user_item_claim_log[]
+  
+  /// Discord activity tracking
+  discord_activity_log  discord_activity_log[]
+  
+  /// Discord roles assigned
   discord_user_roles     discord_user_roles[]
+  
+  /// Discord roles rewarded to user
   discord_rewarded_roles discord_rewarded_roles[]
+  
+  /// Invitation logs
   invite_log             invite_log[]
 }
 
