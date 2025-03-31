@@ -106,7 +106,7 @@
 		"@nestjs/cli": "^11.0.5",
 		"@nestjs/schematics": "^10.2.3",
 		"@nestjs/testing": "^10.4.15",
-		"@redocly/cli": "^1.27.0",
+		"@redocly/cli": "^1.34.1",
 		"@swc/jest": "^0.2.37",
 		"@types/archiver": "^6.0.3",
 		"@types/body-parser": "^1.19.5",
