@@ -5,8 +5,13 @@ generator client {
 generator erd {
   provider                  = "prisma-erd-generator"
   theme                     = "forest"
-  output                    = "tourii-backend.md"
+  output                    = "../prisma/docs/tourii-db-erd.md"
   includeRelationFromFields = true
+}
+
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+  output   = "../prisma/docs/tourii-db-model"
 }
 
 datasource db {
