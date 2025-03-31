@@ -2,13 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// generator erd {
-//   provider                  = "prisma-erd-generator"
-//   theme                     = "forest"
-//   output                    = "../prisma/docs/tourii-db-erd.md"
-//   includeRelationFromFields = true
-// }
-
 generator markdown {
   provider = "prisma-markdown"
   output   = "../prisma/docs/tourii-db-docs.md"
@@ -20,45 +13,48 @@ datasource db {
   url      = env("MIGRATION_URL")
 }
 
+///-----------------------------------------------------------
+/// GLOBAL ENUMS AND UTILITY MODELS
+///-----------------------------------------------------------
+
+/// ID Sequence generator model
+/// Used for generating sequential IDs with custom prefixes for various entity types
 model id_sequence {
-  key       String @id
+  /// Unique identifier for the sequence type
+  key String @id
+
+  /// Timestamp prefix format for the ID
   ts_prefix String
-  counter   Int    @default(1)
+
+  /// Current counter value for this sequence
+  counter Int @default(1)
 }
 
-enum UserRoleType {
-  USER
-  MODERATOR
-  ADMIN
+/// Story status types
+/// Represent the current status of a user reading a story
+enum StoryStatus {
+  /// Story is available for reading
+  UNREAD
+  /// Story is currently being read
+  IN_PROGRESS
+  /// Story has been completed
+  COMPLETED
 }
 
+/// Digital passport classification types
 enum PassportType {
+  /// Standard human passport type
   BONJIN
+  /// Celestial deity passport type
   AMATSUKAMI
+  /// Earthly deity passport type
   KUNITSUKAMI
+  /// Supernatural being passport type
   YOKAI
 }
 
-enum OnchainItemType {
-  UNKNOWN
-  LOG_NFT
-  DIGITAL_PASSPORT
-  PERK
-}
-
-enum OnchainItemStatus {
-  ACTIVE
-  USED
-  EXPIRED
-  PENDING
-}
-
-enum BlockchainType {
-  UNKNOWN
-  VARA
-  CAMINO
-}
-
+/// Passport level types
+/// Represents the classification levels of digital passports
 enum LevelType {
   BONJIN
   E_CLASS_AMATSUKAMI
@@ -81,30 +77,215 @@ enum LevelType {
   S_CLASS_YOKAI
 }
 
-enum StoryStatus {
-  UNREAD
-  IN_PROGRESS
-  COMPLETED
-}
+///-----------------------------------------------------------
+/// QUEST AND ACTIVITY ENUMS
+///-----------------------------------------------------------
 
+/// Quest status types
+/// Represents the current state of a quest for a user
 enum QuestStatus {
+  /// Quest is available to be started
   AVAILABLE
+  /// Quest is currently in progress
   ONGOING
+  /// Quest has been successfully completed
   COMPLETED
-}
-
-enum ItemStatus {
-  SUCCESS
+  /// Quest was not completed successfully
   FAILED
 }
 
+/// Item claim status types
+/// Indicates whether an item claim was successful or failed
+enum ItemStatus {
+  /// Item was successfully claimed
+  SUCCESS
+  /// Item claim failed
+  FAILED
+}
+
+/// Item storage type
+/// Defines whether an item exists on blockchain or off-chain
 enum ItemType {
+  /// Item stored on blockchain
   ONCHAIN
+  /// Item stored in application database
   OFFCHAIN
 }
 
+/// Quest type classification
+/// Categorizes quests based on their purpose and reward structure
+enum QuestType {
+  /// Unknown or unclassified quest type
+  UNKNOWN
+  /// Earn rewards by traveling to locations
+  TRAVEL_TO_EARN
+  /// Earn travel opportunities through activities
+  EARN_TO_TRAVEL
+  /// Quest part of a promotional campaign
+  CAMPAIGN
+  /// Quest associated with community events
+  COMMUNITY_EVENT
+}
+
+/// Reward types offered in the system
+/// Categorizes the different types of rewards users can earn
+enum RewardType {
+  UNKNOWN
+  /// Unique, exclusive, or hidden local gems
+  LOCAL_EXPERIENCES
+  /// Food-related rewards or tastings
+  CULINARY
+  /// Outdoor, nature, or activity-based rewards
+  ADVENTURE_NATURE
+  /// Cultural learning or social impact rewards
+  CULTURAL_COMMUNITY
+  /// Secret/bonus perks not usually available
+  HIDDEN_PERKS
+  /// Randomized or surprise gifts
+  SURPRISE_TREATS
+  /// Upgrades to experiences, like VIP access
+  BONUS_UPGRADES
+  /// Community shout-outs or profile boosts
+  SOCIAL_RECOGNITION
+  /// Loyalty rewards for coming back
+  RETURNING_VISITOR_BONUS
+  /// High-end or premium experiences
+  ELITE_EXPERIENCES
+  /// Spa, wellness, or relaxation-related
+  WELLNESS
+  /// Souvenirs, discounts, or vouchers
+  SHOPPING
+  /// Concerts, shows, or festivals
+  ENTERTAINMENT
+  /// Travel perks like transport or Wi-Fi
+  TRANSPORT_CONNECTIVITY
+  /// Partner-provided rewards (e.g., brands)
+  LOCAL_PARTNERSHIPS
+}
+
+/// Task theme categories
+/// Categorizes tasks based on their thematic focus
+enum TaskTheme {
+  /// Story-related tasks
+  STORY
+  /// Tasks focused on local culture exploration
+  LOCAL_CULTURE
+  /// Food-related tasks
+  FOOD
+  /// Urban exploration tasks
+  URBAN_EXPLORE
+  /// Nature-focused tasks
+  NATURE
+}
+
+/// Task interaction types
+/// Defines the different ways users can interact with tasks
+enum TaskType {
+  /// Requires physical presence at a location
+  VISIT_LOCATION
+  /// Requires uploading a photo
+  PHOTO_UPLOAD
+  /// Requires text response
+  ANSWER_TEXT
+  /// Requires selecting from predefined options
+  SELECT_OPTION
+  /// Requires sharing on social media
+  SHARE_SOCIAL
+  /// Requires checking in at a location
+  CHECK_IN
+  /// Requires participation in a group activity
+  GROUP_ACTIVITY
+  /// Requires interaction with locals
+  LOCAL_INTERACTION
+}
+
+/// Check-in verification methods
+/// Defines the ways users can verify their presence at a location
+enum CheckInMethod {
+  /// Verification via QR code scan
+  QR_CODE
+  /// Verification via GPS location
+  GPS
+}
+
+///-----------------------------------------------------------
+/// BLOCKCHAIN AND ACHIEVEMENT ENUMS
+///-----------------------------------------------------------
+
+/// Achievement types
+/// Represents the different categories of achievements available in the system
+enum AchievementType {
+  UNKNOWN
+  /// Achievement related to Story
+  STORY
+  /// Achievement related to Travel
+  TRAVEL
+  /// Achievement related to Exploration
+  EXPLORE
+  /// Achievement related to User Engagement
+  COMMUNITY
+  /// Achievement related to Milestone
+  MILESTONE
+}
+
+/// Onchain item types
+/// Defines the various types of onchain items available in the system
+enum OnchainItemType {
+  /// Unknown item type
+  UNKNOWN
+  /// Log NFT item type
+  LOG_NFT
+  /// Digital passport item type
+  DIGITAL_PASSPORT
+  /// Travel perk item type
+  PERK
+}
+
+/// Onchain item status
+/// Represents the current state of an onchain item
+enum OnchainItemStatus {
+  /// Active item status
+  ACTIVE
+  /// Used item status
+  USED
+  /// Item is no longer valid
+  EXPIRED
+  /// Item is in the process of being minted
+  PENDING
+}
+
+/// Blockchain types
+/// Defines the different blockchain networks used in the system
+enum BlockchainType {
+  /// Unknown blockchain type
+  UNKNOWN
+  /// Vara blockchain type
+  VARA
+  /// Camino blockchain type
+  CAMINO
+}
+
+///-----------------------------------------------------------
+/// USER AND SYSTEM ENUMS
+///-----------------------------------------------------------
+
+/// User role type in the system
+/// Defines the permission level and access rights
+enum UserRoleType {
+  /// Regular user with standard permissions
+  USER
+  /// User with moderation capabilities
+  MODERATOR
+  /// User with full administrative access
+  ADMIN
+}
+
+/// Kendama game seasons
+/// Defines the different seasons for the kendama mini-game
 enum KendamaSeason {
+  /// Standard season
   NORMAL
+  /// Special event season with different rules/rewards
   EVENT
 }
 
@@ -131,52 +312,52 @@ model user {
   /// User ID with format TSUYYYYMM-rand1-DDHHMI-rand2-obfCounter
   ///
   /// @format custom
-  user_id                 String  @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255)
-  
+  user_id String @id @default(dbgenerated("generate_user_id()")) @db.VarChar(255)
+
   /// Tourii System Username
   ///
   /// @minLength 3
   /// @maxLength 255
-  username                String  @unique
-  
+  username String @unique
+
   //----
   // AUTHENTICATION METHODS
   //----
   /// Discord System User Id
   ///
   /// Unique identifier from Discord authentication
-  discord_id              String? @unique
-  
+  discord_id String? @unique
+
   /// Discord User Name
   ///
   /// @maxLength 255
-  discord_username        String? @db.VarChar(255)
-  
+  discord_username String? @db.VarChar(255)
+
   /// Twitter System User Id
   ///
   /// Unique identifier from Twitter authentication
-  twitter_id              String? @unique
-  
+  twitter_id String? @unique
+
   /// Twitter User Name
   ///
   /// @maxLength 255
-  twitter_username        String? @db.VarChar(255)
-  
+  twitter_username String? @db.VarChar(255)
+
   /// Google System User Id
   ///
   /// User's email address from Google authentication
-  google_email            String? @unique
-  
+  google_email String? @unique
+
   /// User Email
   ///
   /// @format email
-  email                   String? @unique
-  
+  email String? @unique
+
   /// User Password
   ///
   /// Hashed password for native authentication
-  password                String
-  
+  password String
+
   //----
   // BLOCKCHAIN & WALLET
   //----
@@ -184,292 +365,1789 @@ model user {
   ///
   /// Blockchain wallet address for digital passport
   passport_wallet_address String? @unique
-  
+
   /// Travel perk NFT Wallet Address
   ///
   /// Blockchain wallet address for travel perks
-  perks_wallet_address    String  @unique @default("''")
-  
+  perks_wallet_address String @unique @default("''")
+
   //----
   // USER METRICS & STATUS
   //----
   /// User's latest IP address
   ///
   /// @format ipv4
-  latest_ip_address       String?
-  
+  latest_ip_address String?
+
   /// User is premium or not
   ///
   /// Indicates whether user has premium subscription
-  is_premium              Boolean @default(false)
-  
+  is_premium Boolean @default(false)
+
   /// Total number of quests completed by user
-  total_quest_completed   Int     @default(0)
-  
+  total_quest_completed Int @default(0)
+
   /// Total travel distance recorded by user
   ///
   /// @unit kilometers
-  total_travel_distance   Float   @default(0.0)
-  
+  total_travel_distance Float @default(0.0)
+
   /// User role in the system
-  role                    UserRoleType @default(USER)
-  
+  role UserRoleType @default(USER)
+
   /// Initial registration timestamp
-  registered_at           DateTime     @default(now())
-  
+  registered_at DateTime @default(now())
+
   /// When user joined Discord
-  discord_joined_at       DateTime     @default(now())
-  
+  discord_joined_at DateTime @default(now())
+
   /// Indicates if user is banned from the platform
-  is_banned               Boolean      @default(false)
-  
+  is_banned Boolean @default(false)
+
   //----
   // SYSTEM FIELDS
   //----
   /// Soft delete flag
-  del_flag                Boolean  @default(false)
-  
+  del_flag Boolean @default(false)
+
   /// ID of user who created this record
-  ins_user_id             String   @default("user")
-  
+  ins_user_id String @default("user")
+
   /// Timestamp of record creation
-  ins_date_time           DateTime @default(now())
-  
+  ins_date_time DateTime @default(now())
+
   /// ID of user who last updated this record
-  upd_user_id             String   @default("user")
-  
+  upd_user_id String @default("user")
+
   /// Timestamp of last record update
-  upd_date_time           DateTime @default(now())
-  
+  upd_date_time DateTime @default(now())
+
   /// Request ID for tracing
-  request_id              String?
-  
+  request_id String?
+
   //----
   // RELATIONS
   //----
   /// User achievements earned
-  user_achievements     user_achievement[]
-  
+  user_achievements user_achievement[]
+
   /// User's detailed information
-  user_info             user_info?
-  
+  user_info user_info?
+
   /// User's blockchain items
-  user_onchain_item     user_onchain_item[]
-  
+  user_onchain_item user_onchain_item[]
+
   /// History of item claims
-  user_item_claim_log   user_item_claim_log[]
-  
+  user_item_claim_log user_item_claim_log[]
+
+  /// User's story progress
+  user_story_log user_story_log[]
+
+  /// User's quest progress
+  user_quest_log user_quest_log[]
+
+  /// User's travel history
+  user_travel_log user_travel_log[]
+
   /// Discord activity tracking
-  discord_activity_log  discord_activity_log[]
-  
+  discord_activity_log discord_activity_log[]
+
   /// Discord roles assigned
-  discord_user_roles     discord_user_roles[]
-  
+  discord_user_roles discord_user_roles[]
+
   /// Discord roles rewarded to user
   discord_rewarded_roles discord_rewarded_roles[]
-  
+
   /// Invitation logs
-  invite_log             invite_log[]
+  user_invite_log user_invite_log[]
 }
 
+/// User Achievement entity
+///
+/// Records achievements earned by users in the Tourii application.
+/// Each achievement represents a milestone or accomplishment in the user's
+/// journey, categorized by type and awarding magatama points.
+/// Achievements can be related to stories, travel, exploration, community
+/// engagement, or general milestones.
+///
+/// @namespace Users
+/// @author Tourii Team
 model user_achievement {
-  user_achievement_id    String   @id @default(dbgenerated("generate_achievement_id()")) @db.VarChar(255)
-  user_id                String
-  achievement_name       String   @db.VarChar(255)
-  description            String   @db.VarChar(255)
-  icon_url               String?  @db.VarChar(255)
-  achievement_type       String?  @db.VarChar(255)
-  magatama_point_awarded Int      @default(0)
-  del_flag               Boolean  @default(false)
-  ins_user_id            String   @default("user")
-  ins_date_time          DateTime @default(now())
-  upd_user_id            String   @default("user")
-  upd_date_time          DateTime @default(now())
-  request_id             String?
-  user                   user     @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the achievement record UATYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  /// 
+  /// @format custom
+  user_achievement_id String @id @default(dbgenerated("generate_achievement_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  //----
+  // ACHIEVEMENT DETAILS
+  //----
+  /// Name of the achievement
+  ///
+  /// @maxLength 255
+  achievement_name String @default("''") @db.VarChar(255)
+
+  /// Detailed description of the achievement
+  ///
+  /// @maxLength 255
+  achievement_desc String? @db.VarChar(255)
+
+  /// URL to the achievement icon image
+  icon_url String? @db.VarChar(255)
+
+  /// Category of the achievement
+  achievement_type AchievementType @default(UNKNOWN)
+
+  //----
+  // REWARDS
+  //----
+  /// Amount of magatama points awarded for this achievement
+  magatama_point_awarded Int @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who earned this achievement
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
+/// User Information entity
+///
+/// Contains extended profile information for Tourii users including their
+/// digital passport details, progression level, in-game currency balances,
+/// and collectible items. This model stores user-specific game metrics and
+/// preferences that extend beyond the core user authentication data.
+///
+/// Each user has exactly one user_info record created upon registration.
+/// The model tracks progression through the Tourii world with level systems
+/// and collectible items that unlock additional features.
+///
+/// @namespace Users
+/// @author Tourii Team
 model user_info {
-  user_info_id               String        @id @default(dbgenerated("generate_user_info_id()")) @db.VarChar(255)
-  user_id                    String        @unique
-  digital_passport_address   String        @unique @default("''")
-  log_nft_address            String        @default("''")
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the user info record UIFYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_info_id String @id @default(dbgenerated("generate_user_info_id()")) @db.VarChar(255)
+
+  /// Associated user ID (one-to-one relationship)
+  user_id String @unique
+
+  //----
+  // PASSPORT & LEVEL INFO
+  //----
+  /// Blockchain address for the user's digital passport
+  digital_passport_address String @unique @default("''")
+
+  /// Blockchain address for the user's log NFT
+  log_nft_address String @default("''")
+
+  /// Type of digital passport assigned to the user
   user_digital_passport_type PassportType? @default(BONJIN)
-  level                      String?       @db.VarChar(255)
-  discount_rate              Float?
-  magatama_points            Int           @default(0)
-  magatama_bags              Int?          @default(0)
-  total_quest_completed      Int           @default(0)
-  total_travel_distance      Float         @default(0.0)
-  is_premium                 Boolean       @default(false)
-  prayer_bead                Int?          @default(0)
-  sword                      Int?          @default(0)
-  orge_mask                  Int?          @default(0)
-  del_flag                   Boolean       @default(false)
-  ins_user_id                String        @default("user")
-  ins_date_time              DateTime      @default(now())
-  upd_user_id                String        @default("user")
-  upd_date_time              DateTime      @default(now())
-  request_id                 String?
-  user                       user          @relation(fields: [user_id], references: [user_id])
+
+  /// Current level classification of the user
+  level LevelType? @default(BONJIN)
+
+  /// User's discount rate for premium features (as a decimal)
+  discount_rate Float?
+
+  //----
+  // GAME CURRENCY & METRICS
+  //----
+  /// Current balance of magatama points (in-game currency)
+  magatama_points Int @default(0)
+
+  /// Number of magatama bags collected
+  magatama_bags Int? @default(0)
+
+  /// Total number of quests completed by the user
+  total_quest_completed Int @default(0)
+
+  /// Total distance traveled by the user (in kilometers)
+  total_travel_distance Float @default(0.0)
+
+  /// Indicates whether the user has a premium subscription
+  is_premium Boolean @default(false)
+
+  //----
+  // COLLECTIBLES
+  //----
+  /// Number of prayer beads collected (collectible item)
+  prayer_bead Int? @default(0)
+
+  /// Number of swords collected (collectible item)
+  sword Int? @default(0)
+
+  /// Number of orge masks collected (collectible item)
+  orge_mask Int? @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the associated user
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
+/// User Onchain Item entity
+///
+/// Tracks blockchain items owned by users in the Tourii application.
+/// These items include digital passports, log NFTs, and travel perks, 
+/// each with their respective blockchain details and status.
+///
+/// This model maintains the relationship between users and their on-chain
+/// assets across different blockchain networks (VARA, CAMINO), recording
+/// transaction hashes, minting timestamps, and current item status.
+///
+/// @namespace Users
+/// @author Tourii Team
 model user_onchain_item {
-  user_onchain_item_id String            @id @default(dbgenerated("generate_user_onchain_item_id()")) @db.VarChar(255)
-  user_id              String?           @default("user")
-  item_type            OnchainItemType   @default(UNKNOWN)
-  item_txn_hash        String            @unique // digital_passport_address or log_nft_address or perk_address
-  blockchain_type      BlockchainType    @default(UNKNOWN) // CAMINO perk VARA log_nft & digital_passport
-  minted_at            DateTime?         @default(now()) @db.Timestamp(6)
-  onchain_item_id      String?           @unique
-  status               OnchainItemStatus @default(ACTIVE)
-  del_flag             Boolean           @default(false)
-  ins_user_id          String            @default("user")
-  ins_date_time        DateTime          @default(now())
-  upd_user_id          String            @default("user")
-  upd_date_time        DateTime          @default(now())
-  request_id           String?
-  user                 user?             @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the onchain item record OICYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_onchain_item_id String @id @default(dbgenerated("generate_user_onchain_item_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String? @default("user")
+
+  //----
+  // BLOCKCHAIN ITEM DETAILS
+  //----
+  /// Type of blockchain item (LOG_NFT, DIGITAL_PASSPORT, PERK)
+  item_type OnchainItemType @default(UNKNOWN)
+
+  /// Blockchain transaction hash
+  /// Can be digital_passport_address, log_nft_address, or perk_address
+  item_txn_hash String @unique
+
+  /// Blockchain network where the item exists
+  /// CAMINO is used for perks, VARA for log_nft & digital_passport
+  blockchain_type BlockchainType @default(UNKNOWN)
+
+  /// Timestamp when the item was minted on blockchain
+  minted_at DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Onchain identifier for the item
+  onchain_item_id String? @unique
+
+  /// Current status of the onchain item
+  status OnchainItemStatus @default(ACTIVE)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who owns this item
+  user user? @relation(fields: [user_id], references: [user_id])
 }
 
+/// User Item Claim Log entity
+///
+/// Records the history of items claimed by users in the Tourii application,
+/// tracking both blockchain (onchain) and application-based (offchain) items.
+/// Each record includes details about the item, claim timestamp, quantity,
+/// and status (success or failure).
+///
+/// This model provides a complete audit trail of all user rewards and
+/// serves as a record for troubleshooting failed claims.
+///
+/// @namespace Users
+/// @author Tourii Team
 model user_item_claim_log {
-  user_item_claim_log_id String     @id @default(dbgenerated("generate_user_item_claim_log_id()")) @db.VarChar(255)
-  user_id                String
-  onchain_item_id        String?    @db.VarChar(255)
-  offchain_item_name     String?    @db.VarChar(255)
-  item_amount            Int        @default(0)
-  item_details           String?
-  type                   ItemType   @default(OFFCHAIN)
-  claimed_at             DateTime?  @default(now()) @db.Timestamp(6)
-  status                 ItemStatus @default(SUCCESS)
-  error_msg              String?    @db.VarChar(255)
-  del_flag               Boolean    @default(false)
-  ins_user_id            String     @default("user")
-  ins_date_time          DateTime   @default(now())
-  upd_user_id            String     @default("user")
-  upd_date_time          DateTime   @default(now())
-  request_id             String?
-  user                   user       @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the claim log record UICYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_item_claim_log_id String @id @default(dbgenerated("generate_user_item_claim_log_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  //----
+  // ITEM DETAILS
+  //----
+  /// ID of the onchain item (if applicable)
+  onchain_item_id String? @db.VarChar(255)
+
+  /// Name of the offchain item (if applicable)
+  offchain_item_name String? @db.VarChar(255)
+
+  /// Quantity of the item claimed
+  item_amount Int @default(0)
+
+  /// Additional details about the item
+  item_details String?
+
+  /// Type of item (onchain or offchain)
+  type ItemType @default(OFFCHAIN)
+
+  //----
+  // CLAIM STATUS
+  //----
+  /// Timestamp when the item was claimed
+  claimed_at DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Status of the claim (SUCCESS or FAILED)
+  status ItemStatus @default(SUCCESS)
+
+  /// Error message for failed claims
+  error_msg String? @db.VarChar(255)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who claimed the item
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
-model invite_log {
-  id                     Int      @id(map: "invite_reward_log_pkc") @default(autoincrement())
-  user_id                String
-  invitee_discord_id     String? // Discord System User Id
-  invitee_user_id        String? // Tourii System User Id
-  magatama_point_awarded Int      @default(0)
-  del_flag               Boolean  @default(false)
-  ins_user_id            String   @default("user")
-  ins_date_time          DateTime @default(now())
-  upd_user_id            String   @default("user")
-  upd_date_time          DateTime @default(now())
-  request_id             String?
-  user                   user     @relation(fields: [user_id], references: [user_id])
+/// User Story Log entity
+///
+/// Tracks user progress through stories in the Tourii application.
+/// Each record represents a user's interaction with a specific story,
+/// including their reading status and timestamps for when they started
+/// and completed the story.
+///
+/// This model enables progress tracking, personalized content delivery,
+/// and analytics about user engagement with narrative content.
+///
+/// @namespace Users
+/// @author Tourii Team
+model user_story_log {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the story log record USLYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_story_log_id String @id @default(dbgenerated("generate_user_story_log_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  /// ID of the story being tracked
+  story_id String
+
+  //----
+  // PROGRESS TRACKING
+  //----
+  /// Current status of the story for this user
+  status StoryStatus @default(UNREAD)
+
+  /// Timestamp when user started reading the story
+  /// Recorded when user clicks the start reading button
+  unlocked_at DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Timestamp when user finished reading the story
+  finished_at DateTime? @default(now()) @db.Timestamp(6)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who is reading the story
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
+/// User Quest Log entity
+///
+/// Records user engagement with quests in the Tourii application, including
+/// progress status, responses, completion evidence, and rewards.
+/// This model tracks the entire lifecycle of a user's interaction with a quest,
+/// from initial access to reward claiming.
+///
+/// Used for tracking quest completions, premium quest purchases,
+/// quest success/failure, and reward distribution.
+///
+/// @namespace Users
+/// @author Tourii Team
+model user_quest_log {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the quest log record UQLYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_quest_log_id String @id @default(dbgenerated("generate_user_quest_log_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  /// ID of the quest
+  quest_id String
+
+  //----
+  // QUEST STATUS
+  //----
+  /// Current status of the quest for this user
+  status QuestStatus @default(AVAILABLE)
+
+  /// Type of action required for the quest
+  action TaskType @default(VISIT_LOCATION)
+
+  //----
+  // USER RESPONSE
+  //----
+  /// User's textual response to the quest
+  user_response String?
+
+  /// Metadata for proof of completion
+  /// Example: {"image_url": "https://cdn.tourii.app/images/harajiri_main.jpg", "qr_code_value": "XG45-7YV9"}
+  submission_data Json?
+
+  /// Reason for quest failure, if applicable
+  failed_reason String?
+
+  //----
+  // COMPLETION & REWARDS
+  //----
+  /// Timestamp when user completed the quest
+  completed_at DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Timestamp when user claimed the quest reward
+  claimed_at DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Total magatama points awarded for this quest
+  total_magatama_point_awarded Int @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who is doing the quest
+  user user @relation(fields: [user_id], references: [user_id])
+}
+
+/// User Travel Log entity
+///
+/// Records physical travel activities of users in the Tourii application,
+/// particularly for offline quests. This model captures location data,
+/// check-in methods, and verification details to confirm a user's presence
+/// at specific tourist spots.
+///
+/// The model includes anti-fraud measures and stores geographic coordinates
+/// to calculate travel distances and verify proximity to target locations.
+///
+/// @namespace Users
+/// @author Tourii Team
+model user_travel_log {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the travel log record UTLYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  user_travel_log_id String @id @default(dbgenerated("generate_user_travel_log_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  /// ID of the associated quest
+  quest_id String
+
+  /// ID of the specific task within the quest
+  task_id String
+
+  /// ID of the tourist spot visited
+  tourist_spot_id String
+
+  //----
+  // LOCATION DATA
+  //----
+  /// User's longitude coordinate at check-in
+  user_longitude Float
+
+  /// User's latitude coordinate at check-in
+  user_latitude Float
+
+  /// Distance in meters from the target location
+  /// Represents GPS accuracy and user's proximity to the target point
+  travel_distance_from_target Float?
+
+  /// Total distance traveled for this activity (in kilometers)
+  travel_distance Float @default(0.0)
+
+  //----
+  // CHECK-IN DETAILS
+  //----
+  /// Value of scanned QR code, if applicable
+  qr_code_value String?
+
+  /// Method used for location verification (QR_CODE or GPS)
+  check_in_method CheckInMethod?
+
+  //----
+  // VERIFICATION
+  //----
+  /// Flag indicating potential fraudulent check-in
+  detected_fraud Boolean?
+
+  /// Explanation for fraud detection, if applicable
+  fraud_reason String?
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who traveled
+  user user @relation(fields: [user_id], references: [user_id])
+}
+
+/// User Invitation Log entity
+///
+/// Tracks user invitations and referrals in the Tourii application.
+/// This model records when users invite others to the platform and the 
+/// rewards they receive for successful referrals.
+///
+/// The model supports both Discord-based invitations and direct Tourii
+/// system invites, maintaining the relationship between inviters and invitees.
+///
+/// @namespace Users
+/// @author Tourii Team
+model user_invite_log {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the invitation log record UILYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  invite_log_id String @id @default(dbgenerated("generate_invite_log_id()")) @db.VarChar(255)
+
+  /// ID of the user who sent the invitation
+  user_id String
+
+  //----
+  // INVITEE DETAILS
+  //----
+  /// Discord ID of the invited user
+  invitee_discord_id String?
+
+  /// Tourii user ID of the invited user (once registered)
+  invitee_user_id String?
+
+  //----
+  // REWARDS
+  //----
+  /// Magatama points awarded for the invitation
+  magatama_point_awarded Int @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who sent the invitation
+  user user @relation(fields: [user_id], references: [user_id])
+}
+
+/// Discord Activity Log entity
+///
+/// Records user activities and engagements within the Discord community.
+/// This model tracks various Discord-based actions performed by users
+/// and the magatama points awarded for these activities.
+///
+/// Used for tracking user engagement metrics, rewarding community participation,
+/// and integrating Discord interactions with the Tourii application ecosystem.
+///
+/// @namespace Users
+/// @author Tourii Team
 model discord_activity_log {
-  discord_activity_log_id String   @id @default(dbgenerated("generate_discord_activity_log_id()")) @db.VarChar(255)
-  user_id                 String
-  activity_type           String   @db.VarChar(255)
-  magatama_point_awarded  Int
-  activity_details        String?
-  del_flag                Boolean  @default(false)
-  ins_user_id             String   @default("user")
-  ins_date_time           DateTime @default(now())
-  upd_user_id             String   @default("user")
-  upd_date_time           DateTime @default(now())
-  request_id              String?
-  user                    user?    @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the Discord activity log record DAYYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  discord_activity_log_id String @id @default(dbgenerated("generate_discord_activity_log_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  //----
+  // ACTIVITY DETAILS
+  //----
+  /// Type of Discord activity performed
+  /// Examples: "message_sent", "voice_participation", "emoji_reaction"
+  ///
+  /// @maxLength 255
+  activity_type String @db.VarChar(255)
+
+  /// Additional details about the activity
+  /// Could include channel name, message content summary, etc.
+  activity_details String?
+
+  //----
+  // REWARDS
+  //----
+  /// Magatama points awarded for this activity
+  magatama_point_awarded Int
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who performed the activity
+  user user? @relation(fields: [user_id], references: [user_id])
 }
 
+/// Discord Rewarded Roles entity
+///
+/// Tracks Discord roles awarded to users as rewards for their activities
+/// and achievements in the Tourii ecosystem. Each record documents a role
+/// granted to a user and the associated magatama point reward.
+///
+/// This model facilitates the integration between Discord community status
+/// and in-app rewards, helping maintain consistent recognition across platforms.
+///
+/// @namespace Users
+/// @author Tourii Team
 model discord_rewarded_roles {
-  discord_rewarded_roles_id String   @id @default(dbgenerated("generate_discord_rewarded_roles_id()")) @db.VarChar(255)
-  user_id                   String
-  role_id                   BigInt
-  magatama_point_awarded    Int
-  del_flag                  Boolean  @default(false)
-  ins_user_id               String   @default("user")
-  ins_date_time             DateTime @default(now())
-  upd_user_id               String   @default("user")
-  upd_date_time             DateTime @default(now())
-  request_id                String?
-  user                      user     @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the rewarded role record DRRYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  discord_rewarded_roles_id String @id @default(dbgenerated("generate_discord_rewarded_roles_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  //----
+  // ROLE DETAILS
+  //----
+  /// Discord role ID granted to the user
+  role_id BigInt
+
+  //----
+  // REWARDS
+  //----
+  /// Magatama points awarded for receiving this role
+  magatama_point_awarded Int
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who received the role
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
+/// Discord User Roles entity
+///
+/// Maps the current Discord roles assigned to each user in the Discord server.
+/// This model maintains the many-to-many relationship between users and 
+/// Discord roles, enabling role-based permissions and features both in
+/// Discord and the Tourii application.
+///
+/// Used for determining user access levels, displaying role badges,
+/// and tailoring content based on community status.
+///
+/// @namespace Users
+/// @author Tourii Team
 model discord_user_roles {
-  discord_user_roles_id String        @id @default(dbgenerated("generate_discord_user_roles_id()")) @db.VarChar(255)
-  user_id               String
-  role_id               BigInt
-  del_flag              Boolean       @default(false)
-  ins_user_id           String        @default("user")
-  ins_date_time         DateTime      @default(now())
-  upd_user_id           String        @default("user")
-  upd_date_time         DateTime      @default(now())
-  request_id            String?
-  discord_roles         discord_roles @relation(fields: [role_id], references: [role_id])
-  user                  user          @relation(fields: [user_id], references: [user_id])
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the user role mapping DURYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  discord_user_roles_id String @id @default(dbgenerated("generate_discord_user_roles_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  /// Discord role ID assigned to the user
+  role_id BigInt
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the Discord role
+  discord_roles discord_roles @relation(fields: [role_id], references: [role_id])
+
+  /// Relation to the user
+  user user @relation(fields: [user_id], references: [user_id])
 }
 
-// Master Table
+///-----------------------------------------------------------
+/// STORY & GAMIFICATION ENTITIES
+///-----------------------------------------------------------
+
+/// Story Saga entity
+///
+/// Represents the overarching narrative structure of the Tourii universe.
+/// Each story saga contains multiple chapters, each with its own unique
+/// storyline, characters, and events. Story sagas serve as the framework
+/// for organizing adventures across different geographic regions.
+///
+/// The model links related stories and travel routes, creating a cohesive
+/// narrative experience that guides users through both virtual storytelling
+/// and real-world exploration.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model story_saga {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the story saga SSGYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  story_saga_id String @id @default(dbgenerated("generate_story_saga_id()")) @db.VarChar(255)
+
+  //----
+  // SAGA DETAILS
+  //----
+  /// Name of the story saga (e.g., "Prologue", "Bungo Ono")
+  ///
+  /// @maxLength 255
+  saga_name String @db.VarChar(255)
+
+  /// Detailed description of the saga's narrative
+  saga_desc String
+
+  /// URL to the saga's cover image
+  cover_image String? @db.VarChar(255)
+
+  /// URL to the saga's cover video
+  cover_video String? @db.VarChar(255)
+
+  /// URL to the map image for the saga
+  map_image String? @db.VarChar(255)
+
+  /// Real-world location of the saga (e.g., "Tokyo")
+  location String? @db.VarChar(255)
+
+  /// Display order in the saga list
+  order Int
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Stories contained within this saga
+  story story[]
+
+  /// Travel routes linked to this saga
+  model_route model_route[]
+}
+
+/// Story entity
+///
+/// Represents an individual chapter or narrative segment within a story saga.
+/// Each story contains specific content (text, images, videos) that delivers
+/// the narrative experience to users. Stories are typically tied to specific
+/// tourist spots in the real world, creating a bridge between the virtual
+/// narrative and physical locations.
+///
+/// The model includes multiple media types to support rich storytelling
+/// across different devices and contexts.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model story {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the story STYYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  story_id String @id @default(dbgenerated("generate_story_id()")) @db.VarChar(255)
+
+  /// ID of the parent story saga
+  story_saga_id String
+
+  /// ID of the associated tourist spot
+  tourist_spot_id String @db.VarChar(255)
+
+  //----
+  // STORY DETAILS
+  //----
+  /// Chapter number or position (e.g., "Prologue", "Chapter 1")
+  ///
+  /// @maxLength 255
+  chapter_number String @db.VarChar(255)
+
+  /// Title of the story chapter
+  ///
+  /// @maxLength 255
+  story_title String @db.VarChar(255)
+
+  /// Detailed description or content of the story
+  story_desc String
+
+  /// URL to the fictional story image
+  story_image String @db.VarChar(255)
+
+  /// URL to the real-world location image
+  real_world_image String @db.VarChar(255)
+
+  /// URL to the story video for desktop viewing
+  story_video_url String @db.VarChar(255)
+
+  /// URL to the story video optimized for mobile
+  story_video_mobile_url String @db.VarChar(255)
+
+  /// URL to the downloadable PDF version
+  story_pdf_url String @db.VarChar(255)
+
+  /// Whether the story is available to users without prerequisites
+  is_unlocked Boolean @default(false)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Parent story saga that contains this story
+  story_saga story_saga @relation(fields: [story_saga_id], references: [story_saga_id])
+}
+
+/// Model Route entity
+///
+/// Represents a specific travel route within a story saga, connecting
+/// various tourist spots into a cohesive journey. Routes can include
+/// recommendations for activities, food, or experiences, enhancing
+/// the real-world exploration aspect of the Tourii experience.
+///
+/// Routes serve as paths through both the narrative and physical landscape,
+/// guiding users through a sequence of locations that tell a connected story.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model model_route {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the travel route MRTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  model_route_id String @id @default(dbgenerated("generate_model_route_id()")) @db.VarChar(255)
+
+  /// ID of the parent story saga
+  story_saga_id String
+
+  //----
+  // ROUTE DETAILS
+  //----
+  /// Name of the travel route
+  ///
+  /// @maxLength 255
+  route_name String @db.VarChar(255)
+
+  /// List of recommendations for this route
+  /// Examples: ["Local Food", "Local Hidden Legends", "Nature"]
+  recommendation Json[] @db.JsonB
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Parent story saga that contains this route
+  story_saga story_saga @relation(fields: [story_saga_id], references: [story_saga_id])
+
+  /// Tourist spots located along this route
+  tourist_spot tourist_spot[]
+}
+
+/// Tourist Spot entity
+///
+/// Represents a specific physical location in the real world that is part
+/// of the Tourii experience. Each tourist spot is associated with a travel
+/// route and may contain quests for users to complete. Spots include
+/// geographic coordinates, visiting information, and images to help
+/// users locate and engage with the destination.
+///
+/// This model bridges the virtual narrative with real-world locations,
+/// enabling location-based gameplay and exploration.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model tourist_spot {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the tourist spot TSTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  tourist_spot_id String @id @default(dbgenerated("generate_tourist_spot_id()")) @db.VarChar(255)
+
+  /// ID of the associated travel route
+  model_route_id String
+
+  //----
+  // LOCATION DETAILS
+  //----
+  /// Name of the tourist spot
+  ///
+  /// @maxLength 255
+  tourist_spot_name String @db.VarChar(255)
+
+  /// Detailed description of the tourist spot
+  tourist_spot_desc String
+
+  /// Geographic latitude coordinate
+  latitude Float
+
+  /// Geographic longitude coordinate
+  longitude Float
+
+  /// Recommended visiting hours (e.g., "10:00 - 18:00")
+  best_visit_time String? @db.VarChar(255)
+
+  /// Physical address of the location
+  address String? @db.VarChar(255)
+
+  /// Link to the related story chapter
+  story_chapter_link String? @db.VarChar(255)
+
+  /// Hashtags associated with this location
+  /// Example: ["#Tokyo", "#Japan"]
+  tourist_spot_hashtag String[] @db.VarChar(255)
+
+  /// Image set for the tourist spot
+  /// Format: {
+  ///   "main": "https://cdn.tourii.app/images/harajiri_main.jpg",
+  ///   "small": [
+  ///     "https://cdn.tourii.app/images/harajiri_1.jpg",
+  ///     "https://cdn.tourii.app/images/harajiri_2.jpg"
+  ///   ]
+  /// }
+  image_set Json? @db.JsonB
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Parent travel route that contains this spot
+  model_route model_route @relation(fields: [model_route_id], references: [model_route_id])
+
+  /// Quests available at this tourist spot
+  quest quest[]
+}
+
+/// Quest entity
+///
+/// Represents a challenge or activity that users can complete at a specific
+/// tourist spot. Quests include tasks, rewards, and point values, forming
+/// the core gameplay mechanics of the Tourii application. Quests can be
+/// premium (requiring subscription) or free, and award magatama points
+/// upon completion.
+///
+/// This model connects the narrative elements with interactive gameplay,
+/// incentivizing users to visit locations and engage with the content.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model quest {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the quest QSTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  quest_id String @id @default(dbgenerated("generate_quest_id()")) @db.VarChar(255)
+
+  /// ID of the associated tourist spot
+  tourist_spot_id String @db.VarChar(255)
+
+  //----
+  // QUEST DETAILS
+  //----
+  /// Name of the quest
+  ///
+  /// @maxLength 255
+  quest_name String @db.VarChar(255)
+
+  /// Detailed description of the quest
+  quest_desc String
+
+  /// Category/classification of the quest
+  quest_type QuestType @default(UNKNOWN)
+
+  /// URL to the quest's main image
+  quest_image String? @db.VarChar(255)
+
+  /// Whether the quest is available without prerequisites
+  is_unlocked Boolean @default(false)
+
+  /// Whether this is a premium quest requiring subscription
+  is_premium Boolean @default(false)
+
+  //----
+  // REWARDS
+  //----
+  /// Total magatama points awarded for completing all tasks
+  total_magatama_point_awarded Int @default(0)
+
+  /// Category of reward provided upon completion
+  reward_type RewardType @default(UNKNOWN)
+
+  /// Detailed information about reward items
+  /// Format: [
+  ///   {
+  ///     "item_name": "Local Food",
+  ///     "item_desc": "Local Food Desc",
+  ///     "item_image": "https://cdn.tourii.app/images/harajiri_main.jpg"
+  ///   }
+  /// ]
+  reward_items Json[] @db.JsonB
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Parent tourist spot where this quest is located
+  tourist_spot tourist_spot @relation(fields: [tourist_spot_id], references: [tourist_spot_id])
+
+  /// Individual tasks that make up this quest
+  quest_task quest_task[]
+}
+
+/// Quest Task entity
+///
+/// Represents an individual task or step within a quest. Tasks can take
+/// various forms (answer questions, visit locations, upload photos, etc.)
+/// defined by the task_type. Each task type has specific behaviors and
+/// required actions configured through specialized JSON structures.
+///
+/// This model includes anti-cheat mechanisms, response validation, and
+/// point allocation to ensure fair and engaging gameplay.
+///
+/// @namespace Gamification
+/// @author Tourii Team
+model quest_task {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the quest task TSKYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  quest_task_id String @id @default(dbgenerated("generate_quest_task_id()")) @db.VarChar(255)
+
+  /// ID of the parent quest
+  quest_id String
+
+  //----
+  // TASK DETAILS
+  //----
+  /// Thematic category of the task
+  task_theme TaskTheme @default(STORY)
+
+  /// Behavior type of the task (defines required actions and validation)
+  task_type TaskType @default(SELECT_OPTION)
+
+  /// Name or title of the task
+  ///
+  /// @maxLength 255
+  task_name String @db.VarChar(255)
+
+  /// Task instructions shown to the user.
+  /// 
+  /// | task_type       | Example Prompt                                                |
+  /// |-----------------|----------------------------------------------------------------|
+  /// | VISIT_LOCATION  | Visit and check in at Harajiri Falls to earn points!         |
+  /// | ANSWER_TEXT     | Describe your experience at the shrine in one sentence.      |
+  /// | SELECT_OPTION   | What meal does Suratahiko serve Ninigi?                      |
+  /// | SHARE_SOCIAL    | Tweet about your ideal fantasy vehicle with #TouriiAdventure |
+  /// | PHOTO_UPLOAD    | Upload a photo of the lanterns at Harajiri Falls!            |
+  /// | QR_SCAN         | Find and scan the hidden QR code near the waterfall.         |
+  /// | GROUP_ACTIVITY  | Join a team and complete a scavenger hunt together!          |
+  task_desc String
+
+  /// Whether the task is available without prerequisites
+  is_unlocked Boolean @default(false)
+
+  //----
+  // TASK CONFIGURATION
+  //----
+  /// Extra requirements for task completion.
+  ///
+  /// | task_type       | Example required_action                                         |
+  /// |-----------------|------------------------------------------------------------------|
+  /// | VISIT_LOCATION  | { "GPS_required": true }                                        |
+  /// | ANSWER_TEXT     | null                                                            |
+  /// | SELECT_OPTION   | null                                                            |
+  /// | SHARE_SOCIAL    | { "platform": "Twitter", "hashtag": "#TouriiAdventure", ... }   |
+  /// | PHOTO_UPLOAD    | { "min_resolution": "1080x720" }                                |
+  /// | QR_SCAN         | { "qr_code_value": "XG45-7YV9" }                                 |
+  /// | GROUP_ACTIVITY  | { "min_participants": 3 }                                        |
+
+  required_action String @db.VarChar(255)
+
+  /// Options for SELECT_OPTION task type
+  ///
+  /// Format: [
+  ///   { "option_text": "Ramen", "answer_flag": false },
+  ///   { "option_text": "Soba", "answer_flag": true, "image": "https://..." }
+  /// ]
+  select_options Json[] @db.JsonB
+
+  /// Rules to prevent abuse or duplicate submissions.
+  ///
+  /// | task_type       | Example anti_cheat_rules                                      |
+  /// |-----------------|----------------------------------------------------------------|
+  /// | VISIT_LOCATION  | { "claim_once": true, "cooldown_hours": 24 }                  |
+  /// | ANSWER_TEXT     | { "only_once": true }                                         |
+  /// | SELECT_OPTION   | { "max_attempts": 1 }                                         |
+  /// | SHARE_SOCIAL    | { "verify_link": true, "only_once": true }                   |
+  /// | PHOTO_UPLOAD    | { "claim_once": true }                                        |
+  /// | QR_SCAN         | { "claim_once": true }                                        |
+  /// | GROUP_ACTIVITY  | { "verify_team": true }                                       |
+  anti_cheat_rules Json @db.JsonB
+
+  //----
+  // REWARDS
+  //----
+  /// Magatama points awarded for completing this task
+  magatama_point_awarded Int @default(0)
+
+  /// Total points for compound or repeatable tasks
+  total_magatama_point_awarded Int @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Parent quest that contains this task
+  quest quest @relation(fields: [quest_id], references: [quest_id])
+}
+
+/// Master Data start from here
+
+///-----------------------------------------------------------
+/// MASTER DATA & REFERENCE TABLES
+///-----------------------------------------------------------
+
+/// Onchain Item Catalog entity
+///
+/// Serves as a master catalog of all blockchain items available in the Tourii
+/// ecosystem. This model contains metadata for NFTs including digital passports,
+/// log NFTs, and travel perks across different blockchain networks.
+///
+/// The catalog includes detailed information about each item's appearance,
+/// blockchain location, supply limits, and validity period, enabling
+/// consistent item management and minting operations.
+///
+/// @namespace Master
+/// @author Tourii Team
+model onchain_item_catalog {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the catalog item OICYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  onchain_item_id String @id @default(dbgenerated("generate_onchain_item_catalog_id()")) @db.VarChar(255)
+
+  //----
+  // ITEM CLASSIFICATION
+  //----
+  /// Type of the blockchain item
+  item_type OnchainItemType @default(UNKNOWN)
+
+  /// Blockchain network where the item exists
+  blockchain_type BlockchainType @default(UNKNOWN)
+
+  //----
+  // ITEM DETAILS
+  //----
+  /// Name of the NFT as it appears on blockchain
+  ///
+  /// @maxLength 255
+  nft_name String @db.VarChar(255)
+
+  /// Detailed description of the NFT
+  ///
+  /// @maxLength 255
+  nft_description String @db.VarChar(255)
+
+  /// URL to the NFT image
+  ///
+  /// @maxLength 255
+  image_url String @db.VarChar(255)
+
+  /// Blockchain contract address for the NFT
+  ///
+  /// @maxLength 255
+  contract_address String @db.VarChar(255)
+
+  //----
+  // BLOCKCHAIN METADATA
+  //----
+  /// Token ID within the contract (used by digital passports)
+  ///
+  /// @maxLength 255
+  token_id String? @db.VarChar(255)
+
+  /// URL to the item's metadata (used by perks and log NFTs)
+  ///
+  /// @maxLength 255
+  metadata_url String? @db.VarChar(255)
+
+  /// Additional attributes of the NFT (used by perks and log NFTs)
+  attributes Json[] @db.JsonB
+
+  //----
+  // AVAILABILITY
+  //----
+  /// Date when the NFT becomes available
+  release_date DateTime? @default(now())
+
+  /// Date when the NFT expires or becomes invalid
+  expiry_date DateTime? @default(now())
+
+  /// Maximum number of items that can be minted (0 = unlimited)
+  max_supply Int? @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+}
+
+/// Level Requirement Master entity
+///
+/// Defines the progression system for user levels in the Tourii application.
+/// This model specifies the requirements for each level, including magatama
+/// point thresholds, collectible item counts, and associated Discord roles.
+///
+/// Used for automatic level-up calculations, reward eligibility, and
+/// determining user capabilities based on their progression status.
+///
+/// @namespace Master
+/// @author Tourii Team
+model level_requirement_master {
+  //----
+  // IDENTIFICATION
+  //----
+  /// User level type (primary key)
+  level LevelType @id
+
+  //----
+  // DISCORD INTEGRATION
+  //----
+  /// Associated Discord role ID for this level
+  ///
+  /// @maxLength 255
+  discord_role_id String? @db.VarChar(255)
+
+  //----
+  // POINTS REQUIREMENTS
+  //----
+  /// Minimum magatama points required to reach this level
+  min_get_magatama_points Int
+
+  /// Maximum magatama points for this level (before next level)
+  max_get_magatama_points Int
+
+  //----
+  // ITEM REQUIREMENTS
+  //----
+  /// Total number of blockchain items required
+  total_onchain_item Int @default(0)
+
+  /// Number of prayer beads required
+  prayer_bead Int @default(0)
+
+  /// Number of swords required
+  sword Int @default(0)
+
+  /// Number of orge masks required
+  orge_mask Int @default(0)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime? @default(now()) @db.Timestamp(6)
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime? @default(now()) @db.Timestamp(6)
+
+  /// Request ID for tracing
+  request_id String?
+}
+
+/// Discord Roles master table
+///
+/// Serves as a reference table for all Discord roles used in the Tourii ecosystem.
+/// This model stores the official record of Discord roles that can be assigned
+/// to users, maintaining consistency between the Discord server and the application.
+///
+/// Used for role management, permission assignments, and ensuring data integrity
+/// when working with Discord integration features.
+///
+/// @namespace Master
+/// @author Tourii Team
 model discord_roles {
-  role_id            BigInt               @id @unique
-  name               String               @unique @db.VarChar(255)
-  del_flag           Boolean              @default(false)
-  ins_user_id        String               @default("user")
-  ins_date_time      DateTime             @default(now())
-  upd_user_id        String               @default("user")
-  upd_date_time      DateTime             @default(now())
-  request_id         String?
+  //----
+  // IDENTIFICATION
+  //----
+  /// Discord's own unique identifier for the role
+  role_id BigInt @id @unique
+
+  /// Human-readable name of the Discord role
+  ///
+  /// @maxLength 255
+  name String @unique @db.VarChar(255)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// User role assignments for this Discord role
   discord_user_roles discord_user_roles[]
 }
 
-model onchain_item_catalog {
-  onchain_item_id  String          @id @default(dbgenerated("generate_onchain_item_catalog_id()")) @db.VarChar(255)
-  item_type        OnchainItemType @default(UNKNOWN)
-  nft_name         String          @db.VarChar(255)
-  nft_description  String          @db.VarChar(255)
-  image_url        String          @db.VarChar(255)
-  contract_address String          @db.VarChar(255)
-  token_id         String?         @db.VarChar(255) // only use by digital_passport
-  metadata_url     String?         @db.VarChar(255) // only use by perk and log_nft
-  attributes       Json[]          @db.JsonB // only use by perk and log_nft
-  release_date     DateTime?       @default(now())
-  expiry_date      DateTime?       @default(now())
-  max_supply       Int?            @default(0)
-  del_flag         Boolean         @default(false)
-  ins_user_id      String          @default("user")
-  ins_date_time    DateTime        @default(now())
-  upd_user_id      String          @default("user")
-  upd_date_time    DateTime        @default(now())
-  request_id       String?
-}
-
-model level_requirement_master {
-  level                   LevelType @id
-  discord_role_id         String?   @db.VarChar(255)
-  min_get_magatama_points Int
-  max_get_magatama_points Int
-  total_onchain_item      Int       @default(0)
-  prayer_bead             Int       @default(0)
-  sword                   Int       @default(0)
-  orge_mask               Int       @default(0)
-  del_flag                Boolean   @default(false)
-  ins_user_id             String    @default("user")
-  ins_date_time           DateTime? @default(now()) @db.Timestamp(6)
-  upd_user_id             String    @default("user")
-  upd_date_time           DateTime? @default(now()) @db.Timestamp(6)
-  request_id              String?
-}
-
+/// Kendama Game Settings entity
+///
+/// Configures the parameters for the kendama mini-game, a casual
+/// game available within the Tourii application. This model stores
+/// probability values that determine game outcomes and win rates
+/// across different seasons or events.
+///
+/// Used by the game system to calculate success chances and
+/// provide variety in gameplay experience through different seasons.
+///
+/// @namespace Master
+/// @author Tourii Team
 model kendama_random_range {
-  season        KendamaSeason @id @default(NORMAL)
-  landed        Decimal       @db.Decimal
-  missed        Decimal       @db.Decimal
-  win_rate      Decimal       @db.Decimal
-  del_flag      Boolean       @default(false)
-  ins_user_id   String        @default("user")
-  ins_date_time DateTime      @default(now())
-  upd_user_id   String        @default("user")
-  upd_date_time DateTime      @default(now())
-  request_id    String?
+  //----
+  // IDENTIFICATION
+  //----
+  /// Game season type (primary key)
+  season KendamaSeason @id @default(NORMAL)
+
+  //----
+  // GAME PARAMETERS
+  //----
+  /// Success probability multiplier
+  landed Decimal @db.Decimal
+
+  /// Failure probability multiplier
+  missed Decimal @db.Decimal
+
+  /// Target win rate for this season
+  win_rate Decimal @db.Decimal
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
 }
