@@ -276,7 +276,14 @@ define access levels and privileges in the system.
     > Indicates whether user has premium subscription
   - `total_quest_completed`: Total number of quests completed by user
   - `total_travel_distance`: Total travel distance recorded by user
-  - `role`: User role in the system
+  - `role`
+    > User role in the system
+    > 
+    > | Role         | Description                                           |
+    > |--------------|-------------------------------------------------------|
+    > | USER         | Regular user with standard permissions                |
+    > | MODERATOR    | User with moderation capabilities                     |
+    > | ADMIN        | User with full administrative access                  |
   - `registered_at`: Initial registration timestamp
   - `discord_joined_at`: When user joined Discord
   - `is_banned`: Indicates if user is banned from the platform
@@ -302,7 +309,17 @@ engagement, or general milestones.
   - `achievement_name`: Name of the achievement
   - `achievement_desc`: Detailed description of the achievement
   - `icon_url`: URL to the achievement icon image
-  - `achievement_type`: Category of the achievement
+  - `achievement_type`
+    > Category of the achievement
+    > 
+    > | Type         | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | UNKNOWN      | Uncategorized achievement type              |
+    > | STORY        | Achievement related to Story                |
+    > | TRAVEL       | Achievement related to Travel               |
+    > | EXPLORE      | Achievement related to Exploration          |
+    > | COMMUNITY    | Achievement related to User Engagement      |
+    > | MILESTONE    | Achievement related to Milestone            |
   - `magatama_point_awarded`: Amount of magatama points awarded for this achievement
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
@@ -328,8 +345,27 @@ and collectible items that unlock additional features.
   - `user_id`: Associated user ID (one-to-one relationship)
   - `digital_passport_address`: Blockchain address for the user's digital passport
   - `log_nft_address`: Blockchain address for the user's log NFT
-  - `user_digital_passport_type`: Type of digital passport assigned to the user
-  - `level`: Current level classification of the user
+  - `user_digital_passport_type`
+    > Type of digital passport assigned to the user
+    > 
+    > | Type         | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | BONJIN       | Standard human passport type                |
+    > | AMATSUKAMI   | Celestial deity passport type               |
+    > | KUNITSUKAMI  | Earthly deity passport type                 |
+    > | YOKAI        | Supernatural being passport type            |
+  - `level`
+    > Current level classification of the user
+    > 
+    > | Level        | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | BONJIN       | Base human level                            |
+    > | E_CLASS_*    | Entry level for each passport type          |
+    > | D_CLASS_*    | Beginner level for each passport type       |
+    > | C_CLASS_*    | Intermediate level for each passport type   |
+    > | B_CLASS_*    | Advanced level for each passport type       |
+    > | A_CLASS_*    | Expert level for each passport type         |
+    > | S_CLASS_*    | Master level for each passport type         |
   - `discount_rate`: User's discount rate for premium features (as a decimal)
   - `magatama_points`: Current balance of magatama points (in-game currency)
   - `magatama_bags`: Number of magatama bags collected
@@ -360,16 +396,37 @@ transaction hashes, minting timestamps, and current item status.
 **Properties**
   - `user_onchain_item_id`: Unique identifier for the onchain item record OICYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `user_id`: Associated user ID
-  - `item_type`: Type of blockchain item (LOG_NFT, DIGITAL_PASSPORT, PERK)
+  - `item_type`
+    > Type of blockchain item (LOG_NFT, DIGITAL_PASSPORT, PERK)
+    > 
+    > | Type             | Description                             |
+    > |------------------|-----------------------------------------|
+    > | UNKNOWN          | Unknown item type                       |
+    > | LOG_NFT          | Log NFT item type                       |
+    > | DIGITAL_PASSPORT | Digital passport item type              |
+    > | PERK             | Travel perk item type                   |
   - `item_txn_hash`
     > Blockchain transaction hash
     > Can be digital_passport_address, log_nft_address, or perk_address
   - `blockchain_type`
     > Blockchain network where the item exists
-    > CAMINO is used for perks, VARA for log_nft & digital_passport
+    > 
+    > | Type         | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | UNKNOWN      | Unknown blockchain type                     |
+    > | VARA         | Vara blockchain type                        |
+    > | CAMINO       | Camino blockchain type                      |
   - `minted_at`: Timestamp when the item was minted on blockchain
   - `onchain_item_id`: Onchain identifier for the item
-  - `status`: Current status of the onchain item
+  - `status`
+    > Current status of the onchain item
+    > 
+    > | Status       | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | ACTIVE       | Active item status                          |
+    > | USED         | Used item status                            |
+    > | EXPIRED      | Item is no longer valid                     |
+    > | PENDING      | Item is in the process of being minted      |
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
@@ -395,9 +452,21 @@ serves as a record for troubleshooting failed claims.
   - `offchain_item_name`: Name of the offchain item (if applicable)
   - `item_amount`: Quantity of the item claimed
   - `item_details`: Additional details about the item
-  - `type`: Type of item (onchain or offchain)
+  - `type`
+    > Type of item (onchain or offchain)
+    > 
+    > | Type         | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | ONCHAIN      | Item stored on blockchain                   |
+    > | OFFCHAIN     | Item stored in application database         |
   - `claimed_at`: Timestamp when the item was claimed
-  - `status`: Status of the claim (SUCCESS or FAILED)
+  - `status`
+    > Status of the claim (SUCCESS or FAILED)
+    > 
+    > | Status       | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | SUCCESS      | Item was successfully claimed               |
+    > | FAILED       | Item claim failed                           |
   - `error_msg`: Error message for failed claims
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
@@ -421,7 +490,14 @@ and analytics about user engagement with narrative content.
   - `user_story_log_id`: Unique identifier for the story log record USLYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `user_id`: Associated user ID
   - `story_id`: ID of the story being tracked
-  - `status`: Current status of the story for this user
+  - `status`
+    > Current status of the story for this user
+    > 
+    > | Status       | Description                                                   |
+    > |--------------|---------------------------------------------------------------|
+    > | UNREAD       | Story is available but user hasn't started reading it yet     |
+    > | IN_PROGRESS  | User has started the story but hasn't finished it             |
+    > | COMPLETED    | User has finished reading the entire story                    |
   - `unlocked_at`
     > Timestamp when user started reading the story
     > Recorded when user clicks the start reading button
@@ -448,8 +524,28 @@ quest success/failure, and reward distribution.
   - `user_quest_log_id`: Unique identifier for the quest log record UQLYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `user_id`: Associated user ID
   - `quest_id`: ID of the quest
-  - `status`: Current status of the quest for this user
-  - `action`: Type of action required for the quest
+  - `status`
+    > Current status of the quest for this user
+    > 
+    > | Status       | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | AVAILABLE    | Quest is available to be started            |
+    > | ONGOING      | Quest is currently in progress              |
+    > | COMPLETED    | Quest has been successfully completed       |
+    > | FAILED       | Quest was not completed successfully        |
+  - `action`
+    > Type of action required for the quest
+    > 
+    > | Type              | Description                                  |
+    > |-------------------|----------------------------------------------|
+    > | VISIT_LOCATION    | Requires physical presence at a location     |
+    > | PHOTO_UPLOAD      | Requires uploading a photo                   |
+    > | ANSWER_TEXT       | Requires text response                       |
+    > | SELECT_OPTION     | Requires selecting from predefined options   |
+    > | SHARE_SOCIAL      | Requires sharing on social media             |
+    > | CHECK_IN          | Requires checking in at a location           |
+    > | GROUP_ACTIVITY    | Requires participation in a group activity   |
+    > | LOCAL_INTERACTION | Requires interaction with locals             |
   - `user_response`: User's textual response to the quest
   - `submission_data`
     > Metadata for proof of completion
@@ -489,7 +585,13 @@ to calculate travel distances and verify proximity to target locations.
     > Represents GPS accuracy and user's proximity to the target point
   - `travel_distance`: Total distance traveled for this activity (in kilometers)
   - `qr_code_value`: Value of scanned QR code, if applicable
-  - `check_in_method`: Method used for location verification (QR_CODE or GPS)
+  - `check_in_method`
+    > Method used for location verification (QR_CODE or GPS)
+    > 
+    > | Method       | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | QR_CODE      | Verification via QR code scan               |
+    > | GPS          | Verification via GPS location               |
   - `detected_fraud`: Flag indicating potential fraudulent check-in
   - `fraud_reason`: Explanation for fraud detection, if applicable
   - `del_flag`: Soft delete flag
@@ -853,12 +955,41 @@ incentivizing users to visit locations and engage with the content.
   - `tourist_spot_id`: ID of the associated tourist spot
   - `quest_name`: Name of the quest
   - `quest_desc`: Detailed description of the quest
-  - `quest_type`: Category/classification of the quest
+  - `quest_type`
+    > Category/classification of the quest
+    > 
+    > | Type              | Description                                  |
+    > |-------------------|----------------------------------------------|
+    > | UNKNOWN           | Unknown or unclassified quest type           |
+    > | TRAVEL_TO_EARN    | Earn rewards by traveling to locations       |
+    > | EARN_TO_TRAVEL    | Earn travel opportunities through activities |
+    > | CAMPAIGN          | Quest part of a promotional campaign         |
+    > | COMMUNITY_EVENT   | Quest associated with community events       |
   - `quest_image`: URL to the quest's main image
   - `is_unlocked`: Whether the quest is available without prerequisites
   - `is_premium`: Whether this is a premium quest requiring subscription
   - `total_magatama_point_awarded`: Total magatama points awarded for completing all tasks
-  - `reward_type`: Category of reward provided upon completion
+  - `reward_type`
+    > Category of reward provided upon completion
+    > 
+    > | Type                   | Description                                |
+    > |------------------------|--------------------------------------------|
+    > | UNKNOWN                | Uncategorized reward                       |
+    > | LOCAL_EXPERIENCES      | Unique, exclusive, or hidden local gems    |
+    > | CULINARY               | Food-related rewards or tastings           |
+    > | ADVENTURE_NATURE       | Outdoor, nature, or activity-based rewards |
+    > | CULTURAL_COMMUNITY     | Cultural learning or social impact rewards |
+    > | HIDDEN_PERKS           | Secret/bonus perks not usually available   |
+    > | SURPRISE_TREATS        | Randomized or surprise gifts               |
+    > | BONUS_UPGRADES         | Upgrades to experiences, like VIP access   |
+    > | SOCIAL_RECOGNITION     | Community shout-outs or profile boosts     |
+    > | RETURNING_VISITOR_BONUS| Loyalty rewards for coming back            |
+    > | ELITE_EXPERIENCES      | High-end or premium experiences            |
+    > | WELLNESS               | Spa, wellness, or relaxation-related       |
+    > | SHOPPING               | Souvenirs, discounts, or vouchers          |
+    > | ENTERTAINMENT          | Concerts, shows, or festivals              |
+    > | TRANSPORT_CONNECTIVITY | Travel perks like transport or Wi-Fi       |
+    > | LOCAL_PARTNERSHIPS     | Partner-provided rewards (e.g., brands)    |
   - `reward_items`
     > Detailed information about reward items
     > Format: [
@@ -889,8 +1020,29 @@ point allocation to ensure fair and engaging gameplay.
 **Properties**
   - `quest_task_id`: Unique identifier for the quest task TSKYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `quest_id`: ID of the parent quest
-  - `task_theme`: Thematic category of the task
-  - `task_type`: Behavior type of the task (defines required actions and validation)
+  - `task_theme`
+    > Thematic category of the task
+    > 
+    > | Theme        | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | STORY        | Story-related tasks                         |
+    > | LOCAL_CULTURE| Tasks focused on local culture exploration  |
+    > | FOOD         | Food-related tasks                          |
+    > | URBAN_EXPLORE| Urban exploration tasks                     |
+    > | NATURE       | Nature-focused tasks                        |
+  - `task_type`
+    > Behavior type of the task (defines required actions and validation)
+    > 
+    > | Type              | Description                                  |
+    > |-------------------|----------------------------------------------|
+    > | VISIT_LOCATION    | Requires physical presence at a location     |
+    > | PHOTO_UPLOAD      | Requires uploading a photo                   |
+    > | ANSWER_TEXT       | Requires text response                       |
+    > | SELECT_OPTION     | Requires selecting from predefined options   |
+    > | SHARE_SOCIAL      | Requires sharing on social media             |
+    > | CHECK_IN          | Requires checking in at a location           |
+    > | GROUP_ACTIVITY    | Requires participation in a group activity   |
+    > | LOCAL_INTERACTION | Requires interaction with locals             |
   - `task_name`: Name or title of the task
   - `task_desc`
     > Task instructions shown to the user.
@@ -1023,8 +1175,23 @@ consistent item management and minting operations.
 
 **Properties**
   - `onchain_item_id`: Unique identifier for the catalog item OICYYYYMM-rand1-DDHHMI-rand2-obfCounter
-  - `item_type`: Type of the blockchain item
-  - `blockchain_type`: Blockchain network where the item exists
+  - `item_type`
+    > Type of the blockchain item
+    > 
+    > | Type             | Description                             |
+    > |------------------|-----------------------------------------|
+    > | UNKNOWN          | Unknown item type                       |
+    > | LOG_NFT          | Log NFT item type                       |
+    > | DIGITAL_PASSPORT | Digital passport item type              |
+    > | PERK             | Travel perk item type                   |
+  - `blockchain_type`
+    > Blockchain network where the item exists
+    > 
+    > | Type         | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | UNKNOWN      | Unknown blockchain type                     |
+    > | VARA         | Vara blockchain type                        |
+    > | CAMINO       | Camino blockchain type                      |
   - `nft_name`: Name of the NFT as it appears on blockchain
   - `nft_description`: Detailed description of the NFT
   - `image_url`: URL to the NFT image
@@ -1100,7 +1267,13 @@ Used by the game system to calculate success chances and
 provide variety in gameplay experience through different seasons.
 
 **Properties**
-  - `season`: Game season type (primary key)
+  - `season`
+    > Game season type (primary key)
+    > 
+    > | Season       | Description                                 |
+    > |--------------|---------------------------------------------|
+    > | NORMAL       | Standard season                             |
+    > | EVENT        | Special event season with different rules/rewards|
   - `landed`: Success probability multiplier
   - `missed`: Failure probability multiplier
   - `win_rate`: Target win rate for this season

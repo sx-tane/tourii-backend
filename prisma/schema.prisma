@@ -393,6 +393,12 @@ model user {
   total_travel_distance Float @default(0.0)
 
   /// User role in the system
+  /// 
+  /// | Role         | Description                                           |
+  /// |--------------|-------------------------------------------------------|
+  /// | USER         | Regular user with standard permissions                |
+  /// | MODERATOR    | User with moderation capabilities                     |
+  /// | ADMIN        | User with full administrative access                  |
   role UserRoleType @default(USER)
 
   /// Initial registration timestamp
@@ -501,6 +507,15 @@ model user_achievement {
   icon_url String? @db.VarChar(255)
 
   /// Category of the achievement
+  /// 
+  /// | Type         | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | UNKNOWN      | Uncategorized achievement type              |
+  /// | STORY        | Achievement related to Story                |
+  /// | TRAVEL       | Achievement related to Travel               |
+  /// | EXPLORE      | Achievement related to Exploration          |
+  /// | COMMUNITY    | Achievement related to User Engagement      |
+  /// | MILESTONE    | Achievement related to Milestone            |
   achievement_type AchievementType @default(UNKNOWN)
 
   //----
@@ -572,9 +587,26 @@ model user_info {
   log_nft_address String @default("''")
 
   /// Type of digital passport assigned to the user
+  /// 
+  /// | Type         | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | BONJIN       | Standard human passport type                |
+  /// | AMATSUKAMI   | Celestial deity passport type               |
+  /// | KUNITSUKAMI  | Earthly deity passport type                 |
+  /// | YOKAI        | Supernatural being passport type            |
   user_digital_passport_type PassportType? @default(BONJIN)
 
   /// Current level classification of the user
+  /// 
+  /// | Level        | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | BONJIN       | Base human level                            |
+  /// | E_CLASS_*    | Entry level for each passport type          |
+  /// | D_CLASS_*    | Beginner level for each passport type       |
+  /// | C_CLASS_*    | Intermediate level for each passport type   |
+  /// | B_CLASS_*    | Advanced level for each passport type       |
+  /// | A_CLASS_*    | Expert level for each passport type         |
+  /// | S_CLASS_*    | Master level for each passport type         |
   level LevelType? @default(BONJIN)
 
   /// User's discount rate for premium features (as a decimal)
@@ -666,6 +698,13 @@ model user_onchain_item {
   // BLOCKCHAIN ITEM DETAILS
   //----
   /// Type of blockchain item (LOG_NFT, DIGITAL_PASSPORT, PERK)
+  /// 
+  /// | Type             | Description                             |
+  /// |------------------|-----------------------------------------|
+  /// | UNKNOWN          | Unknown item type                       |
+  /// | LOG_NFT          | Log NFT item type                       |
+  /// | DIGITAL_PASSPORT | Digital passport item type              |
+  /// | PERK             | Travel perk item type                   |
   item_type OnchainItemType @default(UNKNOWN)
 
   /// Blockchain transaction hash
@@ -673,7 +712,12 @@ model user_onchain_item {
   item_txn_hash String @unique
 
   /// Blockchain network where the item exists
-  /// CAMINO is used for perks, VARA for log_nft & digital_passport
+  /// 
+  /// | Type         | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | UNKNOWN      | Unknown blockchain type                     |
+  /// | VARA         | Vara blockchain type                        |
+  /// | CAMINO       | Camino blockchain type                      |
   blockchain_type BlockchainType @default(UNKNOWN)
 
   /// Timestamp when the item was minted on blockchain
@@ -683,6 +727,13 @@ model user_onchain_item {
   onchain_item_id String? @unique
 
   /// Current status of the onchain item
+  /// 
+  /// | Status       | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | ACTIVE       | Active item status                          |
+  /// | USED         | Used item status                            |
+  /// | EXPIRED      | Item is no longer valid                     |
+  /// | PENDING      | Item is in the process of being minted      |
   status OnchainItemStatus @default(ACTIVE)
 
   //----
@@ -753,6 +804,11 @@ model user_item_claim_log {
   item_details String?
 
   /// Type of item (onchain or offchain)
+  /// 
+  /// | Type         | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | ONCHAIN      | Item stored on blockchain                   |
+  /// | OFFCHAIN     | Item stored in application database         |
   type ItemType @default(OFFCHAIN)
 
   //----
@@ -762,6 +818,11 @@ model user_item_claim_log {
   claimed_at DateTime? @default(now()) @db.Timestamp(6)
 
   /// Status of the claim (SUCCESS or FAILED)
+  /// 
+  /// | Status       | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | SUCCESS      | Item was successfully claimed               |
+  /// | FAILED       | Item claim failed                           |
   status ItemStatus @default(SUCCESS)
 
   /// Error message for failed claims
@@ -826,6 +887,12 @@ model user_story_log {
   // PROGRESS TRACKING
   //----
   /// Current status of the story for this user
+  /// 
+  /// | Status       | Description                                                   |
+  /// |--------------|---------------------------------------------------------------|
+  /// | UNREAD       | Story is available but user hasn't started reading it yet     |
+  /// | IN_PROGRESS  | User has started the story but hasn't finished it             |
+  /// | COMPLETED    | User has finished reading the entire story                    |
   status StoryStatus @default(UNREAD)
 
   /// Timestamp when user started reading the story
@@ -894,9 +961,27 @@ model user_quest_log {
   // QUEST STATUS
   //----
   /// Current status of the quest for this user
+  /// 
+  /// | Status       | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | AVAILABLE    | Quest is available to be started            |
+  /// | ONGOING      | Quest is currently in progress              |
+  /// | COMPLETED    | Quest has been successfully completed       |
+  /// | FAILED       | Quest was not completed successfully        |
   status QuestStatus @default(AVAILABLE)
 
   /// Type of action required for the quest
+  /// 
+  /// | Type              | Description                                  |
+  /// |-------------------|----------------------------------------------|
+  /// | VISIT_LOCATION    | Requires physical presence at a location     |
+  /// | PHOTO_UPLOAD      | Requires uploading a photo                   |
+  /// | ANSWER_TEXT       | Requires text response                       |
+  /// | SELECT_OPTION     | Requires selecting from predefined options   |
+  /// | SHARE_SOCIAL      | Requires sharing on social media             |
+  /// | CHECK_IN          | Requires checking in at a location           |
+  /// | GROUP_ACTIVITY    | Requires participation in a group activity   |
+  /// | LOCAL_INTERACTION | Requires interaction with locals             |
   action TaskType @default(VISIT_LOCATION)
 
   //----
@@ -1008,6 +1093,11 @@ model user_travel_log {
   qr_code_value String?
 
   /// Method used for location verification (QR_CODE or GPS)
+  /// 
+  /// | Method       | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | QR_CODE      | Verification via QR code scan               |
+  /// | GPS          | Verification via GPS location               |
   check_in_method CheckInMethod?
 
   //----
@@ -1677,6 +1767,14 @@ model quest {
   quest_desc String
 
   /// Category/classification of the quest
+  /// 
+  /// | Type              | Description                                  |
+  /// |-------------------|----------------------------------------------|
+  /// | UNKNOWN           | Unknown or unclassified quest type           |
+  /// | TRAVEL_TO_EARN    | Earn rewards by traveling to locations       |
+  /// | EARN_TO_TRAVEL    | Earn travel opportunities through activities |
+  /// | CAMPAIGN          | Quest part of a promotional campaign         |
+  /// | COMMUNITY_EVENT   | Quest associated with community events       |
   quest_type QuestType @default(UNKNOWN)
 
   /// URL to the quest's main image
@@ -1695,6 +1793,25 @@ model quest {
   total_magatama_point_awarded Int @default(0)
 
   /// Category of reward provided upon completion
+  /// 
+  /// | Type                   | Description                                |
+  /// |------------------------|--------------------------------------------|
+  /// | UNKNOWN                | Uncategorized reward                       |
+  /// | LOCAL_EXPERIENCES      | Unique, exclusive, or hidden local gems    |
+  /// | CULINARY               | Food-related rewards or tastings           |
+  /// | ADVENTURE_NATURE       | Outdoor, nature, or activity-based rewards |
+  /// | CULTURAL_COMMUNITY     | Cultural learning or social impact rewards |
+  /// | HIDDEN_PERKS           | Secret/bonus perks not usually available   |
+  /// | SURPRISE_TREATS        | Randomized or surprise gifts               |
+  /// | BONUS_UPGRADES         | Upgrades to experiences, like VIP access   |
+  /// | SOCIAL_RECOGNITION     | Community shout-outs or profile boosts     |
+  /// | RETURNING_VISITOR_BONUS| Loyalty rewards for coming back            |
+  /// | ELITE_EXPERIENCES      | High-end or premium experiences            |
+  /// | WELLNESS               | Spa, wellness, or relaxation-related       |
+  /// | SHOPPING               | Souvenirs, discounts, or vouchers          |
+  /// | ENTERTAINMENT          | Concerts, shows, or festivals              |
+  /// | TRANSPORT_CONNECTIVITY | Travel perks like transport or Wi-Fi       |
+  /// | LOCAL_PARTNERSHIPS     | Partner-provided rewards (e.g., brands)    |
   reward_type RewardType @default(UNKNOWN)
 
   /// Detailed information about reward items
@@ -1766,9 +1883,28 @@ model quest_task {
   // TASK DETAILS
   //----
   /// Thematic category of the task
+  /// 
+  /// | Theme        | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | STORY        | Story-related tasks                         |
+  /// | LOCAL_CULTURE| Tasks focused on local culture exploration  |
+  /// | FOOD         | Food-related tasks                          |
+  /// | URBAN_EXPLORE| Urban exploration tasks                     |
+  /// | NATURE       | Nature-focused tasks                        |
   task_theme TaskTheme @default(STORY)
 
   /// Behavior type of the task (defines required actions and validation)
+  /// 
+  /// | Type              | Description                                  |
+  /// |-------------------|----------------------------------------------|
+  /// | VISIT_LOCATION    | Requires physical presence at a location     |
+  /// | PHOTO_UPLOAD      | Requires uploading a photo                   |
+  /// | ANSWER_TEXT       | Requires text response                       |
+  /// | SELECT_OPTION     | Requires selecting from predefined options   |
+  /// | SHARE_SOCIAL      | Requires sharing on social media             |
+  /// | CHECK_IN          | Requires checking in at a location           |
+  /// | GROUP_ACTIVITY    | Requires participation in a group activity   |
+  /// | LOCAL_INTERACTION | Requires interaction with locals             |
   task_type TaskType @default(SELECT_OPTION)
 
   /// Name or title of the task
@@ -1898,9 +2034,22 @@ model onchain_item_catalog {
   // ITEM CLASSIFICATION
   //----
   /// Type of the blockchain item
+  /// 
+  /// | Type             | Description                             |
+  /// |------------------|-----------------------------------------|
+  /// | UNKNOWN          | Unknown item type                       |
+  /// | LOG_NFT          | Log NFT item type                       |
+  /// | DIGITAL_PASSPORT | Digital passport item type              |
+  /// | PERK             | Travel perk item type                   |
   item_type OnchainItemType @default(UNKNOWN)
 
   /// Blockchain network where the item exists
+  /// 
+  /// | Type         | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | UNKNOWN      | Unknown blockchain type                     |
+  /// | VARA         | Vara blockchain type                        |
+  /// | CAMINO       | Camino blockchain type                      |
   blockchain_type BlockchainType @default(UNKNOWN)
 
   //----
@@ -2116,6 +2265,11 @@ model kendama_random_range {
   // IDENTIFICATION
   //----
   /// Game season type (primary key)
+  /// 
+  /// | Season       | Description                                 |
+  /// |--------------|---------------------------------------------|
+  /// | NORMAL       | Standard season                             |
+  /// | EVENT        | Special event season with different rules/rewards|
   season KendamaSeason @id @default(NORMAL)
 
   //----
