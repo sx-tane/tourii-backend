@@ -132,7 +132,7 @@ $ pnpm cspell
 
 The database schema is designed around several interconnected domains that together create a comprehensive platform for story-driven tourism experiences, gamification elements, and blockchain integration. Each entity is carefully designed to support the unique blend of physical exploration and digital engagement that defines the Tourii platform.
 
-Check Here: [Tourii Database Docs](prisma\docs\tourii-db-docs.md)
+Check Here: [Tourii Database Docs](https://github.com/sx-tane/tourii-backend/blob/main/prisma/docs/tourii-db-docs.md)
 
 ### Users & Authentication Entities
 - **User**: Core user entity with authentication methods (Discord, Twitter, Google), profile information, and platform connections
