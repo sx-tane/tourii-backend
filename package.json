@@ -7,7 +7,7 @@
 	"license": "UNLICENSED",
 	"config": {
 		"#note": "appコンテナから参照するDATABASE_URLとlocalでprisma hogehogeするときに参照するDATABASE_URLが異なるため",
-		"databaseurl": "postgresql://admin:test@localhost:5435/tourii_db"
+		"databaseurl": "postgresql://touriibackenddev:touriibackenddev@localhost:7432/tourii_backend"
 	},
 	"scripts": {
 		"build": "nest build",
