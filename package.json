@@ -84,7 +84,7 @@
 		"dayjs": "^1.11.13",
 		"express": "4.21.2",
 		"nest-commander": "^3.17.0",
-		"nestjs-zod": "^4.2.0",
+		"nestjs-zod": "^4.3.1",
 		"pnpm": "9.15.5",
 		"prisma": "^6.5.0",
 		"reflect-metadata": "^0.2.2",
