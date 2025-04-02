@@ -315,6 +315,7 @@ EVENT EVENT
     QuestStatus status 
     TaskType action 
     String user_response "❓"
+    Json group_activity_members 
     Json submission_data "❓"
     String failed_reason "❓"
     DateTime completed_at "❓"
@@ -514,6 +515,7 @@ EVENT EVENT
     String task_desc 
     Boolean is_unlocked 
     String required_action 
+    Json group_activity_members 
     Json select_options 
     Json anti_cheat_rules 
     Int magatama_point_awarded 

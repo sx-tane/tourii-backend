@@ -997,6 +997,16 @@ model user_quest_log {
   /// User's textual response to the quest
   user_response String?
 
+  /// List of group members for GROUP_ACTIVITY task type
+  /// user_id, discord_id, and group_name are required fields.
+  /// Example: [
+  ///   { "user_id": "user1", "discord_id": "1234567890", "group_name": "Team A" },
+  ///   { "user_id": "user2", "discord_id": "0987654321", "group_name": "Team A" }
+  /// ]
+  /// Note: This field is used for GROUP_ACTIVITY task type only.
+  /// It is not required for other task types.
+  group_activity_members Json[]
+
   /// Metadata for proof of completion
   /// Example: {"image_url": "https://cdn.tourii.app/images/harajiri_main.jpg", "qr_code_value": "XG45-7YV9"}
   submission_data Json?
@@ -1951,6 +1961,16 @@ model quest_task {
   /// | GROUP_ACTIVITY  | { "min_participants": 3 }                                        |
 
   required_action String @db.VarChar(255)
+
+  /// List of group members for GROUP_ACTIVITY task type
+  /// user_id, discord_id, and group_name are required fields.
+  /// Example: [
+  ///   { "user_id": "user1", "discord_id": "1234567890", "group_name": "Team A" },
+  ///   { "user_id": "user2", "discord_id": "0987654321", "group_name": "Team A" }
+  /// ]
+  /// Note: This field is used for GROUP_ACTIVITY task type only.
+  /// It is not required for other task types.
+  group_activity_members Json[] @db.JsonB
 
   /// Options for SELECT_OPTION task type
   ///

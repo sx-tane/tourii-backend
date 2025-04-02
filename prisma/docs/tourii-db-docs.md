@@ -129,6 +129,7 @@ erDiagram
   QuestStatus status
   TaskType action
   String user_response "nullable"
+  Json group_activity_members
   Json submission_data "nullable"
   String failed_reason "nullable"
   DateTime completed_at "nullable"
@@ -547,6 +548,15 @@ quest success/failure, and reward distribution.
     > | GROUP_ACTIVITY    | Requires participation in a group activity   |
     > | LOCAL_INTERACTION | Requires interaction with locals             |
   - `user_response`: User's textual response to the quest
+  - `group_activity_members`
+    > List of group members for GROUP_ACTIVITY task type
+    > user_id, discord_id, and group_name are required fields.
+    > Example: [
+    > { "user_id": "user1", "discord_id": "1234567890", "group_name": "Team A" },
+    > { "user_id": "user2", "discord_id": "0987654321", "group_name": "Team A" }
+    > ]
+    > Note: This field is used for GROUP_ACTIVITY task type only.
+    > It is not required for other task types.
   - `submission_data`
     > Metadata for proof of completion
     > Example: {"image_url": "https://cdn.tourii.app/images/harajiri_main.jpg", "qr_code_value": "XG45-7YV9"}
@@ -794,6 +804,7 @@ erDiagram
   String task_desc
   Boolean is_unlocked
   String required_action
+  Json group_activity_members
   Json select_options
   Json anti_cheat_rules
   Int magatama_point_awarded
@@ -1069,6 +1080,15 @@ point allocation to ensure fair and engaging gameplay.
     > | PHOTO_UPLOAD    | { "min_resolution": "1080x720" }                                |
     > | QR_SCAN         | { "qr_code_value": "XG45-7YV9" }                                 |
     > | GROUP_ACTIVITY  | { "min_participants": 3 }                                        |
+  - `group_activity_members`
+    > List of group members for GROUP_ACTIVITY task type
+    > user_id, discord_id, and group_name are required fields.
+    > Example: [
+    > { "user_id": "user1", "discord_id": "1234567890", "group_name": "Team A" },
+    > { "user_id": "user2", "discord_id": "0987654321", "group_name": "Team A" }
+    > ]
+    > Note: This field is used for GROUP_ACTIVITY task type only.
+    > It is not required for other task types.
   - `select_options`
     > Options for SELECT_OPTION task type
     > 
