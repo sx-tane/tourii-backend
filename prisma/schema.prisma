@@ -11,7 +11,7 @@ generator markdown {
 generator erd {
   provider                  = "prisma-erd-generator"
   theme                     = "forest"
-  output                    = "tourii-backend.md"
+  output                    = "tourii-er-diagram.md"
   includeRelationFromFields = true
 }
 
