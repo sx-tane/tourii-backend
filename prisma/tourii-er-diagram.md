@@ -436,6 +436,7 @@ EVENT EVENT
     String story_title 
     String story_desc 
     String story_image 
+    String character_name_list 
     String real_world_image 
     String story_video_url 
     String story_video_mobile_url 

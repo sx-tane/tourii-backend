@@ -733,6 +733,7 @@ erDiagram
   String story_title
   String story_desc
   String story_image
+  String character_name_list
   String real_world_image
   String story_video_url
   String story_video_mobile_url
@@ -871,6 +872,9 @@ across different devices and contexts.
   - `story_title`: Title of the story chapter
   - `story_desc`: Detailed description or content of the story
   - `story_image`: URL to the fictional story image
+  - `character_name_list`
+    > List of character names involved in the story; Act as a key data save at client side
+    > Example: ["Kagura", "Kagutsuchi"]
   - `real_world_image`: URL to the real-world location image
   - `story_video_url`: URL to the story video for desktop viewing
   - `story_video_mobile_url`: URL to the story video optimized for mobile
