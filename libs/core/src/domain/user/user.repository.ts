@@ -1,11 +1,17 @@
 import type { UserEntity } from "./user.entity";
 
 export interface UserRepository {
-
     /**
-     * Get user by username
-     * @param username
+     * Create user
+     * @param user
      * @returns UserEntity
      */
-    getUserInfoByUsername(username:string): Promise<UserEntity | undefined>;
+    createUser(user:UserEntity): Promise<UserEntity>;
+
+    /**
+     * Get user by userId
+     * @param userId
+     * @returns UserEntity
+     */
+    getUserInfoByUserId(userId:string): Promise<UserEntity | undefined>;
 }

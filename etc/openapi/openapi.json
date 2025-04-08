@@ -16,13 +16,38 @@
         ]
       }
     },
-    "/{username}/user": {
+    "/user": {
+      "post": {
+        "operationId": "TouriiBackendController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEntity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "summary": "Create User",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/{userId}/user": {
       "get": {
-        "description": "Get user by username",
-        "operationId": "TouriiBackendController_getUserByUsername",
+        "description": "Get user by userId",
+        "operationId": "TouriiBackendController_getUserByUserId",
         "parameters": [
           {
-            "name": "username",
+            "name": "userId",
             "required": true,
             "in": "path",
             "schema": {
@@ -56,6 +81,11 @@
   ],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "UserEntity": {
+        "type": "object",
+        "properties": {}
+      }
+    }
   }
 }

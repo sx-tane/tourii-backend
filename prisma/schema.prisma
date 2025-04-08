@@ -1543,7 +1543,7 @@ model story {
 
   /// List of character names involved in the story; Act as a key data save at client side
   /// Example: ["Kagura", "Kagutsuchi"]
-  character_name_list String[] @db.VarChar(255)  
+  character_name_list String[] @db.VarChar(255)
 
   /// URL to the real-world location image
   real_world_image String @db.VarChar(255)

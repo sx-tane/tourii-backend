@@ -8,12 +8,20 @@ import { UserMapper } from '../mapper/user.mapper';
 export class UserRepositoryDb implements UserRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getUserInfoByUsername(
-    username: string,
+  async createUser(user: UserEntity): Promise<UserEntity> {
+    const createdUser = await this.prisma.user.create({
+      data: UserMapper.userEntityToPrismaInput(user),
+    });
+
+    return UserMapper.prismaModelToUserEntity(createdUser);
+  }
+
+  async getUserInfoByUserId(
+    userId: string,
   ): Promise<UserEntity | undefined> {
-    const user = await this.prisma.users.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: {
-        discord_username: username,
+        user_id: userId ,
       },
     });
 

@@ -1,6 +1,7 @@
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TouriiBackendService } from '../service/tourii-backend.service';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 
 @Controller()
 export class TouriiBackendController {
@@ -14,14 +15,22 @@ export class TouriiBackendController {
     return 'OK';
   }
 
-  @Get('/:username/user')
+  @Post('/user')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Create User' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Success' })
+  createUser(@Body() user: UserEntity): Promise<UserEntity> {
+    return this.touriiBackendService.createUser(user);
+  }
+
+  @Get('/:userId/user')
   @ApiTags('User')
   @ApiOperation({
     summary: 'Get User API',
-    description: 'Get user by username',
+    description: 'Get user by userId',
   })
-  async getUserByUsername(@Param('username') username: string): Promise<any> {
-    const user = await this.touriiBackendService.getUserByUsername(username);
+  async getUserByUserId(@Param('userId') userId: string): Promise<any> {
+    const user = await this.touriiBackendService.getUserByUserId(userId);
     return user;
   }
 }

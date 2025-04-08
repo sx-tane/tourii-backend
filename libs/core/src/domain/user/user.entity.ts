@@ -1,21 +1,31 @@
 import { Entity } from "../entity";
 
 interface UserProps {
-	discordId: number;
-	userName: string;
-	discordHandle: string;
-	magatamaPoints: number;
-	magatamaBag: number;
-	prayerBead: number;
-	sword: number;
-	orgeMask: number;
-	sprintShard: number;
-	gachaponShard: number;
-	gachaponTicket: number;
-	touriiOmamori: number;
-	multiplier1hr: number;
-	multiplier3hr: number;
+	userId: string;
+	username: string;
+	discordId?: string;
+	discordUsername?: string;
+	twitterId?: string;
+	twitterUsername?: string;
+	googleEmail?: string;
+	email?: string;
+	password: string;
+	passportWalletAddress?: string;
+	perksWalletAddress: string;
+	latestIpAddress?: string;
+	isPremium: boolean;
+	totalQuestCompleted: number;
+	totalTravelDistance: number;
+	role: string;
+	registeredAt: Date;
+	discordJoinedAt: Date;
+	isBanned: boolean;
+	delFlag: boolean;
+	insUserId: string;
 	insDateTime: Date;
+	updUserId: string;
+	updDateTime: Date;
+	requestId?: string;
 }
 
 export class UserEntity extends Entity<UserProps> {
@@ -24,66 +34,102 @@ export class UserEntity extends Entity<UserProps> {
 	}
 
 	get userId(): string {
-		return this.id;
+		return this.props.userId;
 	}
 
-	get discordId(): number {
+	get username(): string {
+		return this.props.username;
+	}
+
+	get discordId(): string | undefined {
 		return this.props.discordId;
 	}
 
-	get userName(): string {
-		return this.props.userName;
+	get discordUsername(): string | undefined {
+		return this.props.discordUsername;
 	}
 
-	get discordHandle(): string {
-		return this.props.discordHandle;
+	get twitterId(): string | undefined {
+		return this.props.twitterId;
 	}
 
-	get magatamaPoints(): number {
-		return this.props.magatamaPoints;
+	get twitterUsername(): string | undefined {
+		return this.props.twitterUsername;
 	}
 
-	get magatamaBag(): number {
-		return this.props.magatamaBag;
+	get googleEmail(): string | undefined {
+		return this.props.googleEmail;
 	}
 
-	get prayerBead(): number {
-		return this.props.prayerBead;
+	get email(): string | undefined {
+		return this.props.email;
 	}
 
-	get sword(): number {
-		return this.props.sword;
+	get password(): string {
+		return this.props.password;
 	}
 
-	get orgeMask(): number {
-		return this.props.orgeMask;
+	get passportWalletAddress(): string | undefined {
+		return this.props.passportWalletAddress;
 	}
 
-	get sprintShard(): number {
-		return this.props.sprintShard;
+	get perksWalletAddress(): string {
+		return this.props.perksWalletAddress;
 	}
 
-	get gachaponShard(): number {
-		return this.props.gachaponShard;
+	get latestIpAddress(): string | undefined {
+		return this.props.latestIpAddress;
 	}
 
-	get gachaponTicket(): number {
-		return this.props.gachaponTicket;
+	get isPremium(): boolean {
+		return this.props.isPremium;
 	}
 
-	get touriiOmamori(): number {
-		return this.props.touriiOmamori;
+	get totalQuestCompleted(): number {
+		return this.props.totalQuestCompleted;
 	}
 
-	get multiplier1hr(): number {
-		return this.props.multiplier1hr;
+	get totalTravelDistance(): number {
+		return this.props.totalTravelDistance;
 	}
 
-	get multiplier3hr(): number {
-		return this.props.multiplier3hr;
+	get role(): string {
+		return this.props.role;
+	}
+
+	get registeredAt(): Date {
+		return this.props.registeredAt;
+	}
+
+	get discordJoinedAt(): Date {
+		return this.props.discordJoinedAt;
+	}
+
+	get isBanned(): boolean {
+		return this.props.isBanned;
+	}
+
+	get delFlag(): boolean {
+		return this.props.delFlag;
+	}
+
+	get insUserId(): string {
+		return this.props.insUserId;
 	}
 
 	get insDateTime(): Date {
 		return this.props.insDateTime;
+	}
+
+	get updUserId(): string {
+		return this.props.updUserId;
+	}
+
+	get updDateTime(): Date {
+		return this.props.updDateTime;
+	}
+
+	get requestId(): string | undefined {
+		return this.props.requestId;
 	}
 }

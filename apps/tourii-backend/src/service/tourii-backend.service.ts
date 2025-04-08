@@ -1,6 +1,7 @@
 import { UserRepository } from '@app/core/domain/user/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 
 @Injectable()
 export class TouriiBackendService {
@@ -14,7 +15,14 @@ export class TouriiBackendService {
    * @param username The username of the user.
    * @returns The user with the given username.
    */
-  async getUserByUsername(username: string) {
-    return this.userRepository.getUserInfoByUsername(username);
+
+  async createUser(user: UserEntity) {
+    // service logic
+    // dto -> entity
+    return this.userRepository.createUser(user);
+  }
+
+  async getUserByUserId(userId: string) {
+    return this.userRepository.getUserInfoByUserId(userId);
   }
 }
