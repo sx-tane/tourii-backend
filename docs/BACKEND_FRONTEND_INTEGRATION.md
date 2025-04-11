@@ -159,6 +159,11 @@ const apiKeyService = {
   - `GET /level` - Get current level
   - `GET /stats` - Get user statistics
 
+### 6. Shop wip
+
+### 7. Admin Panel wip
+- focus on taking log and edit content
+
 ## Data Models
 
 ### Story Saga
@@ -206,6 +211,8 @@ interface Quest {
   updatedAt: Date;
 }
 ```
+
+### Data Model for profile shop admin WIP
 
 ## Error Handling
 
