@@ -106,6 +106,12 @@ tourii-backend/
   - Magatama points calculation
   - Transaction history
   - Balance management
+- [ ] Exchange system
+  - User to exchange and redeem item
+
+### 6. Shop WIP
+
+### 7. Admin Panel WIP
 
 ## 🔒 Security Guidelines
 
