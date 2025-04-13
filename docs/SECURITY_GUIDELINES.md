@@ -1,329 +1,244 @@
-# Security Guidelines for Tourii Backend
+# 🔐 Security Guidelines for Tourii Backend
 
-This document outlines essential security practices that must be followed in the Tourii backend development.
+This document consolidates **backend security best practices** with real-world considerations from the Tourii system, including **API integration, database protection, authentication flows, smart contracts, and deployment hygiene**.
 
-## 1. Authentication & Authorization
-
-### JWT Implementation
-
-- Use secure JWT signing with strong algorithms (RS256)
-- Implement token rotation and refresh mechanisms
-- Store tokens securely in HTTP-only cookies
-- Set appropriate token expiration times
-
-### API Key Management
-
-- Use cryptographically secure random strings
-- Include prefix for key type identification
-- Set appropriate expiration dates
-- Generate unique key pairs for different environments
-
-### Role-Based Access Control
-
-- Implement role-based guards in NestJS
-- Define clear role hierarchies
-- Use decorators for route protection
-- Regular audit of role assignments
-
-### Multi-Provider Authentication
-
-- Secure OAuth2 implementation for Discord, Twitter, Google
-- Proper state management in OAuth flow
-- Secure storage of provider tokens
-- Regular token validation
-
-### Web3 Authentication
-- Implement secure nonce generation
-- Validate wallet signatures
-- Maintain session security
-- Handle wallet disconnects
-- Monitor failed attempts
-
-### Social Authentication
-- OAuth2 implementation
-- State parameter validation
-- Token validation
-- Session management
-- Rate limiting
-
-### Role-Based Access
-- Admin permissions
-- User permissions
-- Quest creator permissions
-- Content manager permissions
-- System operator permissions
-
-## 2. Database Security
-
-### Row-Level Security (RLS)
-
-- Enable RLS on all PostgreSQL tables
-- Implement policies using Prisma middleware
-- Regular review of RLS policies
-- Document all access patterns
-
-### Data Encryption
-
-- Encrypt sensitive user data at rest
-- Use strong encryption algorithms
-- Secure key management
-- Regular key rotation
-
-### Input Validation
-
-- Validate all inputs using class-validator
-- Implement custom validation pipes
-- Sanitize user inputs
-- Regular security audits
-
-## 3. API Security
-
-### Rate Limiting
-
-- Implement rate limiting using NestJS middleware
-- Configure limits based on endpoint usage
-- Monitor and adjust limits as needed
-- Log suspicious activity
-
-### Request Validation
-
-- Use DTOs for all API endpoints
-- Implement request transformation pipes
-- Validate request headers
-- Sanitize request bodies
-
-### CORS Configuration
-
-- Configure CORS policies in NestJS
-- Restrict allowed origins
-- Set appropriate headers
-- Regular policy review
-
-### API Key Usage Guidelines
-
-1. **Key Generation**
-
-   - Use cryptographically secure random strings
-   - Include prefix for key type identification
-   - Set appropriate expiration dates
-   - Generate unique key pairs for different environments
-
-2. **Key Storage**
-
-   - Never store API keys in code or version control
-   - Use secure key management service
-   - Encrypt keys at rest
-   - Implement key rotation policies
-
-3. **Key Distribution**
-
-   - Distribute keys through secure channels
-   - Provide key management dashboard
-   - Allow key revocation
-   - Implement key usage monitoring
-
-4. **Key Usage**
-   - Require keys for all API endpoints
-   - Implement different permission levels
-   - Monitor key usage patterns
-   - Alert on suspicious activity
-
-## 4. Blockchain Security
-
-### Key Management
-
-- Secure storage of blockchain keys
-- Use hardware security modules (HSM)
-- Implement key rotation
-- Regular key audits
-
-### Transaction Security
-
-- Validate all blockchain transactions
-- Implement transaction signing
-- Monitor gas usage
-- Handle failed transactions
-
-### Smart Contract Security
-
-- Regular contract audits
-- Implement upgrade patterns
-- Monitor contract events
-- Handle contract errors
-
-### Smart Contract Management
-- Contract deployment security
-- Access control implementation
-- Gas optimization
-- Event monitoring
-- Error handling
-
-### NFT Operations
-- Secure minting process
-- Metadata management
-- Transfer validation
-- Ownership verification
-- Gas estimation
-
-### Transaction Security
-- Transaction signing
-- Gas management
-- Nonce handling
-- Receipt validation
-- Error recovery
-
-## 5. Error Handling
-
-### Error Responses
-
-- Standardize error responses
-- Implement global exception filters
-- Log errors appropriately
-- Mask sensitive information
-
-### Logging
-
-- Implement structured logging
-- Include request context
-- Log security events
-- Regular log analysis
-
-## 6. Monitoring & Alerts
-
-### System Monitoring
-
-- Monitor API endpoints
-- Track error rates
-- Monitor blockchain interactions
-- Set up alerts for anomalies
-
-### Security Monitoring
-
-- Monitor failed login attempts
-- Track suspicious activities
-- Monitor blockchain transactions
-- Regular security reports
-
-### Alert System
-- Real-time notifications
-- Threshold alerts
-- Escalation procedures
-- Incident response
-- Recovery plans
-
-## 7. Dependencies Management
-
-### Package Security
-
-- Regular dependency updates
-- Use package-lock.json
-- Audit dependencies
-- Document critical dependencies
-
-### Version Control
-
-- Regular security patches
-- Document security updates
-- Test updates before deployment
-- Maintain update schedule
-
-## 8. Deployment Security
-
-### Environment Configuration
-
-- Secure environment variables
-- Use different keys per environment
-- Regular key rotation
-- Document configuration
-
-### Infrastructure Security
-
-- Secure server configuration
-- Regular security updates
-- Network security
-- Access control
-
-### Environment Security
-- Secret management
-- Environment isolation
-- Access control
-- Logging setup
-- Monitoring
-
-### Deployment Security
-- CI/CD security
-- Code scanning
-- Dependency checks
-- Version control
-- Backup strategy
-
-### Network Security
-- Firewall configuration
-- DDoS protection
-- SSL/TLS setup
-- VPN access
-- Network monitoring
-
-## Regular Security Reviews
-
-Schedule regular security reviews to:
-
-1. Audit all security measures
-2. Update policies as needed
-3. Review logs and incidents
-4. Update security documentation
-
-## Reporting Security Issues
-
-If you discover a security vulnerability:
-
-1. Do not disclose it publicly
-2. Email security@tourii.com immediately
-3. Provide detailed information about the vulnerability
-4. Wait for confirmation before any disclosure
-
-## 9. Blockchain Network Security
-
-### Node Management
-- Node security
-- RPC security
-- Network monitoring
-- Sync status
-- Peer management
-
-### Contract Security
-- Access control
-- Function visibility
-- State management
-- Event handling
-- Upgrade strategy
-
-### Wallet Security
-- Key management
-- Transaction signing
-- Address validation
-- Balance monitoring
-- Recovery procedures
-
-## Emergency Procedures
-
-### Incident Response
-1. Detection
-2. Assessment
-3. Containment
-4. Investigation
-5. Recovery
-6. Review
-
-### Contact Information
-- Security team
-- Blockchain team
-- Legal team
-- External auditors
-- Emergency contacts
+> ✅ Also see: `Api Domains Breakdown` and `BACKEND_FRONTEND_INTEGRATION.md` for endpoint structure and token flow.
 
 ---
 
-**Note**: This is a living document. Update it regularly as new security measures are implemented or requirements change.
+## 1. Authentication & Authorization
 
-Last Updated: [Current Date]
+### 🔑 JWT & Session Tokens
+- Use RS256 (asymmetric) for signing
+- Store tokens in HTTP-only, SameSite-strict cookies
+- Rotate refresh tokens on use
+- Access tokens: short lifespan (~15m)
+- Logout: clear cookie, revoke refresh token
+
+### 🧩 Web3 Authentication
+- Generate session-bound nonces (short expiry)
+- Verify EIP-191 signature via `eth_sign`
+- Invalidate nonce on login
+- Monitor wallet login attempts
+
+### 🛡️ API Key Management
+- UUIDv4 or strong random keys with `frontend_`, `admin_` prefixes
+- Expiry + regeneration features
+- Stored only in secret managers (Vault, AWS SSM)
+- Never exposed to frontend or committed in code
+
+### 🧠 OAuth2 / Social Logins
+- Used for Discord, Twitter, Google
+- Always validate `state` param (CSRF)
+- Secure storage of provider tokens
+- Session expiry fallback for stale tokens
+
+### 👥 Role-Based Access
+- Use NestJS `@Roles()` decorator + guards
+- Enforce hierarchical access: USER < MODERATOR < ADMIN < SYSTEM
+- Apply per-route permissions in controller
+- Cross-check with Discord roles if needed
+
+
+---
+
+## 2. API & Interface Security
+
+### 📥 Request Validation
+- All input DTOs use `class-validator`
+- Enum types, length limits, required fields
+- Strip extra fields (whitelist mode)
+
+### 🚦 Rate Limiting
+- NestJS guards + sliding window
+- Per-IP and per-token rules (`/auth` tighter than `/story`)
+- Logs auto-flag bursty sessions
+
+### 🌐 CORS
+- Only allow `https://*.tourii.app`
+- Disallow wildcard `*`
+- Allow credentials where cookies are used
+
+### 🔐 Secure Headers
+- Helmet integration
+- Content-Security-Policy: restrict inline scripts
+- Disable `x-powered-by`, enforce frame guards
+
+
+---
+
+## 3. Database Security
+
+### 🔒 Row-Level Security (RLS)
+- RLS enabled on all user-linked tables
+- Prisma middleware to inject tenant-level filters
+- Example: `user_id = current_user`
+- Test RLS coverage in API e2e tests
+
+### 🔐 Field-Level Encryption
+- Encrypt fields like `discord_id`, `google_email`, `ip_address`
+- Use pgcrypto or Prisma encryption extensions
+- AES-256, rotate keys annually
+
+### ✅ Input Protection
+- SQL injection prevention via Prisma param binding
+- Clean untrusted JSON (user story logs, etc)
+- XSS sanitization on rich text fields
+
+
+---
+
+## 4. Blockchain, NFT & Smart Contract Security
+
+### 🔑 Key & Wallet Hygiene
+- Operator private keys stored in Vault or HSM
+- Use separate mint, signer, and burner wallets
+- Rotate admin keys quarterly
+
+### 🔗 Contract Security
+- Audits mandatory for production contracts
+- Implement OpenZeppelin guards: Ownable, Pausable, UUPS (upgradeable)
+- Validate tx input and signatures before submitting
+
+### 🧬 NFT & Metadata Integrity
+- Use IPFS/Arweave for metadata
+- Hash-lock metadata to prevent tampering
+- Validate ownership & tokenId before allowing reward claims
+- Use Merkle-based allowlists for special mints
+
+### 🧾 Transaction Safety
+- Estimate gas before tx
+- Nonce handling: queue on retry
+- Store tx hash + block confirmation + revert reason
+
+
+---
+
+## 5. Logging, Monitoring & Alerts
+
+### 🧩 Logging
+- Use `pino` or `winston` with redaction
+- Include `request_id`, `ip`, `user_id`, `role`
+- Pipe logs to centralized system (e.g., Grafana Loki)
+
+### 🔔 Real-Time Alerts
+- Sentry/Slack/Discord integrations
+- Alert on:
+  - Failed login bursts
+  - Abnormal API consumption
+  - Mint/claim failures
+
+### 🔍 Weekly Audits
+- Failed login and 5xx logs
+- Top 10 frequent users by IP + geo
+- Admin access usage
+
+
+---
+
+## 6. Deployment & Environment
+
+### 🧱 Infrastructure
+- Environments: dev, staging, prod are strictly isolated
+- Use CI secrets via GitHub Actions, not `.env`
+- Enforce 2FA for Vercel, AWS, Cloudflare, Discord
+
+### 🔐 Secret Management
+- Use Vault, SSM, or Doppler
+- Secrets encrypted at rest (KMS/AES256)
+- Rotate Discord, Google, Twitter client secrets quarterly
+
+### 🛠️ Network & Infra
+- WAF on all APIs (Cloudflare)
+- SSL/TLS enforced
+- Admin panels (if any) behind VPN or IP whitelist
+- No direct DB port access
+
+
+---
+
+## 7. Package & Dependency Security
+
+### 📦 Package Hygiene
+- Lock via `package-lock.json`
+- Audit with `npm audit`, Snyk
+- Auto-patch with Renovate/Dependabot
+- Review all prod dependency upgrades via PR
+
+### 🧪 Versioning
+- Stick to stable semver ranges
+- Test upgrades before merge
+- Document high-risk packages (blockchain SDKs, wallet libs)
+
+
+---
+
+## 8. Incident Response
+
+### 🚨 Response Flow
+1. Detection (logs, alerts)
+2. Containment (disable route, revoke keys)
+3. Communication (Slack/Discord → ops/security)
+4. Patch + deploy hotfix
+5. Post-mortem review
+
+### 📇 Escalation Contacts
+- Security Lead
+- Backend/Infra Dev
+- Blockchain Ops
+- Legal (breach)
+- External Auditors (for smart contracts)
+
+
+---
+
+## 9. API Key Best Practices
+
+- Store only in secret managers
+- Keys scoped by feature (analytics, content, minting)
+- Revoked if misused
+- Logged per usage with `x-api-version`
+
+Example:
+```ts
+// Request headers
+{
+  'Content-Type': 'application/json',
+  'x-api-key': '<key>',
+  'x-api-version': '1.0',
+  'Accept': 'application/vnd.tourii.1.0+json'
+}
+```
+
+
+---
+
+## 🔍 Memory Wall & Feed Security Considerations
+
+- `memory_feed` is a SQL VIEW
+- Logs sourced from `user_story_log`, `user_travel_log`, `user_quest_log`
+- Future: like/comment system should inherit per-row RLS from underlying logs
+- Prevent abuse by rate-limiting feed writes (especially travel)
+
+```sql
+CREATE VIEW memory_feed AS
+SELECT user_id, 'TRAVEL' AS type, tourist_spot_id AS related_id, travel_distance, ins_date_time AS created_at FROM user_travel_log
+UNION
+SELECT user_id, 'QUEST', quest_id, NULL, completed_at FROM user_quest_log WHERE status = 'COMPLETED'
+UNION
+SELECT user_id, 'STORY', story_id, NULL, finished_at FROM user_story_log WHERE status = 'COMPLETED';
+```
+
+---
+
+## 📬 Reporting Vulnerabilities
+
+If you find a security issue:
+1. Do **not** disclose publicly
+2. Email: `security@tourii.com`
+3. Include: endpoint, reproduction, and expected behavior
+4. Wait for responsible disclosure window
+
+---
+
+_Last updated: 2025-04-13_

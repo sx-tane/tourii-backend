@@ -1,210 +1,228 @@
-# Tourii Backend
+# 📦 Tourii Backend
 
 <p align="center">
-  <a href="https://github.com/your-organization/tourii-backend" target="blank"><img src="https://yourapp.com/logo.png" width="200" alt="Tourii Logo" /></a>
+  <img src="../public/logo.png" width="200" alt="Tourii Logo" />
 </p>
 
-<p align="center">Tourii Backend - A powerful and scalable backend system for tourism and travel experiences</p>
+<p align="center">Backend Services for the Tourii Tourism Platform</p>
 
-## Description
+---
 
-Tourii is a comprehensive platform that connects travelers with immersive, story-driven travel experiences. This repository contains the backend services that power the Tourii application, built on the NestJS framework with Prisma ORM for database interactions and blockchain integration via the Vara Network or Camino Network.
+## 📘 Overview
 
-The system enables users to explore tourist spots through story-driven routes, complete quests, earn rewards, and interact with blockchain assets through a gamified experience.
+The **Tourii Backend** powers the core APIs, blockchain integration, gamified logic, and user management features of the Tourii tourism ecosystem. Built on NestJS and Prisma, it supports Web2 and Web3 authentication, location-based quests, NFT interactions, and rich narrative storytelling.
 
-## Features
+---
 
-- **Story-Driven Tourism**: Create and manage tourism routes with connected story sagas
-- **Tourist Spot Management**: Maintain a database of tourist spots with detailed information, coordinates, and media assets
-- **Gamification System**: Quest management with tasks, rewards, and progression tracking
-- **Blockchain Integration**: On-chain item management via Vara Network integration
-- **User Management**: Authentication, profiles, and user journey tracking
-- **RESTful API**: Comprehensive API endpoints for frontend and mobile clients
+## 🚀 Core Capabilities
 
-## Technology Stack
+### 🔐 Authentication & Roles
+- Social logins (Discord, Google, Twitter)
+- Web3 wallet login (EIP-191)
+- JWT/refresh token with rotation
+- Role-based access (User, Admin, Moderator, etc.)
 
-- **Framework**: [NestJS](https://nestjs.com/) - A progressive Node.js framework
-- **Database**: PostgreSQL with [Prisma ORM](https://www.prisma.io/)
-- **Blockchain Integration**:
-  - **Gear JS**: Used for deploying contracts and low-level interactions with the Vara Network
-  - **Sails JS**: Higher-level blockchain interactions, handling vouchers, gas reservations, and token management
-- **Testing**: Jest for unit and integration testing
-- **Documentation**: Swagger/OpenAPI via NestJS Swagger module
-- **Code Quality**: Biome for linting and formatting, CSpell for spell checking
+### 📖 Story & Saga Engine
+- Saga/chapter/story modeling
+- Chapter media (videos, PDFs, real-world imagery)
+- Character references & saga-based map visuals
 
-## Project Structure
+### 🗺️ Quest & Travel Engine
+- Multi-step quests linked to tourist spots
+- Task types: check-in, upload photo, answer text, select options
+- Travel verification via GPS/QR code
+- Reward assignment with Magatama points
 
-The project follows a monorepo structure with multiple applications:
+### 🎮 Gamification & Memory Wall
+- Achievement tracking, quest logs, and user journey logging
+- Memory feed view combining story, travel, and quest events
+- Points-based progression system (LevelType)
+
+### 🧬 Web3 Integration
+- Digital Passport & Log NFT minting (on login)
+- Onchain item tracking (status, tx hash, metadata)
+- Catalog management of NFT types & blockchain traits
+
+### 👥 Discord Integration
+- Role mapping & community-based reward logs
+- Discord activity tracking (e.g., messages, voice)
+- Invite-based growth tracking and role rewards
+
+---
+
+## 🛠️ Tech Stack
+
+| Category   | Tech                                                               |
+| ---------- | ------------------------------------------------------------------ |
+| Framework  | [NestJS](https://nestjs.com)                                       |
+| Database   | [PostgreSQL](https://postgresql.org) + [Prisma](https://prisma.io) |
+| Auth       | [Passport.js](http://www.passportjs.org), [JWT](https://jwt.io)    |
+| Blockchain | [ethers.js](https://docs.ethers.org), [Gear.js], [Sails.js]        |
+| Storage    | [IPFS](https://ipfs.io), [NFT.Storage](https://nft.storage)        |
+| Cache      | [Redis](https://redis.io)                                          |
+| Docs       | Swagger + OpenAPI                                                  |
+
+---
+
+## 📁 Project Structure
 
 ```
 tourii-backend/
 ├── apps/
-│   ├── tourii-backend/       # Main API application
-│   └── tourii-onchain/       # Blockchain integration application
-├── libs/
-│   └── core/                 # Shared core functionality
-├── prisma/
-│   ├── schema.prisma         # Database schema
-│   ├── migrations/           # Database migrations
-│   └── docs/                 # Database documentation
-├── etc/
-│   └── openapi/              # OpenAPI specifications
+│   ├── tourii-backend/       # Main API (NestJS)
+│   └── tourii-onchain/       # Blockchain logic
+├── libs/core/                # Shared utils (guards, decorators)
+├── prisma/                   # Prisma schema, migrations, ERD
+├── etc/openapi/              # OpenAPI spec files
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## 🚧 Getting Started
 
-- Node.js 20.18.0
-- PNPM 9.15.5
-- PostgreSQL database
-- Vara Network access (for blockchain features)
+### 🧾 Prerequisites
+- Node.js 18+
+- PostgreSQL 14+
+- Redis
+- pnpm (preferred)
 
-### Installation
-
+### 🧪 Setup
 ```bash
-# Install dependencies
-$ pnpm install
+pnpm install
+cp .env.example .env
+pnpm prisma migrate dev
+pnpm start:dev
 ```
 
-### Database Setup
+---
 
-```bash
-# Generate Prisma client
-$ pnpm prisma:generate
+## 🔐 Environment Variables
+```env
+# Core App
+PORT=3000
+NODE_ENV=development
 
-# Run database migrations
-$ pnpm prisma:migrate:dev
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/tourii
 
-# Seed the database with initial data
-$ pnpm prisma:db:seed
+# Auth
+JWT_SECRET=supersecret
+JWT_EXPIRATION=15m
+
+# Web3
+CHAIN_ID=1116
+PROVIDER_URL=https://rpc.vara.network
+CONTRACT_ADDRESS=0x...
+NFT_STORAGE_KEY=...
+
+# Redis
+REDIS_URL=redis://localhost:6379
 ```
 
-## Development
+---
 
-### Running the Application
-
+## 🔧 Common Commands
 ```bash
-# Development mode
-$ pnpm start:dev
+# Run dev server
+pnpm start:dev
 
-# Development mode for specific application
-$ pnpm start:dev:tourii-backend
-$ pnpm start:dev:tourii-onchain
-
-# Debug mode
-$ pnpm start:debug
-
-# Production mode
-$ pnpm start:prod
-```
-
-### Testing
-
-```bash
-# Unit tests
-$ pnpm test
-
-# E2E tests
-$ pnpm test:e2e
-
-# Test coverage
-$ pnpm test:cov
-```
-
-### Code Quality
-
-```bash
 # Format code
-$ pnpm format
+pnpm format
 
-# Lint code
-$ pnpm lint
+# Lint
+pnpm lint
 
-# Format with Biome
-$ pnpm format:biome
-
-# Check spelling
-$ pnpm cspell
+# Test
+pnpm test
+pnpm test:e2e
+pnpm test:cov
 ```
 
-## Database Schema
+---
 
-The database schema is designed around several interconnected domains that together create a comprehensive platform for story-driven tourism experiences, gamification elements, and blockchain integration. Each entity is carefully designed to support the unique blend of physical exploration and digital engagement that defines the Tourii platform.
+## 🧬 Database Schema Highlights
 
-Check Here: [Tourii Database Docs](https://github.com/sx-tane/tourii-backend/blob/main/prisma/docs/tourii-db-docs.md)
+**🔐 User & Auth**
+- `user`, `user_info`, `user_achievement`
+- Supports social + wallet login
 
-### Users & Authentication Entities
-- **User**: Core user entity with authentication methods (Discord, Twitter, Google), profile information, and platform connections
-- **User Info**: Extended profile details including passport information, level progression, and in-game currency balances
-- **User Achievements**: Records of milestones and accomplishments earned by users
-- **User Onchain Items**: Blockchain items owned by users including digital passports, NFTs, and travel perks
-- **User Logs**: Various activity logs tracking story progress, quest completion, travel history, and item claims
+**🗺️ Story & Travel**
+- `story`, `story_saga`, `tourist_spot`, `model_route`
+- Media-rich storytelling tied to GPS coordinates
 
-### Story & Tourism Entities
-- **Story Saga**: Overarching narrative collections that organize routes and stories, with cover media and geographic context
-- **Story**: Individual chapters or narrative segments within a saga, containing rich media content (text, images, videos) tied to physical locations
-- **Model Route**: Predefined travel routes connecting multiple tourist spots, including recommendations for activities and experiences
-- **Tourist Spot**: Physical locations with detailed information, geographic coordinates, visit recommendations, and media assets
+**🎯 Quest & Tasks**
+- `quest`, `quest_task`, `user_quest_log`, `user_travel_log`
+- Flexible reward types + point system
 
-### Gamification Entities
-- **Quest**: Challenges for users to complete at tourist spots, including reward structures, point values, and completion requirements
-- **Quest Task**: Individual tasks within a quest, supporting various interaction types (visit locations, answer questions, upload photos)
-- **Magatama Points**: In-game currency earned through activities, quest completion, and community participation
+**🎮 Memory Feed**
+- SQL view `memory_feed` joins user quest, travel, and story progress
 
-### Blockchain Entities
-- **Onchain Item Catalog**: Master registry of all blockchain assets including NFTs, digital passports, and travel perks
-- **User Onchain Items**: User-specific blockchain assets with transaction records, status tracking, and metadata
-- **Level Requirements**: Progression system defining thresholds for level advancement based on points, collectibles, and achievements
+**🧾 Onchain Items & NFTs**
+- `onchain_item_catalog`, `user_onchain_item`
+- Minting logic + catalog for Digital Passports, Log NFTs, Perks
 
-### Integration & Community Entities
-- **Discord Activity Log**: Records user engagement within the Discord community
-- **Discord Roles**: Maps Discord roles to users and tracks role-based rewards
-- **User Invite Log**: Tracks user referrals and associated rewards
+**🎭 Community & Discord**
+- `discord_activity_log`, `discord_user_roles`, `discord_rewarded_roles`
 
-The database implements consistent patterns across all entities:
-- Soft deletion for data retention
-- Created/updated timestamps and user tracking
-- Request ID for tracing
-- Standardized ID formats with timestamp components
-- Rich JSON structures for flexible data storage
+More: [Database Docs](../prisma/docs/tourii-db-docs.md)
 
-This schema enables the seamless integration of storytelling, real-world exploration, and digital rewards that makes the Tourii experience unique.
+---
 
-## API Documentation
+## 📖 API Docs (Swagger)
+Available at [`http://localhost:3000/api`](http://localhost:3000/api) with:
+- Auth routes
+- Quest endpoints
+- Story saga navigation
+- NFT mint status
 
-API documentation is available via Swagger UI when running the application locally:
+---
 
-```
-http://localhost:3000/api
-```
+## ⚙️ Deployment
 
-## Deployment
-
-The application is configured for easy deployment with environment-specific settings.
-
+### Build & Run
 ```bash
-# Build the application
-$ pnpm build
-
-# Run in production mode
-$ pnpm start:prod
+pnpm build
+pnpm start:prod
 ```
 
-For AWS deployment, the application can be deployed using NestJS Mau or your preferred cloud deployment service.
+### Cloud Targets
+- Vercel (for frontend)
+- AWS (App Runner / ECS)
+- Railway or Render for staging
 
-## Blockchain Integration
+### CI/CD
+- GitHub Actions for lint/test/build
+- Secrets via GitHub Encrypted Secrets or Doppler
 
-### Gear JS
-Primarily used for deploying contracts, managing keys, sending messages, and other low-level interactions with the Vara Network.
+---
 
-### Sails JS
-Focuses on higher-level application logic for blockchain interactions, helping with tasks like managing vouchers, handling gas reservations, and automatically renewing contracts or tokens.
+## 🔐 Security Considerations
+- Row-Level Security via Prisma middleware
+- Token validation on all API access
+- Contract signing verified client-side before relay
+- All logs tracked by `request_id`
 
-## License
+For full details: [Security Guidelines](../docs/security-guidelines.md)
 
-Tourii Backend is [MIT licensed](LICENSE).
+---
 
-## Contact
+## 🧪 Blockchain Integration
 
-For more information, please contact the Tourii development team.
+**Gear.js**: Contract deployment, message encoding, key mgmt  
+**Sails.js**: On-chain business logic, rewards, renewals
+
+Supports:
+- Digital Passport minting
+- Reward claim tx submission
+- NFT catalog metadata sync
+
+---
+
+## 📬 Contact
+Email: `dev@tourii.com`  
+Security: `security@tourii.com`
+
+License: [MIT](LICENSE)
+
+_Last updated: 2025-04-13_
+

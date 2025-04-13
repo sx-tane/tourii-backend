@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  // previewFeatures = ["views"]
 }
 
 generator markdown {
@@ -2336,3 +2337,34 @@ model kendama_random_range {
   /// Request ID for tracing
   request_id String?
 }
+
+/// Memory Wall View combining travel, quest, and story logs.
+/// Used for displaying user activity feed.
+/// Memory Wall View combining travel, quest, and story logs.
+/// Used for displaying user activity feed.
+/// Comment out first cuz view is not yet done
+// view memory_feed {
+//   /// ID of the user who generated the log
+//   user_id String
+
+//   /// Type of log entry: TRAVEL, QUEST, or STORY
+//   type String
+
+//   /// Associated entity ID (story_id, quest_id, or tourist_spot_id)
+//   related_id String
+
+//   /// Travel distance, only populated if type = 'TRAVEL'
+//   travel_distance Float?
+
+//   /// Timestamp when the entry was created
+//   created_at DateTime
+
+//   /// Image URL for display in the feed card (from tourist_spot.image_set->>'main')
+//   image_url String?
+
+//   /// Brief content or description (from story.title, quest.name, or tourist_spot.name)
+//   content String?
+
+//   /// Uniqueness constraint for deduplication
+//   @@unique([user_id, type, related_id, created_at])
+// }
