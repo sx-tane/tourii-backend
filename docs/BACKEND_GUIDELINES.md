@@ -58,17 +58,17 @@ This document outlines the development guidelines and architecture for the Touri
 
 ### Technology Stack
 
-| Layer            | Tech                                      |
-|------------------|--------------------------------------------|
-| Framework        | NestJS                                     |
-| Database         | PostgreSQL + Prisma ORM                    |
-| Caching          | Redis                                      |
-| Blockchain       | Ethers.js / viem + Hardhat + OpenZeppelin  |
-| Storage          | IPFS (NFT metadata), AWS S3 (media)        |
-| Auth             | JWT, OAuth2, Signature login (EVM)         |
-| Testing          | Jest                                       |
-| Docs             | Swagger / OpenAPI                          |
-| Format / Lint    | Biome                                      |
+| Layer         | Tech                                      |
+| ------------- | ----------------------------------------- |
+| Framework     | NestJS                                    |
+| Database      | PostgreSQL + Prisma ORM                   |
+| Caching       | Redis                                     |
+| Blockchain    | Ethers.js / viem + Hardhat + OpenZeppelin |
+| Storage       | IPFS (NFT metadata), AWS S3 (media)       |
+| Auth          | JWT, OAuth2, Signature login (EVM)        |
+| Testing       | Jest                                      |
+| Docs          | Swagger / OpenAPI                         |
+| Format / Lint | Biome                                     |
 
 ### Project Structure
 
