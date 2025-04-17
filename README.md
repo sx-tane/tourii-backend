@@ -136,6 +136,13 @@ pnpm lint
 pnpm test
 pnpm test:e2e
 pnpm test:cov
+
+# Test Security (Use Testing Controller) - bash
+chmod +x tourii-backend/test/security-test.sh
+bash tourii-backend/test/security-test.sh 
+
+# Test Security (Use Testing Controller) - powershell
+.\tourii-backend\test\security-test.ps1
 ```
 
 ---

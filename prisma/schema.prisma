@@ -1449,11 +1449,8 @@ model story_saga {
   /// Detailed description of the saga's narrative
   saga_desc String
 
-  /// URL to the saga's cover image
-  cover_image String? @db.VarChar(255)
-
-  /// URL to the saga's cover video
-  cover_video String? @db.VarChar(255)
+  /// URL to the saga's cover media (image or video)
+  background_media String? @db.VarChar(255)
 
   /// URL to the map image for the saga
   map_image String? @db.VarChar(255)
@@ -1540,31 +1537,31 @@ model story {
   /// Title of the story chapter
   ///
   /// @maxLength 255
-  story_title String @db.VarChar(255)
+  chapter_title String @db.VarChar(255)
 
-  /// Detailed description or content of the story
-  story_desc String
+  /// Detailed description or content of the chapter
+  chapter_desc String
 
-  /// URL to the fictional story image
-  story_image String @db.VarChar(255)
+  /// URL to the fictional chapter image
+  chapter_image String @db.VarChar(255)
 
-  /// List of character names involved in the story; Act as a key data save at client side
+  /// List of character names involved in the chapter; Act as a key data save at client side
   /// Example: ["Kagura", "Kagutsuchi"]
   character_name_list String[] @db.VarChar(255)
 
   /// URL to the real-world location image
   real_world_image String @db.VarChar(255)
 
-  /// URL to the story video for desktop viewing
-  story_video_url String @db.VarChar(255)
+  /// URL to the chapter video for desktop viewing
+  chapter_video_url String @db.VarChar(255)
 
-  /// URL to the story video optimized for mobile
-  story_video_mobile_url String @db.VarChar(255)
+  /// URL to the chapter video optimized for mobile
+  chapter_video_mobile_url String @db.VarChar(255)
 
   /// URL to the downloadable PDF version
-  story_pdf_url String @db.VarChar(255)
+  chapter_pdf_url String @db.VarChar(255)
 
-  /// Whether the story is available to users without prerequisites
+  /// Whether the chapter is available to users without prerequisites
   is_unlocked Boolean @default(false)
 
   //----

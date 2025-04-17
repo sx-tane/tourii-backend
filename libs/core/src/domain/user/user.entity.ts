@@ -29,6 +29,7 @@ interface UserProps {
 }
 
 export class UserEntity extends Entity<UserProps> {
+	// biome-ignore lint/complexity/noUselessConstructor: <explanation>
 	constructor(props: UserProps, id: string) {
 		super(props, id);
 	}

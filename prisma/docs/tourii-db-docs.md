@@ -713,11 +713,12 @@ erDiagram
   String story_saga_id PK
   String saga_name
   String saga_desc
-  String cover_image "nullable"
-  String cover_video "nullable"
+  String background_media "nullable"
   String map_image "nullable"
   String location "nullable"
   Int order
+  Boolean is_prologue
+  Boolean is_selected
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -730,14 +731,14 @@ erDiagram
   String story_saga_id FK
   String tourist_spot_id
   String chapter_number
-  String story_title
-  String story_desc
-  String story_image
+  String chapter_title
+  String chapter_desc
+  String chapter_image
   String character_name_list
   String real_world_image
-  String story_video_url
-  String story_video_mobile_url
-  String story_pdf_url
+  String chapter_video_url
+  String chapter_video_mobile_url
+  String chapter_pdf_url
   Boolean is_unlocked
   Boolean del_flag
   String ins_user_id
@@ -840,11 +841,12 @@ and real-world exploration.
   - `story_saga_id`: Unique identifier for the story saga SSGYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `saga_name`: Name of the story saga (e.g., "Prologue", "Bungo Ono")
   - `saga_desc`: Detailed description of the saga's narrative
-  - `cover_image`: URL to the saga's cover image
-  - `cover_video`: URL to the saga's cover video
+  - `background_media`: URL to the saga's cover media (image or video)
   - `map_image`: URL to the map image for the saga
   - `location`: Real-world location of the saga (e.g., "Tokyo")
   - `order`: Display order in the saga list
+  - `is_prologue`: Whether the saga is a prologue
+  - `is_selected`: Whether the saga is selected by default
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
@@ -869,17 +871,17 @@ across different devices and contexts.
   - `story_saga_id`: ID of the parent story saga
   - `tourist_spot_id`: ID of the associated tourist spot
   - `chapter_number`: Chapter number or position (e.g., "Prologue", "Chapter 1")
-  - `story_title`: Title of the story chapter
-  - `story_desc`: Detailed description or content of the story
-  - `story_image`: URL to the fictional story image
+  - `chapter_title`: Title of the story chapter
+  - `chapter_desc`: Detailed description or content of the chapter
+  - `chapter_image`: URL to the fictional chapter image
   - `character_name_list`
-    > List of character names involved in the story; Act as a key data save at client side
+    > List of character names involved in the chapter; Act as a key data save at client side
     > Example: ["Kagura", "Kagutsuchi"]
   - `real_world_image`: URL to the real-world location image
-  - `story_video_url`: URL to the story video for desktop viewing
-  - `story_video_mobile_url`: URL to the story video optimized for mobile
-  - `story_pdf_url`: URL to the downloadable PDF version
-  - `is_unlocked`: Whether the story is available to users without prerequisites
+  - `chapter_video_url`: URL to the chapter video for desktop viewing
+  - `chapter_video_mobile_url`: URL to the chapter video optimized for mobile
+  - `chapter_pdf_url`: URL to the downloadable PDF version
+  - `is_unlocked`: Whether the chapter is available to users without prerequisites
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation

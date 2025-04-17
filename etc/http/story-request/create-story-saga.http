@@ -1,0 +1,13 @@
+POST http://localhost:4000/stories/create-saga
+Content-Type: application/json
+
+{
+  "sagaName": "Test Saga",
+  "sagaDesc": "Test Description",
+  "backgroundMedia": "https://example.com/background.jpg",
+  "mapImage": "https://example.com/map.jpg",
+  "location": "Tokyo",
+  "order": 1,
+  "isPrologue": false,
+  "isSelected": true
+}

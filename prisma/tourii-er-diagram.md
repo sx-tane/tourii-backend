@@ -414,11 +414,12 @@ EVENT EVENT
     String story_saga_id "🗝️"
     String saga_name 
     String saga_desc 
-    String cover_image "❓"
-    String cover_video "❓"
+    String background_media "❓"
     String map_image "❓"
     String location "❓"
     Int order 
+    Boolean is_prologue 
+    Boolean is_selected 
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -433,14 +434,14 @@ EVENT EVENT
     String story_saga_id 
     String tourist_spot_id 
     String chapter_number 
-    String story_title 
-    String story_desc 
-    String story_image 
+    String chapter_title 
+    String chapter_desc 
+    String chapter_image 
     String character_name_list 
     String real_world_image 
-    String story_video_url 
-    String story_video_mobile_url 
-    String story_pdf_url 
+    String chapter_video_url 
+    String chapter_video_mobile_url 
+    String chapter_pdf_url 
     Boolean is_unlocked 
     Boolean del_flag 
     String ins_user_id 

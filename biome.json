@@ -34,7 +34,6 @@
             },
             "style": {
                 "noNonNullAssertion": "warn",
-                // https://biomejs.dev/linter/rules/use-import-type/#caveat-with-typescript-experimental-decorators
                 "useImportType": "off"
             }
         }
@@ -45,7 +44,7 @@
         },
         "formatter": {
             "quoteStyle": "single",
-            "trailingCommas": "all"
+            "trailingComma": "all"
         }
     },
     "files": {
