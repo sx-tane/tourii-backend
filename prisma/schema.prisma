@@ -1464,6 +1464,12 @@ model story_saga {
   /// Display order in the saga list
   order Int
 
+  /// Whether the saga is a prologue
+  is_prologue Boolean @default(false)
+
+  /// Whether the saga is selected by default
+  is_selected Boolean @default(false)
+
   //----
   // SYSTEM FIELDS
   //----
