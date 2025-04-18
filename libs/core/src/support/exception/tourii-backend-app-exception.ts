@@ -16,7 +16,7 @@ export class ApiAppError implements AppError {
     public code: string,
     public message: string,
     type: ErrorType,
-    metadata: ErrorMetadata = {}
+    metadata: ErrorMetadata = {},
   ) {
     this.code = code;
     this.message = message;
@@ -28,8 +28,11 @@ export class ApiAppError implements AppError {
 export class TouriiBackendAppException extends HttpException {
   constructor(
     error: TouriiBackendAppErrorType[keyof TouriiBackendAppErrorType],
-    metadata?: ErrorMetadata
+    metadata?: ErrorMetadata,
   ) {
-    super(new ApiAppError(error.code, error.message, error.type, metadata), HttpStatus.OK);
+    super(
+      new ApiAppError(error.code, error.message, error.type, metadata),
+      HttpStatus.OK,
+    );
   }
 }

@@ -1,14 +1,26 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 // biome-ignore lint/style/useImportType: <explanation>
-import  { TouriiBackendService } from '../service/tourii-backend.service';
+import { TouriiBackendService } from '../service/tourii-backend.service';
 // biome-ignore lint/style/useImportType: <explanation>
-import  { UserEntity } from '@app/core/domain/user/user.entity';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 // biome-ignore lint/style/useImportType: <explanation>
-import { StorySagaCreateRequestSchema,  StorySagaCreateRequestDto } from './model/tourii-request/create/story-saga-request.model';
+import {
+  StorySagaCreateRequestSchema,
+  StorySagaCreateRequestDto,
+} from './model/tourii-request/create/story-saga-request.model';
 import { zodToOpenAPI } from 'nestjs-zod';
 // biome-ignore lint/style/useImportType: <explanation>
-import {  StorySagaResponseDto, StorySagaResponseSchema } from './model/tourii-response/story-saga-response.model';
+import {
+  StorySagaResponseDto,
+  StorySagaResponseSchema,
+} from './model/tourii-response/story-saga-response.model';
 import { CreatedApiResponse } from './model/decorator/created.api-response';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 
@@ -19,9 +31,9 @@ export class TouriiBackendController {
 
   @Get('/health-check')
   @ApiTags('Health Check')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Health Check',
-    description: 'Check if the API is running and accessible.'
+    description: 'Check if the API is running and accessible.',
   })
   @ApiHeader({
     name: 'x-api-key',
@@ -47,9 +59,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
       },
     },
   })
@@ -59,9 +80,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.type,
+        },
       },
     },
   })
@@ -71,9 +101,9 @@ export class TouriiBackendController {
 
   @Post('/stories/create-saga')
   @ApiTags('Stories')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Create Story Saga',
-    description: 'Create a new story saga with optional chapters.'
+    description: 'Create a new story saga with optional chapters.',
   })
   @ApiHeader({
     name: 'x-api-key',
@@ -85,9 +115,9 @@ export class TouriiBackendController {
     description: 'API version (e.g., 1.0.0)',
     required: true,
   })
-  @ApiBody({ 
+  @ApiBody({
     description: 'Story Saga creation request',
-    schema: zodToOpenAPI(StorySagaCreateRequestSchema)
+    schema: zodToOpenAPI(StorySagaCreateRequestSchema),
   })
   @CreatedApiResponse(StorySagaResponseSchema)
   @ApiResponse({
@@ -96,9 +126,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
       },
     },
   })
@@ -108,21 +147,32 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_001.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_001.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_001.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_001.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_001.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_001.type,
+        },
       },
     },
   })
-  async createStorySaga(@Body() saga: StorySagaCreateRequestDto): Promise<StorySagaResponseDto> {
+  async createStorySaga(
+    @Body() saga: StorySagaCreateRequestDto,
+  ): Promise<StorySagaResponseDto> {
     return await this.touriiBackendService.createStorySaga(saga);
   }
 
   @Get('/stories/sagas')
   @ApiTags('Stories')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get All Story Sagas',
-    description: 'Retrieve all available story sagas.'
+    description: 'Retrieve all available story sagas.',
   })
   @ApiHeader({
     name: 'x-api-key',
@@ -134,10 +184,10 @@ export class TouriiBackendController {
     description: 'API version (e.g., 1.0.0)',
     required: true,
   })
-  @ApiResponse({ 
+  @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved all sagas',
-    schema: zodToOpenAPI(StorySagaResponseSchema)
+    schema: zodToOpenAPI(StorySagaResponseSchema),
   })
   @ApiResponse({
     status: 401,
@@ -145,9 +195,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
       },
     },
   })
@@ -157,9 +216,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_021.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_021.type,
+        },
       },
     },
   })
@@ -169,9 +237,9 @@ export class TouriiBackendController {
 
   @Post('/user')
   @ApiTags('User')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Create User',
-    description: 'Create a new user in the system.'
+    description: 'Create a new user in the system.',
   })
   @ApiHeader({
     name: 'x-api-key',
@@ -185,12 +253,12 @@ export class TouriiBackendController {
   })
   @ApiBody({
     description: 'User creation request',
-    type: UserEntity
+    type: UserEntity,
   })
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
-    type: UserEntity
+    type: UserEntity,
   })
   @ApiResponse({
     status: 400,
@@ -198,9 +266,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_006.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_006.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_006.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_006.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_006.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_006.type,
+        },
       },
     },
   })
@@ -210,9 +287,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
       },
     },
   })
@@ -239,7 +325,7 @@ export class TouriiBackendController {
   @ApiResponse({
     status: 200,
     description: 'User found successfully',
-    type: UserEntity
+    type: UserEntity,
   })
   @ApiResponse({
     status: 404,
@@ -247,9 +333,18 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_004.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_004.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_004.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.type,
+        },
       },
     },
   })
@@ -259,13 +354,24 @@ export class TouriiBackendController {
     schema: {
       type: 'object',
       properties: {
-        code: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.code },
-        message: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.message },
-        type: { type: 'string', example: TouriiBackendAppErrorType.E_TB_010.type },
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
       },
     },
   })
-  async getUserByUserId(@Param('userId') userId: string): Promise<UserEntity | undefined> {
+  async getUserByUserId(
+    @Param('userId') userId: string,
+  ): Promise<UserEntity | undefined> {
     return await this.touriiBackendService.getUserByUserId(userId);
   }
 }

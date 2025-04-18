@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Load environment variables
 if [ -f tourii-backend/.env ]; then
     source tourii-backend/.env
@@ -34,7 +35,7 @@ do
     response=$(curl -w "\nHTTP Status: %{http_code}" -s \
         -H "x-api-key: $API_KEY" \
         -H "accept-version: $API_VERSION" \
-        http://localhost:4000/test/rate-limit)
+        http://localhost:4000/stories/sagas)
     echo "$response"
     if [[ $i -lt 5 ]]; then
         sleep 0.2  # Small delay between requests

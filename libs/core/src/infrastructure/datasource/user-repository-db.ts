@@ -16,12 +16,10 @@ export class UserRepositoryDb implements UserRepository {
     return UserMapper.prismaModelToUserEntity(createdUser);
   }
 
-  async getUserInfoByUserId(
-    userId: string,
-  ): Promise<UserEntity | undefined> {
+  async getUserInfoByUserId(userId: string): Promise<UserEntity | undefined> {
     const user = await this.prisma.user.findFirst({
       where: {
-        user_id: userId ,
+        user_id: userId,
       },
     });
 

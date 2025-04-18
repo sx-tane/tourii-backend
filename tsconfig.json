@@ -24,44 +24,18 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@app/core": [
-        "libs/core/src",
-        "libs/core/src"
-      ],
-      "@app/core/*": [
-        "libs/core/src/*",
-        "libs/core/src/*"
-      ],
-      "@app/core-test": [
-        "libs/core/test"
-      ],
-      "@app/core-test/*": [
-        "libs/core/test/*"
-      ],
-      "@app/tourii-backend": [
-        "apps/tourii-backend/src"
-      ],
-      "@app/tourii-backend/*": [
-        "apps/tourii-backend/src/*"
-      ],
-      "@app/tourii-backend-test": [
-        "apps/tourii-backend/test"
-      ],
-      "@app/tourii-backend-test/*": [
-        "apps/tourii-backend/test/*"
-      ],
-      "@app/tourii-onchain": [
-        "apps/tourii-onchain/src"
-      ],
-      "@app/tourii-onchain/*": [
-        "apps/tourii-onchain/src/*"
-      ],
-      "@app/tourii-onchain-test": [
-        "apps/tourii-onchain/test"
-      ],
-      "@app/tourii-onchain-test/*": [
-        "apps/tourii-onchain/test/*"
-      ]
+      "@app/core": ["libs/core/src", "libs/core/src"],
+      "@app/core/*": ["libs/core/src/*", "libs/core/src/*"],
+      "@app/core-test": ["libs/core/test"],
+      "@app/core-test/*": ["libs/core/test/*"],
+      "@app/tourii-backend": ["apps/tourii-backend/src"],
+      "@app/tourii-backend/*": ["apps/tourii-backend/src/*"],
+      "@app/tourii-backend-test": ["apps/tourii-backend/test"],
+      "@app/tourii-backend-test/*": ["apps/tourii-backend/test/*"],
+      "@app/tourii-onchain": ["apps/tourii-onchain/src"],
+      "@app/tourii-onchain/*": ["apps/tourii-onchain/src/*"],
+      "@app/tourii-onchain-test": ["apps/tourii-onchain/test"],
+      "@app/tourii-onchain-test/*": ["apps/tourii-onchain/test/*"]
     }
   }
 }

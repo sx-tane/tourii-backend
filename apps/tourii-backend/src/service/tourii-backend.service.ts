@@ -19,9 +19,9 @@ export class TouriiBackendService {
    * @returns The user with the given username.
    */
 
-  async createStorySaga(saga: StorySagaCreateRequestDto): Promise<StorySagaResponseDto> {
-
-
+  async createStorySaga(
+    saga: StorySagaCreateRequestDto,
+  ): Promise<StorySagaResponseDto> {
     // TODO: Implement story saga creation
     return {
       sagaId: '1',
@@ -35,9 +35,11 @@ export class TouriiBackendService {
       isSelected: saga.isSelected || false,
       chapterList: [],
       insUserId: 'system',
-      insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
+      insDateTime:
+        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
       updUserId: 'system',
-      updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
+      updDateTime:
+        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
     };
   }
 
@@ -56,9 +58,11 @@ export class TouriiBackendService {
       isSelected: true,
       chapterList: [],
       insUserId: 'system',
-      insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
+      insDateTime:
+        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
       updUserId: 'system',
-      updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
+      updDateTime:
+        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
     };
   }
 

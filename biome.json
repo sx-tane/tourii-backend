@@ -1,59 +1,59 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-    "vcs": {
-        "enabled": true,
-        "clientKind": "git",
-        "useIgnoreFile": true
-    },
-    "organizeImports": {
-        "enabled": true
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noForEach": "off",
+        "noStaticOnlyClass": "off",
+        "noUselessConstructor": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noConsoleLog": "error",
+        "noAssignInExpressions": "off",
+        "noExplicitAny": "warn"
+      },
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "noNonNullAssertion": "warn",
+        "useImportType": "off"
+      }
+    }
+  },
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
     },
     "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 2,
-        "lineWidth": 80
-    },
-    "linter": {
-        "enabled": true,
-        "rules": {
-            "recommended": true,
-            "complexity": {
-                "noForEach": "off",
-                "noStaticOnlyClass": "off",
-                "noUselessConstructor": "off"
-            },
-            "suspicious": {
-                "noArrayIndexKey": "warn",
-                "noConsoleLog": "error",
-                "noAssignInExpressions": "off",
-                "noExplicitAny": "warn"
-            },
-            "correctness": {
-                "noUnusedVariables": "error"
-            },
-            "style": {
-                "noNonNullAssertion": "warn",
-                "useImportType": "off"
-            }
-        }
-    },
-    "javascript": {
-        "parser": {
-            "unsafeParameterDecoratorsEnabled": true
-        },
-        "formatter": {
-            "quoteStyle": "single",
-            "trailingComma": "all"
-        }
-    },
-    "files": {
-        "ignore": [
-            "pgdata/*",
-            ".vscode/*",
-            "etc/docs/db/tbls/*",
-            "etc/openapi/openapi.*",
-            "etc/openapi/wip/openapi.*"
-        ]
+      "quoteStyle": "single",
+      "trailingCommas": "all"
     }
+  },
+  "files": {
+    "ignore": [
+      "pgdata/*",
+      ".vscode/*",
+      "etc/docs/db/tbls/*",
+      "etc/openapi/openapi.*",
+      "etc/openapi/wip/openapi.*"
+    ]
+  }
 }
