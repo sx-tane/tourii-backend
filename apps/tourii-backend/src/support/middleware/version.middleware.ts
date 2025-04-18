@@ -27,4 +27,4 @@ export class VersionMiddleware implements NestMiddleware {
 
     next();
   }
-} 
+}
