@@ -47,7 +47,7 @@ import { TouriiBackendConstants } from "./tourii-backend.constant";
 		ThrottlerModule.forRootAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],
-			useFactory: (config: ConfigService): ThrottlerModuleOptions => ({
+			useFactory: (_config: ConfigService): ThrottlerModuleOptions => ({
 				throttlers: [
 					{
 						ttl: 1000, // Time window: 1 second
