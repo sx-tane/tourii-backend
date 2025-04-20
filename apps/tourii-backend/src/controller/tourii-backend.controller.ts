@@ -1,3 +1,5 @@
+import { UserEntity } from '@app/core/domain/user/user.entity';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import {
   ApiBody,
@@ -6,23 +8,20 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-// biome-ignore lint/style/useImportType: <explanation>
-import { TouriiBackendService } from '../service/tourii-backend.service';
-// biome-ignore lint/style/useImportType: <explanation>
-import { UserEntity } from '@app/core/domain/user/user.entity';
-// biome-ignore lint/style/useImportType: <explanation>
-import {
-  StorySagaCreateRequestSchema,
-  StorySagaCreateRequestDto,
-} from './model/tourii-request/create/story-saga-request.model';
 import { zodToOpenAPI } from 'nestjs-zod';
 // biome-ignore lint/style/useImportType: <explanation>
-import {
-  StorySagaResponseDto,
-  StorySagaResponseSchema,
-} from './model/tourii-response/story-saga-response.model';
+import { TouriiBackendService } from '../service/tourii-backend.service';
 import { CreatedApiResponse } from './model/decorator/created.api-response';
-import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+// biome-ignore lint/style/useImportType: <explanation>
+import {
+  StoryCreateRequestDto,
+  StoryCreateRequestSchema,
+} from './model/tourii-request/create/story-request.model';
+// biome-ignore lint/style/useImportType: <explanation>
+import {
+  StoryResponseDto,
+  StoryResponseSchema,
+} from './model/tourii-response/story-response.model';
 
 @Controller()
 @ApiTags('Tourii Backend')
@@ -117,9 +116,9 @@ export class TouriiBackendController {
   })
   @ApiBody({
     description: 'Story Saga creation request',
-    schema: zodToOpenAPI(StorySagaCreateRequestSchema),
+    schema: zodToOpenAPI(StoryCreateRequestSchema),
   })
-  @CreatedApiResponse(StorySagaResponseSchema)
+  @CreatedApiResponse(StoryResponseSchema)
   @ApiResponse({
     status: 401,
     description: 'Unauthorized - Invalid or missing API key',
@@ -162,10 +161,10 @@ export class TouriiBackendController {
       },
     },
   })
-  async createStorySaga(
-    @Body() saga: StorySagaCreateRequestDto,
-  ): Promise<StorySagaResponseDto> {
-    return await this.touriiBackendService.createStorySaga(saga);
+  async createStory(
+    @Body() saga: StoryCreateRequestDto,
+  ): Promise<StoryResponseDto> {
+    return await this.touriiBackendService.createStory(saga);
   }
 
   @Get('/stories/sagas')
@@ -187,7 +186,7 @@ export class TouriiBackendController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved all sagas',
-    schema: zodToOpenAPI(StorySagaResponseSchema),
+    schema: zodToOpenAPI(StoryResponseSchema),
   })
   @ApiResponse({
     status: 401,
@@ -231,8 +230,8 @@ export class TouriiBackendController {
       },
     },
   })
-  async getSagas(): Promise<StorySagaResponseDto> {
-    return this.touriiBackendService.getStorySagas();
+  async getSagas(): Promise<StoryResponseDto> {
+    return this.touriiBackendService.getStories();
   }
 
   @Post('/user')

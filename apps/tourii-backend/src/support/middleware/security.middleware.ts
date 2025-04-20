@@ -1,14 +1,14 @@
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 // biome-ignore lint/style/useImportType: <explanation>
 import { Injectable, NestMiddleware } from '@nestjs/common';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ConfigService } from '@nestjs/config';
-// biome-ignore lint/style/useImportType: <explanation>
-import { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
 import cors from 'cors';
+// biome-ignore lint/style/useImportType: <explanation>
+import { NextFunction, Request, Response } from 'express';
+import helmet from 'helmet';
 import semver from 'semver';
-import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 
 /**
  * SecurityMiddleware handles all security-related configurations:
@@ -102,7 +102,7 @@ export class SecurityMiddleware implements NestMiddleware {
           'CORS_ORIGIN',
           'https://*.tourii.xyz', // Default: allow all tourii.xyz subdomains
         );
-        const origin = req.headers.origin;
+        const _origin = req.headers.origin;
 
         // CORS Configuration
         const corsMiddleware = cors({

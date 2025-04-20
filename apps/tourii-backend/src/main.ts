@@ -1,10 +1,10 @@
+import fs from 'node:fs';
 import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
 import { getEnv } from '@app/core/utils/env-utils';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
-import fs from 'node:fs';
 import { TouriiBackendModule } from './tourii-backend.module';
 
 async function bootstrap() {
@@ -37,6 +37,5 @@ async function bootstrap() {
 
   const port = getEnv({ key: 'TOURII_BACKEND_PORT', defaultValue: '3000' });
   await app.listen(port);
-  console.log(`Application is running on port ${port}`);
 }
 bootstrap();

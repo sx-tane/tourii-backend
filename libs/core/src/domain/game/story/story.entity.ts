@@ -1,8 +1,7 @@
 import { Entity } from "../../entity";
 import type { StoryChapter } from "./chapter-story";
 
-interface StorySagaProps {
-	sagaId?: string;
+interface StoryProps {
 	sagaName?: string;
 	sagaDesc?: string;
 	backgroundMedia?: string;
@@ -20,13 +19,13 @@ interface StorySagaProps {
 	requestId?: string;
 }
 
-export class StorySagaEntity extends Entity<StorySagaProps> {
+export class StoryEntity extends Entity<StoryProps> {
 	// biome-ignore lint/complexity/noUselessConstructor: <explanation>
-	constructor(props: StorySagaProps, id: string | undefined) {
+	constructor(props: StoryProps, id: string | undefined) {
 		super(props, id);
 	}
 
-	get sagaId(): string | undefined {
+	get storyId(): string | undefined {
 		return this.id;
 	}
 

@@ -1,10 +1,10 @@
+import * as crypto from 'node:crypto';
 import { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { HexString } from '@gear-js/api/types';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Keyring } from '@polkadot/api';
 import { u8aToHex } from '@polkadot/util';
-import * as crypto from 'node:crypto';
 
 @Injectable()
 export class EncryptionRepositoryAuth implements EncryptionRepository {

@@ -11,8 +11,7 @@ export class JwtMiddleware implements NestMiddleware {
   constructor(private readonly jwtRepository: JwtRepository) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const token =
-      req.cookies['token'] || req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({ message: 'User is not logged in' });
@@ -31,8 +30,7 @@ export class JwtMiddleware implements NestMiddleware {
     res: Response,
     next: NextFunction,
   ): Promise<any> {
-    const token =
-      req.cookies['token'] || req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
     if (token) {
       try {
@@ -50,8 +48,7 @@ export class JwtMiddleware implements NestMiddleware {
   }
 
   async userIsLoggedIn(req: CustomRequest, res: Response, next: NextFunction) {
-    const token =
-      req.cookies['token'] || req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({ message: 'User is not logged in' });
@@ -70,8 +67,7 @@ export class JwtMiddleware implements NestMiddleware {
   }
 
   async verifyExistingJWT(req: Request, res: Response, next: NextFunction) {
-    const token =
-      req.cookies['token'] || req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
     if (token) {
       try {

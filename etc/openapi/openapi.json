@@ -96,7 +96,7 @@
     "/stories/create-saga": {
       "post": {
         "description": "Create a new story saga with optional chapters.",
-        "operationId": "TouriiBackendController_createStorySaga",
+        "operationId": "TouriiBackendController_createStory",
         "parameters": [
           {
             "name": "accept-version",
@@ -163,16 +163,8 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "storySagaId": {
-                          "description": "Unique identifier for the story saga",
-                          "type": "string"
-                        },
                         "touristSpotId": {
                           "description": "Unique identifier for the tourist spot",
-                          "type": "string"
-                        },
-                        "storyId": {
-                          "description": "Unique identifier for the story",
                           "type": "string"
                         },
                         "chapterNumber": {
@@ -217,16 +209,10 @@
                         "isUnlocked": {
                           "description": "Whether the chapter is available to users without prerequisites",
                           "type": "boolean"
-                        },
-                        "insUserId": {
-                          "description": "User ID of the creator",
-                          "type": "string"
                         }
                       },
                       "required": [
-                        "storySagaId",
                         "touristSpotId",
-                        "storyId",
                         "chapterNumber",
                         "chapterTitle",
                         "chapterDesc",
@@ -236,8 +222,7 @@
                         "chapterVideoUrl",
                         "chapterVideoMobileUrl",
                         "chapterPdfUrl",
-                        "isUnlocked",
-                        "insUserId"
+                        "isUnlocked"
                       ]
                     }
                   }
@@ -262,7 +247,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sagaId": {
+                    "storyId": {
                       "description": "Unique identifier for the story saga",
                       "type": "string"
                     },
@@ -410,7 +395,7 @@
                     }
                   },
                   "required": [
-                    "sagaId",
+                    "storyId",
                     "sagaName",
                     "sagaDesc",
                     "backgroundMedia",
@@ -516,7 +501,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sagaId": {
+                    "storyId": {
                       "description": "Unique identifier for the story saga",
                       "type": "string"
                     },
@@ -664,7 +649,7 @@
                     }
                   },
                   "required": [
-                    "sagaId",
+                    "storyId",
                     "sagaName",
                     "sagaDesc",
                     "backgroundMedia",

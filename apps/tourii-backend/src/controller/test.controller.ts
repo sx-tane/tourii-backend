@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { Controller, Get } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 /**
  * TestController provides endpoints to test various security features:

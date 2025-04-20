@@ -37,6 +37,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/tourii-backend/test/jest-e2e.json",
+    "test:e2e:app": "jest --config ./apps/tourii-backend/test/jest-e2e.json apps/tourii-backend/test/app.e2e-spec.ts",
     "update:openapi": "pnpm docs:api && pnpm dtsgen:tourii-backend",
     "docs:api": "redocly build-docs etc/openapi/openapi.json -o etc/openapi/openapi.html",
     "dtsgen:tourii-backend": "npx dtsgen -o etc/openapi/openapi.d.ts etc/openapi/openapi.yaml && prettier --write etc/openapi/openapi.d.ts etc/openapi/openapi.yaml",

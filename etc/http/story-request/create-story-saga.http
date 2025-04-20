@@ -1,13 +1,69 @@
 POST http://localhost:4000/stories/create-saga
 Content-Type: application/json
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
 
 {
-  "sagaName": "Test Saga",
-  "sagaDesc": "Test Description",
-  "backgroundMedia": "https://example.com/background.jpg",
-  "mapImage": "https://example.com/map.jpg",
-  "location": "Tokyo",
+  "sagaName": "Bungo Ono",
+  "sagaDesc": "In the Touriiverse, Bungo Ono, steeped in Kojiki lore, whispers ancient tales. Here, amidst bamboo groves and Harajiri Falls, myth and nature intertwine, inviting explorers to a realm where legends thrive.",
+  "backgroundMedia": "/video/bungo-ono.mp4",
+  "mapImage": "/image/touriiverse/oita.png",
+  "location": "Bungo Ono",
   "order": 1,
   "isPrologue": false,
-  "isSelected": true
+  "isSelected": true,
+  "chapterList": [
+    {
+      "touristSpotId": "TST_HarajiriFall",
+      "chapterNumber": "Chapter 1",
+      "chapterTitle": "The Lantern Festival",
+      "chapterDesc": "The sound of rushing water filled the misty air. Golden lanterns floated above the river, their soft light reflecting on the rippling surface. Ninigi stirred, disoriented, the roar of a waterfall echoing nearby. He sat up slowly, his eyes scanning the glowing wooden bridge stretching across the misty river.",
+      "chapterImage": "/image/touriiverse/bungo-ono/chapter1.png",
+      "characterNameList": ["Ninigi", "Sarutahiko"],
+      "realWorldImage": "/image/touriiverse/bungo-ono-real/chapter1.jpeg",
+      "chapterVideoUrl": "https://www.youtube.com/embed/DFJaxrpGIXg?si=KsehiocjEMr32QLH&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterVideoMobileUrl": "https://www.youtube.com/embed/vBwge4ohk_g?si=VL05AD4g9wlIXms3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterPdfUrl": "/pdfs/bungo-ono/chapter1.pdf",
+      "isUnlocked": true
+    },
+    {
+      "touristSpotId": "TST_NinomiyaHachimanShrine",
+      "chapterNumber": "Chapter 2",
+      "chapterTitle": "Ninomiya Hachiman Shrine",
+      "chapterDesc": "Sarutahiko led them through the quiet forest, his voice steady but urgent. \"We need to move quickly. Your divine energy will attract trouble—corrupted Kunitsukami and Yokai - spirits that once walked as protectors but had since fallen into hunger and violence, feeding on the remnants of forgotten",
+      "chapterImage": "/image/touriiverse/bungo-ono/chapter2.png",
+      "characterNameList": ["Ninigi", "Sarutahiko"],
+      "realWorldImage": "/image/touriiverse/bungo-ono-real/chapter2.jpg",
+      "chapterVideoUrl": "https://www.youtube.com/embed/jVxuNbMWDY4?si=3ZNNIkSe5zMxZhj9&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterVideoMobileUrl": "https://www.youtube.com/embed/4ueJcSY0Bj8?si=Hyd9UhVNbh5ZniwL&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterPdfUrl": "/pdfs/bungo-ono/chapter2.pdf",
+      "isUnlocked": true
+    },
+    {
+      "touristSpotId": "TST_MiyazakoStoneBuddha",
+      "chapterNumber": "Chapter 3",
+      "chapterTitle": "The Path of Destiny",
+      "chapterDesc": "Ninigi and his companions stood at the ast cliff, where two powerful guardians of Daichi Nyorai awaited them. Their presence was strong, their eyes gleaming with an ageless wisdom. A moment of tense silence passed before Ninigi stepped forward.",
+      "chapterImage": "/image/touriiverse/bungo-ono/chapter3.png",
+      "characterNameList": ["Ninigi", "Guardians"],
+      "realWorldImage": "/image/touriiverse/bungo-ono-real/chapter3.jpg",
+      "chapterVideoUrl": "https://www.youtube.com/embed/BzH2wE51lkY?si=Tn-YiIRli_AnQW9P&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterVideoMobileUrl": "https://www.youtube.com/embed/BzH2wE51lkY?si=Tn-YiIRli_AnQW9P&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterPdfUrl": "/pdfs/bungo-ono/chapter3.pdf",
+      "isUnlocked": true
+    },
+    {
+      "touristSpotId": "TST_OzakiStoneBathCave",
+      "chapterNumber": "Chapter 4",
+      "chapterTitle": "The Healing Ritual",
+      "chapterDesc": "The scent of damp earth and ancient stone lingered as Ninigi knelt beside Sarutahiko, his wounds deep, his breath shallow. The path ahead could wait—he had made his choice. Healing came first.",
+      "chapterImage": "/image/touriiverse/bungo-ono/chapter4.png",
+      "characterNameList": ["Ninigi", "Sarutahiko"],
+      "realWorldImage": "/image/touriiverse/bungo-ono-real/chapter4.jpeg",
+      "chapterVideoUrl": "",
+      "chapterVideoMobileUrl": "",
+      "chapterPdfUrl": "/pdfs/bungo-ono/chapter4.pdf",
+      "isUnlocked": false
+    }
+  ]
 }

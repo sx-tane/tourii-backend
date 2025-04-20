@@ -1,13 +1,17 @@
 import type { StoryChapter } from "@app/core/domain/game/story/chapter-story";
-import type { StorySagaEntity } from "@app/core/domain/game/story/story.entity";
+import type { StoryEntity } from "@app/core/domain/game/story/story.entity";
 import { TransformDate } from "@app/core/support/transformer/date-transformer";
 import type { StoryChapterResponseDto } from "@app/tourii-backend/controller/model/tourii-response/chapter-story-response.model";
-import type { StorySagaResponseDto } from "@app/tourii-backend/controller/model/tourii-response/story-saga-response.model";
+import type { StoryResponseDto } from "@app/tourii-backend/controller/model/tourii-response/story-response.model";
 
-export class StorySagaResultBuilder {
-	storyChapterToDto(storyChapter: StoryChapter): StoryChapterResponseDto {
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+export class StoryResultBuilder {
+	static storyChapterToDto(
+		storyChapter: StoryChapter,
+		storyId: string,
+	): StoryChapterResponseDto {
 		return {
-			storyId: storyChapter.storyId ?? "",
+			storyId: storyId,
 			touristSpotId: storyChapter.touristSpotId ?? "",
 			chapterNumber: storyChapter.chapterNumber ?? "",
 			chapterTitle: storyChapter.chapterTitle ?? "",
@@ -30,27 +34,27 @@ export class StorySagaResultBuilder {
 		};
 	}
 
-	storySagaToDto(storySaga: StorySagaEntity): StorySagaResponseDto {
+	static storyToDto(story: StoryEntity): StoryResponseDto {
 		return {
-			sagaId: storySaga.sagaId ?? "",
-			sagaName: storySaga.sagaName ?? "",
-			sagaDesc: storySaga.sagaDesc ?? "",
-			backgroundMedia: storySaga.backgroundMedia ?? "",
-			mapImage: storySaga.mapImage ?? "",
-			location: storySaga.location ?? "",
-			order: storySaga.order ?? 0,
-			isPrologue: storySaga.isPrologue ?? false,
-			isSelected: storySaga.isSelected ?? false,
+			storyId: story.storyId ?? "",
+			sagaName: story.sagaName ?? "",
+			sagaDesc: story.sagaDesc ?? "",
+			backgroundMedia: story.backgroundMedia ?? "",
+			mapImage: story.mapImage ?? "",
+			location: story.location ?? "",
+			order: story.order ?? 0,
+			isPrologue: story.isPrologue ?? false,
+			isSelected: story.isSelected ?? false,
 			chapterList:
-				storySaga.chapterList?.map((chapter) =>
-					this.storyChapterToDto(chapter),
+				story.chapterList?.map((chapter) =>
+					StoryResultBuilder.storyChapterToDto(chapter, story.storyId ?? ""),
 				) ?? undefined,
-			insUserId: storySaga.insUserId,
+			insUserId: story.insUserId,
 			insDateTime:
-				TransformDate.transformDateToYYYYMMDDHHmm(storySaga.insDateTime) ?? "",
-			updUserId: storySaga.updUserId,
+				TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime) ?? "",
+			updUserId: story.updUserId,
 			updDateTime:
-				TransformDate.transformDateToYYYYMMDDHHmm(storySaga.updDateTime) ?? "",
+				TransformDate.transformDateToYYYYMMDDHHmm(story.updDateTime) ?? "",
 		};
 	}
 }

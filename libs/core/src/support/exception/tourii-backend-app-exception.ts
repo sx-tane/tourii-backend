@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import type { AppError } from './app-error';
-import type { TouriiBackendAppErrorType } from './tourii-backend-app-error-type';
 import type { ErrorType } from './error-type';
+import type { TouriiBackendAppErrorType } from './tourii-backend-app-error-type';
 
 export interface ErrorMetadata {
   apiKey?: { valid: boolean };

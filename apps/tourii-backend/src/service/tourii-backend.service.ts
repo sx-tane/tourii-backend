@@ -1,16 +1,20 @@
+import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
+import type { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
+import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-request.model';
+import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
-import type { UserEntity } from '@app/core/domain/user/user.entity';
-import type { StorySagaCreateRequestDto } from '../controller/model/tourii-request/create/story-saga-request.model';
-import type { StorySagaResponseDto } from '../controller/model/tourii-response/story-saga-response.model';
-import { ContextStorage } from '@app/core/support/context/context-storage';
+import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
+import { StoryResultBuilder } from './builder/story-result-builder';
 
 @Injectable()
 export class TouriiBackendService {
   constructor(
     @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
     private readonly userRepository: UserRepository,
+    @Inject(TouriiBackendConstants.STORY_REPOSITORY_TOKEN)
+    private readonly storyRepository: StoryRepository,
   ) {}
 
   /*
@@ -19,51 +23,15 @@ export class TouriiBackendService {
    * @returns The user with the given username.
    */
 
-  async createStorySaga(
-    saga: StorySagaCreateRequestDto,
-  ): Promise<StorySagaResponseDto> {
-    // TODO: Implement story saga creation
-    return {
-      sagaId: '1',
-      sagaName: saga.sagaName,
-      sagaDesc: saga.sagaDesc,
-      backgroundMedia: saga.backgroundMedia || '',
-      mapImage: saga.mapImage || '',
-      location: saga.location || '',
-      order: saga.order || 0,
-      isPrologue: saga.isPrologue || false,
-      isSelected: saga.isSelected || false,
-      chapterList: [],
-      insUserId: 'system',
-      insDateTime:
-        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
-      updUserId: 'system',
-      updDateTime:
-        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
-    };
+  async createStory(saga: StoryCreateRequestDto): Promise<StoryResponseDto> {
+    const storySaga = StoryCreateRequestBuilder.dtoToStory(saga, 'admin');
+    const storySagaEntity = await this.storyRepository.createStory(storySaga);
+    return StoryResultBuilder.storyToDto(storySagaEntity);
   }
 
-  async getStorySagas(): Promise<StorySagaResponseDto> {
-    // TODO: Implement fetching all sagas
-    const now = new Date().toISOString();
-    return {
-      sagaId: '1',
-      sagaName: 'Test Saga',
-      sagaDesc: 'Test Description',
-      backgroundMedia: 'https://example.com/background.jpg',
-      mapImage: 'https://example.com/map.jpg',
-      location: 'Tokyo',
-      order: 1,
-      isPrologue: false,
-      isSelected: true,
-      chapterList: [],
-      insUserId: 'system',
-      insDateTime:
-        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
-      updUserId: 'system',
-      updDateTime:
-        ContextStorage.getStore()?.getSystemDateTimeJST().toISOString() ?? '',
-    };
+  async getStories(): Promise<StoryResponseDto[]> {
+    const storySagaEntity = await this.storyRepository.getStories();
+    return storySagaEntity.map((story) => StoryResultBuilder.storyToDto(story));
   }
 
   async createUser(user: UserEntity) {
