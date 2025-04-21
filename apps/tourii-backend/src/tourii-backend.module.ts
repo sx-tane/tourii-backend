@@ -6,6 +6,7 @@ import { getEnv } from "@app/core/utils/env-utils";
 import { HttpModule } from "@nestjs/axios";
 // biome-ignore lint/style/useImportType: <explanation>
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { CacheModule } from "@nestjs/cache-manager";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_PIPE, HttpAdapterHost } from "@nestjs/core";
 // biome-ignore lint/style/useImportType: cannot use type import here
@@ -15,6 +16,7 @@ import {
 	ThrottlerModuleOptions,
 	ThrottlerStorageService,
 } from "@nestjs/throttler";
+import * as redisStore from "cache-manager-redis-store";
 import { ZodValidationPipe } from "nestjs-zod";
 import { TestController } from "./controller/test.controller";
 import { TouriiBackendController } from "./controller/tourii-backend.controller";
@@ -24,6 +26,7 @@ import { SecurityMiddleware } from "./support/middleware/security.middleware";
 import { TouriiBackendApiMiddleware } from "./support/tourii-backend-api-middleware";
 import { TouriiBackendConstants } from "./tourii-backend.constant";
 import { StoryRepositoryDb } from "@app/core/infrastructure/datasource/story-repository-db";
+import { CachingService } from "@app/core/provider/caching.service";
 
 /**
  * Main module for the Tourii Backend application
@@ -58,6 +61,20 @@ import { StoryRepositoryDb } from "@app/core/infrastructure/datasource/story-rep
 				storage: new ThrottlerStorageService(), // Store rate limit data in memory
 			}),
 		}),
+
+		// Redis Cache Configuration
+		CacheModule.registerAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: async (configService: ConfigService) => ({
+				store: redisStore,
+				host: configService.get<string>("REDIS_HOST", "localhost"),
+				port: configService.get<number>("REDIS_PORT", 6379),
+				ttl: configService.get<number>("CACHE_TTL", 3600),
+				// password: configService.get<string>('REDIS_PASSWORD'), // Uncomment if needed
+			}),
+			isGlobal: true, // Make CacheModule available globally
+		}),
 	],
 	// Register controllers that handle HTTP requests
 	controllers: [TouriiBackendController, TestController],
@@ -70,6 +87,7 @@ import { StoryRepositoryDb } from "@app/core/infrastructure/datasource/story-rep
 		TouriiBackendService, // Main business logic
 		TouriiBackendHttpService, // HTTP client service
 		HttpAdapterHost, // HTTP adapter
+		CachingService,
 		{
 			provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,
 			useClass: TouriiBackendContextProvider, // Request context

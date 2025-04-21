@@ -230,8 +230,8 @@ export class TouriiBackendController {
       },
     },
   })
-  async getSagas(): Promise<StoryResponseDto> {
-    return this.touriiBackendService.getStories();
+  async getSagas(): Promise<StoryResponseDto[]> {
+    return await this.touriiBackendService.getStories();
   }
 
   @Post('/user')
