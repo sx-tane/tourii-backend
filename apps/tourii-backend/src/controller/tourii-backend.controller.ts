@@ -22,6 +22,8 @@ import {
   StoryResponseDto,
   StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
+import { StoryChapterResponseSchema } from './model/tourii-response/chapter-story-response.model';
+import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-response.model';
 
 @Controller()
 @ApiTags('Tourii Backend')
@@ -232,6 +234,54 @@ export class TouriiBackendController {
   })
   async getSagas(): Promise<StoryResponseDto[]> {
     return await this.touriiBackendService.getStories();
+  }
+
+  @Get('/stories/sagas/:storyId/chapters')
+  @ApiTags('Stories')
+  @ApiOperation({
+    summary: 'Get Story Chapters',
+    description: 'Retrieve all chapters for a specific story.',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved all chapters for a specific story.',
+    schema: zodToOpenAPI(StoryChapterResponseSchema),
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing API key',
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
+      },
+    },
+  })
+  async getStoryChapters(
+    @Param('storyId') storyId: string,
+  ): Promise<StoryChapterResponseDto[]> {
+    return await this.touriiBackendService.getStoryChapters(storyId);
   }
 
   @Post('/user')

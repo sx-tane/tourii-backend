@@ -7,6 +7,7 @@ import type { StoryResponseDto } from '../controller/model/tourii-response/story
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
+import { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 
 @Injectable()
 export class TouriiBackendService {
@@ -32,6 +33,11 @@ export class TouriiBackendService {
   async getStories(): Promise<StoryResponseDto[]> {
     const storySagaEntity = await this.storyRepository.getStories();
     return storySagaEntity.map((story) => StoryResultBuilder.storyToDto(story));
+  }
+
+  async getStoryChapters(storyId: string): Promise<StoryChapterResponseDto[]> {
+    const storyChapterEntity = await this.storyRepository.getStoryChapters(storyId);
+    return storyChapterEntity.map((storyChapter) => StoryResultBuilder.storyChapterToDto(storyChapter, storyId));
   }
 
   async createUser(user: UserEntity) {

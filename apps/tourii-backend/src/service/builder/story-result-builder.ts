@@ -3,6 +3,7 @@ import type { StoryEntity } from "@app/core/domain/game/story/story.entity";
 import { TransformDate } from "@app/core/support/transformer/date-transformer";
 import type { StoryChapterResponseDto } from "@app/tourii-backend/controller/model/tourii-response/chapter-story-response.model";
 import type { StoryResponseDto } from "@app/tourii-backend/controller/model/tourii-response/story-response.model";
+import { Logger } from "@nestjs/common";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class StoryResultBuilder {
@@ -12,6 +13,8 @@ export class StoryResultBuilder {
 	): StoryChapterResponseDto {
 		return {
 			storyId: storyId,
+			sagaName: storyChapter.sagaName ?? "",
+			storyChapterId: storyChapter.storyChapterId ?? "",
 			touristSpotId: storyChapter.touristSpotId ?? "",
 			chapterNumber: storyChapter.chapterNumber ?? "",
 			chapterTitle: storyChapter.chapterTitle ?? "",

@@ -297,6 +297,14 @@
                             "description": "Unique identifier for the tourist spot",
                             "type": "string"
                           },
+                          "storyChapterId": {
+                            "description": "Unique identifier for the story chapter",
+                            "type": "string"
+                          },
+                          "sagaName": {
+                            "description": "Name of the saga",
+                            "type": "string"
+                          },
                           "chapterNumber": {
                             "description": "Chapter number or position",
                             "type": "string"
@@ -360,6 +368,8 @@
                         "required": [
                           "storyId",
                           "touristSpotId",
+                          "storyChapterId",
+                          "sagaName",
                           "chapterNumber",
                           "chapterTitle",
                           "chapterDesc",
@@ -551,6 +561,14 @@
                             "description": "Unique identifier for the tourist spot",
                             "type": "string"
                           },
+                          "storyChapterId": {
+                            "description": "Unique identifier for the story chapter",
+                            "type": "string"
+                          },
+                          "sagaName": {
+                            "description": "Name of the saga",
+                            "type": "string"
+                          },
                           "chapterNumber": {
                             "description": "Chapter number or position",
                             "type": "string"
@@ -614,6 +632,8 @@
                         "required": [
                           "storyId",
                           "touristSpotId",
+                          "storyChapterId",
+                          "sagaName",
                           "chapterNumber",
                           "chapterTitle",
                           "chapterDesc",
@@ -717,6 +737,178 @@
           }
         },
         "summary": "Get All Story Sagas",
+        "tags": [
+          "Tourii Backend",
+          "Stories"
+        ]
+      }
+    },
+    "/stories/sagas/{storyId}/chapters": {
+      "get": {
+        "description": "Retrieve all chapters for a specific story.",
+        "operationId": "TouriiBackendController_getStoryChapters",
+        "parameters": [
+          {
+            "name": "storyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all chapters for a specific story.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "storyId": {
+                      "description": "Unique identifier for the story",
+                      "type": "string"
+                    },
+                    "touristSpotId": {
+                      "description": "Unique identifier for the tourist spot",
+                      "type": "string"
+                    },
+                    "storyChapterId": {
+                      "description": "Unique identifier for the story chapter",
+                      "type": "string"
+                    },
+                    "sagaName": {
+                      "description": "Name of the saga",
+                      "type": "string"
+                    },
+                    "chapterNumber": {
+                      "description": "Chapter number or position",
+                      "type": "string"
+                    },
+                    "chapterTitle": {
+                      "description": "Title of the chapter",
+                      "type": "string"
+                    },
+                    "chapterDesc": {
+                      "description": "Detailed description of the chapter",
+                      "type": "string"
+                    },
+                    "chapterImage": {
+                      "description": "URL to the fictional chapter image",
+                      "type": "string"
+                    },
+                    "characterNameList": {
+                      "description": "List of character names involved in the chapter",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "realWorldImage": {
+                      "description": "URL to the real-world location image",
+                      "type": "string"
+                    },
+                    "chapterVideoUrl": {
+                      "description": "URL to the chapter video for desktop viewing",
+                      "type": "string"
+                    },
+                    "chapterVideoMobileUrl": {
+                      "description": "URL to the chapter video optimized for mobile",
+                      "type": "string"
+                    },
+                    "chapterPdfUrl": {
+                      "description": "URL to the downloadable PDF version",
+                      "type": "string"
+                    },
+                    "isUnlocked": {
+                      "description": "Whether the chapter is available to users without prerequisites",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "storyId",
+                    "touristSpotId",
+                    "storyChapterId",
+                    "sagaName",
+                    "chapterNumber",
+                    "chapterTitle",
+                    "chapterDesc",
+                    "chapterImage",
+                    "characterNameList",
+                    "realWorldImage",
+                    "chapterVideoUrl",
+                    "chapterVideoMobileUrl",
+                    "chapterPdfUrl",
+                    "isUnlocked",
+                    "insUserId",
+                    "insDateTime",
+                    "updUserId",
+                    "updDateTime"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_010"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API key is required"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get Story Chapters",
         "tags": [
           "Tourii Backend",
           "Stories"

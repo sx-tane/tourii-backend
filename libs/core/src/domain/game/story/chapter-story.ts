@@ -1,5 +1,7 @@
 interface StoryChapterProps {
 	touristSpotId?: string;
+	storyChapterId?: string;
+	sagaName?: string;
 	chapterNumber?: string;
 	chapterTitle?: string;
 	chapterDesc?: string;
@@ -23,6 +25,14 @@ export class StoryChapter {
 
 	constructor(props: StoryChapterProps) {
 		this.props = props;
+	}
+
+	get storyChapterId(): string | undefined {
+		return this.props.storyChapterId;
+	}
+
+	get sagaName(): string | undefined {
+		return this.props.sagaName;
 	}
 
 	get touristSpotId(): string | undefined {

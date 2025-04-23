@@ -56,35 +56,38 @@ export class StoryMapper {
 		};
 	}
 
+	static storyChapterToEntity = (
+		prismaModel: story_chapter[],
+		sagaName: string,
+	): StoryChapter[] => {
+		return prismaModel.map((chapter) => {
+			return new StoryChapter({
+				sagaName: sagaName,
+				storyChapterId: chapter.story_chapter_id,
+				touristSpotId: chapter.tourist_spot_id,
+				chapterNumber: chapter.chapter_number,
+				chapterTitle: chapter.chapter_title,
+				chapterDesc: chapter.chapter_desc,
+				chapterImage: chapter.chapter_image,
+				characterNameList: chapter.character_name_list,
+				realWorldImage: chapter.real_world_image,
+				chapterVideoUrl: chapter.chapter_video_url,
+				chapterVideoMobileUrl: chapter.chapter_video_mobile_url,
+				chapterPdfUrl: chapter.chapter_pdf_url,
+				isUnlocked: chapter.is_unlocked ?? false,
+				delFlag: chapter.del_flag ?? false,
+				insUserId: chapter.ins_user_id,
+				insDateTime: chapter.ins_date_time,
+				updUserId: chapter.upd_user_id,
+				updDateTime: chapter.upd_date_time,
+				requestId: chapter.request_id ?? undefined,
+			});
+		});
+	};
+
 	static prismaModelToStoryEntity(
 		prismaModel: StoryRelationModel,
 	): StoryEntity {
-		const storyChapterToEntity = (
-			prismaModel: story_chapter[],
-		): StoryChapter[] => {
-			return prismaModel.map((chapter) => {
-				return new StoryChapter({
-					touristSpotId: chapter.tourist_spot_id,
-					chapterNumber: chapter.chapter_number,
-					chapterTitle: chapter.chapter_title,
-					chapterDesc: chapter.chapter_desc,
-					chapterImage: chapter.chapter_image,
-					characterNameList: chapter.character_name_list,
-					realWorldImage: chapter.real_world_image,
-					chapterVideoUrl: chapter.chapter_video_url,
-					chapterVideoMobileUrl: chapter.chapter_video_mobile_url,
-					chapterPdfUrl: chapter.chapter_pdf_url,
-					isUnlocked: chapter.is_unlocked ?? false,
-					delFlag: chapter.del_flag ?? false,
-					insUserId: chapter.ins_user_id,
-					insDateTime: chapter.ins_date_time,
-					updUserId: chapter.upd_user_id,
-					updDateTime: chapter.upd_date_time,
-					requestId: chapter.request_id ?? undefined,
-				});
-			});
-		};
-
 		return new StoryEntity(
 			{
 				sagaName: prismaModel.saga_name,
@@ -102,7 +105,10 @@ export class StoryMapper {
 				updDateTime: prismaModel.upd_date_time,
 				requestId: prismaModel.request_id ?? undefined,
 				chapterList: prismaModel.story_chapter?.length
-					? storyChapterToEntity(prismaModel.story_chapter)
+					? StoryMapper.storyChapterToEntity(
+							prismaModel.story_chapter,
+							prismaModel.saga_name,
+						)
 					: undefined,
 			},
 			prismaModel.story_id,

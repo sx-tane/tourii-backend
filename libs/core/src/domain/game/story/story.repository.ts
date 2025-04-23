@@ -1,3 +1,4 @@
+import { StoryChapter } from "./chapter-story";
 import type { StoryEntity } from "./story.entity";
 
 export interface StoryRepository {
@@ -13,4 +14,11 @@ export interface StoryRepository {
 	 * @returns StoryEntity[]
 	 */
 	getStories(): Promise<StoryEntity[]>;
+
+	/**
+	 * Get story chapters
+	 * @param storyId
+	 * @returns StoryChapter[]
+	 */
+	getStoryChapters(storyId: string): Promise<StoryChapter[]>;
 }
