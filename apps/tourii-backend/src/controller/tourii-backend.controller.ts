@@ -23,10 +23,10 @@ import {
   StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
 import { StoryChapterResponseSchema } from './model/tourii-response/chapter-story-response.model';
+// biome-ignore lint/style/useImportType: <explanation>
 import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-response.model';
 
 @Controller()
-@ApiTags('Tourii Backend')
 export class TouriiBackendController {
   constructor(private readonly touriiBackendService: TouriiBackendService) {}
 

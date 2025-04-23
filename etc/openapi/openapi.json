@@ -88,7 +88,6 @@
         },
         "summary": "Health Check",
         "tags": [
-          "Tourii Backend",
           "Health Check"
         ]
       }
@@ -474,7 +473,6 @@
         },
         "summary": "Create Story Saga",
         "tags": [
-          "Tourii Backend",
           "Stories"
         ]
       }
@@ -738,7 +736,6 @@
         },
         "summary": "Get All Story Sagas",
         "tags": [
-          "Tourii Backend",
           "Stories"
         ]
       }
@@ -910,7 +907,6 @@
         },
         "summary": "Get Story Chapters",
         "tags": [
-          "Tourii Backend",
           "Stories"
         ]
       }
@@ -1012,7 +1008,6 @@
         },
         "summary": "Create User",
         "tags": [
-          "Tourii Backend",
           "User"
         ]
       }
@@ -1111,7 +1106,6 @@
         },
         "summary": "Get User by ID",
         "tags": [
-          "Tourii Backend",
           "User"
         ]
       }
