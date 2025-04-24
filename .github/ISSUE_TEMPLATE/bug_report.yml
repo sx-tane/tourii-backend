@@ -1,0 +1,67 @@
+name: 🐛 Bug Report
+description: Report a bug in the system (UI, API, logic, etc.)
+title: "[BUG] <Short title here>"
+labels: ["bug", "needs-triage"]
+
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - Frontend
+        - Backend
+        - Blockchain
+        - Infra
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: e.g. Local dev, Staging, Production
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Clear summary of the issue
+      placeholder: Describe what happened and what you expected
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      placeholder: What should have happened?
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Console Errors (if any)
+      placeholder: Paste logs, error messages, stack traces
+
+  - type: input
+    id: browser_or_api
+    attributes:
+      label: Browser/API or Device (if applicable)
+      placeholder: Chrome, iOS Safari, Postman, etc.
+
+  - type: checkboxes
+    id: blocking
+    attributes:
+      label: Impact
+      options:
+        - label: ❗ Blocks deployment or feature release
+        - label: 🚫 Breaks user experience
+        - label: Minor UI glitch / low priority

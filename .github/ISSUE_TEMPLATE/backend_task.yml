@@ -2,7 +2,6 @@ name: 🛠 Backend Task
 description: Track API/database logic/backend logic tasks
 title: "[BE] <Short title here>"
 labels: ["backend", "type: task"]
-assignees: []
 
 body:
   - type: dropdown
