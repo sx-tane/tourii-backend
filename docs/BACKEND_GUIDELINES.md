@@ -64,7 +64,7 @@ This document outlines the development guidelines and architecture for the Touri
 | Database      | PostgreSQL + Prisma ORM                   |
 | Caching       | Redis                                     |
 | Blockchain    | Ethers.js / viem + Hardhat + OpenZeppelin |
-| Storage       | IPFS (NFT metadata), AWS S3 (media)       |
+| Storage       | IPFS (NFT metadata)                       |
 | Auth          | JWT, OAuth2, Signature login (EVM)        |
 | Testing       | Jest                                      |
 | Docs          | Swagger / OpenAPI                         |

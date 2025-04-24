@@ -1,8 +1,8 @@
 import { StoryChapter } from "@app/core/domain/game/story/chapter-story";
 import { StoryEntity } from "@app/core/domain/game/story/story.entity";
 import { ContextStorage } from "@app/core/support/context/context-storage";
-import type { StoryChapterCreateRequestDto } from "@app/tourii-backend/controller/model/tourii-request/create/chapter-story-request.model";
-import type { StoryCreateRequestDto } from "@app/tourii-backend/controller/model/tourii-request/create/story-request.model";
+import type { StoryChapterCreateRequestDto } from "@app/tourii-backend/controller/model/tourii-request/create/chapter-story-create-request.model";
+import type { StoryCreateRequestDto } from "@app/tourii-backend/controller/model/tourii-request/create/story-create-request.model";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class StoryCreateRequestBuilder {

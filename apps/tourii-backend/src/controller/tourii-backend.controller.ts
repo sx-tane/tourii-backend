@@ -16,7 +16,7 @@ import { CreatedApiResponse } from './model/decorator/created.api-response';
 import {
   StoryCreateRequestDto,
   StoryCreateRequestSchema,
-} from './model/tourii-request/create/story-request.model';
+} from './model/tourii-request/create/story-create-request.model';
 // biome-ignore lint/style/useImportType: <explanation>
 import {
   StoryResponseDto,
@@ -25,6 +25,9 @@ import {
 import { StoryChapterResponseSchema } from './model/tourii-response/chapter-story-response.model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-response.model';
+import { StoryChapterCreateRequestDto, StoryChapterCreateRequestSchema } from './model/tourii-request/create/chapter-story-create-request.model';
+import { StoryUpdateRequestDto, StoryUpdateRequestSchema } from './model/tourii-request/update/story-update-request.model';
+import { StoryChapterUpdateRequestDto, StoryChapterUpdateRequestSchema } from './model/tourii-request/update/chapter-story-update-request.model';
 
 @Controller()
 export class TouriiBackendController {
@@ -167,6 +170,102 @@ export class TouriiBackendController {
     @Body() saga: StoryCreateRequestDto,
   ): Promise<StoryResponseDto> {
     return await this.touriiBackendService.createStory(saga);
+  }
+
+  @Post('/stories/update-saga')
+  @ApiTags('Stories')
+  @ApiOperation({
+    summary: 'Update Story Saga',
+    description: 'Update an existing story saga.',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiBody({
+    description: 'Story Saga update request',
+    schema: zodToOpenAPI(StoryUpdateRequestSchema),
+  })
+  @CreatedApiResponse(StoryResponseSchema)
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing API key',
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
+      },
+    },
+  })
+  async updateStory(
+    @Body() saga: StoryUpdateRequestDto,
+  ): Promise<StoryResponseDto> {
+    return await this.touriiBackendService.updateStory(saga);
+  }
+
+  @Post('/stories/update-chapter')
+  @ApiTags('Stories')
+  @ApiOperation({
+    summary: 'Update Story Chapter',
+    description: 'Update an existing story chapter.',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiBody({
+    description: 'Story Chapter update request',
+    schema: zodToOpenAPI(StoryChapterUpdateRequestSchema),
+  })
+  @CreatedApiResponse(StoryChapterResponseSchema)
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing API key',
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
+      },
+    },
+  })
+  async updateStoryChapter(
+    @Body() chapter: StoryChapterUpdateRequestDto,
+  ): Promise<StoryChapterResponseDto> {
+    return await this.touriiBackendService.updateStoryChapter(chapter);
   }
 
   @Get('/stories/sagas')

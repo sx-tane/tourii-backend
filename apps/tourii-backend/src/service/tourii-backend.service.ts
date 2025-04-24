@@ -2,7 +2,7 @@ import type { StoryRepository } from '@app/core/domain/game/story/story.reposito
 import type { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
-import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-request.model';
+import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
