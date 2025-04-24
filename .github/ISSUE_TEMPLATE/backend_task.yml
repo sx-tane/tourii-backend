@@ -1,0 +1,48 @@
+name: 🛠 Backend Task
+description: Track API/database logic/backend logic tasks
+title: "[BE] <Short title here>"
+labels: ["backend", "type: task"]
+assignees: []
+
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High 🔥
+        - Medium ⚠️
+        - Low 🧊
+    validations:
+      required: true
+
+  - type: input
+    id: sprint
+    attributes:
+      label: Sprint
+      placeholder: e.g. Sprint 3, Backlog
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      placeholder: Add auth middleware, create route for XYZ...
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      placeholder: |
+        - [ ] Endpoint returns expected payload
+        - [ ] Validations handled
+        - [ ] Unit test added (Optional)
+
+  - type: checkboxes
+    id: dependencies
+    attributes:
+      label: Dependencies
+      options:
+        - label: Requires schema migration
+        - label: Needs frontend integration
+        - label: Blocked by another issue
+        - label: None
