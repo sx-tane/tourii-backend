@@ -9,16 +9,43 @@ body:
     id: description
     attributes:
       label: Task Description
-      placeholder: Add auth middleware, create route for XYZ...
-
+      value: |
+        **Endpoint:**  
+        `<HTTP method> <URL>`  
+        *(e.g., `POST /quests/:questId/group/join`)*
+        
+        **Request:**
+        ```json
+        {
+          "<key1>": "<value1>",
+          "<key2>": "<value2>"
+        }
+        ```
+        
+        **Response:**
+        ```json
+        {
+          "<key1>": "<value1>",
+          "<key2>": "<value2>"
+        }
+        ```
+        
+        **Flow:**
+        - Step 1: <Explain step>
+        - Step 2: <Explain step>
+        - Step 3: <Explain step>
+        
+        ---
+        
   - type: textarea
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      placeholder: |
+      value: |
         - [ ] Endpoint returns expected payload
         - [ ] Validations handled
-        - [ ] Unit test added (Optional)
+        - [ ] Unit tests added (Optional)
+        - [ ] Integration tests added (Optional)
 
   - type: checkboxes
     id: dependencies
