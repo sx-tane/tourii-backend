@@ -35,8 +35,6 @@ body:
         - Step 2: <Explain step>
         - Step 3: <Explain step>
         
-        ---
-        
   - type: textarea
     id: acceptance
     attributes:
