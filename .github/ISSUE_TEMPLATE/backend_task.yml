@@ -10,11 +10,11 @@ body:
     attributes:
       label: Task Description
       value: |
-        **Endpoint:**  
+        ### Endpoint:  
         `<HTTP method> <URL>`  
         *(e.g., `POST /quests/:questId/group/join`)*
         
-        **Request:**
+        ### Request:
         ```json
         {
           "<key1>": "<value1>",
@@ -22,7 +22,7 @@ body:
         }
         ```
         
-        **Response:**
+        ### Response:
         ```json
         {
           "<key1>": "<value1>",
@@ -30,7 +30,7 @@ body:
         }
         ```
         
-        **Flow:**
+        ### Flow:
         - Step 1: <Explain step>
         - Step 2: <Explain step>
         - Step 3: <Explain step>
