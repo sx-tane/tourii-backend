@@ -1,0 +1,14 @@
+POST http://localhost:4000/stories/create-saga
+Content-Type: application/json
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+
+{
+  "sagaName": "Prologue",
+  "sagaDesc": "The starting point of the Touriiverse journey.",
+  "backgroundMedia": "/image/touriiverse/story-page.png",
+  "location": "Touriiverse",
+  "order": 0,
+  "isPrologue": true,
+  "isSelected": false
+}

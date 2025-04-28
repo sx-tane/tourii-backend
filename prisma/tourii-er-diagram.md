@@ -410,15 +410,16 @@ EVENT EVENT
     }
   
 
-  "story_saga" {
-    String story_saga_id "🗝️"
+  "story" {
+    String story_id "🗝️"
     String saga_name 
     String saga_desc 
-    String cover_image "❓"
-    String cover_video "❓"
+    String background_media "❓"
     String map_image "❓"
     String location "❓"
     Int order 
+    Boolean is_prologue 
+    Boolean is_selected 
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -428,19 +429,19 @@ EVENT EVENT
     }
   
 
-  "story" {
-    String story_id "🗝️"
-    String story_saga_id 
+  "story_chapter" {
+    String story_chapter_id "🗝️"
+    String story_id 
     String tourist_spot_id 
     String chapter_number 
-    String story_title 
-    String story_desc 
-    String story_image 
+    String chapter_title 
+    String chapter_desc 
+    String chapter_image 
     String character_name_list 
     String real_world_image 
-    String story_video_url 
-    String story_video_mobile_url 
-    String story_pdf_url 
+    String chapter_video_url 
+    String chapter_video_mobile_url 
+    String chapter_pdf_url 
     Boolean is_unlocked 
     Boolean del_flag 
     String ins_user_id 
@@ -453,7 +454,7 @@ EVENT EVENT
 
   "model_route" {
     String model_route_id "🗝️"
-    String story_saga_id 
+    String story_id 
     String route_name 
     Json recommendation 
     Boolean del_flag 
@@ -632,10 +633,10 @@ EVENT EVENT
     "discord_rewarded_roles" o|--|| "user" : "user"
     "discord_user_roles" o|--|| "discord_roles" : "discord_roles"
     "discord_user_roles" o|--|| "user" : "user"
-    "story_saga" o{--}o "story" : "story"
-    "story_saga" o{--}o "model_route" : "model_route"
-    "story" o|--|| "story_saga" : "story_saga"
-    "model_route" o|--|| "story_saga" : "story_saga"
+    "story" o{--}o "story_chapter" : "story_chapter"
+    "story" o{--}o "model_route" : "model_route"
+    "story_chapter" o|--|| "story" : "story"
+    "model_route" o|--|| "story" : "story"
     "model_route" o{--}o "tourist_spot" : "tourist_spot"
     "tourist_spot" o|--|| "model_route" : "model_route"
     "tourist_spot" o{--}o "quest" : "quest"

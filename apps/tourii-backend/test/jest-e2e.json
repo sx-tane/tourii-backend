@@ -1,9 +1,44 @@
 {
-	"moduleFileExtensions": ["js", "json", "ts"],
-	"rootDir": ".",
-	"testEnvironment": "node",
-	"testRegex": ".e2e-spec.ts$",
-	"transform": {
-		"^.+\\.(t|j)s$": "ts-jest"
-	}
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "moduleDirectories": ["node_modules"],
+  "moduleNameMapper": {
+    "^@app/core$": "<rootDir>/../../../libs/core/src",
+    "^@app/core/(.*)$": "<rootDir>/../../../libs/core/src/$1",
+    "^@app/core-test$": "<rootDir>/../../../libs/core/test",
+    "^@app/core-test/(.*)$": "<rootDir>/../../../libs/core/test/$1",
+    "^@app/tourii-backend$": "<rootDir>/../src",
+    "^@app/tourii-backend/(.*)$": "<rootDir>/../src/$1",
+    "^@app/tourii-backend-test$": "<rootDir>",
+    "^@app/tourii-backend-test/(.*)$": "<rootDir>/$1",
+    "^@app/tourii-onchain$": "<rootDir>/../apps/tourii-onchain/src",
+    "^@app/tourii-onchain/(.*)$": "<rootDir>/../apps/tourii-onchain/src/$1",
+    "^@app/tourii-onchain-test$": "<rootDir>/../apps/tourii-onchain/test",
+    "^@app/tourii-onchain-test/(.*)$": "<rootDir>/../apps/tourii-onchain/test/$1"
+  },
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "@swc/jest",
+      {
+        "jsc": {
+          "parser": {
+            "syntax": "typescript",
+            "tsx": false,
+            "decorators": true
+          },
+          "transform": {
+            "legacyDecorator": true,
+            "decoratorMetadata": true
+          }
+        },
+        "module": {
+          "type": "commonjs"
+        },
+        "sourceMaps": true
+      }
+    ]
+  },
+  "roots": ["<rootDir>/../../"]
 }

@@ -1,7 +1,6 @@
 import { Entity } from "../entity";
 
 interface UserProps {
-	userId: string;
 	username: string;
 	discordId?: string;
 	discordUsername?: string;
@@ -29,12 +28,13 @@ interface UserProps {
 }
 
 export class UserEntity extends Entity<UserProps> {
+	// biome-ignore lint/complexity/noUselessConstructor: <explanation>
 	constructor(props: UserProps, id: string) {
 		super(props, id);
 	}
 
-	get userId(): string {
-		return this.props.userId;
+	get userId(): string | undefined {
+		return this.id;
 	}
 
 	get username(): string {

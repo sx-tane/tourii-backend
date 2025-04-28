@@ -60,6 +60,31 @@ export const TouriiBackendAppErrorType = {
     message: 'Error while renewing voucher',
     type: ErrorType.BAD_REQUEST,
   },
+  E_TB_010: {
+    code: 'E_TB_010',
+    message: 'API key is required',
+    type: ErrorType.UNAUTHORIZED,
+  },
+  E_TB_011: {
+    code: 'E_TB_011',
+    message: 'Invalid API key',
+    type: ErrorType.UNAUTHORIZED,
+  },
+  E_TB_020: {
+    code: 'E_TB_020',
+    message: 'Version header is required',
+    type: ErrorType.BAD_REQUEST,
+  },
+  E_TB_021: {
+    code: 'E_TB_021',
+    message: 'Invalid version format',
+    type: ErrorType.BAD_REQUEST,
+  },
+  E_TB_022: {
+    code: 'E_TB_022',
+    message: 'This API version is no longer supported',
+    type: ErrorType.BAD_REQUEST,
+  },
 } as const;
 
 type TouriiBackendAppErrorKeys = keyof typeof TouriiBackendAppErrorType;

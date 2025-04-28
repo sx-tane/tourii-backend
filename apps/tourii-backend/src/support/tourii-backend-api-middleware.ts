@@ -1,6 +1,8 @@
 import { ContextStorage } from '@app/core/support/context/context-storage';
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
+// biome-ignore lint/style/useImportType: <explanation>
+import { Injectable, Logger } from '@nestjs/common';
+import type { NestMiddleware } from '@nestjs/common';
+import type { NextFunction, Request, Response } from 'express';
 import { TouriiBackendContextProvider } from './context/tourii-backend-context-provider';
 
 /**
@@ -20,7 +22,12 @@ export class TouriiBackendApiMiddleware implements NestMiddleware {
     //
     this.context = new TouriiBackendContextProvider(req);
 
-    const additionalInfo: Record<string, any> = {
+    const additionalInfo: {
+      Headers: Record<string, string | string[] | undefined>;
+      Params?: Record<string, string>;
+      Body?: unknown;
+      Query?: Record<string, string | string[]>;
+    } = {
       Headers: req.headers,
       ...(req.params &&
         Object.keys(req.params).length > 0 && { Params: req.params }),
@@ -38,7 +45,9 @@ export class TouriiBackendApiMiddleware implements NestMiddleware {
       );
     }
 
-    // RequestスコープStorageへContextを保存
-    ContextStorage.run(this.context, next, 'route');
+    // Store context and continue middleware chain
+    ContextStorage.run(this.context, () => {
+      next();
+    });
   }
 }

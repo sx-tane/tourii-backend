@@ -1,38 +1,38 @@
 {
-	"$schema": "https://json.schemastore.org/nest-cli",
-	"collection": "@nestjs/schematics",
-	"monorepo": true,
-	"compilerOptions": {
-		"deleteOutDir": true,
-		"webpack": true
-	},
-	"projects": {
-		"tourii-backend": {
-			"type": "application",
-			"root": "apps/tourii-backend",
-			"entryFile": "main",
-			"sourceRoot": "apps/tourii-backend/src",
-			"compilerOptions": {
-				"tsConfigPath": "apps/tourii-backend/tsconfig.app.json"
-			}
-		},
-		"tourii-onchain": {
-			"type": "application",
-			"root": "apps/tourii-onchain",
-			"entryFile": "main",
-			"sourceRoot": "apps/tourii-onchain/src",
-			"compilerOptions": {
-				"tsConfigPath": "apps/tourii-onchain/tsconfig.app.json"
-			}
-		},
-		"core": {
-			"type": "library",
-			"root": "libs/core",
-			"entryFile": "index",
-			"sourceRoot": "libs/core/src",
-			"compilerOptions": {
-				"tsConfigPath": "libs/core/tsconfig.lib.json"
-			}
-		}
-	}
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "monorepo": true,
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true
+  },
+  "projects": {
+    "tourii-backend": {
+      "type": "application",
+      "root": "apps/tourii-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/tourii-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/tourii-backend/tsconfig.app.json"
+      }
+    },
+    "tourii-onchain": {
+      "type": "application",
+      "root": "apps/tourii-onchain",
+      "entryFile": "main",
+      "sourceRoot": "apps/tourii-onchain/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/tourii-onchain/tsconfig.app.json"
+      }
+    },
+    "core": {
+      "type": "library",
+      "root": "libs/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/core/tsconfig.lib.json"
+      }
+    }
+  }
 }

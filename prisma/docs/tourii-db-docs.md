@@ -709,15 +709,16 @@ and tailoring content based on community status.
 ## Gamification
 ```mermaid
 erDiagram
-"story_saga" {
-  String story_saga_id PK
+"story" {
+  String story_id PK
   String saga_name
   String saga_desc
-  String cover_image "nullable"
-  String cover_video "nullable"
+  String background_media "nullable"
   String map_image "nullable"
   String location "nullable"
   Int order
+  Boolean is_prologue
+  Boolean is_selected
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -725,19 +726,19 @@ erDiagram
   DateTime upd_date_time
   String request_id "nullable"
 }
-"story" {
-  String story_id PK
-  String story_saga_id FK
+"story_chapter" {
+  String story_chapter_id PK
+  String story_id FK
   String tourist_spot_id
   String chapter_number
-  String story_title
-  String story_desc
-  String story_image
+  String chapter_title
+  String chapter_desc
+  String chapter_image
   String character_name_list
   String real_world_image
-  String story_video_url
-  String story_video_mobile_url
-  String story_pdf_url
+  String chapter_video_url
+  String chapter_video_mobile_url
+  String chapter_pdf_url
   Boolean is_unlocked
   Boolean del_flag
   String ins_user_id
@@ -748,7 +749,7 @@ erDiagram
 }
 "model_route" {
   String model_route_id PK
-  String story_saga_id FK
+  String story_id FK
   String route_name
   Json recommendation
   Boolean del_flag
@@ -817,14 +818,14 @@ erDiagram
   DateTime upd_date_time
   String request_id "nullable"
 }
-"story" }o--|| "story_saga" : story_saga
-"model_route" }o--|| "story_saga" : story_saga
+"story_chapter" }o--|| "story" : story
+"model_route" }o--|| "story" : story
 "tourist_spot" }o--|| "model_route" : model_route
 "quest" }o--|| "tourist_spot" : tourist_spot
 "quest_task" }o--|| "quest" : quest
 ```
 
-### `story_saga`
+### `story`
 Story Saga entity
 
 Represents the overarching narrative structure of the Tourii universe.
@@ -837,14 +838,15 @@ narrative experience that guides users through both virtual storytelling
 and real-world exploration.
 
 **Properties**
-  - `story_saga_id`: Unique identifier for the story saga SSGYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `story_id`: Unique identifier for the story saga STOYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `saga_name`: Name of the story saga (e.g., "Prologue", "Bungo Ono")
   - `saga_desc`: Detailed description of the saga's narrative
-  - `cover_image`: URL to the saga's cover image
-  - `cover_video`: URL to the saga's cover video
+  - `background_media`: URL to the saga's cover media (image or video)
   - `map_image`: URL to the map image for the saga
   - `location`: Real-world location of the saga (e.g., "Tokyo")
   - `order`: Display order in the saga list
+  - `is_prologue`: Whether the saga is a prologue
+  - `is_selected`: Whether the saga is selected by default
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
@@ -852,7 +854,7 @@ and real-world exploration.
   - `upd_date_time`: Timestamp of last record update
   - `request_id`: Request ID for tracing
 
-### `story`
+### `story_chapter`
 Story entity
 
 Represents an individual chapter or narrative segment within a story saga.
@@ -865,21 +867,21 @@ The model includes multiple media types to support rich storytelling
 across different devices and contexts.
 
 **Properties**
-  - `story_id`: Unique identifier for the story STYYYYYMM-rand1-DDHHMI-rand2-obfCounter
-  - `story_saga_id`: ID of the parent story saga
+  - `story_chapter_id`: Unique identifier for the story chapter SCTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `story_id`: ID of the parent story saga
   - `tourist_spot_id`: ID of the associated tourist spot
   - `chapter_number`: Chapter number or position (e.g., "Prologue", "Chapter 1")
-  - `story_title`: Title of the story chapter
-  - `story_desc`: Detailed description or content of the story
-  - `story_image`: URL to the fictional story image
+  - `chapter_title`: Title of the story chapter
+  - `chapter_desc`: Detailed description or content of the chapter
+  - `chapter_image`: URL to the fictional chapter image
   - `character_name_list`
-    > List of character names involved in the story; Act as a key data save at client side
+    > List of character names involved in the chapter; Act as a key data save at client side
     > Example: ["Kagura", "Kagutsuchi"]
   - `real_world_image`: URL to the real-world location image
-  - `story_video_url`: URL to the story video for desktop viewing
-  - `story_video_mobile_url`: URL to the story video optimized for mobile
-  - `story_pdf_url`: URL to the downloadable PDF version
-  - `is_unlocked`: Whether the story is available to users without prerequisites
+  - `chapter_video_url`: URL to the chapter video for desktop viewing
+  - `chapter_video_mobile_url`: URL to the chapter video optimized for mobile
+  - `chapter_pdf_url`: URL to the downloadable PDF version
+  - `is_unlocked`: Whether the chapter is available to users without prerequisites
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
@@ -900,7 +902,7 @@ guiding users through a sequence of locations that tell a connected story.
 
 **Properties**
   - `model_route_id`: Unique identifier for the travel route MRTYYYYMM-rand1-DDHHMI-rand2-obfCounter
-  - `story_saga_id`: ID of the parent story saga
+  - `story_id`: ID of the parent story
   - `route_name`: Name of the travel route
   - `recommendation`
     > List of recommendations for this route

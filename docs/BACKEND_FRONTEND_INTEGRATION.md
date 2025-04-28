@@ -20,20 +20,7 @@ export type ApiVersion = typeof API_VERSIONS[keyof typeof API_VERSIONS];
   'Content-Type': 'application/json',
   'x-api-key': '<key>',
   'x-api-version': '1.0',
-  'Accept': 'application/vnd.tourii.1.0+json'
 }
-```
-
-### Axios Client Template
-```ts
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': localStorage.getItem('apiKey') || '',
-    'x-api-version': '1.0'
-  }
-});
 ```
 
 ---
@@ -42,7 +29,6 @@ const apiClient = axios.create({
 
 We now break down **each API** inside its domain with:
 - Short description
-- Interface
 - Frontend component
 - API endpoints
   - Basic logic: Controller → Service → Repo/External
@@ -53,17 +39,6 @@ We now break down **each API** inside its domain with:
 
 ### 1 AUTHENTICATION
 - **Short description**: Handles registration, login, token refresh, social auth, and wallet signature verification.
-- **Interface**:
-  ```ts
-  interface AuthPayload {
-    email?: string;
-    password?: string;
-    provider?: 'discord' | 'twitter' | 'google';
-    signature?: string;
-    walletAddress?: string;
-  }
-  ```
-- **Frontend Component**: `LoginForm`, `AuthProvider`, `WalletConnectModal`
 - **API**:
   - `POST /auth/login`: traditional login → `AuthController.login()` → `AuthService.validate()`
   - `POST /auth/register`: user signup → `AuthController.register()` → `UserService.createUser()`
@@ -73,17 +48,6 @@ We now break down **each API** inside its domain with:
 
 ### 2 USER
 - **Short description**: Fetches and updates the user profile and linked wallets.
-- **Interface**:
-  ```ts
-  interface UserProfile {
-    userId: string;
-    username: string;
-    email?: string;
-    walletAddress?: string;
-    isPremium: boolean;
-  }
-  ```
-- **Frontend Component**: `ProfileOverview`, `WalletSection`
 - **API**:
   - `GET /users/me`: fetch profile → `UserController.me()` → `UserService.getById()`
   - `PUT /users/me`: update profile → `UserController.update()` → `UserService.updateProfile()`
@@ -91,20 +55,11 @@ We now break down **each API** inside its domain with:
 
 ### 3 STORIES
 - **Short description**: Saga and chapter-based interactive travel stories.
-- **Interface**:
-  ```ts
-  interface StorySaga {
-    id: string;
-    title: string;
-    region: string;
-  }
-  ```
-- **Frontend Component**: `StoryBrowser`, `StoryViewer`
 - **API**:
-  - `GET /stories/sagas`: list sagas → `StoryController.getSagas()`
-  - `GET /stories/sagas/:id/chapters`: saga chapters → `StoryController.getSagaChapters()`
-  - `GET /stories/chapters/:id`: chapter detail → `ChapterController.findOne()`
-  - `POST /stories/chapters/:id/progress`: save reading progress → `ChapterController.markProgress()` → `UserStoryLogService.track()`
+  - [x] `POST /stories/create-saga`: create saga → `StoryController.createStory()`
+  - [x] `GET /stories/sagas`: list sagas → `StoryController.getSagas()`
+  - [x] `GET /stories/sagas/:storyId/chapters`: saga chapters → `StoryController.getStoryChapters()`
+  - [ ] `POST /stories/chapters/:chapterId/progress`: save reading progress → `ChapterController.markProgress()` → `UserStoryLogService.track()`
 
 ### 4 ROUTES
 - **Short description**: Explore tourist routes and regional info.
@@ -116,7 +71,6 @@ We now break down **each API** inside its domain with:
     touristSpots: string[];
   }
   ```
-- **Frontend Component**: `RouteMap`, `ModelRouteViewer`
 - **API**:
   - `GET /routes`: list all routes → `RouteController.findAll()`
   - `GET /routes/:id`: route detail → `RouteController.findOne()`
@@ -125,16 +79,6 @@ We now break down **each API** inside its domain with:
 
 ### 5 QUESTS
 - **Short description**: Interactive gamified task system.
-- **Interface**:
-  ```ts
-  interface Quest {
-    id: string;
-    title: string;
-    points: number;
-    tasks: QuestTask[];
-  }
-  ```
-- **Frontend Component**: `QuestBrowser`, `QuestTracker`
 - **API**:
   - `GET /quests`: fetch all quests → `QuestController.index()`
   - `POST /quests/:id/start`: start quest → `QuestController.start()`
@@ -144,15 +88,6 @@ We now break down **each API** inside its domain with:
 
 ### 6 DIGITAL PASSPORT
 - **Short description**: Web3 NFT identity & collectible stamps.
-- **Interface**:
-  ```ts
-  interface DigitalPassport {
-    id: string;
-    tokenId: string;
-    metadata: any;
-  }
-  ```
-- **Frontend Component**: `DigitalPassport`, `StampViewer`
 - **API**:
   - `GET /assets/passport`: current NFT → `PassportController.find()`
   - `POST /assets/passport/mint`: auto mint on user creation → `PassportController.mint()` → `PassportService.mintTo()`
@@ -165,50 +100,18 @@ We now break down **each API** inside its domain with:
 
 ### 7 CHECK-IN
 - **Short description**: QR or GPS-based visit validation.
-- **Interface**:
-  ```ts
-  interface CheckIn {
-    id: string;
-    locationId: string;
-    coordinates: {
-      latitude: number;
-      longitude: number;
-    };
-  }
-  ```
-- **Frontend Component**: `CheckInMap`, `CheckInModal`
 - **API**:
   - `POST /check-in/location`: perform check-in → `CheckInController.checkIn()`
   - `GET /check-in/map`: display check-in data on map
 
 ### 8 PERKS & REWARDS
 - **Short description**: NFT rewards and point-based redemptions.
-- **Interface**:
-  ```ts
-  interface Perk {
-    id: string;
-    type: 'FOOD' | 'EXPERIENCE' | 'DISCOUNT' | 'ACCESS';
-    status: 'ACTIVE' | 'USED' | 'EXPIRED';
-  }
-  ```
-- **Frontend Component**: `ItemInventory`, `RewardShop`
 - **API**:
   - `GET /assets/perks`: owned perks → `PerkController.myPerks()`
   - `POST /assets/perks/:id/redeem`: redeem → `PerkController.redeem()`
 
 ### 9 MEMORY WALL
 - **Short description**: Log-like feed extracted from existing travel, quest, and story logs. No need for dedicated model at MVP.
-- **Interface**:
-  ```ts
-  interface MemoryWallPost {
-    id: string;
-    type: 'TRAVEL' | 'QUEST' | 'STORY';
-    relatedId: string;
-    content: string;
-    createdAt: Date;
-  }
-  ```
-- **Frontend Component**: `MemoryWallFeed`, `MemoryCard`
 - **API**:
   - `GET /memory-wall/feed`: pseudo-feed → `MemoryWallController.getFeed()`
     - JOIN data from `user_travel_log`, `user_quest_log`, `user_story_log`
@@ -264,17 +167,6 @@ We now break down **each API** inside its domain with:
 
 ### 10 LOGS
 - **Short description**: View travel, quest, story logs for profile & achievements.
-- **Interface**:
-  ```ts
-  interface UserTravelLog {
-    userTravelLogId: string;
-    userId: string;
-    locationId: string;
-    travelDistance: number;
-    timestamp: Date;
-  }
-  ```
-- **Frontend Component**: `ProfileOverview`, `LogTabs`
 - **API**:
   - `GET /logs/travel`: travel history → `LogController.travel()`
   - `GET /logs/quests`: quest log → `LogController.quests()`
@@ -282,8 +174,6 @@ We now break down **each API** inside its domain with:
 
 ### 11 ADMIN
 - **Short description**: Admin-level content control (CRUD).
-- **Interface**: `AdminDashboard`, `AdminRoute`, `AdminQuest`, etc.
-- **Frontend Component**: `AdminDashboardTabs`, `QuestAdmin`, `RouteAdmin`
 - **API**:
   - `GET /admin/quests`: list → `AdminQuestController.list()`
   - `POST /admin/quests`: create → `AdminQuestController.create()`
@@ -334,5 +224,4 @@ socket.onmessage = (msg) => {
 
 ---
 
-_Last Updated: 12/04/2025_
-
+_Last Updated: 24/04/2025_
