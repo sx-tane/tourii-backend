@@ -1,10 +1,9 @@
-import { CACHE_MANAGER } from "@nestjs/cache-manager";
 // biome-ignore lint/style/useImportType: <explanation>
 import type { StoryEntity } from "@app/core/domain/game/story/story.entity";
 import type { StoryRepository } from "@app/core/domain/game/story/story.repository";
 // biome-ignore lint/style/useImportType: <explanation>
 import { PrismaService } from "@app/core/provider/prisma.service";
-import type { Prisma, story, story_chapter } from "@prisma/client";
+import type { story_chapter } from "@prisma/client";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { StoryMapper } from "../mapper/story.mapper";
 import type { StoryRelationModel } from "prisma/relation-model/story-relation-model";

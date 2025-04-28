@@ -6,8 +6,6 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
-import { WbcBookingRecordApiAppErrorType } from '../support/exception/wbc-booking-record-api-app-error-type';
-import { WbcBookingRecordApiAppException } from '../support/exception/wbc-booking-record-api-app-exception';
 
 @Injectable()
 export class S3Service implements OnModuleInit, OnApplicationShutdown {
@@ -40,9 +38,7 @@ export class S3Service implements OnModuleInit, OnApplicationShutdown {
   get getS3Client() {
     if (!this.s3Client) {
       Logger.error('S3Clientが初期化されていません');
-      throw new WbcBookingRecordApiAppException(
-        WbcBookingRecordApiAppErrorType.E_BR_016,
-      );
+      throw new Error('S3Clientが初期化されていません');
     }
     return this.s3Client;
   }

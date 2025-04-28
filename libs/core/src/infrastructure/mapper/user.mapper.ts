@@ -1,10 +1,11 @@
 import { UserEntity } from "@app/core/domain/user/user.entity";
 import type { UserRoleType, user } from "@prisma/client";
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class UserMapper {
-	userEntityToPrismaInput(userEntity: UserEntity): user {
+	static userEntityToPrismaInput(userEntity: UserEntity): user {
 		return {
-			user_id: userEntity.userId,
+			user_id: userEntity.userId ?? "",
 			username: userEntity.username,
 			discord_id: userEntity.discordId ?? null,
 			discord_username: userEntity.discordUsername ?? null,

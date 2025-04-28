@@ -1,7 +1,6 @@
 import { createZodDto } from "nestjs-zod";
-import { z } from "zod";
 import { StoryChapterCreateRequestSchema } from "./chapter-story-create-request.model";
-
+import { z } from "zod";
 export const StoryCreateRequestSchema = z.object({
 	sagaName: z
 		.string()
