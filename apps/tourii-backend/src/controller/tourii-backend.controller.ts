@@ -25,7 +25,6 @@ import {
 import { StoryChapterResponseSchema } from './model/tourii-response/chapter-story-response.model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-response.model';
-import { StoryChapterCreateRequestDto, StoryChapterCreateRequestSchema } from './model/tourii-request/create/chapter-story-create-request.model';
 import { StoryUpdateRequestDto, StoryUpdateRequestSchema } from './model/tourii-request/update/story-update-request.model';
 import { StoryChapterUpdateRequestDto, StoryChapterUpdateRequestSchema } from './model/tourii-request/update/chapter-story-update-request.model';
 
