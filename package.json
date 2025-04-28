@@ -143,7 +143,7 @@
 		"mockdate": "^3.0.5",
 		"prettier": "3.5.3",
 		"prisma-erd-generator": "^2.0.4",
-		"prisma-markdown": "^1.0.9",
+		"prisma-markdown": "^2.0.0",
 		"source-map-support": "^0.5.20",
 		"supertest": "^7.1.0",
 		"ts-loader": "^9.5.1",
