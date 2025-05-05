@@ -1,6 +1,6 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import {
   ApiBody,
   ApiHeader,
@@ -27,10 +27,11 @@ import { StoryChapterResponseSchema } from './model/tourii-response/chapter-stor
 import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-response.model';
 import { StoryUpdateRequestDto, StoryUpdateRequestSchema } from './model/tourii-request/update/story-update-request.model';
 import { StoryChapterUpdateRequestDto, StoryChapterUpdateRequestSchema } from './model/tourii-request/update/chapter-story-update-request.model';
+import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 
 @Controller()
 export class TouriiBackendController {
-  constructor(private readonly touriiBackendService: TouriiBackendService) {}
+  constructor(private readonly touriiBackendService: TouriiBackendService) { }
 
   @Get('/health-check')
   @ApiTags('Health Check')
@@ -520,5 +521,15 @@ export class TouriiBackendController {
     @Param('userId') userId: string,
   ): Promise<UserEntity | undefined> {
     return await this.touriiBackendService.getUserByUserId(userId);
+  }
+
+  @Get('/quests')
+  async getQuestList(@Query() query: QuestListQueryDto) {
+    return await this.touriiBackendService.fetchQuestsWithPagination(
+      query.page,
+      query.limit,
+      query.isPremium,
+      query.isUnlocked
+    );
   }
 }

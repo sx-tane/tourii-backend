@@ -8,6 +8,9 @@ import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
+import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
+import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import { QuestResultBuilder } from './builder/quest-result-builder';
 
 @Injectable()
 export class TouriiBackendService {
@@ -16,7 +19,9 @@ export class TouriiBackendService {
     private readonly userRepository: UserRepository,
     @Inject(TouriiBackendConstants.STORY_REPOSITORY_TOKEN)
     private readonly storyRepository: StoryRepository,
-  ) {}
+    @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
+    private readonly questRepository: QuestRepository,
+  ) { }
 
   /*
    * This method is used to get a user by their username.
@@ -48,5 +53,15 @@ export class TouriiBackendService {
 
   async getUserByUserId(userId: string) {
     return this.userRepository.getUserInfoByUserId(userId);
+  }
+
+  async fetchQuestsWithPagination(
+    page: number,
+    limit: number,
+    isPremium?: boolean,
+    isUnlocked?: boolean,
+  ): Promise<QuestResponseDto> {
+    const quests = await this.questRepository.fetchQuestsWithPagination(page, limit, isPremium, isUnlocked);
+    return QuestResultBuilder.questWithPaginationToDto(quests);
   }
 }
