@@ -39,6 +39,27 @@ export class StoryRepositoryDb implements StoryRepository {
 		return StoryMapper.prismaModelToStoryEntity(createdStoryDb);
 	}
 
+	async createStoryChapter(
+		storyId: string,
+		chapter: StoryChapter,
+	): Promise<StoryChapter> {
+		const createdChapterDb = await this.prisma.story_chapter.create({
+			data: StoryMapper.storyChapterOnlyEntityToPrismaInput(storyId, chapter),
+			include: {
+				story: {
+					select: {
+						saga_name: true,
+					},
+				},
+			},
+		});
+
+		return StoryMapper.storyChapterToEntity(
+			[createdChapterDb],
+			createdChapterDb.story.saga_name,
+		)[0];
+	}
+
 	async getStories(): Promise<StoryEntity[]> {
 		// Define the function to fetch data from the database
 		const fetchDataFn = async (): Promise<StoryRelationModel[]> => {

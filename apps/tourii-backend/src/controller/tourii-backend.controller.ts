@@ -6,12 +6,11 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { zodToOpenAPI } from 'nestjs-zod';
 // biome-ignore lint/style/useImportType: <explanation>
 import { TouriiBackendService } from '../service/tourii-backend.service';
-import { CreatedApiResponse } from './model/decorator/created.api-response';
+import { CreatedApiResponse } from '../support/decorators/created.api-responses.decorator';
 // biome-ignore lint/style/useImportType: <explanation>
 import {
   StoryCreateRequestDto,
@@ -29,11 +28,20 @@ import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-r
 import { StoryUpdateRequestDto, StoryUpdateRequestSchema } from './model/tourii-request/update/story-update-request.model';
 // biome-ignore lint/style/useImportType: <explanation>
 import { StoryChapterUpdateRequestDto, StoryChapterUpdateRequestSchema } from './model/tourii-request/update/chapter-story-update-request.model';
-import { ApiInvalidVersionResponse, ApiDefaultBadRequestResponse, ApiUserExistsResponse, ApiUserNotFoundResponse } from '../support/decorators/api-error-responses.decorator';
+import { ApiInvalidVersionResponse, ApiDefaultBadRequestResponse, ApiUserExistsResponse, ApiUserNotFoundResponse, ApiUnauthorizedResponse} from '../support/decorators/api-error-responses.decorator';
 // biome-ignore lint/style/useImportType: <explanation>
 import { ModelRouteCreateRequestDto } from './model/tourii-request/create/model-route-create-request.model';
 import { ModelRouteCreateRequestSchema } from './model/tourii-request/create/model-route-create-request.model';
+// biome-ignore lint/style/useImportType: <explanation>
 import { ModelRouteResponseSchema, ModelRouteResponseDto } from './model/tourii-response/model-route-response.model';
+import { TouristSpotCreateRequestSchema } from './model/tourii-request/create/tourist-spot-create-request.model';
+// biome-ignore lint/style/useImportType: <explanation>
+import { TouristSpotCreateRequestDto } from './model/tourii-request/create/tourist-spot-create-request.model';
+// biome-ignore lint/style/useImportType: <explanation>
+import { TouristSpotResponseDto } from './model/tourii-response/tourist-spot-response.model';
+import { TouristSpotResponseSchema } from './model/tourii-response/tourist-spot-response.model';
+// biome-ignore lint/style/useImportType: <explanation>
+import { StoryChapterCreateRequestDto, StoryChapterCreateRequestSchema } from './model/tourii-request/create/chapter-story-create-request.model';
 
 @Controller()
 export class TouriiBackendController {
@@ -56,7 +64,7 @@ export class TouriiBackendController {
     required: true,
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'API is healthy',
     schema: {
       type: 'string',
@@ -65,6 +73,7 @@ export class TouriiBackendController {
   })
   @ApiUnauthorizedResponse()
   @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
   checkHealth(): string {
     return 'OK';
   }
@@ -91,11 +100,43 @@ export class TouriiBackendController {
   })
   @CreatedApiResponse(StoryResponseSchema)
   @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
   @ApiDefaultBadRequestResponse()
   async createStory(
     @Body() saga: StoryCreateRequestDto,
   ): Promise<StoryResponseDto> {
     return await this.touriiBackendService.createStory(saga);
+  }
+
+  @Post('/stories/create-chapter/:storyId')
+  @ApiTags('Stories')
+  @ApiOperation({
+    summary: 'Create Story Chapter',
+    description: 'Create a new story chapter.',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiBody({
+    description: 'Story Chapter creation request',
+    schema: zodToOpenAPI(StoryChapterCreateRequestSchema),
+  })
+  @CreatedApiResponse(StoryChapterResponseSchema)
+  @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
+  async createStoryChapter(
+    @Param('storyId') storyId: string,
+    @Body() chapter: StoryChapterCreateRequestDto,
+  ): Promise<StoryChapterResponseDto> {
+    return await this.touriiBackendService.createStoryChapter(storyId, chapter);
   }
 
   @Post('/stories/update-saga')
@@ -120,6 +161,7 @@ export class TouriiBackendController {
   })
   @CreatedApiResponse(StoryResponseSchema)
   @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
   @ApiDefaultBadRequestResponse()
   async updateStory(
     @Body() saga: StoryUpdateRequestDto,
@@ -149,6 +191,7 @@ export class TouriiBackendController {
   })
   @CreatedApiResponse(StoryChapterResponseSchema)
   @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
   @ApiDefaultBadRequestResponse()
   async updateStoryChapter(
     @Body() chapter: StoryChapterUpdateRequestDto,
@@ -179,6 +222,7 @@ export class TouriiBackendController {
   })
   @ApiUnauthorizedResponse()
   @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
   async getSagas(): Promise<StoryResponseDto[]> {
     return await this.touriiBackendService.getStories();
   }
@@ -206,6 +250,7 @@ export class TouriiBackendController {
   })
   @ApiUnauthorizedResponse()
   @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
   async getStoryChapters(
     @Param('storyId') storyId: string,
   ): Promise<StoryChapterResponseDto[]> {
@@ -234,11 +279,42 @@ export class TouriiBackendController {
   })
   @CreatedApiResponse(ModelRouteResponseSchema)
   @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
   @ApiDefaultBadRequestResponse()
   async createModelRoute(
     @Body() modelRoute: ModelRouteCreateRequestDto,
   ): Promise<ModelRouteResponseDto> {
     return await this.touriiBackendService.createModelRoute(modelRoute);
+  }
+
+  @Post('/routes/create-tourist-spot')
+  @ApiTags('Routes')
+  @ApiOperation({
+    summary: 'Create Tourist Spot',
+    description: 'Create a new tourist spot.',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiBody({
+    description: 'Tourist Spot creation request',
+    schema: zodToOpenAPI(TouristSpotCreateRequestSchema),
+  })
+  @CreatedApiResponse(TouristSpotResponseSchema)
+  @ApiUnauthorizedResponse()
+  @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
+  async createTouristSpot(
+    @Body() touristSpot: TouristSpotCreateRequestDto,
+  ): Promise<TouristSpotResponseDto> {
+    return await this.touriiBackendService.createTouristSpot(touristSpot);
   }
 
   @Post('/user')
@@ -269,6 +345,7 @@ export class TouriiBackendController {
   @ApiUserExistsResponse()
   @ApiUnauthorizedResponse()
   @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
   createUser(@Body() user: UserEntity): Promise<UserEntity> {
     return this.touriiBackendService.createUser(user);
   }
@@ -290,13 +367,14 @@ export class TouriiBackendController {
     required: true,
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'User found successfully',
     type: UserEntity,
   })
   @ApiUserNotFoundResponse()
   @ApiUnauthorizedResponse()
   @ApiInvalidVersionResponse()
+  @ApiDefaultBadRequestResponse()
   async getUserByUserId(
     @Param('userId') userId: string,
   ): Promise<UserEntity | undefined> {

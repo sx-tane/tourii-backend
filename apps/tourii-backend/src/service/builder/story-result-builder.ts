@@ -26,6 +26,7 @@ export class StoryResultBuilder {
 			chapterVideoMobileUrl: storyChapter.chapterVideoMobileUrl ?? "",
 			chapterPdfUrl: storyChapter.chapterPdfUrl ?? "",
 			isUnlocked: storyChapter.isUnlocked ?? false,
+			delFlag: storyChapter.delFlag ?? false,
 			insUserId: storyChapter.insUserId,
 			insDateTime:
 				TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.insDateTime) ??
@@ -52,6 +53,7 @@ export class StoryResultBuilder {
 				story.chapterList?.map((chapter) =>
 					StoryResultBuilder.storyChapterToDto(chapter, story.storyId ?? ""),
 				) ?? undefined,
+			delFlag: story.delFlag ?? false,
 			insUserId: story.insUserId,
 			insDateTime:
 				TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime) ?? "",

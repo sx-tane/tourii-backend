@@ -1,0 +1,21 @@
+POST http://localhost:4000/stories/create-chapter/STO202505-328580-032004-4aa922-CAAA
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+{
+	"touristSpotId": "TST_AomoriFurukawaMarket",
+	"chapterNumber": "Chapter 5",
+	"chapterTitle": "A Peculiar Gossip",
+	"chapterDesc": "I recalled an adventure I had in Aomori City, situated at the northern tip of central Honshu, just below Hokkaido. I found myself in the midst of the bustling Furukawa Seafood Market.\n\"Have you heard about the eerie wailings at Osorezan, also known as Fear Mountain? There are rumors of frequent crying heard after sunset around Bodaiji Temple. A villager gossiped to another....",
+	"chapterImage": "/image/touriiverse/aomori/chapter1.png",
+	"characterNameList": ["Villager A", "Villager B"],
+	"realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
+	"chapterVideoUrl": "https://www.youtube.com/embed/PakWmGx4l8w?si=wpMaNJvFNaY1weU3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+	"chapterVideoMobileUrl": "https://www.youtube.com/embed/PakWmGx4l8w?si=wpMaNJvFNaY1weU3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+	"chapterPdfUrl": "https://www.youtube.com/embed/PakWmGx4l8w?si=wpMaNJvFNaY1weU3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+	"isUnlocked": true,
+	"delFlag": false,
+	"insUserId": "admin",
+	"updUserId": "admin"
+}

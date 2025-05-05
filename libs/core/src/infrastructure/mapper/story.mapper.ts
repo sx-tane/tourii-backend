@@ -5,6 +5,32 @@ import type { StoryRelationModel } from "prisma/relation-model/story-relation-mo
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Mapper class is a common pattern for grouping static mapping functions
 export class StoryMapper {
+	static storyChapterOnlyEntityToPrismaInput(
+		storyId: string,
+		storyChapterEntity: StoryChapter,
+	): Prisma.story_chapterUncheckedCreateInput {
+		return {
+			story_id: storyId,
+			tourist_spot_id: storyChapterEntity.touristSpotId ?? "",
+			chapter_number: storyChapterEntity.chapterNumber ?? "",
+			chapter_title: storyChapterEntity.chapterTitle ?? "",
+			chapter_desc: storyChapterEntity.chapterDesc ?? "",
+			chapter_image: storyChapterEntity.chapterImage ?? "",
+			character_name_list: storyChapterEntity.characterNameList ?? [],
+			real_world_image: storyChapterEntity.realWorldImage ?? "",
+			chapter_video_url: storyChapterEntity.chapterVideoUrl ?? "",
+			chapter_video_mobile_url: storyChapterEntity.chapterVideoMobileUrl ?? "",
+			chapter_pdf_url: storyChapterEntity.chapterPdfUrl ?? "",
+			is_unlocked: storyChapterEntity.isUnlocked ?? false,
+			del_flag: storyChapterEntity.delFlag,
+			ins_user_id: storyChapterEntity.insUserId,
+			ins_date_time: storyChapterEntity.insDateTime,
+			upd_user_id: storyChapterEntity.updUserId,
+			upd_date_time: storyChapterEntity.updDateTime,
+			request_id: storyChapterEntity.requestId ?? null,
+		};
+	}
+
 	static storyChapterEntityToPrismaInput(
 		storyChapterEntity: StoryChapter,
 	): Prisma.story_chapterCreateWithoutStoryInput {
