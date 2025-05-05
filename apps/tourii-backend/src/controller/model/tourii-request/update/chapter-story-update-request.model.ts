@@ -15,17 +15,6 @@ export const StoryChapterUpdateRequestSchema =
 			.describe("Unique identifier for the user who updated the story chapter"),
 	});
 
-export const StoryChapterUpdateOnlyRequestSchema =
-	StoryChapterCreateRequestSchema.extend({
-		storyChapterId: z
-			.string()
-			.describe("Unique identifier for the story chapter"),
-	});
-
 export class StoryChapterUpdateRequestDto extends createZodDto(
 	StoryChapterUpdateRequestSchema,
-) {}
-
-export class StoryChapterUpdateOnlyRequestDto extends createZodDto(
-	StoryChapterUpdateOnlyRequestSchema,
 ) {}

@@ -6,9 +6,7 @@ import {
 import { createZodDto } from "nestjs-zod";
 
 export const StoryUpdateRequestSchema = StoryCreateRequestSchema.extend({
-	sagaId: z
-		.string()
-		.describe("Unique identifier for the story saga"),
+	sagaId: z.string().describe("Unique identifier for the story saga"),
 	delFlag: z
 		.boolean()
 		.describe("Flag to indicate if the story saga is deleted"),
@@ -20,6 +18,12 @@ export const StoryUpdateRequestSchema = StoryCreateRequestSchema.extend({
 export const StoryUpdateOnlyRequestSchema = StoryCreateOnlyRequestSchema.extend(
 	{
 		sagaId: z.string().describe("Unique identifier for the story saga"),
+		delFlag: z
+			.boolean()
+			.describe("Flag to indicate if the story saga is deleted"),
+		updUserId: z
+			.string()
+			.describe("Unique identifier for the user who updated the story saga"),
 	},
 );
 

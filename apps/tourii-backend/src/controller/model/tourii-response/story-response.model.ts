@@ -18,6 +18,7 @@ export const StoryResponseSchema = z.object({
 		.array(StoryChapterResponseSchema)
 		.optional()
 		.describe("List of stories in the saga"),
+	delFlag: z.boolean().describe("Flag to indicate if the story is deleted"),
 	insUserId: z.string().describe("ID of user who created this record"),
 	insDateTime: z.string().describe("Timestamp of record creation"),
 	updUserId: z.string().describe("ID of user who last updated this record"),

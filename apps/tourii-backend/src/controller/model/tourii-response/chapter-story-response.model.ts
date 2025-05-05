@@ -28,6 +28,9 @@ export const StoryChapterResponseSchema = z.object({
 		.describe(
 			"Whether the chapter is available to users without prerequisites",
 		),
+	delFlag: z
+		.boolean()
+		.describe("Flag to indicate if the story chapter is deleted"),
 	insUserId: z.string().describe("ID of user who created this record"),
 	insDateTime: z.string().describe("Timestamp of record creation"),
 	updUserId: z.string().describe("ID of user who last updated this record"),

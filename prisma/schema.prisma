@@ -1719,6 +1719,7 @@ model tourist_spot {
   best_visit_time String? @db.VarChar(255)
 
   /// Physical address of the location
+  /// Get from Google Map API
   address String? @db.VarChar(255)
 
   /// Link to the related story chapter
