@@ -9,52 +9,48 @@ accept-version: 1.0.0
   "backgroundMedia": "/image/world/Tochigi.png",
   "mapImage": "/image/touriiverse/tochigi.png",
   "location": "Tochigi",
-  "order": 3, // Assuming order based on story-data
+  "order": 3,
   "isPrologue": false,
   "isSelected": false,
   "chapterList": [
-    // Chapter 1: Utsunomiya
     {
       "touristSpotId": "TST_Utsunomiya",
       "chapterNumber": "Chapter 1",
       "chapterTitle": "Arrival in Utsunomiya",
-      "chapterDesc": "\"I can sense that the city is embodied with a dark aura.... What's that in front of the JR Utsunomiya station?\nWhat a strange statue.... It looks like the posture of the Goddess Venus yet it is wrapped in the Gyoza shape... \" i curiously wondered.",
+      "chapterDesc": "I can sense that the city is embodied with a dark aura.... What's that in front of the JR Utsunomiya station?\nWhat a strange statue.... It looks like the posture of the Goddess Venus yet it is wrapped in the Gyoza shape...  i curiously wondered.",
       "chapterImage": "/image/touriiverse/tochigi/chapter1.png",
-      "characterNameList": [], // Example
-      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg", // Mock image reused
+      "characterNameList": [],
+      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
       "chapterVideoUrl": "https://www.youtube.com/embed/Z3BBImhK6zM?si=9FP93oZjoVBSSpKi&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/Z3BBImhK6zM?si=9FP93oZjoVBSSpKi&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
-      "chapterPdfUrl": "/pdfs/tochigi/chapter1.pdf", // Example
+      "chapterPdfUrl": "/pdfs/tochigi/chapter1.pdf",
       "isUnlocked": true
     },
-    // Chapter 2: Futaarayama Jinja
     {
       "touristSpotId": "TST_FutaarayamaJinja",
       "chapterNumber": "Chapter 2",
       "chapterTitle": "The Gyoza Omikuji",
-      "chapterDesc": "\"This is definitely one of the most interesting ways I've seen to reveal my fortune. But let's head to Kindaijin pub now. There are too many Kami around here, and I'm not sure how long I can hide my aura without being noticed. Even though most of them aren't the combative type, a clash would still be messy, and I'd rather not end up destroying your shrine.\" I hissed",
+      "chapterDesc": "This is definitely one of the most interesting ways I've seen to reveal my fortune. But let's head to Kindaijin pub now. There are too many Kami around here, and I'm not sure how long I can hide my aura without being noticed. Even though most of them aren't the combative type, a clash would still be messy, and I'd rather not end up destroying your shrine. I hissed",
       "chapterImage": "/image/touriiverse/tochigi/chapter2.png",
       "characterNameList": [],
-      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg", // Mock image reused
+      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg", 
       "chapterVideoUrl": "https://www.youtube.com/embed/YkERZJJbtjw?si=jdew75NgXVAcqApm&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/YkERZJJbtjw?si=jdew75NgXVAcqApm&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterPdfUrl": "/pdfs/tochigi/chapter2.pdf",
       "isUnlocked": true
     },
-    // Chapter 3: Nasu Plains
     {
       "touristSpotId": "TST_NasuPlains",
       "chapterNumber": "Chapter 3",
       "chapterTitle": "The Missing Sister",
-      "chapterDesc": "\"I've been to the Sessho-seki at Nasu Plains, desperately searching for my sister. But since the stone split, the area's been cordoned off to keep tourists away. I couldn't find much... except for this. It's my sister's friendship band. I found it among the smaller rocks, probably overlooked by the authorities. We carved our names on the back of the Gyoza ornaments, so I'm sure it's hers.\" revealed Ladytarget.",
+      "chapterDesc": "I've been to the Sessho-seki at Nasu Plains, desperately searching for my sister. But since the stone split, the area's been cordoned off to keep tourists away. I couldn't find much... except for this. It's my sister's friendship band. I found it among the smaller rocks, probably overlooked by the authorities. We carved our names on the back of the Gyoza ornaments, so I'm sure it's hers. revealed Ladytarget.",
       "chapterImage": "/image/touriiverse/tochigi/chapter3.png",
-      "characterNameList": ["Ladytarget"], // Example
-      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg", // Mock image reused
-      "chapterVideoUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0", // Reused video
-      "chapterVideoMobileUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0", // Reused video
+      "characterNameList": ["Ladytarget"],
+      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
+      "chapterVideoUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
+      "chapterVideoMobileUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterPdfUrl": "/pdfs/tochigi/chapter3.pdf",
       "isUnlocked": true
-    },
-    // Add chapters 4-8 similarly...
+    }
   ]
 } 

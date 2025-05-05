@@ -752,6 +752,10 @@ erDiagram
   String story_id FK
   String(255) route_name
   Json recommendation
+  String(255) region
+  Float region_latitude
+  Float region_longitude
+  String(255) region_background_media "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -907,6 +911,14 @@ guiding users through a sequence of locations that tell a connected story.
   - `recommendation`
     > List of recommendations for this route
     > Examples: ["Local Food", "Local Hidden Legends", "Nature"]
+  - `region`
+    > Region of the route
+    > Get it from model story = saga_name
+  - `region_latitude`: Latitude of the region
+  - `region_longitude`: Longitude of the region
+  - `region_background_media`
+    > URL to the region's cover media (image or video) Get it from model story = background_media 
+    > multiple model route that with the same region will be the same media
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
