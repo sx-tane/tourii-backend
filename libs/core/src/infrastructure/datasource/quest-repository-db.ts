@@ -4,7 +4,7 @@ import { QuestRepository } from "@app/core/domain/game/quest/quest.repository";
 import { CachingService } from "@app/core/provider/caching.service";
 import { PrismaService } from "@app/core/provider/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, QuestType } from "@prisma/client";
 import { QuestMapper } from "../mapper/quest.mapper";
 
 // TTL (Time-To-Live) in seconds
@@ -21,9 +21,10 @@ export class QuestRepositoryDb implements QuestRepository {
 		page: number,
 		limit: number,
 		isPremium?: boolean,
-		isUnlocked?: boolean
+		isUnlocked?: boolean,
+		questType?: QuestType,
 	): Promise<QuestEntityWithPagination> {
-		const cacheKey = `quests:${page}:${limit}:${isPremium ?? 'null'}:${isUnlocked ?? 'null'}`;
+		const cacheKey = `quests:${page}:${limit}:${isPremium ?? 'null'}:${isUnlocked ?? 'null'}:${questType ?? 'null'}`;
 
 		const fetchDatafn = async (
 			page: number,
@@ -35,6 +36,7 @@ export class QuestRepositoryDb implements QuestRepository {
 				where: {
 					...(isUnlocked !== undefined && { is_unlocked: isUnlocked }),
 					...(isPremium !== undefined && { is_premium: isPremium }),
+					...(questType !== undefined && { quest_type: questType }),
 				},
 				skip: (page - 1) * limit,
 				take: limit,

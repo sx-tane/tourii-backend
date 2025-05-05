@@ -7,7 +7,7 @@ export const QuestFetchRequestSchema = z.object({
 		"EARN_TO_TRAVEL",
 		"CAMPAIGN",
 		"COMMUNITY_EVENT",
-	]).nullable().describe("Type of quest to fetch"),
+	]).optional().describe("Type of quest to fetch"),
 	page: z.number().default(1).describe("Page number for pagination"),
 	limit: z.number().max(100).default(20).describe("Number of quests per page"),
 	isPremium: z.boolean().optional().describe("Whether the quest is premium"),

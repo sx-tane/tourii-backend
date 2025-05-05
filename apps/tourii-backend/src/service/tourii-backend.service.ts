@@ -11,6 +11,7 @@ import { StoryChapterResponseDto } from '../controller/model/tourii-response/cha
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
 import { QuestResultBuilder } from './builder/quest-result-builder';
+import { QuestType } from '@prisma/client';
 
 @Injectable()
 export class TouriiBackendService {
@@ -60,8 +61,9 @@ export class TouriiBackendService {
     limit: number,
     isPremium?: boolean,
     isUnlocked?: boolean,
+    questType?: QuestType,
   ): Promise<QuestResponseDto> {
-    const quests = await this.questRepository.fetchQuestsWithPagination(page, limit, isPremium, isUnlocked);
+    const quests = await this.questRepository.fetchQuestsWithPagination(page, limit, isPremium, isUnlocked, questType);
     return QuestResultBuilder.questWithPaginationToDto(quests);
   }
 }

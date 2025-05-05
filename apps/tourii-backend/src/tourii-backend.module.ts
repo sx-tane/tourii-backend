@@ -27,6 +27,7 @@ import { TouriiBackendApiMiddleware } from "./support/tourii-backend-api-middlew
 import { TouriiBackendConstants } from "./tourii-backend.constant";
 import { StoryRepositoryDb } from "@app/core/infrastructure/datasource/story-repository-db";
 import { CachingService } from "@app/core/provider/caching.service";
+import { QuestRepositoryDb } from "@app/core/infrastructure/datasource/quest-repository-db";
 
 /**
  * Main module for the Tourii Backend application
@@ -99,6 +100,10 @@ import { CachingService } from "@app/core/provider/caching.service";
 		{
 			provide: TouriiBackendConstants.STORY_REPOSITORY_TOKEN,
 			useClass: StoryRepositoryDb, // Story database access
+		},
+		{
+			provide: TouriiBackendConstants.QUEST_REPOSITORY_TOKEN,
+			useClass: QuestRepositoryDb, // Quest database access
 		},
 		{
 			provide: APP_PIPE,

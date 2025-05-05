@@ -28,6 +28,8 @@ import { StoryChapterResponseDto } from './model/tourii-response/chapter-story-r
 import { StoryUpdateRequestDto, StoryUpdateRequestSchema } from './model/tourii-request/update/story-update-request.model';
 import { StoryChapterUpdateRequestDto, StoryChapterUpdateRequestSchema } from './model/tourii-request/update/chapter-story-update-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
+import { QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
+import { QuestsResponseSchema } from './model/tourii-response/quest-response.model';
 
 @Controller()
 export class TouriiBackendController {
@@ -172,101 +174,101 @@ export class TouriiBackendController {
     return await this.touriiBackendService.createStory(saga);
   }
 
-  @Post('/stories/update-saga')
-  @ApiTags('Stories')
-  @ApiOperation({
-    summary: 'Update Story Saga',
-    description: 'Update an existing story saga.',
-  })
-  @ApiHeader({
-    name: 'x-api-key',
-    description: 'API key for authentication',
-    required: true,
-  })
-  @ApiHeader({
-    name: 'accept-version',
-    description: 'API version (e.g., 1.0.0)',
-    required: true,
-  })
-  @ApiBody({
-    description: 'Story Saga update request',
-    schema: zodToOpenAPI(StoryUpdateRequestSchema),
-  })
-  @CreatedApiResponse(StoryResponseSchema)
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing API key',
-    schema: {
-      type: 'object',
-      properties: {
-        code: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.code,
-        },
-        message: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.message,
-        },
-        type: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.type,
-        },
-      },
-    },
-  })
-  async updateStory(
-    @Body() saga: StoryUpdateRequestDto,
-  ): Promise<StoryResponseDto> {
-    return await this.touriiBackendService.updateStory(saga);
-  }
+  // @Post('/stories/update-saga')
+  // @ApiTags('Stories')
+  // @ApiOperation({
+  //   summary: 'Update Story Saga',
+  //   description: 'Update an existing story saga.',
+  // })
+  // @ApiHeader({
+  //   name: 'x-api-key',
+  //   description: 'API key for authentication',
+  //   required: true,
+  // })
+  // @ApiHeader({
+  //   name: 'accept-version',
+  //   description: 'API version (e.g., 1.0.0)',
+  //   required: true,
+  // })
+  // @ApiBody({
+  //   description: 'Story Saga update request',
+  //   schema: zodToOpenAPI(StoryUpdateRequestSchema),
+  // })
+  // @CreatedApiResponse(StoryResponseSchema)
+  // @ApiResponse({
+  //   status: 401,
+  //   description: 'Unauthorized - Invalid or missing API key',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       code: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.code,
+  //       },
+  //       message: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.message,
+  //       },
+  //       type: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.type,
+  //       },
+  //     },
+  //   },
+  // })
+  // async updateStory(
+  //   @Body() saga: StoryUpdateRequestDto,
+  // ): Promise<StoryResponseDto> {
+  //   return await this.touriiBackendService.updateStory(saga);
+  // }
 
-  @Post('/stories/update-chapter')
-  @ApiTags('Stories')
-  @ApiOperation({
-    summary: 'Update Story Chapter',
-    description: 'Update an existing story chapter.',
-  })
-  @ApiHeader({
-    name: 'x-api-key',
-    description: 'API key for authentication',
-    required: true,
-  })
-  @ApiHeader({
-    name: 'accept-version',
-    description: 'API version (e.g., 1.0.0)',
-    required: true,
-  })
-  @ApiBody({
-    description: 'Story Chapter update request',
-    schema: zodToOpenAPI(StoryChapterUpdateRequestSchema),
-  })
-  @CreatedApiResponse(StoryChapterResponseSchema)
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing API key',
-    schema: {
-      type: 'object',
-      properties: {
-        code: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.code,
-        },
-        message: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.message,
-        },
-        type: {
-          type: 'string',
-          example: TouriiBackendAppErrorType.E_TB_010.type,
-        },
-      },
-    },
-  })
-  async updateStoryChapter(
-    @Body() chapter: StoryChapterUpdateRequestDto,
-  ): Promise<StoryChapterResponseDto> {
-    return await this.touriiBackendService.updateStoryChapter(chapter);
-  }
+  // @Post('/stories/update-chapter')
+  // @ApiTags('Stories')
+  // @ApiOperation({
+  //   summary: 'Update Story Chapter',
+  //   description: 'Update an existing story chapter.',
+  // })
+  // @ApiHeader({
+  //   name: 'x-api-key',
+  //   description: 'API key for authentication',
+  //   required: true,
+  // })
+  // @ApiHeader({
+  //   name: 'accept-version',
+  //   description: 'API version (e.g., 1.0.0)',
+  //   required: true,
+  // })
+  // @ApiBody({
+  //   description: 'Story Chapter update request',
+  //   schema: zodToOpenAPI(StoryChapterUpdateRequestSchema),
+  // })
+  // @CreatedApiResponse(StoryChapterResponseSchema)
+  // @ApiResponse({
+  //   status: 401,
+  //   description: 'Unauthorized - Invalid or missing API key',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       code: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.code,
+  //       },
+  //       message: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.message,
+  //       },
+  //       type: {
+  //         type: 'string',
+  //         example: TouriiBackendAppErrorType.E_TB_010.type,
+  //       },
+  //     },
+  //   },
+  // })
+  // async updateStoryChapter(
+  //   @Body() chapter: StoryChapterUpdateRequestDto,
+  // ): Promise<StoryChapterResponseDto> {
+  //   return await this.touriiBackendService.updateStoryChapter(chapter);
+  // }
 
   @Get('/stories/sagas')
   @ApiTags('Stories')
@@ -524,12 +526,75 @@ export class TouriiBackendController {
   }
 
   @Get('/quests')
+  @ApiTags('Quest')
+  @ApiOperation({
+    summary: 'Get quest with pagination',
+    description: 'Get quest with pagination',
+  })
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API key for authentication',
+    required: true,
+  })
+  @ApiHeader({
+    name: 'accept-version',
+    description: 'API version (e.g., 1.0.0)',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Fetch quests successfully',
+    schema: zodToOpenAPI(QuestsResponseSchema),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Quest not found',
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_004.type,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing API key',
+    schema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.code,
+        },
+        message: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.message,
+        },
+        type: {
+          type: 'string',
+          example: TouriiBackendAppErrorType.E_TB_010.type,
+        },
+      },
+    },
+  })
   async getQuestList(@Query() query: QuestListQueryDto) {
     return await this.touriiBackendService.fetchQuestsWithPagination(
       query.page,
       query.limit,
       query.isPremium,
-      query.isUnlocked
+      query.isUnlocked,
+      query.questType,
     );
   }
 }
