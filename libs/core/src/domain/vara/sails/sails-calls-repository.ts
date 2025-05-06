@@ -3,19 +3,19 @@ import { SailsQueryOptionsRequestDto } from '@app/tourii-onchain/service/dto/sai
 import { SailsCalls } from 'sailscalls';
 
 export interface SailsCallsRepository {
-  /**
-   * Initialize the SailsCalls instance.
-   * @returns The SailsCalls instance.
-   */
-  initSailsCalls(): Promise<SailsCalls>;
+    /**
+     * Initialize the SailsCalls instance.
+     * @returns The SailsCalls instance.
+     */
+    initSailsCalls(): Promise<SailsCalls>;
 
-  sailsCallsQuery(
-    sailsCalls: SailsCalls,
-    sailsQueryOptionsRequestDto: SailsQueryOptionsRequestDto,
-  ): Promise<any>;
+    sailsCallsQuery(
+        sailsCalls: SailsCalls,
+        sailsQueryOptionsRequestDto: SailsQueryOptionsRequestDto,
+    ): Promise<any>;
 
-  sailsCallsCommand(
-    sailsCalls: SailsCalls,
-    sailsCommandOptionsRequestDto: SailsCommandOptionsRequestDto,
-  ): Promise<any>;
+    sailsCallsCommand(
+        sailsCalls: SailsCalls,
+        sailsCommandOptionsRequestDto: SailsCommandOptionsRequestDto,
+    ): Promise<any>;
 }

@@ -29,14 +29,14 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit",
         "source.fixAll.stylelint": "explicit",
-        "source.organizeImports": "explicit"
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit"
     },
-    "editor.formatOnSave": false,
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnType": true,
     "editor.tabSize": 2,
     "files.autoSave": "onFocusChange",
     "prettier.prettierPath": "./node_modules/prettier",
-    "biome.lspBin": "./node_modules/.bin/biome-lsp",
+    // "biome.lspBin": "./node_modules/.bin/biome"
     /*"jest.jestCommandLine": "npm test:ci",*/
 }

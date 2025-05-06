@@ -4,30 +4,30 @@ import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 
 @Injectable()
 export class TouriiBackendHttpService {
-  private httpService: HttpService;
-  private axiosInstance: AxiosInstance;
+    private httpService: HttpService;
+    private axiosInstance: AxiosInstance;
 
-  constructor() {
-    this.init();
-  }
+    constructor() {
+        this.init();
+    }
 
-  /**
-   * httpService初期化処理
-   */
-  init() {
-    this.axiosInstance = axios.create();
-    this.httpService = new HttpService(this.axiosInstance);
-    this.httpService.axiosRef.interceptors.response.use(
-      async (response: AxiosResponse) => {
-        return response;
-      },
-    );
-  }
+    /**
+     * httpService初期化処理
+     */
+    init() {
+        this.axiosInstance = axios.create();
+        this.httpService = new HttpService(this.axiosInstance);
+        this.httpService.axiosRef.interceptors.response.use(
+            async (response: AxiosResponse) => {
+                return response;
+            },
+        );
+    }
 
-  /**
-   * httpService
-   */
-  get getTouriiBackendHttpService() {
-    return this.httpService;
-  }
+    /**
+     * httpService
+     */
+    get getTouriiBackendHttpService() {
+        return this.httpService;
+    }
 }

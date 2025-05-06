@@ -1,9 +1,9 @@
 export const getEnv = ({
-  key,
-  defaultValue,
+    key,
+    defaultValue,
 }: {
-  key: keyof NodeJS.ProcessEnv;
-  defaultValue?: string;
+    key: keyof NodeJS.ProcessEnv;
+    defaultValue?: string;
 }): string => {
-  return process.env[key] || defaultValue || '';
+    return process.env[key] || defaultValue || '';
 };
