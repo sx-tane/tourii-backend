@@ -9,55 +9,51 @@ accept-version: 1.0.0
   "backgroundMedia": "/image/world/Aomori.png",
   "mapImage": "/image/touriiverse/aomori.png",
   "location": "Aomori",
-  "order": 2, // Assuming order based on story-data
+  "order": 2,
   "isPrologue": false,
   "isSelected": false,
   "chapterList": [
-    // Chapter 1: Aomori Furukawa market
     {
       "touristSpotId": "TST_AomoriFurukawaMarket",
       "chapterNumber": "Chapter 1",
       "chapterTitle": "A Peculiar Gossip",
       "chapterDesc": "I recalled an adventure I had in Aomori City, situated at the northern tip of central Honshu, just below Hokkaido. I found myself in the midst of the bustling Furukawa Seafood Market.\n\"Have you heard about the eerie wailings at Osorezan, also known as Fear Mountain? There are rumors of frequent crying heard after sunset around Bodaiji Temple.\" A villager gossiped to another....",
       "chapterImage": "/image/touriiverse/aomori/chapter1.png",
-      "characterNameList": ["Villager A", "Villager B"], // Example
+      "characterNameList": ["Villager A", "Villager B"],
       "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
       "chapterVideoUrl": "https://www.youtube.com/embed/PakWmGx4l8w?si=wpMaNJvFNaY1weU3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/PakWmGx4l8w?si=wpMaNJvFNaY1weU3&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
-      "chapterPdfUrl": "/pdfs/aomori/chapter1.pdf", // Example
+      "chapterPdfUrl": "/pdfs/aomori/chapter1.pdf",
       "isUnlocked": true
     },
-    // Chapter 2: Osoresan and Bodaiji Temple
     {
       "touristSpotId": "TST_OsoresanBodaijiTemple",
       "chapterNumber": "Chapter 2",
       "chapterTitle": "Investigating the unknown wailings in the sacred temple",
       "chapterDesc": "As the sun set, my investigations at the Bodaiji Temple began. By night, the temple transformed. Bathed in a surreal calm, it felt serene yet eerie, as if spirits wandered its dark corners. This place, after all, is a passage for souls after death. Fūfūfū...",
       "chapterImage": "/image/touriiverse/aomori/chapter2.png",
-      "characterNameList": [], // Example
-      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg", // Reusing image from mock data
+      "characterNameList": [],
+      "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
       "chapterVideoUrl": "https://www.youtube.com/embed/wn6xKGFH2t8?si=YqQ0NikgMpJGgp2W&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/wn6xKGFH2t8?si=YqQ0NikgMpJGgp2W&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterPdfUrl": "/pdfs/aomori/chapter2.pdf",
       "isUnlocked": true
     },
-    // Chapter 3: Hirosaki Apple Park (1)
     {
       "touristSpotId": "TST_HirosakiApplePark",
       "chapterNumber": "Chapter 3",
       "chapterTitle": "The Apple Park that has 80 varieties of apples",
       "chapterDesc": "the villagers at the apple park likely have some information on the snow monsters in Mt. Hakkoda as well. Join me as I discover what the Apple Park looks like and gather information on the Aomori Miracle Apple",
       "chapterImage": "/image/touriiverse/aomori/chapter3.png",
-      "characterNameList": ["Villager"], // Example
+      "characterNameList": ["Villager"],
       "realWorldImage": "/image/touriiverse/aomori-real/chapter1.jpg",
       "chapterVideoUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/-1u5OAuEIoA?si=j9nGcTM4Inyb2q8o&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterPdfUrl": "/pdfs/aomori/chapter3.pdf",
       "isUnlocked": true
     },
-     // Chapter 4: Hirosaki Apple Park (2)
     {
-      "touristSpotId": "TST_HirosakiApplePark", // Same spot ID
+      "touristSpotId": "TST_HirosakiApplePark",
       "chapterNumber": "Chapter 4",
       "chapterTitle": "Unveiling Aomori's Yuki Onna secrets in the Apple Park",
       "chapterDesc": "The Miracle Apple? Yes, we did have some this year, but they were all offered to the Yuki Onna to ensure she doesn't destroy our apple trees. After receiving her tributes, she moves on to Mt. Hakkoda and preys on unsuspecting humans who wander too deeply into the enchantingly beautiful mountain.",
@@ -68,7 +64,6 @@ accept-version: 1.0.0
       "chapterVideoMobileUrl": "https://www.youtube.com/embed/SesgkRr0HeQ?si=XbLb4yWN_PDxuS8b&autoplay=1&enablejsapi=1&controls=0&showinfo=0&modestbranding=1&rel=0",
       "chapterPdfUrl": "/pdfs/aomori/chapter4.pdf",
       "isUnlocked": true
-    },
-    // Add chapters 5-8 similarly...
+    }
   ]
 } 

@@ -457,6 +457,10 @@ EVENT EVENT
     String story_id 
     String route_name 
     Json recommendation 
+    String region 
+    Float region_latitude 
+    Float region_longitude 
+    String region_background_media "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -469,6 +473,7 @@ EVENT EVENT
   "tourist_spot" {
     String tourist_spot_id "🗝️"
     String model_route_id 
+    String story_chapter_id 
     String tourist_spot_name 
     String tourist_spot_desc 
     Float latitude 

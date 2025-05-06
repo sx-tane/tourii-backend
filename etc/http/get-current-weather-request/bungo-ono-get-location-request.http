@@ -1,0 +1,1 @@
+GET https://maps.googleapis.com/maps/api/geocode/json?address={ADDRESS}&key={API_KEY}

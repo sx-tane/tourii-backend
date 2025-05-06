@@ -1628,6 +1628,20 @@ model model_route {
   /// Examples: ["Local Food", "Local Hidden Legends", "Nature"]
   recommendation Json[] @db.JsonB
 
+  /// Region of the route
+  /// Get it from model story = saga_name
+  region String @db.VarChar(255)
+
+  /// Latitude of the region
+  region_latitude Float
+
+  /// Longitude of the region
+  region_longitude Float
+
+  /// URL to the region's cover media (image or video) Get it from model story = background_media 
+  /// multiple model route that with the same region will be the same media
+  region_background_media String? @db.VarChar(255)
+
   //----
   // SYSTEM FIELDS
   //----
@@ -1684,6 +1698,9 @@ model tourist_spot {
   /// ID of the associated travel route
   model_route_id String
 
+  /// ID of the associated story chapter
+  story_chapter_id String
+
   //----
   // LOCATION DETAILS
   //----
@@ -1705,6 +1722,7 @@ model tourist_spot {
   best_visit_time String? @db.VarChar(255)
 
   /// Physical address of the location
+  /// Get from Google Map API
   address String? @db.VarChar(255)
 
   /// Link to the related story chapter
