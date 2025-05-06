@@ -11,7 +11,6 @@ interface QuestProps {
 	isPremium?: boolean;
 	totalMagatamaPointAwarded?: number;
 	rewardType?: RewardType;
-	//rewardItems: json array;
 	delFlag?: boolean;
 	insUserId: string;
 	insDateTime: Date;
