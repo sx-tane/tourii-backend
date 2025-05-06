@@ -3,7 +3,6 @@ import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { Prisma, story_chapter } from '@prisma/client';
 import type { StoryRelationModel } from 'prisma/relation-model/story-relation-model';
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Mapper class is a common pattern for grouping static mapping functions
 export class StoryMapper {
     static storyChapterOnlyEntityToPrismaInput(
         storyId: string,
@@ -19,8 +18,7 @@ export class StoryMapper {
             character_name_list: storyChapterEntity.characterNameList ?? [],
             real_world_image: storyChapterEntity.realWorldImage ?? '',
             chapter_video_url: storyChapterEntity.chapterVideoUrl ?? '',
-            chapter_video_mobile_url:
-                storyChapterEntity.chapterVideoMobileUrl ?? '',
+            chapter_video_mobile_url: storyChapterEntity.chapterVideoMobileUrl ?? '',
             chapter_pdf_url: storyChapterEntity.chapterPdfUrl ?? '',
             is_unlocked: storyChapterEntity.isUnlocked ?? false,
             del_flag: storyChapterEntity.delFlag,
@@ -28,7 +26,7 @@ export class StoryMapper {
             ins_date_time: storyChapterEntity.insDateTime,
             upd_user_id: storyChapterEntity.updUserId,
             upd_date_time: storyChapterEntity.updDateTime,
-            request_id: storyChapterEntity.requestId ?? null,
+            request_id: storyChapterEntity.requestId,
         };
     }
 
@@ -44,8 +42,7 @@ export class StoryMapper {
             character_name_list: storyChapterEntity.characterNameList ?? [],
             real_world_image: storyChapterEntity.realWorldImage ?? '',
             chapter_video_url: storyChapterEntity.chapterVideoUrl ?? '',
-            chapter_video_mobile_url:
-                storyChapterEntity.chapterVideoMobileUrl ?? '',
+            chapter_video_mobile_url: storyChapterEntity.chapterVideoMobileUrl ?? '',
             chapter_pdf_url: storyChapterEntity.chapterPdfUrl ?? '',
             is_unlocked: storyChapterEntity.isUnlocked ?? false,
             del_flag: storyChapterEntity.delFlag,
@@ -57,9 +54,7 @@ export class StoryMapper {
         };
     }
 
-    static storyEntityToPrismaInput(
-        storyEntity: StoryEntity,
-    ): Prisma.storyUncheckedCreateInput {
+    static storyEntityToPrismaInput(storyEntity: StoryEntity): Prisma.storyUncheckedCreateInput {
         return {
             story_id: storyEntity.storyId,
             saga_name: storyEntity.sagaName ?? '',
@@ -113,9 +108,7 @@ export class StoryMapper {
         });
     };
 
-    static prismaModelToStoryEntity(
-        prismaModel: StoryRelationModel,
-    ): StoryEntity {
+    static prismaModelToStoryEntity(prismaModel: StoryRelationModel): StoryEntity {
         return new StoryEntity(
             {
                 sagaName: prismaModel.saga_name,

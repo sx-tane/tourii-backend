@@ -1,3 +1,6 @@
+import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
+import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
+import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
@@ -103,6 +106,14 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.MODEL_ROUTE_REPOSITORY_TOKEN,
             useClass: ModelRouteRepositoryDb, // Model route database access
+        },
+        {
+            provide: TouriiBackendConstants.GEO_INFO_REPOSITORY_TOKEN,
+            useClass: GeoInfoRepositoryApi, // Geo info database access
+        },
+        {
+            provide: TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN,
+            useClass: WeatherInfoRepositoryApi, // Weather info database access
         },
         {
             provide: APP_PIPE,

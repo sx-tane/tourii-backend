@@ -1726,7 +1726,7 @@
     "/stories/sagas/{storyId}/chapters": {
       "get": {
         "description": "Retrieve all chapters for a specific story.",
-        "operationId": "TouriiBackendController_getStoryChapters",
+        "operationId": "TouriiBackendController_getStoryChaptersByStoryId",
         "parameters": [
           {
             "name": "storyId",
@@ -1980,6 +1980,10 @@
                     "items": {
                       "type": "object",
                       "properties": {
+                        "storyChapterId": {
+                          "description": "Unique identifier for the story chapter",
+                          "type": "string"
+                        },
                         "touristSpotName": {
                           "description": "Name of the tourist spot",
                           "type": "string"
@@ -1990,10 +1994,6 @@
                         },
                         "bestVisitTime": {
                           "description": "Best visit time of the tourist spot",
-                          "type": "string"
-                        },
-                        "storyChapterLink": {
-                          "description": "Link to the related story chapter",
                           "type": "string"
                         },
                         "touristSpotHashtag": {
@@ -2026,6 +2026,7 @@
                         }
                       },
                       "required": [
+                        "storyChapterId",
                         "touristSpotName",
                         "touristSpotDesc",
                         "bestVisitTime",
@@ -2098,6 +2099,10 @@
                             "description": "Unique identifier for the tourist spot",
                             "type": "string"
                           },
+                          "storyChapterId": {
+                            "description": "Unique identifier for the story chapter",
+                            "type": "string"
+                          },
                           "touristSpotName": {
                             "description": "Name of the tourist spot",
                             "type": "string"
@@ -2121,6 +2126,13 @@
                           "touristSpotLongitude": {
                             "description": "Longitude of the tourist spot",
                             "type": "number"
+                          },
+                          "touristSpotHashtag": {
+                            "description": "Hashtags associated with this location",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "storyChapterLink": {
                             "description": "Link to the related story chapter",
@@ -2147,6 +2159,29 @@
                               "small"
                             ]
                           },
+                          "weatherInfo": {
+                            "description": "Weather info for the tourist spot",
+                            "type": "object",
+                            "properties": {
+                              "temperatureCelsius": {
+                                "description": "Temperature of the weather",
+                                "type": "number"
+                              },
+                              "weatherName": {
+                                "description": "Name of the weather",
+                                "type": "string"
+                              },
+                              "weatherDesc": {
+                                "description": "Description of the weather",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "temperatureCelsius",
+                              "weatherName",
+                              "weatherDesc"
+                            ]
+                          },
                           "delFlag": {
                             "description": "Flag to indicate if the tourist spot is deleted",
                             "type": "boolean"
@@ -2170,12 +2205,14 @@
                         },
                         "required": [
                           "touristSpotId",
+                          "storyChapterId",
                           "touristSpotName",
                           "touristSpotDesc",
                           "bestVisitTime",
                           "address",
                           "touristSpotLatitude",
                           "touristSpotLongitude",
+                          "touristSpotHashtag",
                           "delFlag",
                           "insUserId",
                           "insDateTime",
@@ -2183,6 +2220,29 @@
                           "updDateTime"
                         ]
                       }
+                    },
+                    "regionWeatherInfo": {
+                      "description": "Current weather info for the region",
+                      "type": "object",
+                      "properties": {
+                        "temperatureCelsius": {
+                          "description": "Temperature of the weather",
+                          "type": "number"
+                        },
+                        "weatherName": {
+                          "description": "Name of the weather",
+                          "type": "string"
+                        },
+                        "weatherDesc": {
+                          "description": "Description of the weather",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "temperatureCelsius",
+                        "weatherName",
+                        "weatherDesc"
+                      ]
                     },
                     "delFlag": {
                       "description": "Flag to indicate if the model route is deleted",
@@ -2215,6 +2275,7 @@
                     "regionLongitude",
                     "regionBackgroundMedia",
                     "touristSpotList",
+                    "regionWeatherInfo",
                     "delFlag",
                     "insUserId",
                     "insDateTime",
@@ -2280,11 +2341,19 @@
         ]
       }
     },
-    "/routes/create-tourist-spot": {
+    "/routes/create-tourist-spot/{modelRouteId}": {
       "post": {
         "description": "Create a new tourist spot.",
         "operationId": "TouriiBackendController_createTouristSpot",
         "parameters": [
+          {
+            "name": "modelRouteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "accept-version",
             "in": "header",
@@ -2312,6 +2381,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter",
+                    "type": "string"
+                  },
                   "touristSpotName": {
                     "description": "Name of the tourist spot",
                     "type": "string"
@@ -2322,10 +2395,6 @@
                   },
                   "bestVisitTime": {
                     "description": "Best visit time of the tourist spot",
-                    "type": "string"
-                  },
-                  "storyChapterLink": {
-                    "description": "Link to the related story chapter",
                     "type": "string"
                   },
                   "touristSpotHashtag": {
@@ -2358,6 +2427,7 @@
                   }
                 },
                 "required": [
+                  "storyChapterId",
                   "touristSpotName",
                   "touristSpotDesc",
                   "bestVisitTime",
@@ -2377,6 +2447,10 @@
                   "properties": {
                     "touristSpotId": {
                       "description": "Unique identifier for the tourist spot",
+                      "type": "string"
+                    },
+                    "storyChapterId": {
+                      "description": "Unique identifier for the story chapter",
                       "type": "string"
                     },
                     "touristSpotName": {
@@ -2403,6 +2477,13 @@
                       "description": "Longitude of the tourist spot",
                       "type": "number"
                     },
+                    "touristSpotHashtag": {
+                      "description": "Hashtags associated with this location",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "storyChapterLink": {
                       "description": "Link to the related story chapter",
                       "type": "string"
@@ -2428,6 +2509,29 @@
                         "small"
                       ]
                     },
+                    "weatherInfo": {
+                      "description": "Weather info for the tourist spot",
+                      "type": "object",
+                      "properties": {
+                        "temperatureCelsius": {
+                          "description": "Temperature of the weather",
+                          "type": "number"
+                        },
+                        "weatherName": {
+                          "description": "Name of the weather",
+                          "type": "string"
+                        },
+                        "weatherDesc": {
+                          "description": "Description of the weather",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "temperatureCelsius",
+                        "weatherName",
+                        "weatherDesc"
+                      ]
+                    },
                     "delFlag": {
                       "description": "Flag to indicate if the tourist spot is deleted",
                       "type": "boolean"
@@ -2451,12 +2555,14 @@
                   },
                   "required": [
                     "touristSpotId",
+                    "storyChapterId",
                     "touristSpotName",
                     "touristSpotDesc",
                     "bestVisitTime",
                     "address",
                     "touristSpotLatitude",
                     "touristSpotLongitude",
+                    "touristSpotHashtag",
                     "delFlag",
                     "insUserId",
                     "insDateTime",
@@ -2628,14 +2734,6 @@
         "description": "Retrieve user information by their user ID.",
         "operationId": "TouriiBackendController_getUserByUserId",
         "parameters": [
-          {
-            "name": "userId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "accept-version",
             "in": "header",

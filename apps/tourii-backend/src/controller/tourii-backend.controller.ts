@@ -1,12 +1,6 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
-import {
-    ApiBody,
-    ApiHeader,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
@@ -154,10 +148,7 @@ export class TouriiBackendController {
         @Body()
         chapter: StoryChapterCreateRequestDto,
     ): Promise<StoryChapterResponseDto> {
-        return await this.touriiBackendService.createStoryChapter(
-            storyId,
-            chapter,
-        );
+        return await this.touriiBackendService.createStoryChapter(storyId, chapter);
     }
 
     @Post('/stories/update-saga')
@@ -270,8 +261,7 @@ export class TouriiBackendController {
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        description:
-            'Successfully retrieved all chapters for a specific story.',
+        description: 'Successfully retrieved all chapters for a specific story.',
         schema: zodToOpenAPI(StoryChapterResponseSchema),
     })
     @ApiUnauthorizedResponse()
@@ -315,7 +305,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createModelRoute(modelRoute);
     }
 
-    @Post('/routes/create-tourist-spot')
+    @Post('/routes/create-tourist-spot/:modelRouteId')
     @ApiTags('Routes')
     @ApiOperation({
         summary: 'Create Tourist Spot',
@@ -340,10 +330,12 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async createTouristSpot(
+        @Param('modelRouteId')
+        modelRouteId: string,
         @Body()
         touristSpot: TouristSpotCreateRequestDto,
     ): Promise<TouristSpotResponseDto> {
-        return await this.touriiBackendService.createTouristSpot(touristSpot);
+        return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
     }
 
     @Post('/user')

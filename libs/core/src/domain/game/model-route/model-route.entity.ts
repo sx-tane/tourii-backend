@@ -82,4 +82,22 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
     get requestId(): string | undefined {
         return this.props.requestId;
     }
+
+    /**
+     * Extracts valid pairs of storyChapterId and touristSpotId
+     * from the touristSpotList for updating purposes.
+     * @returns Array of { storyChapterId, touristSpotId } pairs
+     */
+    getValidChapterSpotPairs(): { storyChapterId: string; touristSpotId: string }[] {
+        if (!this.props.touristSpotList) {
+            return []; // Return empty if no list
+        }
+
+        return this.props.touristSpotList
+            .filter((spot) => spot.storyChapterId && spot.touristSpotId) // Ensure IDs are present
+            .map((spot) => ({
+                storyChapterId: spot.storyChapterId as string,
+                touristSpotId: spot.touristSpotId as string,
+            }));
+    }
 }

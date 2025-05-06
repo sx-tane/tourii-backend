@@ -9,7 +9,7 @@ interface TouristSpotProps {
     address?: string;
     storyChapterLink?: string;
     touristSpotHashtag?: string[];
-    imageSet?: string[];
+    imageSet?: { main: string; small: string[] };
     delFlag?: boolean;
     insUserId?: string;
     insDateTime?: Date;
@@ -65,7 +65,7 @@ export class TouristSpot {
         return this.props.touristSpotHashtag;
     }
 
-    get imageSet(): string[] | undefined {
+    get imageSet(): { main: string; small: string[] } | undefined {
         return this.props.imageSet;
     }
 

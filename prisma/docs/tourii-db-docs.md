@@ -766,6 +766,7 @@ erDiagram
 "tourist_spot" {
   String(255) tourist_spot_id PK
   String model_route_id FK
+  String story_chapter_id
   String(255) tourist_spot_name
   String tourist_spot_desc
   Float latitude
@@ -941,12 +942,15 @@ enabling location-based gameplay and exploration.
 **Properties**
   - `tourist_spot_id`: Unique identifier for the tourist spot TSTYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `model_route_id`: ID of the associated travel route
+  - `story_chapter_id`: ID of the associated story chapter
   - `tourist_spot_name`: Name of the tourist spot
   - `tourist_spot_desc`: Detailed description of the tourist spot
   - `latitude`: Geographic latitude coordinate
   - `longitude`: Geographic longitude coordinate
   - `best_visit_time`: Recommended visiting hours (e.g., "10:00 - 18:00")
-  - `address`: Physical address of the location
+  - `address`
+    > Physical address of the location
+    > Get from Google Map API
   - `story_chapter_link`: Link to the related story chapter
   - `tourist_spot_hashtag`
     > Hashtags associated with this location

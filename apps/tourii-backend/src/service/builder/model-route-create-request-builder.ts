@@ -4,16 +4,16 @@ import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { ContextStorage } from '@app/core/support/context/context-storage';
 import type { ModelRouteCreateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/create/model-route-create-request.model';
+import { TouristSpotCreateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/create/tourist-spot-create-request.model';
 import { Logger } from '@nestjs/common';
 
 export class ModelRouteCreateRequestBuilder {
-    static dtoToModelRoute(
-        dto: ModelRouteCreateRequestDto,
-        storyEntity: StoryEntity,
+    static dtoToTouristSpot(
+        dto: TouristSpotCreateRequestDto[],
         geoInfoList: GeoInfo[],
-        regionInfo: GeoInfo,
+        storyEntity: StoryEntity,
         insUserId: string,
-    ): ModelRouteEntity {
+    ): TouristSpot[] {
         const geoInfoMap = new Map<string, GeoInfo>();
         geoInfoList.forEach((info) => {
             if (info.touristSpotName) {
@@ -21,7 +21,7 @@ export class ModelRouteCreateRequestBuilder {
             }
         });
 
-        const enrichedTouristSpotList = dto.touristSpotList.map((spotDto) => {
+        return dto.map((spotDto) => {
             const matchingGeoInfo = geoInfoMap.get(spotDto.touristSpotName);
 
             const storyChapterLink = `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}`;
@@ -36,14 +36,10 @@ export class ModelRouteCreateRequestBuilder {
                     touristSpotDesc: spotDto.touristSpotDesc,
                     bestVisitTime: spotDto.bestVisitTime,
                     touristSpotHashtag: spotDto.touristSpotHashtag,
-                    imageSet: spotDto.imageSet
-                        ? [spotDto.imageSet.main, ...spotDto.imageSet.small]
-                        : undefined,
+                    imageSet: spotDto.imageSet ?? undefined,
                     storyChapterLink: storyChapterLink,
                     updUserId: insUserId,
-                    updDateTime:
-                        ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                        new Date(),
+                    updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 });
             }
 
@@ -57,22 +53,24 @@ export class ModelRouteCreateRequestBuilder {
                 storyChapterLink: storyChapterLink,
                 bestVisitTime: spotDto.bestVisitTime,
                 touristSpotHashtag: spotDto.touristSpotHashtag,
-                imageSet: spotDto.imageSet
-                    ? [spotDto.imageSet.main, ...spotDto.imageSet.small]
-                    : undefined,
+                imageSet: spotDto.imageSet ?? undefined,
                 delFlag: false,
                 insUserId: insUserId,
-                insDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 updUserId: insUserId,
-                updDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
             });
         });
+    }
 
+    static dtoToModelRoute(
+        dto: ModelRouteCreateRequestDto,
+        storyEntity: StoryEntity,
+        touristSpotGeoInfoList: GeoInfo[],
+        regionInfo: GeoInfo,
+        insUserId: string,
+    ): ModelRouteEntity {
         return new ModelRouteEntity(
             {
                 storyId: storyEntity.id,
@@ -82,16 +80,19 @@ export class ModelRouteCreateRequestBuilder {
                 regionLongitude: regionInfo.longitude,
                 regionBackgroundMedia: storyEntity.backgroundMedia,
                 recommendation: dto.recommendation,
-                touristSpotList: enrichedTouristSpotList,
+                touristSpotList: dto.touristSpotList
+                    ? ModelRouteCreateRequestBuilder.dtoToTouristSpot(
+                          dto.touristSpotList,
+                          touristSpotGeoInfoList,
+                          storyEntity,
+                          insUserId,
+                      )
+                    : [],
                 delFlag: false,
                 insUserId: insUserId,
-                insDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 updUserId: insUserId,
-                updDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
             },
             undefined,

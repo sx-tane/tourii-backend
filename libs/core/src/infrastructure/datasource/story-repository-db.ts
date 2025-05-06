@@ -3,6 +3,7 @@ import type { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
@@ -38,15 +39,9 @@ export class StoryRepositoryDb implements StoryRepository {
         return StoryMapper.prismaModelToStoryEntity(createdStoryDb);
     }
 
-    async createStoryChapter(
-        storyId: string,
-        chapter: StoryChapter,
-    ): Promise<StoryChapter> {
+    async createStoryChapter(storyId: string, chapter: StoryChapter): Promise<StoryChapter> {
         const createdChapterDb = await this.prisma.story_chapter.create({
-            data: StoryMapper.storyChapterOnlyEntityToPrismaInput(
-                storyId,
-                chapter,
-            ),
+            data: StoryMapper.storyChapterOnlyEntityToPrismaInput(storyId, chapter),
             include: {
                 story: {
                     select: {
@@ -73,9 +68,11 @@ export class StoryRepositoryDb implements StoryRepository {
         };
 
         // Use the CachingService to get/set the raw data
-        const storiesDb = await this.cachingService.getOrSet<
-            StoryRelationModel[]
-        >(ALL_STORIES_CACHE_KEY, fetchDataFn, CACHE_TTL_SECONDS);
+        const storiesDb = await this.cachingService.getOrSet<StoryRelationModel[]>(
+            ALL_STORIES_CACHE_KEY,
+            fetchDataFn,
+            CACHE_TTL_SECONDS,
+        );
 
         // If fetching/caching failed, storiesDb might be null, return empty array
         if (!storiesDb) {
@@ -101,9 +98,7 @@ export class StoryRepositoryDb implements StoryRepository {
             },
         });
         if (!storyDb) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_023,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
         return StoryMapper.prismaModelToStoryEntity(storyDb);
     }
@@ -125,6 +120,7 @@ export class StoryRepositoryDb implements StoryRepository {
                         },
                         data: {
                             tourist_spot_id: pair.touristSpotId,
+                            upd_date_time: ContextStorage.getStore()?.getSystemDateTimeJST(),
                         },
                     }),
                 ),
@@ -144,9 +140,7 @@ export class StoryRepositoryDb implements StoryRepository {
         const cacheKey = `${STORY_CHAPTER_RAW_CACHE_KEY_PREFIX}:${storyId}`;
 
         // Define the function to fetch ONLY the raw chapter data from Prisma
-        const fetchRawChaptersFn = async (): Promise<
-            story_chapter[] | null
-        > => {
+        const fetchRawChaptersFn = async (): Promise<story_chapter[] | null> => {
             const chapters = await this.prisma.story_chapter.findMany({
                 where: {
                     story_id: storyId,
@@ -161,9 +155,11 @@ export class StoryRepositoryDb implements StoryRepository {
         };
 
         // Use the CachingService to get/set the raw Prisma chapter models
-        const storyChaptersDb = await this.cachingService.getOrSet<
-            story_chapter[] | null
-        >(cacheKey, fetchRawChaptersFn, CACHE_TTL_SECONDS);
+        const storyChaptersDb = await this.cachingService.getOrSet<story_chapter[] | null>(
+            cacheKey,
+            fetchRawChaptersFn,
+            CACHE_TTL_SECONDS,
+        );
 
         // If no raw chapters found (from cache or fresh fetch), return empty array
         if (!storyChaptersDb || storyChaptersDb.length === 0) {
@@ -187,10 +183,7 @@ export class StoryRepositoryDb implements StoryRepository {
         // --- End fetching sagaName ---
 
         // --- Map raw data (from cache/DB) to domain entities ---
-        const storyChapterInstances = StoryMapper.storyChapterToEntity(
-            storyChaptersDb,
-            sagaName,
-        );
+        const storyChapterInstances = StoryMapper.storyChapterToEntity(storyChaptersDb, sagaName);
 
         // Return the array of proper StoryChapter instances
         return storyChapterInstances;

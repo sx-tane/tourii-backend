@@ -24,10 +24,7 @@ export class ModelRouteResultBuilder {
             address: touristSpot.address ?? '',
             storyChapterLink: touristSpot.storyChapterLink ?? '',
             touristSpotHashtag: touristSpot.touristSpotHashtag ?? [],
-            imageSet: {
-                main: touristSpot.imageSet?.[0] ?? '',
-                small: touristSpot.imageSet?.slice(1) ?? [],
-            },
+            imageSet: touristSpot.imageSet ?? { main: '', small: [] },
             weatherInfo: {
                 temperatureCelsius: weatherInfo?.temperatureCelsius ?? 0,
                 weatherName: weatherInfo?.weatherName ?? '',

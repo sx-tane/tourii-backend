@@ -473,6 +473,7 @@ EVENT EVENT
   "tourist_spot" {
     String tourist_spot_id "🗝️"
     String model_route_id 
+    String story_chapter_id 
     String tourist_spot_name 
     String tourist_spot_desc 
     Float latitude 

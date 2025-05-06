@@ -105,6 +105,11 @@ export const TouriiBackendAppErrorType = {
         message: 'Current weather not found',
         type: ErrorType.NOT_FOUND,
     },
+    E_TB_027: {
+        code: 'E_TB_027',
+        message: 'Model route not found',
+        type: ErrorType.NOT_FOUND,
+    },
 } as const;
 
 type TouriiBackendAppErrorKeys = keyof typeof TouriiBackendAppErrorType;

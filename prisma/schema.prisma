@@ -1698,6 +1698,9 @@ model tourist_spot {
   /// ID of the associated travel route
   model_route_id String
 
+  /// ID of the associated story chapter
+  story_chapter_id String
+
   //----
   // LOCATION DETAILS
   //----
