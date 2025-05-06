@@ -10,29 +10,29 @@ import type { Request } from 'express';
  */
 @Injectable({ scope: Scope.REQUEST })
 export class TouriiBackendContextProvider implements ContextProvider {
-  protected requestId: RequestId;
-  protected systemDateTime: Date;
+    protected requestId: RequestId;
+    protected systemDateTime: Date;
 
-  /**
-   * コンストラクタ
-   * @param req Request
-   */
-  constructor(
-    @Inject(REQUEST)
-    protected readonly req: Request,
-  ) {
-    // RequestId
-    this.requestId = new RequestId();
-    this.systemDateTime = DateUtils.getJSTDate();
-  }
-  getSystemDateTimeJST(): Date {
-    return this.systemDateTime;
-  }
+    /**
+     * コンストラクタ
+     * @param req Request
+     */
+    constructor(
+        @Inject(REQUEST)
+        protected readonly req: Request,
+    ) {
+        // RequestId
+        this.requestId = new RequestId();
+        this.systemDateTime = DateUtils.getJSTDate();
+    }
+    getSystemDateTimeJST(): Date {
+        return this.systemDateTime;
+    }
 
-  /**
-   * @implements
-   */
-  getRequestId(): RequestId {
-    return this.requestId;
-  }
+    /**
+     * @implements
+     */
+    getRequestId(): RequestId {
+        return this.requestId;
+    }
 }

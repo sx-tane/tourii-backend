@@ -1,4 +1,4 @@
 export interface AppError {
-  code: string;
-  message: string;
+    code: string;
+    message: string;
 }

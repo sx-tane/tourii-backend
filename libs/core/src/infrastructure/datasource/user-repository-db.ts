@@ -7,23 +7,23 @@ import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()
 export class UserRepositoryDb implements UserRepository {
-  constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) {}
 
-  async createUser(user: UserEntity): Promise<UserEntity> {
-    const createdUser = await this.prisma.user.create({
-      data: UserMapper.userEntityToPrismaInput(user),
-    });
+    async createUser(user: UserEntity): Promise<UserEntity> {
+        const createdUser = await this.prisma.user.create({
+            data: UserMapper.userEntityToPrismaInput(user),
+        });
 
-    return UserMapper.prismaModelToUserEntity(createdUser);
-  }
+        return UserMapper.prismaModelToUserEntity(createdUser);
+    }
 
-  async getUserInfoByUserId(userId: string): Promise<UserEntity | undefined> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        user_id: userId,
-      },
-    });
+    async getUserInfoByUserId(userId: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                user_id: userId,
+            },
+        });
 
-    return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
-  }
+        return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
+    }
 }

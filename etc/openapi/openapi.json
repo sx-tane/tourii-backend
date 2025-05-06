@@ -26,7 +26,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "API is healthy",
             "content": {
               "application/json": {
@@ -347,6 +347,10 @@
                             "description": "Whether the chapter is available to users without prerequisites",
                             "type": "boolean"
                           },
+                          "delFlag": {
+                            "description": "Flag to indicate if the story chapter is deleted",
+                            "type": "boolean"
+                          },
                           "insUserId": {
                             "description": "ID of user who created this record",
                             "type": "string"
@@ -379,12 +383,17 @@
                           "chapterVideoMobileUrl",
                           "chapterPdfUrl",
                           "isUnlocked",
+                          "delFlag",
                           "insUserId",
                           "insDateTime",
                           "updUserId",
                           "updDateTime"
                         ]
                       }
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story is deleted",
+                      "type": "boolean"
                     },
                     "insUserId": {
                       "description": "ID of user who created this record",
@@ -413,6 +422,7 @@
                     "order",
                     "isPrologue",
                     "isSelected",
+                    "delFlag",
                     "insUserId",
                     "insDateTime",
                     "updUserId",
@@ -423,7 +433,7 @@
             }
           },
           "400": {
-            "description": "Bad Request - Invalid request body or version",
+            "description": "Bad Request - Invalid version format",
             "content": {
               "application/json": {
                 "schema": {
@@ -431,11 +441,11 @@
                   "properties": {
                     "code": {
                       "type": "string",
-                      "example": "E_TB_001"
+                      "example": "E_TB_021"
                     },
                     "message": {
                       "type": "string",
-                      "example": "Bad Request"
+                      "example": "Invalid version format"
                     },
                     "type": {
                       "type": "string",
@@ -472,6 +482,279 @@
           }
         },
         "summary": "Create Story Saga",
+        "tags": [
+          "Stories"
+        ]
+      }
+    },
+    "/stories/create-chapter/{storyId}": {
+      "post": {
+        "description": "Create a new story chapter.",
+        "operationId": "TouriiBackendController_createStoryChapter",
+        "parameters": [
+          {
+            "name": "storyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Story Chapter creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "touristSpotId": {
+                    "description": "Unique identifier for the tourist spot",
+                    "type": "string"
+                  },
+                  "chapterNumber": {
+                    "description": "Chapter number or position (e.g., 'Prologue', 'Chapter 1')",
+                    "type": "string"
+                  },
+                  "chapterTitle": {
+                    "description": "Title of the story chapter",
+                    "type": "string"
+                  },
+                  "chapterDesc": {
+                    "description": "Detailed description or content of the story",
+                    "type": "string"
+                  },
+                  "chapterImage": {
+                    "description": "URL to the fictional chapter image",
+                    "type": "string"
+                  },
+                  "characterNameList": {
+                    "description": "List of character names involved in the chapter",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "realWorldImage": {
+                    "description": "URL to the real-world location image",
+                    "type": "string"
+                  },
+                  "chapterVideoUrl": {
+                    "description": "URL to the chapter video for desktop viewing",
+                    "type": "string"
+                  },
+                  "chapterVideoMobileUrl": {
+                    "description": "URL to the chapter video optimized for mobile",
+                    "type": "string"
+                  },
+                  "chapterPdfUrl": {
+                    "description": "URL to the downloadable PDF version",
+                    "type": "string"
+                  },
+                  "isUnlocked": {
+                    "description": "Whether the chapter is available to users without prerequisites",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "touristSpotId",
+                  "chapterNumber",
+                  "chapterTitle",
+                  "chapterDesc",
+                  "chapterImage",
+                  "characterNameList",
+                  "realWorldImage",
+                  "chapterVideoUrl",
+                  "chapterVideoMobileUrl",
+                  "chapterPdfUrl",
+                  "isUnlocked"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "storyId": {
+                      "description": "Unique identifier for the story",
+                      "type": "string"
+                    },
+                    "touristSpotId": {
+                      "description": "Unique identifier for the tourist spot",
+                      "type": "string"
+                    },
+                    "storyChapterId": {
+                      "description": "Unique identifier for the story chapter",
+                      "type": "string"
+                    },
+                    "sagaName": {
+                      "description": "Name of the saga",
+                      "type": "string"
+                    },
+                    "chapterNumber": {
+                      "description": "Chapter number or position",
+                      "type": "string"
+                    },
+                    "chapterTitle": {
+                      "description": "Title of the chapter",
+                      "type": "string"
+                    },
+                    "chapterDesc": {
+                      "description": "Detailed description of the chapter",
+                      "type": "string"
+                    },
+                    "chapterImage": {
+                      "description": "URL to the fictional chapter image",
+                      "type": "string"
+                    },
+                    "characterNameList": {
+                      "description": "List of character names involved in the chapter",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "realWorldImage": {
+                      "description": "URL to the real-world location image",
+                      "type": "string"
+                    },
+                    "chapterVideoUrl": {
+                      "description": "URL to the chapter video for desktop viewing",
+                      "type": "string"
+                    },
+                    "chapterVideoMobileUrl": {
+                      "description": "URL to the chapter video optimized for mobile",
+                      "type": "string"
+                    },
+                    "chapterPdfUrl": {
+                      "description": "URL to the downloadable PDF version",
+                      "type": "string"
+                    },
+                    "isUnlocked": {
+                      "description": "Whether the chapter is available to users without prerequisites",
+                      "type": "boolean"
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story chapter is deleted",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "storyId",
+                    "touristSpotId",
+                    "storyChapterId",
+                    "sagaName",
+                    "chapterNumber",
+                    "chapterTitle",
+                    "chapterDesc",
+                    "chapterImage",
+                    "characterNameList",
+                    "realWorldImage",
+                    "chapterVideoUrl",
+                    "chapterVideoMobileUrl",
+                    "chapterPdfUrl",
+                    "isUnlocked",
+                    "delFlag",
+                    "insUserId",
+                    "insDateTime",
+                    "updUserId",
+                    "updDateTime"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_010"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API key is required"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create Story Chapter",
         "tags": [
           "Stories"
         ]
@@ -747,6 +1030,10 @@
                             "description": "Whether the chapter is available to users without prerequisites",
                             "type": "boolean"
                           },
+                          "delFlag": {
+                            "description": "Flag to indicate if the story chapter is deleted",
+                            "type": "boolean"
+                          },
                           "insUserId": {
                             "description": "ID of user who created this record",
                             "type": "string"
@@ -779,12 +1066,17 @@
                           "chapterVideoMobileUrl",
                           "chapterPdfUrl",
                           "isUnlocked",
+                          "delFlag",
                           "insUserId",
                           "insDateTime",
                           "updUserId",
                           "updDateTime"
                         ]
                       }
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story is deleted",
+                      "type": "boolean"
                     },
                     "insUserId": {
                       "description": "ID of user who created this record",
@@ -813,11 +1105,36 @@
                     "order",
                     "isPrologue",
                     "isSelected",
+                    "delFlag",
                     "insUserId",
                     "insDateTime",
                     "updUserId",
                     "updDateTime"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
                 }
               }
             }
@@ -1032,6 +1349,10 @@
                       "description": "Whether the chapter is available to users without prerequisites",
                       "type": "boolean"
                     },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story chapter is deleted",
+                      "type": "boolean"
+                    },
                     "insUserId": {
                       "description": "ID of user who created this record",
                       "type": "string"
@@ -1064,11 +1385,36 @@
                     "chapterVideoMobileUrl",
                     "chapterPdfUrl",
                     "isUnlocked",
+                    "delFlag",
                     "insUserId",
                     "insDateTime",
                     "updUserId",
                     "updDateTime"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
                 }
               }
             }
@@ -1237,6 +1583,10 @@
                             "description": "Whether the chapter is available to users without prerequisites",
                             "type": "boolean"
                           },
+                          "delFlag": {
+                            "description": "Flag to indicate if the story chapter is deleted",
+                            "type": "boolean"
+                          },
                           "insUserId": {
                             "description": "ID of user who created this record",
                             "type": "string"
@@ -1269,12 +1619,17 @@
                           "chapterVideoMobileUrl",
                           "chapterPdfUrl",
                           "isUnlocked",
+                          "delFlag",
                           "insUserId",
                           "insDateTime",
                           "updUserId",
                           "updDateTime"
                         ]
                       }
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story is deleted",
+                      "type": "boolean"
                     },
                     "insUserId": {
                       "description": "ID of user who created this record",
@@ -1303,6 +1658,7 @@
                     "order",
                     "isPrologue",
                     "isSelected",
+                    "delFlag",
                     "insUserId",
                     "insDateTime",
                     "updUserId",
@@ -1370,7 +1726,7 @@
     "/stories/sagas/{storyId}/chapters": {
       "get": {
         "description": "Retrieve all chapters for a specific story.",
-        "operationId": "TouriiBackendController_getStoryChapters",
+        "operationId": "TouriiBackendController_getStoryChaptersByStoryId",
         "parameters": [
           {
             "name": "storyId",
@@ -1466,6 +1822,10 @@
                       "description": "Whether the chapter is available to users without prerequisites",
                       "type": "boolean"
                     },
+                    "delFlag": {
+                      "description": "Flag to indicate if the story chapter is deleted",
+                      "type": "boolean"
+                    },
                     "insUserId": {
                       "description": "ID of user who created this record",
                       "type": "string"
@@ -1498,11 +1858,36 @@
                     "chapterVideoMobileUrl",
                     "chapterPdfUrl",
                     "isUnlocked",
+                    "delFlag",
                     "insUserId",
                     "insDateTime",
                     "updUserId",
                     "updDateTime"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
                 }
               }
             }
@@ -1535,6 +1920,711 @@
         "summary": "Get Story Chapters",
         "tags": [
           "Stories"
+        ]
+      }
+    },
+    "/routes/create-model-route": {
+      "post": {
+        "description": "Create a new model route.",
+        "operationId": "TouriiBackendController_createModelRoute",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Model Route creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "storyId": {
+                    "description": "Unique identifier for the story",
+                    "type": "string"
+                  },
+                  "routeName": {
+                    "description": "Name of the model route",
+                    "type": "string"
+                  },
+                  "region": {
+                    "description": "Region of the model route",
+                    "type": "string"
+                  },
+                  "recommendation": {
+                    "description": "Recommendation of the model route",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "touristSpotList": {
+                    "description": "List of tourist spots in the model route",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "storyChapterId": {
+                          "description": "Unique identifier for the story chapter",
+                          "type": "string"
+                        },
+                        "touristSpotName": {
+                          "description": "Name of the tourist spot",
+                          "type": "string"
+                        },
+                        "touristSpotDesc": {
+                          "description": "Description of the tourist spot",
+                          "type": "string"
+                        },
+                        "bestVisitTime": {
+                          "description": "Best visit time of the tourist spot",
+                          "type": "string"
+                        },
+                        "touristSpotHashtag": {
+                          "description": "Hashtags associated with this location",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "imageSet": {
+                          "description": "Image set for the tourist spot",
+                          "type": "object",
+                          "properties": {
+                            "main": {
+                              "description": "Main image of the tourist spot",
+                              "type": "string"
+                            },
+                            "small": {
+                              "description": "Small images of the tourist spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "main",
+                            "small"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "storyChapterId",
+                        "touristSpotName",
+                        "touristSpotDesc",
+                        "bestVisitTime",
+                        "touristSpotHashtag"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "storyId",
+                  "routeName",
+                  "region",
+                  "recommendation",
+                  "touristSpotList"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "modelRouteId": {
+                      "description": "Unique identifier for the model route",
+                      "type": "string"
+                    },
+                    "storyId": {
+                      "description": "Unique identifier for the story",
+                      "type": "string"
+                    },
+                    "routeName": {
+                      "description": "Name of the model route",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Region of the model route",
+                      "type": "string"
+                    },
+                    "recommendation": {
+                      "description": "Recommendation of the model route",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "regionLatitude": {
+                      "description": "Latitude of the region",
+                      "type": "number"
+                    },
+                    "regionLongitude": {
+                      "description": "Longitude of the region",
+                      "type": "number"
+                    },
+                    "regionBackgroundMedia": {
+                      "description": "URL to the region's cover media",
+                      "type": "string"
+                    },
+                    "touristSpotList": {
+                      "description": "List of tourist spots in the model route",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "touristSpotId": {
+                            "description": "Unique identifier for the tourist spot",
+                            "type": "string"
+                          },
+                          "storyChapterId": {
+                            "description": "Unique identifier for the story chapter",
+                            "type": "string"
+                          },
+                          "touristSpotName": {
+                            "description": "Name of the tourist spot",
+                            "type": "string"
+                          },
+                          "touristSpotDesc": {
+                            "description": "Description of the tourist spot",
+                            "type": "string"
+                          },
+                          "bestVisitTime": {
+                            "description": "Best visit time of the tourist spot",
+                            "type": "string"
+                          },
+                          "address": {
+                            "description": "Address of the tourist spot",
+                            "type": "string"
+                          },
+                          "touristSpotLatitude": {
+                            "description": "Latitude of the tourist spot",
+                            "type": "number"
+                          },
+                          "touristSpotLongitude": {
+                            "description": "Longitude of the tourist spot",
+                            "type": "number"
+                          },
+                          "touristSpotHashtag": {
+                            "description": "Hashtags associated with this location",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "storyChapterLink": {
+                            "description": "Link to the related story chapter",
+                            "type": "string"
+                          },
+                          "imageSet": {
+                            "description": "Image set for the tourist spot",
+                            "type": "object",
+                            "properties": {
+                              "main": {
+                                "description": "Main image of the tourist spot",
+                                "type": "string"
+                              },
+                              "small": {
+                                "description": "Small images of the tourist spot",
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "main",
+                              "small"
+                            ]
+                          },
+                          "weatherInfo": {
+                            "description": "Weather info for the tourist spot",
+                            "type": "object",
+                            "properties": {
+                              "temperatureCelsius": {
+                                "description": "Temperature of the weather",
+                                "type": "number"
+                              },
+                              "weatherName": {
+                                "description": "Name of the weather",
+                                "type": "string"
+                              },
+                              "weatherDesc": {
+                                "description": "Description of the weather",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "temperatureCelsius",
+                              "weatherName",
+                              "weatherDesc"
+                            ]
+                          },
+                          "delFlag": {
+                            "description": "Flag to indicate if the tourist spot is deleted",
+                            "type": "boolean"
+                          },
+                          "insUserId": {
+                            "description": "ID of user who created this record",
+                            "type": "string"
+                          },
+                          "insDateTime": {
+                            "description": "Timestamp of record creation",
+                            "type": "string"
+                          },
+                          "updUserId": {
+                            "description": "ID of user who last updated this record",
+                            "type": "string"
+                          },
+                          "updDateTime": {
+                            "description": "Timestamp of last record update",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "touristSpotId",
+                          "storyChapterId",
+                          "touristSpotName",
+                          "touristSpotDesc",
+                          "bestVisitTime",
+                          "address",
+                          "touristSpotLatitude",
+                          "touristSpotLongitude",
+                          "touristSpotHashtag",
+                          "delFlag",
+                          "insUserId",
+                          "insDateTime",
+                          "updUserId",
+                          "updDateTime"
+                        ]
+                      }
+                    },
+                    "regionWeatherInfo": {
+                      "description": "Current weather info for the region",
+                      "type": "object",
+                      "properties": {
+                        "temperatureCelsius": {
+                          "description": "Temperature of the weather",
+                          "type": "number"
+                        },
+                        "weatherName": {
+                          "description": "Name of the weather",
+                          "type": "string"
+                        },
+                        "weatherDesc": {
+                          "description": "Description of the weather",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "temperatureCelsius",
+                        "weatherName",
+                        "weatherDesc"
+                      ]
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the model route is deleted",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "modelRouteId",
+                    "storyId",
+                    "routeName",
+                    "region",
+                    "recommendation",
+                    "regionLatitude",
+                    "regionLongitude",
+                    "regionBackgroundMedia",
+                    "touristSpotList",
+                    "regionWeatherInfo",
+                    "delFlag",
+                    "insUserId",
+                    "insDateTime",
+                    "updUserId",
+                    "updDateTime"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_010"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API key is required"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create Model Route",
+        "tags": [
+          "Routes"
+        ]
+      }
+    },
+    "/routes/create-tourist-spot/{modelRouteId}": {
+      "post": {
+        "description": "Create a new tourist spot.",
+        "operationId": "TouriiBackendController_createTouristSpot",
+        "parameters": [
+          {
+            "name": "modelRouteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tourist Spot creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter",
+                    "type": "string"
+                  },
+                  "touristSpotName": {
+                    "description": "Name of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotDesc": {
+                    "description": "Description of the tourist spot",
+                    "type": "string"
+                  },
+                  "bestVisitTime": {
+                    "description": "Best visit time of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotHashtag": {
+                    "description": "Hashtags associated with this location",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "imageSet": {
+                    "description": "Image set for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "main": {
+                        "description": "Main image of the tourist spot",
+                        "type": "string"
+                      },
+                      "small": {
+                        "description": "Small images of the tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "main",
+                      "small"
+                    ]
+                  }
+                },
+                "required": [
+                  "storyChapterId",
+                  "touristSpotName",
+                  "touristSpotDesc",
+                  "bestVisitTime",
+                  "touristSpotHashtag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "touristSpotId": {
+                      "description": "Unique identifier for the tourist spot",
+                      "type": "string"
+                    },
+                    "storyChapterId": {
+                      "description": "Unique identifier for the story chapter",
+                      "type": "string"
+                    },
+                    "touristSpotName": {
+                      "description": "Name of the tourist spot",
+                      "type": "string"
+                    },
+                    "touristSpotDesc": {
+                      "description": "Description of the tourist spot",
+                      "type": "string"
+                    },
+                    "bestVisitTime": {
+                      "description": "Best visit time of the tourist spot",
+                      "type": "string"
+                    },
+                    "address": {
+                      "description": "Address of the tourist spot",
+                      "type": "string"
+                    },
+                    "touristSpotLatitude": {
+                      "description": "Latitude of the tourist spot",
+                      "type": "number"
+                    },
+                    "touristSpotLongitude": {
+                      "description": "Longitude of the tourist spot",
+                      "type": "number"
+                    },
+                    "touristSpotHashtag": {
+                      "description": "Hashtags associated with this location",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "storyChapterLink": {
+                      "description": "Link to the related story chapter",
+                      "type": "string"
+                    },
+                    "imageSet": {
+                      "description": "Image set for the tourist spot",
+                      "type": "object",
+                      "properties": {
+                        "main": {
+                          "description": "Main image of the tourist spot",
+                          "type": "string"
+                        },
+                        "small": {
+                          "description": "Small images of the tourist spot",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "main",
+                        "small"
+                      ]
+                    },
+                    "weatherInfo": {
+                      "description": "Weather info for the tourist spot",
+                      "type": "object",
+                      "properties": {
+                        "temperatureCelsius": {
+                          "description": "Temperature of the weather",
+                          "type": "number"
+                        },
+                        "weatherName": {
+                          "description": "Name of the weather",
+                          "type": "string"
+                        },
+                        "weatherDesc": {
+                          "description": "Description of the weather",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "temperatureCelsius",
+                        "weatherName",
+                        "weatherDesc"
+                      ]
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the tourist spot is deleted",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "touristSpotId",
+                    "storyChapterId",
+                    "touristSpotName",
+                    "touristSpotDesc",
+                    "bestVisitTime",
+                    "address",
+                    "touristSpotLatitude",
+                    "touristSpotLongitude",
+                    "touristSpotHashtag",
+                    "delFlag",
+                    "insUserId",
+                    "insDateTime",
+                    "updUserId",
+                    "updDateTime"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_010"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API key is required"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create Tourist Spot",
+        "tags": [
+          "Routes"
         ]
       }
     },
@@ -1645,14 +2735,6 @@
         "operationId": "TouriiBackendController_getUserByUserId",
         "parameters": [
           {
-            "name": "userId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
@@ -1672,12 +2754,36 @@
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "User found successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
                 }
               }
             }

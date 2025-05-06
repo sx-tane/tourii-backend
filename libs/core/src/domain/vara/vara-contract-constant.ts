@@ -7,9 +7,9 @@ export const NETWORK: string = 'wss://testnet.vara.network';
 export const SPONSOR_NAME: string = 'admindavid';
 // FIXME: Move this to env
 export const SPONSOR_MNEMONIC: string =
-  'strong orchard plastic arena pyramid lobster lonely rich stomach label clog rubber';
+    'strong orchard plastic arena pyramid lobster lonely rich stomach label clog rubber';
 export const CONTRACT_ID: HexString =
-  '0x17cf40e9dfde5ede9fd4c7314a25a63cb989751f8e3e3dd0d29c01baf31c6da6';
+    '0x17cf40e9dfde5ede9fd4c7314a25a63cb989751f8e3e3dd0d29c01baf31c6da6';
 export const IDL: string = `
     type KeyringData = struct {
       address: str,
