@@ -5,12 +5,8 @@ import { StoryChapterResponseSchema } from './chapter-story-response.model';
 export const StoryResponseSchema = z.object({
     storyId: z.string().describe('Unique identifier for the story saga'),
     sagaName: z.string().describe('Name of the story saga'),
-    sagaDesc: z
-        .string()
-        .describe("Detailed description of the saga's narrative"),
-    backgroundMedia: z
-        .string()
-        .describe("URL to the saga's cover media (image or video)"),
+    sagaDesc: z.string().describe("Detailed description of the saga's narrative"),
+    backgroundMedia: z.string().describe("URL to the saga's cover media (image or video)"),
     mapImage: z.string().describe('URL to the map image for the saga'),
     location: z.string().describe('Real-world location of the saga'),
     order: z.number().describe('Display order in the saga list'),

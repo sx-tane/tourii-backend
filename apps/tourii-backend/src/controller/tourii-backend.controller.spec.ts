@@ -11,9 +11,7 @@ describe('AppController', () => {
             providers: [TouriiBackendService],
         }).compile();
 
-        appController = app.get<TouriiBackendController>(
-            TouriiBackendController,
-        );
+        appController = app.get<TouriiBackendController>(TouriiBackendController);
     });
 
     describe('root', () => {

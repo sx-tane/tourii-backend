@@ -17,11 +17,9 @@ export class TouriiBackendHttpService {
     init() {
         this.axiosInstance = axios.create();
         this.httpService = new HttpService(this.axiosInstance);
-        this.httpService.axiosRef.interceptors.response.use(
-            async (response: AxiosResponse) => {
-                return response;
-            },
-        );
+        this.httpService.axiosRef.interceptors.response.use(async (response: AxiosResponse) => {
+            return response;
+        });
     }
 
     /**

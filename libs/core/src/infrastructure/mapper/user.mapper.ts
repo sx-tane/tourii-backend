@@ -44,8 +44,7 @@ export class UserMapper {
                 googleEmail: prismaModel.google_email ?? undefined,
                 email: prismaModel.email ?? undefined,
                 password: prismaModel.password,
-                passportWalletAddress:
-                    prismaModel.passport_wallet_address ?? undefined,
+                passportWalletAddress: prismaModel.passport_wallet_address ?? undefined,
                 perksWalletAddress: prismaModel.perks_wallet_address,
                 latestIpAddress: prismaModel.latest_ip_address ?? undefined,
                 isPremium: prismaModel.is_premium,

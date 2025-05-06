@@ -10,10 +10,7 @@ import type { Request, Response } from 'express';
 
 @Catch(TouriiBackendAppException, HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-    catch(
-        exception: TouriiBackendAppException | HttpException,
-        host: ArgumentsHost,
-    ) {
+    catch(exception: TouriiBackendAppException | HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();

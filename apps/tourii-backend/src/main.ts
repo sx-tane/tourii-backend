@@ -42,10 +42,7 @@ async function bootstrap() {
                 autoTagControllers: false,
             });
 
-        fs.writeFileSync(
-            './etc/openapi/openapi.json',
-            JSON.stringify(documentFactory(), null, 2),
-        );
+        fs.writeFileSync('./etc/openapi/openapi.json', JSON.stringify(documentFactory(), null, 2));
         SwaggerModule.setup('api/docs', app, documentFactory);
     }
 

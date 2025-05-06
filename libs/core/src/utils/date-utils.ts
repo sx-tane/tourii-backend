@@ -58,14 +58,10 @@ export const DateUtils = {
      */
     formatToYYYYMMDDHHmmssDate(date: Date): Date {
         // YYYYMMDD HH:mm:ssのstring型に変換
-        const yyyymmddhhmmssString = dayjs
-            .utc(date)
-            .format('YYYYMMDD HH:mm:ss');
+        const yyyymmddhhmmssString = dayjs.utc(date).format('YYYYMMDD HH:mm:ss');
 
         // YYYYMMDD HH:mm:ssをDateオブジェクトに変換
-        return new Date(
-            dayjs.utc(yyyymmddhhmmssString, 'YYYYMMDD HH:mm:ss').toDate(),
-        );
+        return new Date(dayjs.utc(yyyymmddhhmmssString, 'YYYYMMDD HH:mm:ss').toDate());
     },
 
     /**
@@ -76,9 +72,7 @@ export const DateUtils = {
      */
     formatToYYMM(date: Date | undefined): string {
         if (date === undefined) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
         return dayjs.utc(date).format('YYMM');
     },
@@ -101,9 +95,7 @@ export const DateUtils = {
      */
     formatToYYYYMMDDddd(date: Date | undefined): string {
         if (date === undefined) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
         return dayjs.utc(date).format('YYYY/MM/DD（ddd）');
     },
@@ -116,9 +108,7 @@ export const DateUtils = {
      */
     formatToYYYYMMDDWithSlash(date: Date | undefined): string {
         if (date === undefined) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
         return dayjs.utc(date).format('YYYY/MM/DD');
     },
@@ -140,10 +130,7 @@ export const DateUtils = {
      * @returns {string} YYYY/MM/DD HH:mm:ssフォーマットの文字列
      */
     formatToYYYYMMDDHHmmssSlash(date: Date): string {
-        return dayjs
-            .utc(date)
-            .tz(ASIA_TOKYO_TIMEZONE)
-            .format('YYYY/MM/DD HH:mm:ss');
+        return dayjs.utc(date).tz(ASIA_TOKYO_TIMEZONE).format('YYYY/MM/DD HH:mm:ss');
     },
 
     /**
@@ -194,9 +181,7 @@ export const DateUtils = {
      */
     stringFormatToHHmm(timeString: string | undefined): string {
         if (timeString === undefined) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
         if (timeString.includes(':')) {
             return timeString;
@@ -242,9 +227,7 @@ export const DateUtils = {
      * @returns {Date} 変換後の日時
      */
     fromYYYYMMDDHHmmNoHyphen(dateString: string, timeString: string): Date {
-        return dayjs
-            .utc(`${dateString} ${timeString}`, 'YYYYMMDD HH:mm')
-            .toDate();
+        return dayjs.utc(`${dateString} ${timeString}`, 'YYYYMMDD HH:mm').toDate();
     },
 
     /**
@@ -263,14 +246,8 @@ export const DateUtils = {
      * @returns {number} 残り日数
      */
     getDaysLeft(useDateFrom: Date): number {
-        const currentDate = dayjs(
-            DateUtils.formatToYYYYMMDD(DateUtils.getJSTDate()),
-            'YYYYMMDD',
-        );
-        const useDate = dayjs(
-            DateUtils.formatToYYYYMMDD(useDateFrom),
-            'YYYYMMDD',
-        );
+        const currentDate = dayjs(DateUtils.formatToYYYYMMDD(DateUtils.getJSTDate()), 'YYYYMMDD');
+        const useDate = dayjs(DateUtils.formatToYYYYMMDD(useDateFrom), 'YYYYMMDD');
 
         return useDate.diff(currentDate, 'day');
     },
@@ -283,12 +260,7 @@ export const DateUtils = {
      * @param years - 加算または減算する年数（負の値で減算）
      * @returns {Date} 調整された新しいDateオブジェクト（時間は00:00:00）
      */
-    addOrSubtractDaysMonthsYears(
-        date: Date,
-        days: number,
-        months?: number,
-        years?: number,
-    ): Date {
+    addOrSubtractDaysMonthsYears(date: Date, days: number, months?: number, years?: number): Date {
         // 新しい日付オブジェクトを作成し、元の日付を変更しないようにする
         const newDate = new Date(date);
 
@@ -356,17 +328,10 @@ export const DateUtils = {
         const isDateValid = DateUtils.isValidDate(datePart).success;
         const [hour, minute] = timePart.split(':').map(Number);
 
-        if (
-            !isDateValid ||
-            hour < 0 ||
-            hour > 23 ||
-            minute < 0 ||
-            minute > 59
-        ) {
+        if (!isDateValid || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
             return {
                 success: false,
-                message:
-                    'Invalid datetime(like 20259999 99:99), expected valid date',
+                message: 'Invalid datetime(like 20259999 99:99), expected valid date',
             };
         }
 
@@ -386,8 +351,7 @@ export const DateUtils = {
         message: string;
     } {
         // フォーマットチェック
-        const DATETIME_WITH_SECONDS_REGEX =
-            /^\d{4}\d{2}\d{2} \d{2}:\d{2}:\d{2}$/;
+        const DATETIME_WITH_SECONDS_REGEX = /^\d{4}\d{2}\d{2} \d{2}:\d{2}:\d{2}$/;
         if (!DATETIME_WITH_SECONDS_REGEX.test(value)) {
             return {
                 success: false,
@@ -397,9 +361,7 @@ export const DateUtils = {
 
         // `isValidDateTime`で秒を除く部分をチェック
         const dateTimeWithoutSeconds = value.slice(0, -3);
-        const baseValidation = DateUtils.isValidDateTime(
-            dateTimeWithoutSeconds,
-        );
+        const baseValidation = DateUtils.isValidDateTime(dateTimeWithoutSeconds);
 
         if (!baseValidation.success) {
             return baseValidation; // 基本チェックで失敗した場合、その結果をそのまま返す

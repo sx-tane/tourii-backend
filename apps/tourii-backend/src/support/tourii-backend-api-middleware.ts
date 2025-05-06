@@ -46,10 +46,7 @@ export class TouriiBackendApiMiddleware implements NestMiddleware {
         // RequestLog出力
         if (req.headers['user-agent'] !== 'ELB-HealthChecker/2.0') {
             // ELBのヘルスチェックリクエストはログ出力しない
-            this.logger.log(
-                JSON.stringify(additionalInfo),
-                this.context.getRequestId(),
-            );
+            this.logger.log(JSON.stringify(additionalInfo), this.context.getRequestId());
         }
 
         // Store context and continue middleware chain

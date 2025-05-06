@@ -11,7 +11,7 @@ import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-l
 import { getEnv } from '@app/core/utils/env-utils';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE, HttpAdapterHost } from '@nestjs/core';
 import {
@@ -22,7 +22,6 @@ import {
 } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { Logger } from 'winston';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { TouriiBackendService } from './service/tourii-backend.service';

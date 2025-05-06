@@ -6,9 +6,7 @@ export interface GeoInfoRepository {
      * @param touristSpotName - Tourist spot name
      * @returns GeoInfo
      */
-    getGeoLocationInfoByTouristSpotNameList(
-        touristSpotNameList: string[],
-    ): Promise<GeoInfo[]>;
+    getGeoLocationInfoByTouristSpotNameList(touristSpotNameList: string[]): Promise<GeoInfo[]>;
 
     /**
      * Get region info by region name

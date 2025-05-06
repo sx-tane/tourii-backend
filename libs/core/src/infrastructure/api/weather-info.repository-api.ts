@@ -17,15 +17,11 @@ export class WeatherInfoRepositoryApi implements WeatherInfoRepository {
         private readonly configService: ConfigService,
     ) {}
 
-    async getCurrentWeatherByGeoInfoList(
-        geoInfoList: GeoInfo[],
-    ): Promise<WeatherInfo[]> {
+    async getCurrentWeatherByGeoInfoList(geoInfoList: GeoInfo[]): Promise<WeatherInfo[]> {
         const apiKey = this.configService.get<string>('OPEN_WEATHER_API_KEY');
         if (!apiKey) {
             this.logger.error('OPEN_WEATHER_API_KEY is not configured.');
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
 
         // Use Promise.all to fetch weather data concurrently
@@ -36,9 +32,7 @@ export class WeatherInfoRepositoryApi implements WeatherInfoRepository {
 
                 try {
                     const response = await firstValueFrom(
-                        this.touriiHttpService.getTouriiBackendHttpService.get(
-                            apiUrl,
-                        ),
+                        this.touriiHttpService.getTouriiBackendHttpService.get(apiUrl),
                     );
 
                     // Check response and extract data from the first forecast item
@@ -65,17 +59,13 @@ export class WeatherInfoRepositoryApi implements WeatherInfoRepository {
                         );
                         // Decide how to handle: return null/undefined or throw for this specific item?
                         // Throwing ensures the Promise.all fails if any item is invalid.
-                        throw new Error(
-                            `Incomplete weather data for ${touristSpotName}`,
-                        );
+                        throw new Error(`Incomplete weather data for ${touristSpotName}`);
                     }
                     // Log unexpected OpenWeather API response status or code
                     this.logger.warn(
                         `Unexpected OpenWeather API response for ${touristSpotName} (${latitude}, ${longitude}): Status ${response.status}, Data: ${JSON.stringify(response.data)}`,
                     );
-                    throw new Error(
-                        `Unexpected API response for ${touristSpotName}`,
-                    );
+                    throw new Error(`Unexpected API response for ${touristSpotName}`);
                 } catch (error) {
                     this.logger.error(
                         `Failed fetching weather for ${touristSpotName} (${latitude}, ${longitude}): ${error instanceof Error ? error.message : String(error)}`,
@@ -96,9 +86,7 @@ export class WeatherInfoRepositoryApi implements WeatherInfoRepository {
                 error instanceof Error ? error.stack : undefined,
             );
             // Wrap in application exception
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_000,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
     }
 }

@@ -116,8 +116,7 @@ export class TestController {
     }) // 3 requests per 1000ms (1 second)
     @ApiOperation({
         summary: 'Test Rate Limiting',
-        description:
-            'Tests the rate limiting middleware. Limited to 3 requests per second.',
+        description: 'Tests the rate limiting middleware. Limited to 3 requests per second.',
     })
     @ApiHeader({
         name: 'x-api-key',

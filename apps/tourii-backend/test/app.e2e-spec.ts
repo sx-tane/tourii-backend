@@ -20,11 +20,7 @@ import { HttpExceptionFilter } from './http-exception.filter';
 })
 class TestModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(SecurityMiddleware)
-            .forRoutes('*')
-            .apply(VersionMiddleware)
-            .forRoutes('*');
+        consumer.apply(SecurityMiddleware).forRoutes('*').apply(VersionMiddleware).forRoutes('*');
     }
 }
 
