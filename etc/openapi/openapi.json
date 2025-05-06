@@ -2636,6 +2636,57 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Quest fetch request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "questType": {
+                    "description": "Quest type filter",
+                    "type": "string",
+                    "enum": [
+                      "UNKNOWN",
+                      "TRAVEL_TO_EARN",
+                      "EARN_TO_TRAVEL",
+                      "CAMPAIGN",
+                      "COMMUNITY_EVENT"
+                    ],
+                    "x-enumNames": [
+                      "UNKNOWN",
+                      "TRAVEL_TO_EARN",
+                      "EARN_TO_TRAVEL",
+                      "CAMPAIGN",
+                      "COMMUNITY_EVENT"
+                    ]
+                  },
+                  "page": {
+                    "description": "Page number for pagination",
+                    "type": "number",
+                    "default": 1
+                  },
+                  "limit": {
+                    "description": "Number of quests per page",
+                    "type": "number",
+                    "maximum": 100,
+                    "exclusiveMaximum": false,
+                    "default": 20
+                  },
+                  "isPremium": {
+                    "description": "Whether the quest is premium",
+                    "type": "boolean"
+                  },
+                  "isUnlocked": {
+                    "description": "Whether the quest is unlocked",
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Fetch quests successfully",

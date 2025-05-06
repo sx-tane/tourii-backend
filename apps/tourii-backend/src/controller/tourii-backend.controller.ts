@@ -33,7 +33,10 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
-import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
+import {
+    QuestFetchRequestSchema,
+    QuestListQueryDto,
+} from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
@@ -425,6 +428,10 @@ export class TouriiBackendController {
         name: 'accept-version',
         description: 'API version (e.g., 1.0.0)',
         required: true,
+    })
+    @ApiBody({
+        description: 'Quest fetch request',
+        schema: zodToOpenAPI(QuestFetchRequestSchema),
     })
     @ApiResponse({
         status: 200,
