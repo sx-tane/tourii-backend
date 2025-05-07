@@ -10,9 +10,7 @@ import { u8aToHex } from '@polkadot/util';
 export class EncryptionRepositoryAuth implements EncryptionRepository {
     private readonly secretKey: string;
     constructor(protected readonly configService: ConfigService) {
-        this.secretKey =
-            this.configService.get<string>('ENCRYPTION_KEY') ||
-            'defaultSecretKey';
+        this.secretKey = this.configService.get<string>('ENCRYPTION_KEY') || 'defaultSecretKey';
     }
 
     encryptString(text: string): string {

@@ -11,9 +11,7 @@ describe('TouriiOnchainController', () => {
             providers: [TouriiOnchainService],
         }).compile();
 
-        touriiOnchainController = app.get<TouriiOnchainController>(
-            TouriiOnchainController,
-        );
+        touriiOnchainController = app.get<TouriiOnchainController>(TouriiOnchainController);
     });
 
     describe('root', () => {

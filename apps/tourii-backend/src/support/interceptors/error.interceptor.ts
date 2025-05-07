@@ -31,10 +31,7 @@ export class ErrorInterceptor implements NestInterceptor {
                 }
 
                 // Handle custom status code if present
-                if (
-                    error.response?.statusCode === 410 ||
-                    error.metadata?.statusCode === 410
-                ) {
+                if (error.response?.statusCode === 410 || error.metadata?.statusCode === 410) {
                     metadata.statusCode = 410;
                 }
 

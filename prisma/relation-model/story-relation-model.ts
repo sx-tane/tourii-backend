@@ -6,6 +6,4 @@ const StoryRelationModel = Prisma.validator<Prisma.storyDefaultArgs>()({
     },
 });
 
-export type StoryRelationModel = Prisma.storyGetPayload<
-    typeof StoryRelationModel
->;
+export type StoryRelationModel = Prisma.storyGetPayload<typeof StoryRelationModel>;

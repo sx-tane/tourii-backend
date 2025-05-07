@@ -6,10 +6,7 @@ import type { StoryCreateRequestDto } from '@app/tourii-backend/controller/model
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class StoryCreateRequestBuilder {
-    static dtoToStoryChapter(
-        dto: StoryChapterCreateRequestDto,
-        insUserId: string,
-    ): StoryChapter {
+    static dtoToStoryChapter(dto: StoryChapterCreateRequestDto, insUserId: string): StoryChapter {
         return new StoryChapter({
             touristSpotId: dto.touristSpotId,
             chapterNumber: dto.chapterNumber,
@@ -24,19 +21,14 @@ export class StoryCreateRequestBuilder {
             isUnlocked: dto.isUnlocked,
             delFlag: false,
             insUserId: insUserId,
-            insDateTime:
-                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+            insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             updUserId: insUserId,
-            updDateTime:
-                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+            updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             requestId: ContextStorage.getStore()?.getRequestId()?.value,
         });
     }
 
-    static dtoToStory(
-        dto: StoryCreateRequestDto,
-        insUserId: string,
-    ): StoryEntity {
+    static dtoToStory(dto: StoryCreateRequestDto, insUserId: string): StoryEntity {
         const processedChapterList = dto.chapterList?.map((chapterDto) =>
             StoryCreateRequestBuilder.dtoToStoryChapter(chapterDto, insUserId),
         );
@@ -54,13 +46,9 @@ export class StoryCreateRequestBuilder {
                 chapterList: processedChapterList,
                 delFlag: false,
                 insUserId: insUserId,
-                insDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 updUserId: insUserId,
-                updDateTime:
-                    ContextStorage.getStore()?.getSystemDateTimeJST() ??
-                    new Date(),
+                updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
             },
             undefined,

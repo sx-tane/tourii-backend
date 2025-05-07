@@ -30,9 +30,6 @@ export class TouriiBackendAppException extends HttpException {
         error: TouriiBackendAppErrorType[keyof TouriiBackendAppErrorType],
         metadata?: ErrorMetadata,
     ) {
-        super(
-            new ApiAppError(error.code, error.message, error.type, metadata),
-            HttpStatus.OK,
-        );
+        super(new ApiAppError(error.code, error.message, error.type, metadata), HttpStatus.OK);
     }
 }

@@ -10,8 +10,7 @@ import { TouriiBackendAppException } from '../../support/exception/tourii-backen
 export class JwtRepositoryAuth implements JwtRepository {
     private readonly secretKey: string;
     constructor(protected readonly configService: ConfigService) {
-        this.secretKey =
-            this.configService.get<string>('JWT_SECRET') || 'defaultSecretKey';
+        this.secretKey = this.configService.get<string>('JWT_SECRET') || 'defaultSecretKey';
     }
 
     generateJwtToken(payload: JWTData, options?: jwt.SignOptions): string {
@@ -22,9 +21,7 @@ export class JwtRepositoryAuth implements JwtRepository {
         try {
             return jwt.verify(token, this.secretKey) as JWTData;
         } catch (_error) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_002,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_002);
         }
     }
 }

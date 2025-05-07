@@ -30,16 +30,11 @@ export class CachingService {
             // 1. Try cache
             const cachedDataString = await this.cacheManager.get<string>(key);
             if (cachedDataString) {
-                this.logger.log(
-                    `Cache hit for key: ${key}. Using cached data.`,
-                );
+                this.logger.log(`Cache hit for key: ${key}. Using cached data.`);
                 try {
                     return JSON.parse(cachedDataString) as T;
                 } catch (parseError) {
-                    this.logger.error(
-                        `Failed to parse cached data for key ${key}:`,
-                        parseError,
-                    );
+                    this.logger.error(`Failed to parse cached data for key ${key}:`, parseError);
                     // Proceed to fetch fresh data if parsing fails
                 }
             }
@@ -61,10 +56,7 @@ export class CachingService {
                         `Stored fresh data in cache with key: ${key}, TTL: ${ttlSeconds}s`,
                     );
                 } catch (storeError) {
-                    this.logger.error(
-                        `Failed to store data in cache for key ${key}:`,
-                        storeError,
-                    );
+                    this.logger.error(`Failed to store data in cache for key ${key}:`, storeError);
                     // Still return fresh data even if caching fails
                 }
             }
@@ -87,10 +79,7 @@ export class CachingService {
             await this.cacheManager.del(key);
             this.logger.log(`Cache invalidated for key: ${key}`);
         } catch (error) {
-            this.logger.error(
-                `Failed to invalidate cache for key ${key}:`,
-                error,
-            );
+            this.logger.error(`Failed to invalidate cache for key ${key}:`, error);
             // Decide if you want to re-throw or just log
         }
     }
