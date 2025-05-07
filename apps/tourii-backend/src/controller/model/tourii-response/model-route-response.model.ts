@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
 import { TouristSpotResponseSchema, WeatherInfoSchema } from './tourist-spot-response.model';
 
 export const ModelRouteResponseSchema = z.object({
@@ -15,11 +16,7 @@ export const ModelRouteResponseSchema = z.object({
         .array(TouristSpotResponseSchema)
         .describe('List of tourist spots in the model route'),
     regionWeatherInfo: WeatherInfoSchema.describe('Current weather info for the region'),
-    delFlag: z.boolean().describe('Flag to indicate if the model route is deleted'),
-    insUserId: z.string().describe('ID of user who created this record'),
-    insDateTime: z.string().describe('Timestamp of record creation'),
-    updUserId: z.string().describe('ID of user who last updated this record'),
-    updDateTime: z.string().describe('Timestamp of last record update'),
+    ...MetadataFieldsSchema,
 });
 
 export class ModelRouteResponseDto extends createZodDto(ModelRouteResponseSchema) {}

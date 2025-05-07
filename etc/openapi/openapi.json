@@ -347,7 +347,7 @@
                         "type": "boolean"
                       },
                       "delFlag": {
-                        "description": "Flag to indicate if the story chapter is deleted",
+                        "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
                       },
                       "insUserId": {
@@ -381,17 +381,12 @@
                       "chapterVideoUrl",
                       "chapterVideoMobileUrl",
                       "chapterPdfUrl",
-                      "isUnlocked",
-                      "delFlag",
-                      "insUserId",
-                      "insDateTime",
-                      "updUserId",
-                      "updDateTime"
+                      "isUnlocked"
                     ]
                   }
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the story is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -420,12 +415,7 @@
                 "location",
                 "order",
                 "isPrologue",
-                "isSelected",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "isSelected"
               ]
             },
             "content": {
@@ -663,7 +653,7 @@
                   "type": "boolean"
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the story chapter is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -697,12 +687,7 @@
                 "chapterVideoUrl",
                 "chapterVideoMobileUrl",
                 "chapterPdfUrl",
-                "isUnlocked",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "isUnlocked"
               ]
             },
             "content": {
@@ -1037,7 +1022,7 @@
                         "type": "boolean"
                       },
                       "delFlag": {
-                        "description": "Flag to indicate if the story chapter is deleted",
+                        "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
                       },
                       "insUserId": {
@@ -1071,17 +1056,12 @@
                       "chapterVideoUrl",
                       "chapterVideoMobileUrl",
                       "chapterPdfUrl",
-                      "isUnlocked",
-                      "delFlag",
-                      "insUserId",
-                      "insDateTime",
-                      "updUserId",
-                      "updDateTime"
+                      "isUnlocked"
                     ]
                   }
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the story is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -1110,12 +1090,7 @@
                 "location",
                 "order",
                 "isPrologue",
-                "isSelected",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "isSelected"
               ]
             },
             "content": {
@@ -1359,7 +1334,7 @@
                   "type": "boolean"
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the story chapter is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -1393,12 +1368,7 @@
                 "chapterVideoUrl",
                 "chapterVideoMobileUrl",
                 "chapterPdfUrl",
-                "isUnlocked",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "isUnlocked"
               ]
             },
             "content": {
@@ -1598,7 +1568,7 @@
                           "type": "boolean"
                         },
                         "delFlag": {
-                          "description": "Flag to indicate if the story chapter is deleted",
+                          "description": "Flag to indicate if the record is deleted",
                           "type": "boolean"
                         },
                         "insUserId": {
@@ -1632,17 +1602,12 @@
                         "chapterVideoUrl",
                         "chapterVideoMobileUrl",
                         "chapterPdfUrl",
-                        "isUnlocked",
-                        "delFlag",
-                        "insUserId",
-                        "insDateTime",
-                        "updUserId",
-                        "updDateTime"
+                        "isUnlocked"
                       ]
                     }
                   },
                   "delFlag": {
-                    "description": "Flag to indicate if the story is deleted",
+                    "description": "Flag to indicate if the record is deleted",
                     "type": "boolean"
                   },
                   "insUserId": {
@@ -1671,12 +1636,7 @@
                   "location",
                   "order",
                   "isPrologue",
-                  "isSelected",
-                  "delFlag",
-                  "insUserId",
-                  "insDateTime",
-                  "updUserId",
-                  "updDateTime"
+                  "isSelected"
                 ]
               }
             },
@@ -1846,7 +1806,7 @@
                       "type": "boolean"
                     },
                     "delFlag": {
-                      "description": "Flag to indicate if the story chapter is deleted",
+                      "description": "Flag to indicate if the record is deleted",
                       "type": "boolean"
                     },
                     "insUserId": {
@@ -1880,12 +1840,7 @@
                     "chapterVideoUrl",
                     "chapterVideoMobileUrl",
                     "chapterPdfUrl",
-                    "isUnlocked",
-                    "delFlag",
-                    "insUserId",
-                    "insDateTime",
-                    "updUserId",
-                    "updDateTime"
+                    "isUnlocked"
                   ]
                 }
               }
@@ -2204,7 +2159,7 @@
                         ]
                       },
                       "delFlag": {
-                        "description": "Flag to indicate if the tourist spot is deleted",
+                        "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
                       },
                       "insUserId": {
@@ -2233,12 +2188,7 @@
                       "address",
                       "touristSpotLatitude",
                       "touristSpotLongitude",
-                      "touristSpotHashtag",
-                      "delFlag",
-                      "insUserId",
-                      "insDateTime",
-                      "updUserId",
-                      "updDateTime"
+                      "touristSpotHashtag"
                     ]
                   }
                 },
@@ -2266,7 +2216,7 @@
                   ]
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the model route is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -2296,12 +2246,7 @@
                 "regionLongitude",
                 "regionBackgroundMedia",
                 "touristSpotList",
-                "regionWeatherInfo",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "regionWeatherInfo"
               ]
             },
             "content": {
@@ -2557,7 +2502,7 @@
                   ]
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the tourist spot is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -2586,12 +2531,7 @@
                 "address",
                 "touristSpotLatitude",
                 "touristSpotLongitude",
-                "touristSpotHashtag",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "touristSpotHashtag"
               ]
             },
             "content": {
@@ -3903,7 +3843,7 @@
                   "type": "boolean"
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the story chapter is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -3937,17 +3877,12 @@
                 "chapterVideoUrl",
                 "chapterVideoMobileUrl",
                 "chapterPdfUrl",
-                "isUnlocked",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "isUnlocked"
               ]
             }
           },
           "delFlag": {
-            "description": "Flag to indicate if the story is deleted",
+            "description": "Flag to indicate if the record is deleted",
             "type": "boolean"
           },
           "insUserId": {
@@ -3976,12 +3911,7 @@
           "location",
           "order",
           "isPrologue",
-          "isSelected",
-          "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime"
+          "isSelected"
         ]
       },
       "StoryChapterResponseDto": {
@@ -4047,7 +3977,7 @@
             "type": "boolean"
           },
           "delFlag": {
-            "description": "Flag to indicate if the story chapter is deleted",
+            "description": "Flag to indicate if the record is deleted",
             "type": "boolean"
           },
           "insUserId": {
@@ -4081,12 +4011,7 @@
           "chapterVideoUrl",
           "chapterVideoMobileUrl",
           "chapterPdfUrl",
-          "isUnlocked",
-          "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime"
+          "isUnlocked"
         ]
       },
       "ModelRouteResponseDto": {
@@ -4221,7 +4146,7 @@
                   ]
                 },
                 "delFlag": {
-                  "description": "Flag to indicate if the tourist spot is deleted",
+                  "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
                 },
                 "insUserId": {
@@ -4250,12 +4175,7 @@
                 "address",
                 "touristSpotLatitude",
                 "touristSpotLongitude",
-                "touristSpotHashtag",
-                "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime"
+                "touristSpotHashtag"
               ]
             }
           },
@@ -4283,7 +4203,7 @@
             ]
           },
           "delFlag": {
-            "description": "Flag to indicate if the model route is deleted",
+            "description": "Flag to indicate if the record is deleted",
             "type": "boolean"
           },
           "insUserId": {
@@ -4313,12 +4233,7 @@
           "regionLongitude",
           "regionBackgroundMedia",
           "touristSpotList",
-          "regionWeatherInfo",
-          "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime"
+          "regionWeatherInfo"
         ]
       },
       "TouristSpotResponseDto": {
@@ -4412,7 +4327,7 @@
             ]
           },
           "delFlag": {
-            "description": "Flag to indicate if the tourist spot is deleted",
+            "description": "Flag to indicate if the record is deleted",
             "type": "boolean"
           },
           "insUserId": {
@@ -4441,12 +4356,7 @@
           "address",
           "touristSpotLatitude",
           "touristSpotLongitude",
-          "touristSpotHashtag",
-          "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime"
+          "touristSpotHashtag"
         ]
       },
       "UserEntity": {

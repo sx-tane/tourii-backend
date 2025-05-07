@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
 
 export const StoryChapterResponseSchema = z.object({
     storyId: z.string().describe('Unique identifier for the story'),
@@ -20,11 +21,7 @@ export const StoryChapterResponseSchema = z.object({
     isUnlocked: z
         .boolean()
         .describe('Whether the chapter is available to users without prerequisites'),
-    delFlag: z.boolean().describe('Flag to indicate if the story chapter is deleted'),
-    insUserId: z.string().describe('ID of user who created this record'),
-    insDateTime: z.string().describe('Timestamp of record creation'),
-    updUserId: z.string().describe('ID of user who last updated this record'),
-    updDateTime: z.string().describe('Timestamp of last record update'),
+    ...MetadataFieldsSchema,
 });
 
 export class StoryChapterResponseDto extends createZodDto(StoryChapterResponseSchema) {}
