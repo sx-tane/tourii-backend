@@ -2,23 +2,11 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { StoryChapterCreateRequestSchema } from './chapter-story-create-request.model';
 export const StoryCreateRequestSchema = z.object({
-    sagaName: z
-        .string()
-        .describe("Name of the story saga (e.g., 'Prologue', 'Bungo Ono')"),
-    sagaDesc: z
-        .string()
-        .describe("Detailed description of the saga's narrative"),
-    backgroundMedia: z
-        .string()
-        .describe("URL to the saga's cover media (image or video)"),
-    mapImage: z
-        .string()
-        .optional()
-        .describe('URL to the map image for the saga'),
-    location: z
-        .string()
-        .optional()
-        .describe("Real-world location of the saga (e.g., 'Tokyo')"),
+    sagaName: z.string().describe("Name of the story saga (e.g., 'Prologue', 'Bungo Ono')"),
+    sagaDesc: z.string().describe("Detailed description of the saga's narrative"),
+    backgroundMedia: z.string().describe("URL to the saga's cover media (image or video)"),
+    mapImage: z.string().optional().describe('URL to the map image for the saga'),
+    location: z.string().optional().describe("Real-world location of the saga (e.g., 'Tokyo')"),
     order: z.number().describe('Display order in the saga list'),
     isPrologue: z.boolean().describe('Whether the saga is a prologue'),
     isSelected: z.boolean().describe('Whether the saga is selected by default'),
@@ -29,32 +17,16 @@ export const StoryCreateRequestSchema = z.object({
 });
 
 export const StoryCreateOnlyRequestSchema = z.object({
-    sagaName: z
-        .string()
-        .describe("Name of the story saga (e.g., 'Prologue', 'Bungo Ono')"),
-    sagaDesc: z
-        .string()
-        .describe("Detailed description of the saga's narrative"),
-    backgroundMedia: z
-        .string()
-        .describe("URL to the saga's cover media (image or video)"),
-    mapImage: z
-        .string()
-        .optional()
-        .describe('URL to the map image for the saga'),
-    location: z
-        .string()
-        .optional()
-        .describe("Real-world location of the saga (e.g., 'Tokyo')"),
+    sagaName: z.string().describe("Name of the story saga (e.g., 'Prologue', 'Bungo Ono')"),
+    sagaDesc: z.string().describe("Detailed description of the saga's narrative"),
+    backgroundMedia: z.string().describe("URL to the saga's cover media (image or video)"),
+    mapImage: z.string().optional().describe('URL to the map image for the saga'),
+    location: z.string().optional().describe("Real-world location of the saga (e.g., 'Tokyo')"),
     order: z.number().describe('Display order in the saga list'),
     isPrologue: z.boolean().describe('Whether the saga is a prologue'),
     isSelected: z.boolean().describe('Whether the saga is selected by default'),
 });
 
-export class StoryCreateRequestDto extends createZodDto(
-    StoryCreateRequestSchema,
-) {}
+export class StoryCreateRequestDto extends createZodDto(StoryCreateRequestSchema) {}
 
-export class StoryCreateOnlyRequestDto extends createZodDto(
-    StoryCreateOnlyRequestSchema,
-) {}
+export class StoryCreateOnlyRequestDto extends createZodDto(StoryCreateOnlyRequestSchema) {}

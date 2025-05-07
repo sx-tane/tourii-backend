@@ -1,6 +1,5 @@
 module.exports = {
-    $schema:
-        'https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json',
+    $schema: 'https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json',
     version: '0.2',
     cache: {
         useCache: true,

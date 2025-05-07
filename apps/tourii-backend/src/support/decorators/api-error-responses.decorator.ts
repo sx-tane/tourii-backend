@@ -49,9 +49,7 @@ export const ApiDefaultBadRequestResponse = (
         }),
     );
 
-export const ApiInvalidVersionResponse = (
-    description = 'Bad Request - Invalid version format',
-) =>
+export const ApiInvalidVersionResponse = (description = 'Bad Request - Invalid version format') =>
     applyDecorators(
         ApiResponse({
             status: HttpStatus.BAD_REQUEST, // 400
@@ -60,9 +58,7 @@ export const ApiInvalidVersionResponse = (
         }),
     );
 
-export const ApiUserExistsResponse = (
-    description = 'Bad Request - User already exists',
-) =>
+export const ApiUserExistsResponse = (description = 'Bad Request - User already exists') =>
     applyDecorators(
         ApiResponse({
             status: HttpStatus.BAD_REQUEST, // 400

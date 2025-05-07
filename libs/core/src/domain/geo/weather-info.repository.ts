@@ -7,7 +7,5 @@ export interface WeatherInfoRepository {
      * @param geoInfoList - GeoInfo list
      * @returns WeatherInfo list
      */
-    getCurrentWeatherByGeoInfoList(
-        geoInfoList: GeoInfo[],
-    ): Promise<WeatherInfo[]>;
+    getCurrentWeatherByGeoInfoList(geoInfoList: GeoInfo[]): Promise<WeatherInfo[]>;
 }
