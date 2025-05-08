@@ -1,6 +1,13 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBody,
+    ApiExtraModels,
+    ApiHeader,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
@@ -10,7 +17,6 @@ import {
     ApiUserExistsResponse,
     ApiUserNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
-import { CreatedApiResponse } from '../support/decorators/created.api-responses.decorator';
 import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
@@ -53,6 +59,19 @@ import {
 } from './model/tourii-response/tourist-spot-response.model';
 
 @Controller()
+@ApiExtraModels(
+    StoryCreateRequestDto,
+    StoryChapterCreateRequestDto,
+    ModelRouteCreateRequestDto,
+    TouristSpotCreateRequestDto,
+    StoryUpdateRequestDto,
+    StoryChapterUpdateRequestDto,
+    StoryResponseDto,
+    StoryChapterResponseDto,
+    ModelRouteResponseDto,
+    TouristSpotResponseDto,
+    UserEntity,
+)
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
 
@@ -105,9 +124,15 @@ export class TouriiBackendController {
     })
     @ApiBody({
         description: 'Story Saga creation request',
+        type: StoryCreateRequestDto,
         schema: zodToOpenAPI(StoryCreateRequestSchema),
     })
-    @CreatedApiResponse(StoryResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully created story saga',
+        type: StoryResponseDto,
+        schema: zodToOpenAPI(StoryResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
@@ -136,9 +161,15 @@ export class TouriiBackendController {
     })
     @ApiBody({
         description: 'Story Chapter creation request',
+        type: StoryChapterCreateRequestDto,
         schema: zodToOpenAPI(StoryChapterCreateRequestSchema),
     })
-    @CreatedApiResponse(StoryChapterResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully created story chapter',
+        type: StoryChapterResponseDto,
+        schema: zodToOpenAPI(StoryChapterResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
@@ -171,7 +202,12 @@ export class TouriiBackendController {
         description: 'Story Saga update request',
         schema: zodToOpenAPI(StoryUpdateRequestSchema),
     })
-    @CreatedApiResponse(StoryResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully updated story saga',
+        type: StoryResponseDto,
+        schema: zodToOpenAPI(StoryResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
@@ -203,7 +239,12 @@ export class TouriiBackendController {
         description: 'Story Chapter update request',
         schema: zodToOpenAPI(StoryChapterUpdateRequestSchema),
     })
-    @CreatedApiResponse(StoryChapterResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully updated story chapter',
+        type: StoryChapterResponseDto,
+        schema: zodToOpenAPI(StoryChapterResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
@@ -234,7 +275,12 @@ export class TouriiBackendController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Successfully retrieved all sagas',
-        schema: zodToOpenAPI(StoryResponseSchema),
+        type: StoryResponseDto,
+        isArray: true,
+        schema: {
+            type: 'array',
+            items: zodToOpenAPI(StoryResponseSchema),
+        },
     })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
@@ -294,7 +340,12 @@ export class TouriiBackendController {
         description: 'Model Route creation request',
         schema: zodToOpenAPI(ModelRouteCreateRequestSchema),
     })
-    @CreatedApiResponse(ModelRouteResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully created model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
@@ -325,7 +376,12 @@ export class TouriiBackendController {
         description: 'Tourist Spot creation request',
         schema: zodToOpenAPI(TouristSpotCreateRequestSchema),
     })
-    @CreatedApiResponse(TouristSpotResponseSchema)
+    @ApiResponse({
+        status: 201,
+        description: 'Successfully created tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()

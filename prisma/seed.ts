@@ -185,8 +185,7 @@ async function main() {
             item_type: OnchainItemType.LOG_NFT,
             blockchain_type: BlockchainType.VARA,
             nft_name: 'Explorer Log Entry',
-            nft_description:
-                'Commemorative Log NFT for completing the Prologue.',
+            nft_description: 'Commemorative Log NFT for completing the Prologue.',
             image_url: 'https://cdn.tourii.app/images/log_nft_prologue.png',
             contract_address: '0xContractAddressLogNFT',
             metadata_url: 'https://metadata.tourii.app/log/001',
@@ -267,8 +266,7 @@ async function main() {
         },
         create: {
             user_id: userAlice.user_id,
-            digital_passport_address:
-                userAlice.passport_wallet_address ?? '0xDefaultPassportAlice',
+            digital_passport_address: userAlice.passport_wallet_address ?? '0xDefaultPassportAlice',
             log_nft_address: '0xLogNFTAddressAlice',
             user_digital_passport_type: PassportType.BONJIN,
             level: LevelType.BONJIN,
@@ -331,8 +329,7 @@ async function main() {
         data: {
             user_id: userAlice.user_id,
             item_type: OnchainItemType.DIGITAL_PASSPORT,
-            item_txn_hash:
-                userAlice.passport_wallet_address ?? '0xDefaultPassportAlice',
+            item_txn_hash: userAlice.passport_wallet_address ?? '0xDefaultPassportAlice',
             blockchain_type: BlockchainType.VARA,
             onchain_item_id: catalogItemPassport.onchain_item_id,
             status: OnchainItemStatus.ACTIVE,
@@ -462,8 +459,7 @@ async function main() {
         data: {
             model_route_id: routeBungoMain.model_route_id,
             tourist_spot_name: 'Harajiri Falls',
-            tourist_spot_desc:
-                'Known as the "Niagara of the East", a majestic waterfall.',
+            tourist_spot_desc: 'Known as the "Niagara of the East", a majestic waterfall.',
             latitude: 32.9795,
             longitude: 131.4172,
             address: 'Harajiri, Ogatamachi, Bungoono, Oita 879-6631, Japan',
@@ -504,11 +500,9 @@ async function main() {
             chapter_desc: 'Learn how to navigate and log your adventures.',
             chapter_image: 'https://cdn.tourii.app/images/prologue_ch1.jpg',
             character_name_list: ['Guide Bot'],
-            real_world_image:
-                'https://cdn.tourii.app/images/prologue_real1.jpg', // Maybe generic app screen
+            real_world_image: 'https://cdn.tourii.app/images/prologue_real1.jpg', // Maybe generic app screen
             chapter_video_url: 'https://cdn.tourii.app/videos/prologue_ch1.mp4',
-            chapter_video_mobile_url:
-                'https://cdn.tourii.app/videos/prologue_ch1_mobile.mp4',
+            chapter_video_mobile_url: 'https://cdn.tourii.app/videos/prologue_ch1_mobile.mp4',
             chapter_pdf_url: 'https://cdn.tourii.app/pdfs/prologue_ch1.pdf',
             is_unlocked: true,
             ins_user_id: 'system-seed',
@@ -520,14 +514,12 @@ async function main() {
             tourist_spot_id: spotHarajiri.tourist_spot_id,
             chapter_number: '1-1',
             chapter_title: 'The Roar of Harajiri',
-            chapter_desc:
-                'Witness the power of the falls and learn its legend.',
+            chapter_desc: 'Witness the power of the falls and learn its legend.',
             chapter_image: 'https://cdn.tourii.app/images/bungo_ch1.jpg',
             character_name_list: ['Local Elder', 'Kagura'],
             real_world_image: 'https://cdn.tourii.app/images/harajiri_main.jpg',
             chapter_video_url: 'https://cdn.tourii.app/videos/bungo_ch1.mp4',
-            chapter_video_mobile_url:
-                'https://cdn.tourii.app/videos/bungo_ch1_mobile.mp4',
+            chapter_video_mobile_url: 'https://cdn.tourii.app/videos/bungo_ch1_mobile.mp4',
             chapter_pdf_url: 'https://cdn.tourii.app/pdfs/bungo_ch1.pdf',
             is_unlocked: true,
             ins_user_id: 'system-seed',
@@ -539,8 +531,7 @@ async function main() {
             quest_name: 'Capture the Falls',
             quest_desc: 'Take a beautiful photo of Harajiri Falls.',
             quest_type: QuestType.TRAVEL_TO_EARN,
-            quest_image:
-                'https://cdn.tourii.app/images/quest_harajiri_photo.jpg',
+            quest_image: 'https://cdn.tourii.app/images/quest_harajiri_photo.jpg',
             is_unlocked: true,
             is_premium: false,
             total_magatama_point_awarded: 25,
@@ -550,8 +541,7 @@ async function main() {
                     // Example JSON structure
                     item_name: 'Featured Photo',
                     item_desc: 'Chance to be featured on Tourii social media',
-                    item_image:
-                        'https://cdn.tourii.app/images/reward_social.png',
+                    item_image: 'https://cdn.tourii.app/images/reward_social.png',
                 },
             ],
             ins_user_id: 'system-seed',
@@ -675,8 +665,7 @@ async function main() {
             },
             completed_at: new Date('2024-05-02T15:30:00Z'),
             claimed_at: new Date('2024-05-02T15:31:00Z'),
-            total_magatama_point_awarded:
-                questHarajiriPhoto.total_magatama_point_awarded,
+            total_magatama_point_awarded: questHarajiriPhoto.total_magatama_point_awarded,
             ins_user_id: 'system-seed',
         },
     });

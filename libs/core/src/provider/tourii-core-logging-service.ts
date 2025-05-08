@@ -85,22 +85,15 @@ export class TouriiCoreLoggingService implements LoggerService {
 
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     log(message: string, ...optionalParams: any) {
-        if (
-            optionalParams.length === 1 &&
-            optionalParams[0] instanceof RequestId
-        ) {
+        if (optionalParams.length === 1 && optionalParams[0] instanceof RequestId) {
             this.requestLog(message, optionalParams[0]);
         } else {
             const additionalInfo =
-                optionalParams.length > 0
-                    ? JSON.stringify(optionalParams[0])
-                    : undefined;
+                optionalParams.length > 0 ? JSON.stringify(optionalParams[0]) : undefined;
             this.logger.log({
                 level: 'info',
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
-                message: additionalInfo
-                    ? `${message}:${additionalInfo}`
-                    : `${message}`,
+                message: additionalInfo ? `${message}:${additionalInfo}` : `${message}`,
             });
         }
     }

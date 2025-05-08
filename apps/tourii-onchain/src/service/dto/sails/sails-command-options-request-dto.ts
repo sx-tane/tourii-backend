@@ -1,10 +1,5 @@
 import { HexString } from '@gear-js/api';
-import {
-    AccountSigner,
-    ContractData,
-    GasLimitType,
-    SailsCallbacks,
-} from 'sailscalls';
+import { AccountSigner, ContractData, GasLimitType, SailsCallbacks } from 'sailscalls';
 
 export interface SailsCommandOptionsRequestDto {
     /**

@@ -1,14 +1,6 @@
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import {
-    Controller,
-    Get,
-    HttpStatus,
-    Logger,
-    Post,
-    Req,
-    Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { TouriiOnchainService } from '../service/tourii-onchain.service';
@@ -51,11 +43,7 @@ export class TouriiOnchainController {
             res.json(await this.touriiOnchainService.userKeyringAddress(token));
         } catch (e) {
             Logger.log(`Error: ${JSON.stringify(e)}`);
-            res.status(500).send(
-                new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_001,
-                ),
-            );
+            res.status(500).send(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001));
         }
     }
 
@@ -76,21 +64,14 @@ export class TouriiOnchainController {
         const result = userDataSchema.safeParse(data);
 
         if (!result.success) {
-            res.status(400).send(
-                new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_005,
-                ),
-            );
+            res.status(400).send(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005));
             return;
         }
 
         const { username, password } = result.data;
 
         try {
-            const token = await this.touriiOnchainService.loginUser(
-                username,
-                password,
-            );
+            const token = await this.touriiOnchainService.loginUser(username, password);
             res.cookie('token', token, {
                 httpOnly: true,
                 maxAge: 3600000,
@@ -98,11 +79,7 @@ export class TouriiOnchainController {
             res.send('User logged in successfully');
         } catch (e) {
             Logger.log(`Error: ${JSON.stringify(e)}`);
-            res.status(401).send(
-                new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_001,
-                ),
-            );
+            res.status(401).send(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001));
         }
     }
 
@@ -123,21 +100,14 @@ export class TouriiOnchainController {
         const result = userDataSchema.safeParse(data);
 
         if (!result.success) {
-            res.status(400).send(
-                new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_005,
-                ),
-            );
+            res.status(400).send(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005));
             return;
         }
 
         const { username, password } = result.data;
 
         try {
-            const token = await this.touriiOnchainService.registerUser(
-                username,
-                password,
-            );
+            const token = await this.touriiOnchainService.registerUser(username, password);
             res.cookie('token', token, {
                 httpOnly: true,
                 maxAge: 3600000,
@@ -145,11 +115,7 @@ export class TouriiOnchainController {
             res.send('User registered');
         } catch (e) {
             Logger.log(`Error: ${JSON.stringify(e)}`);
-            res.status(500).send(
-                new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_001,
-                ),
-            );
+            res.status(500).send(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001));
         }
     }
 

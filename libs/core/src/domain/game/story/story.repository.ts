@@ -14,10 +14,7 @@ export interface StoryRepository {
      * @param chapter
      * @returns StoryChapterEntity
      */
-    createStoryChapter(
-        storyId: string,
-        chapter: StoryChapter,
-    ): Promise<StoryChapter>;
+    createStoryChapter(storyId: string, chapter: StoryChapter): Promise<StoryChapter>;
 
     /**
      * Update tourist spot id list in story chapter

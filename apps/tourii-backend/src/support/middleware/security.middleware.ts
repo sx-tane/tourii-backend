@@ -24,19 +24,14 @@ export class SecurityMiddleware implements NestMiddleware {
         try {
             // 1. API Key Validation
             const apiKey = req.header('x-api-key');
-            const validApiKeys =
-                this.configService.get<string>('API_KEYS')?.split(',') || [];
+            const validApiKeys = this.configService.get<string>('API_KEYS')?.split(',') || [];
 
             if (!apiKey) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_010,
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_010);
             }
 
             if (!validApiKeys.includes(apiKey)) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_011,
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_011);
             }
 
             // Store API key validation status
@@ -44,27 +39,18 @@ export class SecurityMiddleware implements NestMiddleware {
 
             // 2. Version Validation
             const version = req.header('accept-version');
-            const currentVersion = this.configService.get<string>(
-                'API_VERSION',
-                '1.0.0',
-            );
+            const currentVersion = this.configService.get<string>('API_VERSION', '1.0.0');
 
             if (!version) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_020,
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_020);
             }
 
             if (!semver.valid(version)) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_021,
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_021);
             }
 
             if (semver.lt(version, currentVersion)) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.E_TB_022,
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_022);
             }
 
             // Step 1: Apply Helmet security headers first
@@ -137,9 +123,7 @@ export class SecurityMiddleware implements NestMiddleware {
                         // Convert wildcard domain to regex pattern
                         // Example: https://*.tourii.xyz becomes https://(.+\.)?tourii\.xyz
                         const pattern = allowedOrigin.replace('*.', '(.+\\.)?');
-                        const regex = new RegExp(
-                            `^${pattern.replace(/\./g, '\\.')}$`,
-                        );
+                        const regex = new RegExp(`^${pattern.replace(/\./g, '\\.')}$`);
 
                         if (regex.test(origin)) {
                             callback(null, origin); // Origin allowed - send CORS headers
@@ -149,14 +133,7 @@ export class SecurityMiddleware implements NestMiddleware {
                         }
                     },
                     // Allowed HTTP Methods
-                    methods: [
-                        'GET',
-                        'POST',
-                        'PUT',
-                        'DELETE',
-                        'PATCH',
-                        'OPTIONS',
-                    ],
+                    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
                     // Allowed Request Headers
                     allowedHeaders: [
                         'Content-Type',
