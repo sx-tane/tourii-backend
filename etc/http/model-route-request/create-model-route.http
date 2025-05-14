@@ -5,7 +5,7 @@ accept-version: 1.0.0
 
 
 {
-    "storyId": "STO202505-328580-032004-4aa922-CAAA",
+    "storyId": "STO202505-682ca0-131927-cc481b-BAAA",
     "routeName": "The Awakening Route",
     "region": "BUNGO ONO",
     "recommendation": [
@@ -15,7 +15,7 @@ accept-version: 1.0.0
     ],
     "touristSpotList": [
         {
-            "storyChapterId": "SCT202505-9ca0f0-032004-93aa8f-BAAA",
+            "storyChapterId": "SCT202505-06dd86-131927-ec6094-BAAA",
             "touristSpotName": "Harajiri Falls",
             "touristSpotDesc": "Harajiri Falls is known as the \"Niagara of the East\", is a 120m wide and 20m high waterfall that forms a stunning arc over the Ogata River in a peaceful agricultural area. It has played a significant role in the region's history, culture, and industry, with its influence evident in local structures like shrines, waterways, and stone bridges. During spring, the surroundings are adorned with blooming tulip.\r\r The Komatsu Fire Festival (小松明火祭り) is an annual event on August 14th, commemorating a 300-year-old peasant uprising in Ogata Township due to harsh tax collections despite crop failures. These torches, approximately 1.5 meters long, are attached to bamboo sticks or oil-filled cans with wicks as a tribute to the historical event and to pray for a good harvest and protection against pests. It is said to have started in 1759.",
             "bestVisitTime": "9:00 am",
