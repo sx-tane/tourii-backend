@@ -457,4 +457,68 @@ export class TouriiBackendController {
         // return await this.touriiBackendService.getUserByUserId(userId);
         return undefined;
     }
+
+    // --- Routes Endpoints ---
+    @Get('/routes')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get All Model Routes',
+        description: 'Retrieve a list of all available model routes with their details.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved all model routes',
+        type: [ModelRouteResponseDto], // Indicates an array of ModelRouteResponseDto
+        schema: {
+            type: 'array',
+            items: zodToOpenAPI(ModelRouteResponseSchema),
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getRoutes(): Promise<ModelRouteResponseDto[]> {
+        return this.touriiBackendService.getModelRoutes();
+    }
+
+    @Get('/routes/:id')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Model Route by ID',
+        description:
+            'Retrieve a specific model route by its ID, including tourist spots and weather data.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved the model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    // @ApiUserNotFoundResponse('Model route not found') // Removed as it's user-specific and covered by generic 404
+    async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
+        return this.touriiBackendService.getModelRouteById(id);
+    }
 }
