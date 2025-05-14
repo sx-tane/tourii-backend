@@ -63,7 +63,7 @@ This document outlines the development guidelines and architecture for the Touri
 | Framework     | NestJS                                    |
 | Database      | PostgreSQL + Prisma ORM                   |
 | Caching       | Redis                                     |
-| Blockchain    | Ethers.js / viem + Hardhat + OpenZeppelin |
+| Blockchain    | Smart Contract Dev (`contracts/` dir): Hardhat, Ethers.js/viem, OpenZeppelin <br> NestJS App Integration: Gear.js, Sails.js, Ethers.js/viem |
 | Storage       | IPFS (NFT metadata)                       |
 | Auth          | JWT, OAuth2, Signature login (EVM)        |
 | Testing       | Jest                                      |
@@ -83,10 +83,12 @@ tourii-backend/
 │   ├── schema.prisma         # DB schema
 │   ├── migrations/           # Migrations
 │   └── docs/                 # Schema docs
-├── contracts/
-│   ├── digital-passport/     # NFT logic
-│   ├── tourii-log/           # Action logging
-│   └── perks/                # Reward system
+├── contracts/                # Hardhat project for Solidity smart contracts
+│   ├── contracts/            # Actual .sol contract source files (e.g., digital-passport, tourii-log, perks)
+│   ├── ignition/             # Hardhat Ignition deployment scripts
+│   ├── test/                 # Contract tests
+│   ├── hardhat.config.ts     # Hardhat configuration
+│   └── package.json          # Dependencies for contract development (e.g., OpenZeppelin)
 ```
 
 ---
@@ -169,4 +171,4 @@ tourii-backend/
 
 ---
 
-_Last Updated: 12/04/2025_
+_Last Updated: May 8, 2025_

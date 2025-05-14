@@ -231,5 +231,4 @@ Security: `security@tourii.com`
 
 License: [MIT](LICENSE)
 
-_Last updated: 2025-04-13_
-
+_Last Updated: May 8, 2025_
