@@ -4,9 +4,9 @@ import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
-import { GeoInfo, isGeoInfoListUndefined } from '@app/core/domain/geo/geo-info';
+import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
-import { WeatherInfo, isWeatherResultUndefined } from '@app/core/domain/geo/weather-info';
+import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -116,11 +116,14 @@ export class TouriiBackendService {
      */
     async createModelRoute(modelRoute: ModelRouteCreateRequestDto): Promise<ModelRouteResponseDto> {
         // 1. Fetch dependencies
-        const storyEntity = await this.fetchStoryEntityById(modelRoute.storyId);
-        const touristSpotGeoInfoList = await this.fetchGeoInfosByName(
-            modelRoute.touristSpotList.map((spot) => spot.touristSpotName),
+        const storyEntity = await this.storyRepository.getStoryById(modelRoute.storyId);
+        const touristSpotGeoInfoList =
+            await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
+                modelRoute.touristSpotList.map((spot) => spot.touristSpotName),
+            );
+        const regionInfo = await this.geoInfoRepository.getRegionInfoByRegionName(
+            modelRoute.region,
         );
-        const regionInfo = await this.fetchRegionInfoByName(modelRoute.region);
 
         // 2. Create model route entity and save to database
         const modelRouteEntity: ModelRouteEntity = await this.modelRouteRepository.createModelRoute(
@@ -135,8 +138,8 @@ export class TouriiBackendService {
 
         // 3. Fetch weather data
         const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
-            this.fetchWeatherInfosByGeo(touristSpotGeoInfoList),
-            this.fetchWeatherInfosByGeo([regionInfo]), // Fetch weather for region
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(touristSpotGeoInfoList),
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]), // Fetch weather for region
         ]);
         const currentRegionWeatherInfo = currentRegionWeather[0]; // Expecting single result
 
@@ -170,22 +173,18 @@ export class TouriiBackendService {
         // 1. Fetch parent model route (to get storyId and validate existence)
         const modelRouteEntity: ModelRouteEntity =
             await this.modelRouteRepository.getModelRouteByModelRouteId(modelRouteId);
-        if (!modelRouteEntity) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_023, // Or a more specific "Model Route Not Found" error
-            );
-        }
+
+        // It's still good to check for essential data integrity if the entity is found.
         if (!modelRouteEntity.storyId) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_023, // Or a more specific error
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
 
         // 2. Fetch necessary data using helpers
-        const storyEntity = await this.fetchStoryEntityById(modelRouteEntity.storyId);
-        const [touristSpotGeoInfo] = await this.fetchGeoInfosByName([
-            touristSpotDto.touristSpotName,
-        ]); // Expecting single result
+        const storyEntity = await this.storyRepository.getStoryById(modelRouteEntity.storyId);
+        const [touristSpotGeoInfo] =
+            await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+                touristSpotDto.touristSpotName,
+            ]); // Expecting single result
 
         // 3. Create tourist spot entity instance
         //    Note: dtoToTouristSpot expects an array and returns an array, we take the first element.
@@ -204,9 +203,10 @@ export class TouriiBackendService {
             );
 
         // 5. Fetch weather data for the new spot
-        const [currentTouristSpotWeatherInfo] = await this.fetchWeatherInfosByGeo([
-            touristSpotGeoInfo, // Use the geo info fetched earlier
-        ]);
+        const [currentTouristSpotWeatherInfo] =
+            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([
+                touristSpotGeoInfo, // Use the geo info fetched earlier
+            ]);
 
         // 6. Build response DTO
         //    Note: touristSpotToDto might expect an array of weather info
@@ -228,6 +228,227 @@ export class TouriiBackendService {
         return touristSpotResponseDto;
     }
 
+    /**
+     * Get all model routes
+     * @returns Model route response DTO list
+     */
+    async getModelRoutes(): Promise<ModelRouteResponseDto[]> {
+        const modelRouteEntities = await this.modelRouteRepository.getModelRoutes();
+        if (!modelRouteEntities || modelRouteEntities.length === 0) {
+            return [];
+        }
+
+        // 1. Collect all unique geo identifiers (spot names and region names)
+        const allSpotNames = new Set<string>();
+        const allRegionNames = new Set<string>();
+
+        for (const entity of modelRouteEntities) {
+            if (entity.region) {
+                allRegionNames.add(entity.region);
+            }
+            entity.touristSpotList?.forEach((spot) => {
+                if (spot.touristSpotName) {
+                    allSpotNames.add(spot.touristSpotName);
+                }
+            });
+        }
+
+        const uniqueSpotNames = Array.from(allSpotNames);
+        const uniqueRegionNames = Array.from(allRegionNames);
+
+        // 2. Batch fetch GeoInfo
+        let spotGeoInfos: GeoInfo[] = [];
+        let regionGeoInfos: GeoInfo[] = [];
+
+        try {
+            if (uniqueSpotNames.length > 0) {
+                spotGeoInfos =
+                    await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
+                        uniqueSpotNames,
+                    );
+                // Ensure all requested spotGeoInfos were found
+                if (spotGeoInfos.length !== uniqueSpotNames.length) {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                }
+            }
+            if (uniqueRegionNames.length > 0) {
+                regionGeoInfos = await Promise.all(
+                    uniqueRegionNames.map(async (name) => {
+                        const regionGeo =
+                            await this.geoInfoRepository.getRegionInfoByRegionName(name);
+                        // getRegionInfoByRegionName should throw if not found, but double check
+                        if (!regionGeo)
+                            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                        return regionGeo;
+                    }),
+                );
+            }
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004); // Generic Geo API error if not already specific
+        }
+
+        const spotGeoInfoMap = new Map(spotGeoInfos.map((geo) => [geo.touristSpotName, geo]));
+        const regionGeoInfoMap = new Map(regionGeoInfos.map((geo) => [geo.touristSpotName, geo])); // Assuming region name was used as touristSpotName in its GeoInfo
+
+        // 3. Batch fetch WeatherInfo
+        const allGeoInfosForWeatherFetch = [...spotGeoInfos, ...regionGeoInfos].filter(
+            (geo): geo is GeoInfo => !!geo, // Ensure only valid GeoInfo objects are passed
+        );
+        const weatherInfoMap = new Map<string, WeatherInfo>(); // Keyed by spotName/regionName
+        try {
+            if (allGeoInfosForWeatherFetch.length > 0) {
+                const fetchedWeatherInfos =
+                    await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                        allGeoInfosForWeatherFetch,
+                    );
+                // Ensure all requested weatherInfos were found
+                if (fetchedWeatherInfos.length !== allGeoInfosForWeatherFetch.length) {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+                }
+                fetchedWeatherInfos.forEach((weather) => {
+                    if (weather.touristSpotName) {
+                        weatherInfoMap.set(weather.touristSpotName, weather);
+                    } else {
+                        // This case should ideally not happen if data from weather repo is consistent
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001); // Bad data from weather service
+                    }
+                });
+            }
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_WEATHER_004); // Generic Weather API error
+        }
+
+        // 4. Build Response DTOs
+        const responseDtos: ModelRouteResponseDto[] = [];
+        for (const entity of modelRouteEntities) {
+            if (!entity.modelRouteId || !entity.region || !entity.touristSpotList) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027); // Route entity incomplete
+            }
+
+            const currentTouristSpotGeoInfos: GeoInfo[] = [];
+            entity.touristSpotList?.forEach((spot) => {
+                if (spot.touristSpotName) {
+                    const geo = spotGeoInfoMap.get(spot.touristSpotName);
+                    if (geo) {
+                        currentTouristSpotGeoInfos.push(geo);
+                    } else {
+                        // This implies a spot name in the entity didn't match any fetched GeoInfo, or was filtered.
+                        // If geoInfoRepository.getGeoLocationInfoByTouristSpotNameList throws/filters, this might not be hit for missing.
+                        // Assuming E_TB_025 was already thrown if a name in uniqueSpotNames wasn't found.
+                        // If it gets here, it implies an internal logic error or inconsistent data.
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                    }
+                } else {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001); // Spot missing name
+                }
+            });
+
+            const currentRegionGeoInfo = regionGeoInfoMap.get(entity.region);
+            if (!currentRegionGeoInfo) {
+                // Similar to above, E_TB_025 should have been thrown if region name wasn't found during batch fetch.
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+            }
+
+            const currentTouristSpotWeatherList: WeatherInfo[] = [];
+            currentTouristSpotGeoInfos.forEach((geo) => {
+                const weather = weatherInfoMap.get(geo.touristSpotName);
+                if (weather) {
+                    currentTouristSpotWeatherList.push(weather);
+                } else {
+                    // E_TB_026 should have been thrown if weather for a fetched GeoInfo wasn't found.
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+                }
+            });
+
+            let currentRegionWeatherInfo: WeatherInfo | undefined;
+            if (currentRegionGeoInfo) {
+                currentRegionWeatherInfo = weatherInfoMap.get(currentRegionGeoInfo.touristSpotName);
+            }
+
+            if (!currentRegionWeatherInfo) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+            }
+
+            responseDtos.push(
+                ModelRouteResultBuilder.modelRouteToDto(
+                    entity,
+                    currentTouristSpotWeatherList, // This should be an array of WeatherInfo
+                    currentRegionWeatherInfo, // Now guaranteed to be WeatherInfo due to the check above
+                ),
+            );
+        }
+        return responseDtos;
+    }
+
+    /**
+     * Get model route by ID
+     * @param modelRouteId ID of the model route
+     * @returns Model route response DTO
+     */
+    async getModelRouteById(modelRouteId: string): Promise<ModelRouteResponseDto> {
+        const modelRouteEntity =
+            await this.modelRouteRepository.getModelRouteByModelRouteId(modelRouteId);
+        // getModelRouteByModelRouteId in repo already throws if not found, so no need to check here.
+
+        if (!modelRouteEntity.region || !modelRouteEntity.touristSpotList) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+
+        const spotNames = modelRouteEntity.touristSpotList
+            .map((spot) => spot.touristSpotName)
+            .filter((name): name is string => typeof name === 'string');
+
+        if (spotNames.length !== modelRouteEntity.touristSpotList.length) {
+            // A spot is missing a name
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Fetch all GeoInfo together
+        const [touristSpotGeoInfoList, regionGeoInfo] = await Promise.all([
+            this.geoInfoRepository
+                .getGeoLocationInfoByTouristSpotNameList(spotNames)
+                .then((geos) => {
+                    if (geos.length !== spotNames.length)
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                    return geos;
+                }),
+            this.geoInfoRepository
+                .getRegionInfoByRegionName(modelRouteEntity.region)
+                .then((geo) => {
+                    if (!geo)
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                    return geo;
+                }),
+        ]).catch((error) => {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+        });
+
+        // Fetch all WeatherInfo together
+        const allGeoInfosForWeather = [...touristSpotGeoInfoList, regionGeoInfo];
+        const weatherInfos = await this.weatherInfoRepository
+            .getCurrentWeatherByGeoInfoList(allGeoInfosForWeather)
+            .catch((error) => {
+                if (error instanceof TouriiBackendAppException) throw error;
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_WEATHER_004);
+            });
+
+        if (weatherInfos.length !== allGeoInfosForWeather.length) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+        }
+
+        const currentTouristSpotWeatherList = weatherInfos.slice(0, touristSpotGeoInfoList.length);
+        const currentRegionWeatherInfo = weatherInfos[touristSpotGeoInfoList.length];
+
+        return ModelRouteResultBuilder.modelRouteToDto(
+            modelRouteEntity,
+            currentTouristSpotWeatherList,
+            currentRegionWeatherInfo,
+        );
+    }
+
     // async createUser(user: UserEntity) {
     //   // service logic
     //   // dto -> entity
@@ -239,71 +460,6 @@ export class TouriiBackendService {
     // }
 
     // --- Private Helper Methods ---
-
-    /**
-     * Fetches a StoryEntity by its ID, throwing an error if not found.
-     */
-    private async fetchStoryEntityById(storyId: string): Promise<StoryEntity> {
-        const storyEntity = await this.storyRepository.getStoryById(storyId);
-        if (!storyEntity) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_023, // Story not found
-            );
-        }
-        return storyEntity;
-    }
-
-    /**
-     * Fetches GeoInfo for a list of names, throwing an error if any are not found.
-     */
-    private async fetchGeoInfosByName(names: string[]): Promise<GeoInfo[]> {
-        if (!names || names.length === 0) {
-            return []; // Return empty array if no names provided
-        }
-        const geoInfos =
-            await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(names);
-        if (isGeoInfoListUndefined(geoInfos) || geoInfos.length !== names.length) {
-            // Adding a check to ensure we got results for all requested names might be needed
-            // depending on repository behavior (does it return partial results or throw?)
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_025, // Geo info not found
-            );
-        }
-        return geoInfos;
-    }
-
-    /**
-     * Fetches GeoInfo for a single region name, throwing an error if not found.
-     */
-    private async fetchRegionInfoByName(regionName: string): Promise<GeoInfo> {
-        const regionInfo = await this.geoInfoRepository.getRegionInfoByRegionName(regionName);
-        // Assuming getRegionInfoByRegionName returns GeoInfo or undefined/throws
-        if (!regionInfo) {
-            // Adjust check based on actual return type
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_025, // Geo info not found
-            );
-        }
-        return regionInfo;
-    }
-
-    /**
-     * Fetches WeatherInfo for a list of GeoInfo objects, throwing an error if not found.
-     */
-    private async fetchWeatherInfosByGeo(geoInfos: GeoInfo[]): Promise<WeatherInfo[]> {
-        if (!geoInfos || geoInfos.length === 0) {
-            return []; // Return empty array if no geoInfos provided
-        }
-        const weatherInfos =
-            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(geoInfos);
-        if (isWeatherResultUndefined(weatherInfos) || weatherInfos.length !== geoInfos.length) {
-            // Add check for partial results if necessary
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_026, // Weather info not found
-            );
-        }
-        return weatherInfos;
-    }
 
     /**
      * Update story chapters with tourist spot ids
@@ -329,10 +485,4 @@ export class TouriiBackendService {
 
         // 2. Return void
     }
-
-    // Remove old private fetch methods if they are no longer used
-    // private async fetchNeededModelRouteCreationData(...) { ... }
-    // private async fetchNeddedTouristSpotCreationData(...) { ... }
-    // private async fetchWeatherData(...) { ... }
-    // private async fetchWeatherDataForTouristSpot(...) { ... }
 }

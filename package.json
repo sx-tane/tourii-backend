@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "config": {
         "#note": "appコンテナから参照するDATABASE_URLとlocalでprisma hogehogeするときに参照するDATABASE_URLが異なるため",
-        "databaseurl": "postgresql://touriibackenddev:touriibackenddev@localhost:7432/tourii_backend"
+        "databaseurl": "postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend"
     },
     "scripts": {
         "build": "nest build",
@@ -47,11 +47,15 @@
         "seed": "ts-node prisma/seed.ts"
     },
     "lint-staged": {
-        "**/*": ["cspell --config cspell.config.json --no-must-find-files"],
+        "**/*": [
+            "cspell --config cspell.config.json --no-must-find-files"
+        ],
         "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
             "biome check --apply --no-errors-on-unmatched"
         ],
-        "*.{yaml,yml,md,d.ts}": ["prettier --write"],
+        "*.{yaml,yml,md,d.ts}": [
+            "prettier --write"
+        ],
         "project-words.txt": [
             "sed -i '/^$/d' project-words.txt",
             "env LC_ALL=C sort -u -o project-words.txt"
@@ -75,6 +79,7 @@
         "@prisma/extension-read-replicas": "^0.4.1",
         "archiver": "^7.0.1",
         "axios": "^1.8.4",
+        "axios-retry": "^4.5.0",
         "bcrypt": "^5.1.1",
         "body-parser": "^2.2.0",
         "cache-manager-redis-store": "^3.0.1",
@@ -147,7 +152,11 @@
         "typescript": "5.8.3"
     },
     "jest": {
-        "moduleFileExtensions": ["js", "json", "ts"],
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
         "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
@@ -172,11 +181,16 @@
                 }
             ]
         },
-        "collectCoverageFrom": ["**/*.(t|j)s"],
+        "collectCoverageFrom": [
+            "**/*.(t|j)s"
+        ],
         "coverageDirectory": "./coverage",
         "testEnvironment": "node",
         "maxWorkers": 1,
-        "roots": ["<rootDir>/libs/", "<rootDir>/apps/"],
+        "roots": [
+            "<rootDir>/libs/",
+            "<rootDir>/apps/"
+        ],
         "moduleNameMapper": {
             "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
             "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
@@ -185,7 +199,9 @@
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
-        "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
+        "setupFiles": [
+            "<rootDir>/apps/tourii-backend/test/dotenv/config.ts"
+        ]
     },
     "engines": {
         "node": "20.18.0",

@@ -1,10 +1,12 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import type { Cache } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class CachingService {
     private readonly logger = new Logger(CachingService.name);
+    private readonly ongoingFetches: Map<string, Promise<any | null>> = new Map();
 
     constructor(
         @Inject(CACHE_MANAGER)
@@ -39,32 +41,61 @@ export class CachingService {
                 }
             }
 
-            // 2. If cache miss or parse error, fetch from source
-            this.logger.log(`Cache miss for key: ${key}. Fetching fresh data.`);
-            const freshData = await fetchDataFn();
-
-            // 3. Store fresh data in cache
-            if (freshData !== null && freshData !== undefined) {
-                // Avoid caching null/undefined explicitly
-                try {
-                    await this.cacheManager.set(
-                        key,
-                        JSON.stringify(freshData),
-                        ttlSeconds * 1000, // Convert TTL to milliseconds
-                    );
-                    this.logger.log(
-                        `Stored fresh data in cache with key: ${key}, TTL: ${ttlSeconds}s`,
-                    );
-                } catch (storeError) {
-                    this.logger.error(`Failed to store data in cache for key ${key}:`, storeError);
-                    // Still return fresh data even if caching fails
-                }
+            // 2. If cache miss or parse error, check for ongoing fetch
+            this.logger.log(`Cache miss for key: ${key}. Checking for ongoing fetches.`);
+            if (this.ongoingFetches.has(key)) {
+                this.logger.log(`Ongoing fetch for key: ${key}. Awaiting existing promise.`);
+                return this.ongoingFetches.get(key);
             }
 
-            return freshData;
+            // 3. If no ongoing fetch, initiate new fetch
+            this.logger.log(`No ongoing fetch for key: ${key}. Initiating fresh data fetch.`);
+            const fetchPromise = (async (): Promise<T | null> => {
+                try {
+                    const freshData = await fetchDataFn();
+
+                    // Store fresh data in cache
+                    if (freshData !== null && freshData !== undefined) {
+                        try {
+                            await this.cacheManager.set(
+                                key,
+                                JSON.stringify(freshData),
+                                ttlSeconds * 1000, // Convert TTL to milliseconds
+                            );
+                            this.logger.log(
+                                `Stored fresh data in cache with key: ${key}, TTL: ${ttlSeconds}s`,
+                            );
+                        } catch (storeError) {
+                            this.logger.error(
+                                `Failed to store data in cache for key ${key}:`,
+                                storeError,
+                            );
+                            // Still return fresh data even if caching fails
+                        }
+                    }
+                    return freshData;
+                } catch (fetchError) {
+                    this.logger.error(
+                        `Error fetching data for key ${key} in ongoing fetch:`,
+                        fetchError,
+                    );
+                    // If it's a known application error, re-throw it to propagate specific error info
+                    if (fetchError instanceof TouriiBackendAppException) {
+                        throw fetchError;
+                    }
+                    return null; // For other errors, resolve promise to null
+                } finally {
+                    this.ongoingFetches.delete(key);
+                    this.logger.log(`Removed ongoing fetch entry for key: ${key}`);
+                }
+            })();
+
+            this.ongoingFetches.set(key, fetchPromise);
+            return fetchPromise;
         } catch (error) {
             this.logger.error(`Error in getOrSet for key ${key}:`, error);
-            // Fallback: return null or rethrow, depending on desired behavior
+            // This outer catch primarily handles errors not originating from fetchDataFn or cacheManager interactions
+            // covered within the promise, or if the promise setup itself fails.
             return null;
         }
     }

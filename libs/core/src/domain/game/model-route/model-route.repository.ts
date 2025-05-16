@@ -23,4 +23,10 @@ export interface ModelRouteRepository {
      * @returns ModelRouteEntity
      */
     getModelRouteByModelRouteId(modelRouteId: string): Promise<ModelRouteEntity>;
+
+    /**
+     * Get all model routes
+     * @returns ModelRouteEntity[]
+     */
+    getModelRoutes(): Promise<ModelRouteEntity[]>;
 }

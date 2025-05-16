@@ -110,6 +110,58 @@ export const TouriiBackendAppErrorType = {
         message: 'Model route not found',
         type: ErrorType.NOT_FOUND,
     },
+    // --- Geocoding Specific Errors ---
+    E_GEO_001: {
+        code: 'E_GEO_001',
+        message: 'Geocoding: Address not found (ZERO_RESULTS).',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_GEO_002: {
+        code: 'E_GEO_002',
+        message: 'Geocoding: API key invalid or request denied by provider.',
+        type: ErrorType.UNAUTHORIZED, // Or ErrorType.BAD_REQUEST depending on how it's handled
+    },
+    E_GEO_003: {
+        code: 'E_GEO_003',
+        message: 'Geocoding: API provider rate limit exceeded.',
+        type: ErrorType.BAD_REQUEST, // Placeholder: Ideally ErrorType.TOO_MANY_REQUESTS if it existed
+    },
+    E_GEO_004: {
+        code: 'E_GEO_004',
+        message: 'Geocoding: External API error during geocoding request.',
+        type: ErrorType.INTERNAL_SERVER_ERROR, // Or a more specific ErrorType.EXTERNAL_API_ERROR
+    },
+    E_GEO_005: {
+        code: 'E_GEO_005',
+        message: 'Geocoding: GOOGLE_MAPS_API_KEY not configured in server environment.',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    // --- Weather Specific Errors ---
+    E_WEATHER_001: {
+        code: 'E_WEATHER_001',
+        message: 'Weather API: Location not found or no data available.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_WEATHER_002: {
+        code: 'E_WEATHER_002',
+        message: 'Weather API: API key invalid or request denied by provider.',
+        type: ErrorType.UNAUTHORIZED, // Or ErrorType.BAD_REQUEST
+    },
+    E_WEATHER_003: {
+        code: 'E_WEATHER_003',
+        message: 'Weather API: API provider rate limit exceeded.',
+        type: ErrorType.BAD_REQUEST, // Placeholder: Ideally ErrorType.TOO_MANY_REQUESTS
+    },
+    E_WEATHER_004: {
+        code: 'E_WEATHER_004',
+        message: 'Weather API: External API error during weather data request.',
+        type: ErrorType.INTERNAL_SERVER_ERROR, // Or a more specific ErrorType.EXTERNAL_API_ERROR
+    },
+    E_WEATHER_005: {
+        code: 'E_WEATHER_005',
+        message: 'Weather API: WEATHER_API_KEY not configured in server environment.',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
 } as const;
 
 type TouriiBackendAppErrorKeys = keyof typeof TouriiBackendAppErrorType;
