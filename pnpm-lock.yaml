@@ -48,11 +48,11 @@ importers:
         specifier: 13.3.1
         version: 13.3.1
       '@prisma/client':
-        specifier: ^6.5.0
-        version: 6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
+        specifier: ^6.8.1
+        version: 6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
       '@prisma/extension-read-replicas':
         specifier: ^0.4.1
-        version: 0.4.1(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))
+        version: 0.4.1(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -245,10 +245,10 @@ importers:
         version: 3.5.3
       prisma-erd-generator:
         specifier: ^2.0.4
-        version: 2.0.4(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(puppeteer@23.11.1(typescript@5.8.3))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
+        version: 2.0.4(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(puppeteer@23.11.1(typescript@5.8.3))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
       prisma-markdown:
         specifier: ^2.0.0
-        version: 2.0.0(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(prisma@6.6.0(typescript@5.8.3))
+        version: 2.0.0(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(prisma@6.6.0(typescript@5.8.3))
       source-map-support:
         specifier: ^0.5.20
         version: 0.5.21
@@ -1944,8 +1944,8 @@ packages:
     resolution: {integrity: sha512-ytqkC7FwVs4BlzNFAmPMFp+xD1KIdMMP/mvCSOrnxjlsyM5DVGop4x4c2ZgDUBmrFqmIiVkWDfMIZeOxui2OLQ==}
     engines: {node: '>=18'}
 
-  '@prisma/client@6.5.0':
-    resolution: {integrity: sha512-M6w1Ql/BeiGoZmhMdAZUXHu5sz5HubyVcKukbLs3l0ELcQb8hTUJxtGEChhv4SVJ0QJlwtLnwOLgIRQhpsm9dw==}
+  '@prisma/client@6.8.1':
+    resolution: {integrity: sha512-OxkcBe9i/iQp4vNlXB2nRaTAIu3xtdshqKAUYenGve7MnT1YFsE2FOr92MMF2/5TuNTAJ1jGyls3t16YSfoOYA==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
@@ -2750,11 +2750,11 @@ packages:
   '@types/node@22.14.0':
     resolution: {integrity: sha512-Kmpl+z84ILoG+3T/zQFyAJsU6EPTmOCj8/2+83fSN6djd6I4o7uOuGIH6vq3PrjY5BGitSbFuMN18j3iknubbA==}
 
+  '@types/node@22.15.18':
+    resolution: {integrity: sha512-v1DKRfUdyW+jJhZNEI1PYy29S2YRxMV5AOO/x/SjKmW0acCIOqmbj6Haf9eHAhsPmrhlHSxEhv/1WszcLWV4cg==}
+
   '@types/node@22.15.2':
     resolution: {integrity: sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==}
-
-  '@types/node@22.15.3':
-    resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -3117,8 +3117,8 @@ packages:
   bare-events@2.5.4:
     resolution: {integrity: sha512-+gFfDkR8pj4/TrWCGUGWmJIkBwuxPS5F+a5yWjOHQt2hHvNZd5YLzadjmDUtFmMM4y429bnKLa8bYBMHcYdnQA==}
 
-  bare-fs@4.1.3:
-    resolution: {integrity: sha512-OeEZYIg+2qepaWLyphaOXHAHKo3xkM8y3BeGAvHdMN8GNWvEAU1Yw6rYpGzu/wDDbKxgEjVeVDpgGhDzaeMpjg==}
+  bare-fs@4.1.5:
+    resolution: {integrity: sha512-1zccWBMypln0jEE05LzZt+V/8y8AQsQQqxtklqaIyg5nu6OAYFhZxPXinJTSG+kU5qyNmeLgcn9AW7eHiCHVLA==}
     engines: {bare: '>=1.16.0'}
     peerDependencies:
       bare-buffer: '*'
@@ -3829,6 +3829,15 @@ packages:
 
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.4.1:
+    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -5983,6 +5992,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   send@0.19.0:
     resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
     engines: {node: '>= 0.8.0'}
@@ -6652,6 +6666,18 @@ packages:
 
   ws@8.18.1:
     resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.18.2:
+    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -9209,7 +9235,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)':
+  '@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)':
     optionalDependencies:
       prisma: 6.6.0(typescript@5.8.3)
       typescript: 5.8.3
@@ -9236,9 +9262,9 @@ snapshots:
       '@prisma/fetch-engine': 6.6.0
       '@prisma/get-platform': 6.6.0
 
-  '@prisma/extension-read-replicas@0.4.1(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))':
+  '@prisma/extension-read-replicas@0.4.1(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))':
     dependencies:
-      '@prisma/client': 6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
+      '@prisma/client': 6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
 
   '@prisma/fetch-engine@6.6.0':
     dependencies:
@@ -9287,11 +9313,11 @@ snapshots:
 
   '@puppeteer/browsers@2.6.1':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
-      semver: 7.7.1
+      semver: 7.7.2
       tar-fs: 3.0.8
       unbzip2-stream: 1.4.3
       yargs: 17.7.2
@@ -10329,11 +10355,11 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@22.15.2':
+  '@types/node@22.15.18':
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@22.15.3':
+  '@types/node@22.15.2':
     dependencies:
       undici-types: 6.21.0
 
@@ -10380,7 +10406,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 22.15.3
+      '@types/node': 22.15.18
 
   '@types/triple-beam@1.3.5': {}
 
@@ -10399,7 +10425,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.15.3
+      '@types/node': 22.15.18
     optional: true
 
   '@vue/compat@3.5.13(vue@3.5.13(typescript@5.8.3))':
@@ -10799,7 +10825,7 @@ snapshots:
   bare-events@2.5.4:
     optional: true
 
-  bare-fs@4.1.3:
+  bare-fs@4.1.5:
     dependencies:
       bare-events: 2.5.4
       bare-path: 3.0.0
@@ -11608,6 +11634,10 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  debug@4.4.1:
+    dependencies:
+      ms: 2.1.3
+
   decko@1.2.0: {}
 
   dedent@1.5.3: {}
@@ -11962,7 +11992,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -12211,7 +12241,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -13438,7 +13468,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -13615,10 +13645,10 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.3.1
 
-  prisma-erd-generator@2.0.4(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(puppeteer@23.11.1(typescript@5.8.3))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3):
+  prisma-erd-generator@2.0.4(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(puppeteer@23.11.1(typescript@5.8.3))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
       '@mermaid-js/mermaid-cli': 11.4.2(puppeteer@23.11.1(typescript@5.8.3))(ts-node@10.9.2(@swc/core@1.10.15)(@types/node@22.14.0)(typescript@5.8.3))(typescript@5.8.3)
-      '@prisma/client': 6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
+      '@prisma/client': 6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
       '@prisma/generator-helper': 6.3.1
       dotenv: 16.5.0
     transitivePeerDependencies:
@@ -13628,9 +13658,9 @@ snapshots:
       - ts-node
       - typescript
 
-  prisma-markdown@2.0.0(@prisma/client@6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(prisma@6.6.0(typescript@5.8.3)):
+  prisma-markdown@2.0.0(@prisma/client@6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))(prisma@6.6.0(typescript@5.8.3)):
     dependencies:
-      '@prisma/client': 6.5.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
+      '@prisma/client': 6.8.1(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3)
       '@prisma/generator-helper': 6.6.0
       prisma: 6.6.0(typescript@5.8.3)
 
@@ -13690,7 +13720,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -13713,10 +13743,10 @@ snapshots:
     dependencies:
       '@puppeteer/browsers': 2.6.1
       chromium-bidi: 0.11.0(devtools-protocol@0.0.1367902)
-      debug: 4.4.0
+      debug: 4.4.1
       devtools-protocol: 0.0.1367902
       typed-query-selector: 2.12.0
-      ws: 8.18.1
+      ws: 8.18.2
     transitivePeerDependencies:
       - bare-buffer
       - bufferutil
@@ -14009,6 +14039,8 @@ snapshots:
 
   semver@7.7.1: {}
 
+  semver@7.7.2: {}
+
   send@0.19.0:
     dependencies:
       debug: 2.6.9
@@ -14182,7 +14214,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       socks: 2.8.4
     transitivePeerDependencies:
       - supports-color
@@ -14403,7 +14435,7 @@ snapshots:
       pump: 3.0.2
       tar-stream: 3.1.7
     optionalDependencies:
-      bare-fs: 4.1.3
+      bare-fs: 4.1.5
       bare-path: 3.0.0
     transitivePeerDependencies:
       - bare-buffer
@@ -14787,6 +14819,8 @@ snapshots:
   ws@7.5.10: {}
 
   ws@8.18.1: {}
+
+  ws@8.18.2: {}
 
   xdg-basedir@5.1.0: {}
 

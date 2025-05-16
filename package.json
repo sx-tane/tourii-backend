@@ -75,7 +75,7 @@
         "@nestjs/throttler": "^6.4.0",
         "@polkadot/api": "13.2.1",
         "@polkadot/util": "13.3.1",
-        "@prisma/client": "^6.5.0",
+        "@prisma/client": "^6.8.1",
         "@prisma/extension-read-replicas": "^0.4.1",
         "archiver": "^7.0.1",
         "axios": "^1.8.4",
