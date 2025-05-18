@@ -1,4 +1,4 @@
-GET http://localhost:4000/stories/sagas/STO202505-328580-032004-4aa922-CAAA/chapters
+GET http://localhost:4000/stories/sagas/STO202505-682ca0-131927-cc481b-BAAA/chapters
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0

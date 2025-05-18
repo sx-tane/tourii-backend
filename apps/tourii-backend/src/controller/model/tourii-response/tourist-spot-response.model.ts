@@ -1,6 +1,7 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { ImageSetSchema } from '../tourii-request/create/tourist-spot-create-request.model';
+import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
 
 export const WeatherInfoSchema = z.object({
     temperatureCelsius: z.number().describe('Temperature of the weather'),
@@ -21,11 +22,7 @@ export const TouristSpotResponseSchema = z.object({
     storyChapterLink: z.string().optional().describe('Link to the related story chapter'),
     imageSet: ImageSetSchema.optional().describe('Image set for the tourist spot'),
     weatherInfo: WeatherInfoSchema.optional().describe('Weather info for the tourist spot'),
-    delFlag: z.boolean().describe('Flag to indicate if the tourist spot is deleted'),
-    insUserId: z.string().describe('ID of user who created this record'),
-    insDateTime: z.string().describe('Timestamp of record creation'),
-    updUserId: z.string().describe('ID of user who last updated this record'),
-    updDateTime: z.string().describe('Timestamp of last record update'),
+    ...MetadataFieldsSchema,
 });
 
 export class TouristSpotResponseDto extends createZodDto(TouristSpotResponseSchema) {}
