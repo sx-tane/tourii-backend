@@ -5,10 +5,12 @@ import {
     ApiExtraModels,
     ApiHeader,
     ApiOperation,
+    ApiQuery,
     ApiResponse,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { QuestType } from '@prisma/client';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
@@ -34,7 +36,6 @@ import {
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
 import {
-    QuestFetchRequestSchema,
     QuestListQueryDto,
 } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
@@ -53,7 +54,7 @@ import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
 } from './model/tourii-response/model-route-response.model';
-import { QuestsResponseSchema } from './model/tourii-response/quest-response.model';
+import { QuestResponseDto, QuestsResponseSchema } from './model/tourii-response/quest-response.model';
 import {
     StoryResponseDto,
     StoryResponseSchema,
@@ -76,6 +77,7 @@ import {
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
+    QuestResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -479,13 +481,40 @@ export class TouriiBackendController {
         description: 'API version (e.g., 1.0.0)',
         required: true,
     })
-    @ApiBody({
-        description: 'Quest fetch request',
-        schema: zodToOpenAPI(QuestFetchRequestSchema),
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number for pagination (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of quests per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'isPremium',
+        required: false,
+        type: Boolean,
+        description: 'Filter by premium status',
+    })
+    @ApiQuery({
+        name: 'isUnlocked',
+        required: false,
+        type: Boolean,
+        description: 'Filter by unlocked status',
+    })
+    @ApiQuery({
+        name: 'questType',
+        required: false,
+        enum: QuestType,
+        description: 'Filter by quest type',
     })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Fetch quests successfully',
+        type: QuestResponseDto,
         schema: zodToOpenAPI(QuestsResponseSchema),
     })
     @ApiUnauthorizedResponse()

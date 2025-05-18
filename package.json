@@ -39,7 +39,7 @@
         "test:e2e:app": "jest --config ./apps/tourii-backend/test/jest-e2e.json apps/tourii-backend/test/app.e2e-spec.ts",
         "update:openapi": "pnpm docs:api && pnpm dtsgen:tourii-backend",
         "docs:api": "redocly build-docs etc/openapi/openapi.json -o etc/openapi/openapi.html",
-        "dtsgen:tourii-backend": "npx dtsgen -o etc/openapi/openapi.d.ts etc/openapi/openapi.yaml && prettier --write etc/openapi/openapi.d.ts etc/openapi/openapi.yaml",
+        "dtsgen:tourii-backend": "npx dtsgen -o etc/openapi/openapi.d.ts etc/openapi/openapi.json && prettier --write etc/openapi/openapi.d.ts",
         "prepare": "husky",
         "cspell": "cspell --words-only --unique --config ./cspell.config.json | tee -a project-words.txt > /dev/null && env LC_ALL=C sort -u -o project-words.txt project-words.txt"
     },
