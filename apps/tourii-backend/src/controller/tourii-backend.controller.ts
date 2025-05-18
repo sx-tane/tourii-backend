@@ -1,19 +1,21 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
     ApiHeader,
     ApiOperation,
+    ApiQuery,
     ApiResponse,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { QuestType } from '@prisma/client';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
     ApiDefaultBadRequestResponse,
     ApiInvalidVersionResponse,
-    ApiUnauthorizedResponse,
     ApiUserExistsResponse,
     ApiUserNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
@@ -34,6 +36,9 @@ import {
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
 import {
+    QuestListQueryDto,
+} from './model/tourii-request/fetch/quest-fetch-request.model';
+import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
@@ -49,6 +54,7 @@ import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
 } from './model/tourii-response/model-route-response.model';
+import { QuestResponseDto, QuestsResponseSchema } from './model/tourii-response/quest-response.model';
 import {
     StoryResponseDto,
     StoryResponseSchema,
@@ -71,6 +77,7 @@ import {
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
+    QuestResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -458,7 +465,72 @@ export class TouriiBackendController {
         return undefined;
     }
 
-    // --- Routes Endpoints ---
+    @Get('/quests')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Get quest with pagination',
+        description: 'Get quest with pagination',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number for pagination (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of quests per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'isPremium',
+        required: false,
+        type: Boolean,
+        description: 'Filter by premium status',
+    })
+    @ApiQuery({
+        name: 'isUnlocked',
+        required: false,
+        type: Boolean,
+        description: 'Filter by unlocked status',
+    })
+    @ApiQuery({
+        name: 'questType',
+        required: false,
+        enum: QuestType,
+        description: 'Filter by quest type',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Fetch quests successfully',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestsResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getQuestList(@Query() query: QuestListQueryDto) {
+        const { page, limit, isPremium, isUnlocked, questType } = query;
+        return await this.touriiBackendService.fetchQuestsWithPagination(
+            Number(page),
+            Number(limit),
+            isPremium === undefined ? undefined : Boolean(isPremium),
+            isUnlocked === undefined ? undefined : Boolean(isUnlocked),
+            questType,
+        );
+    }
+
     @Get('/routes')
     @ApiTags('Routes')
     @ApiOperation({
@@ -478,7 +550,7 @@ export class TouriiBackendController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Successfully retrieved all model routes',
-        type: [ModelRouteResponseDto], // Indicates an array of ModelRouteResponseDto
+        type: [ModelRouteResponseDto],
         schema: {
             type: 'array',
             items: zodToOpenAPI(ModelRouteResponseSchema),
@@ -517,7 +589,6 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    // @ApiUserNotFoundResponse('Model route not found') // Removed as it's user-specific and covered by generic 404
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
     }

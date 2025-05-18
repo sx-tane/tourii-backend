@@ -1,6 +1,7 @@
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
+import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
@@ -10,18 +11,16 @@ import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-l
 import { getEnv } from '@app/core/utils/env-utils';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
-// biome-ignore lint/style/useImportType: <explanation>
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE, HttpAdapterHost } from '@nestjs/core';
-// biome-ignore lint/style/useImportType: cannot use type import here
 import {
     ThrottlerGuard,
     ThrottlerModule,
     ThrottlerModuleOptions,
     ThrottlerStorageService,
 } from '@nestjs/throttler';
-import * as redisStore from 'cache-manager-redis-store';
+import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
@@ -106,6 +105,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.MODEL_ROUTE_REPOSITORY_TOKEN,
             useClass: ModelRouteRepositoryDb, // Model route database access
+        },
+        {
+            provide: TouriiBackendConstants.QUEST_REPOSITORY_TOKEN,
+            useClass: QuestRepositoryDb, // Quest database access
         },
         {
             provide: TouriiBackendConstants.GEO_INFO_REPOSITORY_TOKEN,

@@ -12,7 +12,7 @@ RUN apk --update --no-cache add --virtual build-dependencies postgresql-dev gcc 
     && rm -fr /tmp/pg_bigm-1.2-20200228.tar.gz \
     && apk del --purge build-dependencies
 
-COPY ./db/custom-entrypoint.sh /usr/local/bin/custom-entrypoint.sh
+COPY ./db/custom-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/custom-entrypoint.sh
 
 ENTRYPOINT ["custom-entrypoint.sh"]

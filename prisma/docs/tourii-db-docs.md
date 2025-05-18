@@ -10,12 +10,12 @@
 ```mermaid
 erDiagram
 "user" {
-  String user_id PK
+  String(255) user_id PK
   String username UK
   String discord_id UK "nullable"
-  String discord_username "nullable"
+  String(255) discord_username "nullable"
   String twitter_id UK "nullable"
-  String twitter_username "nullable"
+  String(255) twitter_username "nullable"
   String google_email UK "nullable"
   String email UK "nullable"
   String password
@@ -37,11 +37,11 @@ erDiagram
   String request_id "nullable"
 }
 "user_achievement" {
-  String user_achievement_id PK
+  String(255) user_achievement_id PK
   String user_id FK
-  String achievement_name
-  String achievement_desc "nullable"
-  String icon_url "nullable"
+  String(255) achievement_name
+  String(255) achievement_desc "nullable"
+  String(255) icon_url "nullable"
   AchievementType achievement_type
   Int magatama_point_awarded
   Boolean del_flag
@@ -52,8 +52,8 @@ erDiagram
   String request_id "nullable"
 }
 "user_info" {
-  String user_info_id PK
-  String user_id FK
+  String(255) user_info_id PK
+  String user_id FK,UK
   String digital_passport_address UK
   String log_nft_address
   PassportType user_digital_passport_type "nullable"
@@ -75,12 +75,12 @@ erDiagram
   String request_id "nullable"
 }
 "user_onchain_item" {
-  String user_onchain_item_id PK
+  String(255) user_onchain_item_id PK
   String user_id FK "nullable"
   OnchainItemType item_type
   String item_txn_hash UK
   BlockchainType blockchain_type
-  DateTime minted_at "nullable"
+  DateTime(6) minted_at "nullable"
   String onchain_item_id UK "nullable"
   OnchainItemStatus status
   Boolean del_flag
@@ -91,16 +91,16 @@ erDiagram
   String request_id "nullable"
 }
 "user_item_claim_log" {
-  String user_item_claim_log_id PK
+  String(255) user_item_claim_log_id PK
   String user_id FK
-  String onchain_item_id "nullable"
-  String offchain_item_name "nullable"
+  String(255) onchain_item_id "nullable"
+  String(255) offchain_item_name "nullable"
   Int item_amount
   String item_details "nullable"
   ItemType type
-  DateTime claimed_at "nullable"
+  DateTime(6) claimed_at "nullable"
   ItemStatus status
-  String error_msg "nullable"
+  String(255) error_msg "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -109,12 +109,12 @@ erDiagram
   String request_id "nullable"
 }
 "user_story_log" {
-  String user_story_log_id PK
+  String(255) user_story_log_id PK
   String user_id FK
   String story_id
   StoryStatus status
-  DateTime unlocked_at "nullable"
-  DateTime finished_at "nullable"
+  DateTime(6) unlocked_at "nullable"
+  DateTime(6) finished_at "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -123,7 +123,7 @@ erDiagram
   String request_id "nullable"
 }
 "user_quest_log" {
-  String user_quest_log_id PK
+  String(255) user_quest_log_id PK
   String user_id FK
   String quest_id
   QuestStatus status
@@ -132,8 +132,8 @@ erDiagram
   Json group_activity_members
   Json submission_data "nullable"
   String failed_reason "nullable"
-  DateTime completed_at "nullable"
-  DateTime claimed_at "nullable"
+  DateTime(6) completed_at "nullable"
+  DateTime(6) claimed_at "nullable"
   Int total_magatama_point_awarded
   Boolean del_flag
   String ins_user_id
@@ -143,7 +143,7 @@ erDiagram
   String request_id "nullable"
 }
 "user_travel_log" {
-  String user_travel_log_id PK
+  String(255) user_travel_log_id PK
   String user_id FK
   String quest_id
   String task_id
@@ -164,7 +164,7 @@ erDiagram
   String request_id "nullable"
 }
 "user_invite_log" {
-  String invite_log_id PK
+  String(255) invite_log_id PK
   String user_id FK
   String invitee_discord_id "nullable"
   String invitee_user_id "nullable"
@@ -177,9 +177,9 @@ erDiagram
   String request_id "nullable"
 }
 "discord_activity_log" {
-  String discord_activity_log_id PK
+  String(255) discord_activity_log_id PK
   String user_id FK
-  String activity_type
+  String(255) activity_type
   String activity_details "nullable"
   Int magatama_point_awarded
   Boolean del_flag
@@ -190,7 +190,7 @@ erDiagram
   String request_id "nullable"
 }
 "discord_rewarded_roles" {
-  String discord_rewarded_roles_id PK
+  String(255) discord_rewarded_roles_id PK
   String user_id FK
   BigInt role_id
   Int magatama_point_awarded
@@ -202,7 +202,7 @@ erDiagram
   String request_id "nullable"
 }
 "discord_user_roles" {
-  String discord_user_roles_id PK
+  String(255) discord_user_roles_id PK
   String user_id FK
   BigInt role_id FK
   Boolean del_flag
@@ -710,12 +710,12 @@ and tailoring content based on community status.
 ```mermaid
 erDiagram
 "story" {
-  String story_id PK
-  String saga_name
+  String(255) story_id PK
+  String(255) saga_name
   String saga_desc
-  String background_media "nullable"
-  String map_image "nullable"
-  String location "nullable"
+  String(255) background_media "nullable"
+  String(255) map_image "nullable"
+  String(255) location "nullable"
   Int order
   Boolean is_prologue
   Boolean is_selected
@@ -727,18 +727,18 @@ erDiagram
   String request_id "nullable"
 }
 "story_chapter" {
-  String story_chapter_id PK
+  String(255) story_chapter_id PK
   String story_id FK
-  String tourist_spot_id
-  String chapter_number
-  String chapter_title
+  String(255) tourist_spot_id
+  String(255) chapter_number
+  String(255) chapter_title
   String chapter_desc
-  String chapter_image
-  String character_name_list
-  String real_world_image
-  String chapter_video_url
-  String chapter_video_mobile_url
-  String chapter_pdf_url
+  String(255) chapter_image
+  String(255) character_name_list
+  String(255) real_world_image
+  String(255) chapter_video_url
+  String(255) chapter_video_mobile_url
+  String(255) chapter_pdf_url
   Boolean is_unlocked
   Boolean del_flag
   String ins_user_id
@@ -748,14 +748,14 @@ erDiagram
   String request_id "nullable"
 }
 "model_route" {
-  String model_route_id PK
+  String(255) model_route_id PK
   String story_id FK
-  String route_name
+  String(255) route_name
   Json recommendation
-  String region
+  String(255) region
   Float region_latitude
   Float region_longitude
-  String region_background_media "nullable"
+  String(255) region_background_media "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -764,17 +764,17 @@ erDiagram
   String request_id "nullable"
 }
 "tourist_spot" {
-  String tourist_spot_id PK
+  String(255) tourist_spot_id PK
   String model_route_id FK
   String story_chapter_id
-  String tourist_spot_name
+  String(255) tourist_spot_name
   String tourist_spot_desc
   Float latitude
   Float longitude
-  String best_visit_time "nullable"
-  String address "nullable"
-  String story_chapter_link "nullable"
-  String tourist_spot_hashtag
+  String(255) best_visit_time "nullable"
+  String(255) address "nullable"
+  String(255) story_chapter_link "nullable"
+  String(255) tourist_spot_hashtag
   Json image_set "nullable"
   Boolean del_flag
   String ins_user_id
@@ -784,12 +784,12 @@ erDiagram
   String request_id "nullable"
 }
 "quest" {
-  String quest_id PK
-  String tourist_spot_id FK
-  String quest_name
+  String(255) quest_id PK
+  String(255) tourist_spot_id FK
+  String(255) quest_name
   String quest_desc
   QuestType quest_type
-  String quest_image "nullable"
+  String(255) quest_image "nullable"
   Boolean is_unlocked
   Boolean is_premium
   Int total_magatama_point_awarded
@@ -803,14 +803,14 @@ erDiagram
   String request_id "nullable"
 }
 "quest_task" {
-  String quest_task_id PK
+  String(255) quest_task_id PK
   String quest_id FK
   TaskTheme task_theme
   TaskType task_type
-  String task_name
+  String(255) task_name
   String task_desc
   Boolean is_unlocked
-  String required_action
+  String(255) required_action
   Json group_activity_members
   Json select_options
   Json anti_cheat_rules
@@ -1144,15 +1144,15 @@ point allocation to ensure fair and engaging gameplay.
 ```mermaid
 erDiagram
 "onchain_item_catalog" {
-  String onchain_item_id PK
+  String(255) onchain_item_id PK
   OnchainItemType item_type
   BlockchainType blockchain_type
-  String nft_name
-  String nft_description
-  String image_url
-  String contract_address
-  String token_id "nullable"
-  String metadata_url "nullable"
+  String(255) nft_name
+  String(255) nft_description
+  String(255) image_url
+  String(255) contract_address
+  String(255) token_id "nullable"
+  String(255) metadata_url "nullable"
   Json attributes
   DateTime release_date "nullable"
   DateTime expiry_date "nullable"
@@ -1166,7 +1166,7 @@ erDiagram
 }
 "level_requirement_master" {
   LevelType level PK
-  String discord_role_id "nullable"
+  String(255) discord_role_id "nullable"
   Int min_get_magatama_points
   Int max_get_magatama_points
   Int total_onchain_item
@@ -1175,14 +1175,14 @@ erDiagram
   Int orge_mask
   Boolean del_flag
   String ins_user_id
-  DateTime ins_date_time "nullable"
+  DateTime(6) ins_date_time "nullable"
   String upd_user_id
-  DateTime upd_date_time "nullable"
+  DateTime(6) upd_date_time "nullable"
   String request_id "nullable"
 }
 "discord_roles" {
   BigInt role_id PK
-  String name UK
+  String(255) name UK
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time

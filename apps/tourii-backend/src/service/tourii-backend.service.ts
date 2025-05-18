@@ -1,6 +1,7 @@
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
+import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
@@ -12,17 +13,20 @@ import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable } from '@nestjs/common';
+import { QuestType } from '@prisma/client';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
+import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
+import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 
@@ -39,6 +43,8 @@ export class TouriiBackendService {
         private readonly geoInfoRepository: GeoInfoRepository,
         @Inject(TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN)
         private readonly weatherInfoRepository: WeatherInfoRepository,
+        @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
+        private readonly questRepository: QuestRepository,
     ) {}
 
     /**
@@ -226,6 +232,23 @@ export class TouriiBackendService {
         }
 
         return touristSpotResponseDto;
+    }
+
+    async fetchQuestsWithPagination(
+        page: number,
+        limit: number,
+        isPremium?: boolean,
+        isUnlocked?: boolean,
+        questType?: QuestType,
+    ): Promise<QuestResponseDto> {
+        const quests = await this.questRepository.fetchQuestsWithPagination(
+            page,
+            limit,
+            isPremium,
+            isUnlocked,
+            questType,
+        );
+        return QuestResultBuilder.questWithPaginationToDto(quests);
     }
 
     /**
