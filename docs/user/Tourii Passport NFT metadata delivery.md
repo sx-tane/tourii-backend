@@ -4,6 +4,7 @@
 ✅ Bucket name: `tourii-passport`
 
 **Settings:**
+
 - [x] Enable **static website hosting** (optional but recommended if you want direct S3 URL access)
 - [x] Make sure **Bucket Policy** allows `public-read` for objects (not the bucket list itself).
 
@@ -23,6 +24,7 @@ Example Bucket Policy:
   ]
 }
 ```
+
 > ✅ This makes ONLY `metadata/` files readable, safer.
 
 ---
@@ -38,7 +40,7 @@ await s3.putObject({
   Body: JSON.stringify(metadata),
   ACL: 'public-read',
   ContentType: 'application/json',
-  CacheControl: 'public, max-age=31536000'
+  CacheControl: 'public, max-age=31536000',
 });
 ```
 

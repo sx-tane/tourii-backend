@@ -2754,7 +2754,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/QuestResponseDto"
+                  "$ref": "#/components/schemas/QuestListResponseDto"
                 }
               }
             }
@@ -2788,6 +2788,151 @@
           }
         },
         "summary": "Get quest with pagination",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
+    "/quests/{questId}": {
+      "get": {
+        "description": "Get quest by ID",
+        "operationId": "TouriiBackendController_getQuestById",
+        "parameters": [
+          {
+            "name": "questId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quest found successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "quest": {
+                  "type": "object",
+                  "properties": {
+                    "questId": {
+                      "description": "Unique identifier for the quest",
+                      "type": "string"
+                    },
+                    "questName": {
+                      "description": "Name of the quest",
+                      "type": "string"
+                    },
+                    "questDesc": {
+                      "description": "Description of the quest",
+                      "type": "string"
+                    },
+                    "questImage": {
+                      "description": "URL to the quest image",
+                      "type": "string"
+                    },
+                    "questType": {
+                      "description": "Quest type",
+                      "type": "string",
+                      "enum": [
+                        "UNKNOWN",
+                        "TRAVEL_TO_EARN",
+                        "EARN_TO_TRAVEL",
+                        "CAMPAIGN",
+                        "COMMUNITY_EVENT"
+                      ],
+                      "x-enumNames": [
+                        "UNKNOWN",
+                        "TRAVEL_TO_EARN",
+                        "EARN_TO_TRAVEL",
+                        "CAMPAIGN",
+                        "COMMUNITY_EVENT"
+                      ]
+                    },
+                    "isUnlocked": {
+                      "description": "Whether quest is unlocked",
+                      "type": "boolean"
+                    },
+                    "isPremium": {
+                      "description": "Whether quest is premium",
+                      "type": "boolean"
+                    },
+                    "totalMagatamaPointAwarded": {
+                      "description": "Total Magatama points awarded",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "questId",
+                    "questName",
+                    "questDesc",
+                    "questType",
+                    "isUnlocked",
+                    "isPremium",
+                    "totalMagatamaPointAwarded"
+                  ]
+                }
+              },
+              "required": [
+                "quest"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get quest by ID",
         "tags": [
           "Quest"
         ]
@@ -4940,7 +5085,7 @@
         "type": "object",
         "properties": {}
       },
-      "QuestResponseDto": {
+      "QuestListResponseDto": {
         "type": "object",
         "properties": {
           "quests": {
@@ -5029,6 +5174,74 @@
         "required": [
           "quests",
           "pagination"
+        ]
+      },
+      "QuestResponseDto": {
+        "type": "object",
+        "properties": {
+          "quest": {
+            "type": "object",
+            "properties": {
+              "questId": {
+                "description": "Unique identifier for the quest",
+                "type": "string"
+              },
+              "questName": {
+                "description": "Name of the quest",
+                "type": "string"
+              },
+              "questDesc": {
+                "description": "Description of the quest",
+                "type": "string"
+              },
+              "questImage": {
+                "description": "URL to the quest image",
+                "type": "string"
+              },
+              "questType": {
+                "description": "Quest type",
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "TRAVEL_TO_EARN",
+                  "EARN_TO_TRAVEL",
+                  "CAMPAIGN",
+                  "COMMUNITY_EVENT"
+                ],
+                "x-enumNames": [
+                  "UNKNOWN",
+                  "TRAVEL_TO_EARN",
+                  "EARN_TO_TRAVEL",
+                  "CAMPAIGN",
+                  "COMMUNITY_EVENT"
+                ]
+              },
+              "isUnlocked": {
+                "description": "Whether quest is unlocked",
+                "type": "boolean"
+              },
+              "isPremium": {
+                "description": "Whether quest is premium",
+                "type": "boolean"
+              },
+              "totalMagatamaPointAwarded": {
+                "description": "Total Magatama points awarded",
+                "type": "number"
+              }
+            },
+            "required": [
+              "questId",
+              "questName",
+              "questDesc",
+              "questType",
+              "isUnlocked",
+              "isPremium",
+              "totalMagatamaPointAwarded"
+            ]
+          }
+        },
+        "required": [
+          "quest"
         ]
       }
     }

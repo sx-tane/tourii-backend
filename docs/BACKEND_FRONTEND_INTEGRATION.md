@@ -1,20 +1,20 @@
 # 🔗 Backend–Frontend Integration Guide
 
-This document outlines the key integration points between the **Tourii backend** and **frontend**, including API endpoint mappings, versioning, WebSocket usage, and real-time feature syncing.
----
+## This document outlines the key integration points between the **Tourii backend** and **frontend**, including API endpoint mappings, versioning, WebSocket usage, and real-time feature syncing.
 
 ## 🌐 API Design & Versioning
 
 ```ts
 export const API_VERSIONS = {
   V1: '1.0',
-  V2: '2.0'
+  V2: '2.0',
 } as const;
 
-export type ApiVersion = typeof API_VERSIONS[keyof typeof API_VERSIONS];
+export type ApiVersion = (typeof API_VERSIONS)[keyof typeof API_VERSIONS];
 ```
 
 ### Request Headers
+
 ```ts
 {
   'Content-Type': 'application/json',
@@ -28,6 +28,7 @@ export type ApiVersion = typeof API_VERSIONS[keyof typeof API_VERSIONS];
 ## 🩹 Domain-Based API Integration (Per API Entry)
 
 We now break down **each API** inside its domain with:
+
 - Short description
 - Frontend component
 - API endpoints
@@ -38,6 +39,7 @@ We now break down **each API** inside its domain with:
 ---
 
 ### 1 AUTHENTICATION
+
 - **Short description**: Handles registration, login, token refresh, social auth, and wallet signature verification.
 - **API**:
   - `POST /auth/login`: traditional login → `AuthController.login()` → `AuthService.validate()`
@@ -47,6 +49,7 @@ We now break down **each API** inside its domain with:
   - `POST /auth/social/:provider`: OAuth login → `AuthController.socialLogin()` → `OAuthService.validateToken()`
 
 ### 2 USER
+
 - **Short description**: Fetches and updates the user profile and linked wallets.
 - **API**:
   - `GET /users/me`: fetch profile → `UserController.me()` → `UserService.getById()`
@@ -54,6 +57,7 @@ We now break down **each API** inside its domain with:
   - `GET /users/me/wallet`: get wallet → `UserController.wallet()` → `UserService.getWallet()`
 
 ### 3 STORIES
+
 - **Short description**: Saga and chapter-based interactive travel stories.
 - **API**:
   - [x] `POST /stories/create-saga`: create saga → `StoryController.createStory()`
@@ -62,6 +66,7 @@ We now break down **each API** inside its domain with:
   - [ ] `POST /stories/chapters/:chapterId/progress`: save reading progress → `ChapterController.markProgress()` → `UserStoryLogService.track()`
 
 ### 4 ROUTES
+
 - **Short description**: Explore tourist routes and regional info.
 - **Interface**:
   ```ts
@@ -78,6 +83,7 @@ We now break down **each API** inside its domain with:
   - `GET /routes/:id/recommendations`: food/culture recs → `RouteController.getRecommendations()`
 
 ### 5 QUESTS
+
 - **Short description**: Interactive gamified task system.
 - **API**:
   - `GET /quests`: fetch all quests → `QuestController.index()`
@@ -87,6 +93,7 @@ We now break down **each API** inside its domain with:
   - `POST /quests/:id/complete`: complete quest → `QuestController.complete()`
 
 ### 6 DIGITAL PASSPORT
+
 - **Short description**: Web3 NFT identity & collectible stamps.
 - **API**:
   - `GET /assets/passport`: current NFT → `PassportController.find()`
@@ -99,20 +106,24 @@ We now break down **each API** inside its domain with:
     - Triggers `nft:minted` WebSocket
 
 ### 7 CHECK-IN
+
 - **Short description**: QR or GPS-based visit validation.
 - **API**:
   - `POST /check-in/location`: perform check-in → `CheckInController.checkIn()`
   - `GET /check-in/map`: display check-in data on map
 
 ### 8 PERKS & REWARDS
+
 - **Short description**: NFT rewards and point-based redemptions.
 - **API**:
   - `GET /assets/perks`: owned perks → `PerkController.myPerks()`
   - `POST /assets/perks/:id/redeem`: redeem → `PerkController.redeem()`
 
 ### 9 MEMORY WALL
+
 - **Short description**: Log-like feed extracted from existing travel, quest, and story logs. No need for dedicated model at MVP.
 - **API**:
+
   - `GET /memory-wall/feed`: pseudo-feed → `MemoryWallController.getFeed()`
     - JOIN data from `user_travel_log`, `user_quest_log`, `user_story_log`
     - Filter by timestamp
@@ -120,7 +131,9 @@ We now break down **each API** inside its domain with:
   - 🔍 **Future**: Like, comment, and reply system can extend this structure
 
 - **Note**: no need for a new model right now. Memory wall = `SELECT` + `UNION` across logs.
+
   - You **can** optionally create a view:
+
     ```sql
       CREATE VIEW memory_feed AS
       SELECT
@@ -166,6 +179,7 @@ We now break down **each API** inside its domain with:
     ```
 
 ### 10 LOGS
+
 - **Short description**: View travel, quest, story logs for profile & achievements.
 - **API**:
   - `GET /logs/travel`: travel history → `LogController.travel()`
@@ -173,6 +187,7 @@ We now break down **each API** inside its domain with:
   - `GET /logs/stories`: story progress → `LogController.stories()`
 
 ### 11 ADMIN
+
 - **Short description**: Admin-level content control (CRUD).
 - **API**:
   - `GET /admin/quests`: list → `AdminQuestController.list()`
@@ -193,18 +208,20 @@ const WS_EVENTS = {
   LIKE_NEW: 'like:new',
   NFT_MINTED: 'nft:minted',
   PERK_REDEEMED: 'perk:redeemed',
-  ACHIEVEMENT_UNLOCKED: 'achievement:unlocked'
+  ACHIEVEMENT_UNLOCKED: 'achievement:unlocked',
 };
 ```
 
 ### WebSocket Usage
 
 **Backend (NestJS)**:
+
 - Gateway created via `@WebSocketGateway()`
 - Emit via `this.server.emit('quest:completed', payload)` in service
 - Auth done with token in handshake
 
 **Frontend (React)**:
+
 ```ts
 const socket = new WebSocket('wss://api.tourii.xyz/tourii-backend/ws');
 socket.onmessage = (msg) => {

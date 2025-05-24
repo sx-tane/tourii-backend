@@ -1,10 +1,9 @@
 name: 🛠 Backend Task
 description: Track API/database logic/backend logic tasks
-title: "[BE] <Short title here>"
-labels: ["backend", "type: task"]
+title: '[BE] <Short title here>'
+labels: ['backend', 'type: task']
 
 body:
-
   - type: textarea
     id: description
     attributes:
@@ -13,7 +12,7 @@ body:
         ### Endpoint
         `<HTTP method> <URL>`  
         *(e.g., `POST /quests/:questId/group/join`)*
-        
+
         ### Request
         ```json
         {
@@ -21,7 +20,7 @@ body:
           "<key2>": "<value2>"
         }
         ```
-        
+
         ### Response
         ```json
         {
@@ -29,12 +28,12 @@ body:
           "<key2>": "<value2>"
         }
         ```
-        
+
         ### Flow
         - Step 1: <Explain step>
         - Step 2: <Explain step>
         - Step 3: <Explain step>
-        
+
   - type: textarea
     id: acceptance
     attributes:

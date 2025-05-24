@@ -1,7 +1,7 @@
 import { QuestType, RewardType } from '@prisma/client';
 import { Entity } from '../../entity';
 
-interface QuestProps {
+export interface QuestProps {
     touristSpotId?: string;
     questName?: string;
     questDesc?: string;
