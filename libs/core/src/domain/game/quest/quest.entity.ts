@@ -1,5 +1,6 @@
 import { QuestType, RewardType } from '@prisma/client';
 import { Entity } from '../../entity';
+import { TaskEntity } from '../task/task.entity';
 
 export interface QuestProps {
     touristSpotId?: string;
@@ -17,6 +18,7 @@ export interface QuestProps {
     updUserId: string;
     updDateTime: Date;
     requestId?: string;
+    tasks?: TaskEntity[];
 }
 
 export class QuestEntity extends Entity<QuestProps> {
@@ -87,6 +89,10 @@ export class QuestEntity extends Entity<QuestProps> {
 
     get requestId(): string | undefined {
         return this.props.requestId;
+    }
+
+    get tasks(): TaskEntity[] | undefined {
+        return this.props.tasks;
     }
 }
 

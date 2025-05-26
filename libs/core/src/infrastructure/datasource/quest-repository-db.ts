@@ -6,11 +6,15 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType } from '@prisma/client';
+import { Prisma, QuestType, quest, quest_task } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
 const CACHE_TTL_SECONDS = 3600;
+
+type QuestWithTasks = quest & {
+    quest_task: quest_task[];
+};
 
 @Injectable()
 export class QuestRepositoryDb implements QuestRepository {
@@ -30,7 +34,7 @@ export class QuestRepositoryDb implements QuestRepository {
     ): Promise<QuestEntityWithPagination> {
         const cacheKey = `quests:${page}:${limit}:${isPremium ?? 'null'}:${isUnlocked ?? 'null'}:${questType ?? 'null'}`;
 
-        const fetchDatafn = async (): Promise<{ quests: Prisma.questGetPayload<{}>[], total: number } | null> => {
+        const fetchDatafn = async (): Promise<{ quests: QuestWithTasks[], total: number } | null> => {
             const queryFilter: Prisma.questFindManyArgs = {
                 where: {
                     ...(isUnlocked !== undefined && { is_unlocked: isUnlocked }),
@@ -42,17 +46,20 @@ export class QuestRepositoryDb implements QuestRepository {
                 orderBy: {
                     ins_date_time: 'desc',
                 },
+                include: {
+                    quest_task: true,
+                },
             };
 
             const [questDb, total] = await Promise.all([
-                this.prisma.quest.findMany(queryFilter),
+                this.prisma.quest.findMany(queryFilter) as Promise<QuestWithTasks[]>,
                 this.prisma.quest.count({ where: queryFilter.where }),
             ]);
             
             return { quests: questDb, total };
         };
 
-        const cachedData = await this.cachingService.getOrSet<{ quests: Prisma.questGetPayload<{}>[], total: number } | null>(
+        const cachedData = await this.cachingService.getOrSet<{ quests: QuestWithTasks[], total: number } | null>(
             cacheKey,
             fetchDatafn,
             CACHE_TTL_SECONDS,
@@ -74,14 +81,16 @@ export class QuestRepositoryDb implements QuestRepository {
             page,
             limit
         );
-
         return result;
     }
 
     async fetchQuestById(questId: string): Promise<QuestEntity> {
         const questDb = await this.prisma.quest.findUnique({
             where: { quest_id: questId },
-        });
+            include: {
+                quest_task: true,
+            },
+        }) as QuestWithTasks | null;
         if (!questDb) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
