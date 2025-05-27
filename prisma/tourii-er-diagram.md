@@ -458,6 +458,7 @@ EVENT EVENT
     String route_name 
     Json recommendation 
     String region 
+    String region_desc "❓"
     Float region_latitude 
     Float region_longitude 
     String region_background_media "❓"

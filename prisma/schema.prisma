@@ -1632,6 +1632,9 @@ model model_route {
   /// Get it from model story = saga_name
   region String @db.VarChar(255)
 
+  /// Description of the region
+  region_desc String? @db.Text
+
   /// Latitude of the region
   region_latitude Float
 

@@ -753,6 +753,7 @@ erDiagram
   String(255) route_name
   Json recommendation
   String(255) region
+  String region_desc "nullable"
   Float region_latitude
   Float region_longitude
   String(255) region_background_media "nullable"
@@ -915,6 +916,7 @@ guiding users through a sequence of locations that tell a connected story.
   - `region`
     > Region of the route
     > Get it from model story = saga_name
+  - `region_desc`: Description of the region
   - `region_latitude`: Latitude of the region
   - `region_longitude`: Longitude of the region
   - `region_background_media`

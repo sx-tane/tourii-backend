@@ -5,6 +5,7 @@ interface ModelRouteProps {
     storyId?: string;
     routeName?: string;
     region?: string;
+    regionDesc?: string;
     regionLatitude?: number;
     regionLongitude?: number;
     regionBackgroundMedia?: string;
@@ -41,6 +42,10 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
 
     get region(): string | undefined {
         return this.props.region;
+    }
+
+    get regionDesc(): string | undefined {
+        return this.props.regionDesc;
     }
 
     get regionLatitude(): number | undefined {
