@@ -61,7 +61,10 @@ export class ModelRouteResultBuilder {
                     ),
                 ) ?? [],
             regionWeatherInfo: {
-                ...currentRegionWeatherInfo,
+                regionName: modelRoute.region ?? '',
+                temperatureCelsius: currentRegionWeatherInfo.temperatureCelsius ?? 0,
+                weatherName: currentRegionWeatherInfo.weatherName ?? '',
+                weatherDesc: currentRegionWeatherInfo.weatherDesc ?? '',
             },
             delFlag: modelRoute.delFlag ?? false,
             insUserId: modelRoute.insUserId ?? '',

@@ -2069,12 +2069,17 @@
                     "weatherDesc": {
                       "description": "Description of the weather",
                       "type": "string"
+                    },
+                    "regionName": {
+                      "description": "Name of the region",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "temperatureCelsius",
                     "weatherName",
-                    "weatherDesc"
+                    "weatherDesc",
+                    "regionName"
                   ]
                 },
                 "delFlag": {
@@ -3016,12 +3021,17 @@
                       "weatherDesc": {
                         "description": "Description of the weather",
                         "type": "string"
+                      },
+                      "regionName": {
+                        "description": "Name of the region",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "temperatureCelsius",
                       "weatherName",
-                      "weatherDesc"
+                      "weatherDesc",
+                      "regionName"
                     ]
                   },
                   "delFlag": {
@@ -3324,12 +3334,17 @@
                     "weatherDesc": {
                       "description": "Description of the weather",
                       "type": "string"
+                    },
+                    "regionName": {
+                      "description": "Name of the region",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "temperatureCelsius",
                     "weatherName",
-                    "weatherDesc"
+                    "weatherDesc",
+                    "regionName"
                   ]
                 },
                 "delFlag": {
@@ -4800,12 +4815,17 @@
               "weatherDesc": {
                 "description": "Description of the weather",
                 "type": "string"
+              },
+              "regionName": {
+                "description": "Name of the region",
+                "type": "string"
               }
             },
             "required": [
               "temperatureCelsius",
               "weatherName",
-              "weatherDesc"
+              "weatherDesc",
+              "regionName"
             ]
           },
           "delFlag": {

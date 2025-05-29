@@ -1,4 +1,4 @@
-GET http://localhost:4000/routes/MRT202505-efb5cc-150139-70827a-CAAA
+GET http://localhost:4000/routes/MRT202505-92d614-292251-d58981-BAAA
 x-api-key: your-api-key-2       
 accept-version: 1.0.0
 Content-Type: application/json

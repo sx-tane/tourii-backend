@@ -16,7 +16,9 @@ export const ModelRouteResponseSchema = z.object({
     touristSpotList: z
         .array(TouristSpotResponseSchema)
         .describe('List of tourist spots in the model route'),
-    regionWeatherInfo: WeatherInfoSchema.describe('Current weather info for the region'),
+    regionWeatherInfo: WeatherInfoSchema.describe('Current weather info for the region').extend({
+        regionName: z.string().describe('Name of the region'),
+    }),
     ...MetadataFieldsSchema,
 });
 

@@ -12,7 +12,7 @@ import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.reposit
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType } from '@prisma/client';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
@@ -327,6 +327,10 @@ export class TouriiBackendService {
                     );
                 // Ensure all requested weatherInfos were found
                 if (fetchedWeatherInfos.length !== allGeoInfosForWeatherFetch.length) {
+                    Logger.error(
+                        `Weather not found for tourist spot: ${allGeoInfosForWeatherFetch.length} ${fetchedWeatherInfos.length}`,
+                        'TouriiBackendService',
+                    );
                     throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
                 }
                 fetchedWeatherInfos.forEach((weather) => {
@@ -381,16 +385,64 @@ export class TouriiBackendService {
                     currentTouristSpotWeatherList.push(weather);
                 } else {
                     // E_TB_026 should have been thrown if weather for a fetched GeoInfo wasn't found.
+                    Logger.error(
+                        `Weather not found for tourist spot: ${geo.touristSpotName} ${geo.touristSpotName}`,
+                        'TouriiBackendService',
+                    );
                     throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
                 }
             });
 
             let currentRegionWeatherInfo: WeatherInfo | undefined;
             if (currentRegionGeoInfo) {
+                Logger.debug(
+                    `Looking for weather for region: "${currentRegionGeoInfo.touristSpotName}"`,
+                );
+                Logger.debug(
+                    `Available weather keys: ${Array.from(weatherInfoMap.keys()).join(', ')}`,
+                );
+
+                // Primary lookup by exact name match
                 currentRegionWeatherInfo = weatherInfoMap.get(currentRegionGeoInfo.touristSpotName);
+
+                // Fallback: try case-insensitive lookup
+                if (!currentRegionWeatherInfo) {
+                    const regionNameLower = currentRegionGeoInfo.touristSpotName.toLowerCase();
+                    for (const [key, weather] of weatherInfoMap.entries()) {
+                        if (key.toLowerCase() === regionNameLower) {
+                            currentRegionWeatherInfo = weather;
+                            Logger.debug(
+                                `Found weather using case-insensitive match: "${key}" for region "${currentRegionGeoInfo.touristSpotName}"`,
+                            );
+                            break;
+                        }
+                    }
+                }
+
+                // Second fallback: try partial name match (for cases like "Aomori Prefecture" vs "Aomori")
+                if (!currentRegionWeatherInfo) {
+                    const regionNameLower = currentRegionGeoInfo.touristSpotName.toLowerCase();
+                    for (const [key, weather] of weatherInfoMap.entries()) {
+                        const keyLower = key.toLowerCase();
+                        if (
+                            keyLower.includes(regionNameLower) ||
+                            regionNameLower.includes(keyLower)
+                        ) {
+                            currentRegionWeatherInfo = weather;
+                            Logger.debug(
+                                `Found weather using partial match: "${key}" for region "${currentRegionGeoInfo.touristSpotName}"`,
+                            );
+                            break;
+                        }
+                    }
+                }
             }
 
             if (!currentRegionWeatherInfo) {
+                Logger.error(
+                    `Weather not found for region: "${currentRegionGeoInfo.touristSpotName}". Available keys: [${Array.from(weatherInfoMap.keys()).join(', ')}]`,
+                    'TouriiBackendService',
+                );
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
             }
 
