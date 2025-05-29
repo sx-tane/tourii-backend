@@ -48,6 +48,7 @@ export class ModelRouteResultBuilder {
             storyId: modelRoute.storyId ?? '',
             routeName: modelRoute.routeName ?? '',
             region: modelRoute.region ?? '',
+            regionDesc: modelRoute.regionDesc ?? '',
             regionLatitude: modelRoute.regionLatitude ?? 0,
             regionLongitude: modelRoute.regionLongitude ?? 0,
             regionBackgroundMedia: modelRoute.regionBackgroundMedia ?? '',

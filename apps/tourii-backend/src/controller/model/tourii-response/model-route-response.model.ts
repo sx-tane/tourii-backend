@@ -8,6 +8,7 @@ export const ModelRouteResponseSchema = z.object({
     storyId: z.string().describe('Unique identifier for the story'),
     routeName: z.string().describe('Name of the model route'),
     region: z.string().describe('Region of the model route'),
+    regionDesc: z.string().describe('Description of the region'),
     recommendation: z.array(z.string()).describe('Recommendation of the model route'),
     regionLatitude: z.number().describe('Latitude of the region'),
     regionLongitude: z.number().describe('Longitude of the region'),

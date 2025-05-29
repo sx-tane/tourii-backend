@@ -1798,6 +1798,10 @@
                     "description": "Region of the model route",
                     "type": "string"
                   },
+                  "regionDesc": {
+                    "description": "Description of the region",
+                    "type": "string"
+                  },
                   "recommendation": {
                     "description": "Recommendation of the model route",
                     "type": "array",
@@ -1870,6 +1874,7 @@
                   "storyId",
                   "routeName",
                   "region",
+                  "regionDesc",
                   "recommendation",
                   "touristSpotList"
                 ]
@@ -1897,6 +1902,10 @@
                 },
                 "region": {
                   "description": "Region of the model route",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "Description of the region",
                   "type": "string"
                 },
                 "recommendation": {
@@ -2094,6 +2103,7 @@
                 "storyId",
                 "routeName",
                 "region",
+                "regionDesc",
                 "recommendation",
                 "regionLatitude",
                 "regionLongitude",
@@ -3204,6 +3214,10 @@
                     "description": "Region of the model route",
                     "type": "string"
                   },
+                  "regionDesc": {
+                    "description": "Description of the region",
+                    "type": "string"
+                  },
                   "recommendation": {
                     "description": "Recommendation of the model route",
                     "type": "array",
@@ -3399,6 +3413,7 @@
                   "storyId",
                   "routeName",
                   "region",
+                  "regionDesc",
                   "recommendation",
                   "regionLatitude",
                   "regionLongitude",
@@ -3505,6 +3520,10 @@
                 },
                 "region": {
                   "description": "Region of the model route",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "Description of the region",
                   "type": "string"
                 },
                 "recommendation": {
@@ -3702,6 +3721,7 @@
                 "storyId",
                 "routeName",
                 "region",
+                "regionDesc",
                 "recommendation",
                 "regionLatitude",
                 "regionLongitude",
@@ -4337,6 +4357,10 @@
             "description": "Region of the model route",
             "type": "string"
           },
+          "regionDesc": {
+            "description": "Description of the region",
+            "type": "string"
+          },
           "recommendation": {
             "description": "Recommendation of the model route",
             "type": "array",
@@ -4409,6 +4433,7 @@
           "storyId",
           "routeName",
           "region",
+          "regionDesc",
           "recommendation",
           "touristSpotList"
         ]
@@ -4973,6 +4998,10 @@
             "description": "Region of the model route",
             "type": "string"
           },
+          "regionDesc": {
+            "description": "Description of the region",
+            "type": "string"
+          },
           "recommendation": {
             "description": "Recommendation of the model route",
             "type": "array",
@@ -5168,6 +5197,7 @@
           "storyId",
           "routeName",
           "region",
+          "regionDesc",
           "recommendation",
           "regionLatitude",
           "regionLongitude",
