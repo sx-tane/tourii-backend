@@ -7,40 +7,47 @@ This document outlines the development guidelines and architecture for the Touri
 ## 🌟 Core Features
 
 1. **Authentication & Web3**
+
    - Social auth (Discord, Twitter, Google)
    - Web3 wallet integration
    - NFT-based digital passport system
    - JWT session management
 
 2. **Story & Tourism**
+
    - Story saga management
    - Chapter progression system
    - Location-based content delivery
    - Media asset management (video/image)
 
 3. **Quest & Gamification**
+
    - Online/offline quest management
    - Multi-type task validation
    - Progress tracking
    - Reward distribution
 
 4. **Digital Assets**
+
    - EVM-compatible NFT minting
    - Digital passport management
    - Reward perks as NFTs
    - Blockchain transaction handling
 
 5. **Location & Routes**
+
    - Model route management
    - Location check-in system
    - Weather API integration
    - Geographic data handling
 
 6. **Social Features**
+
    - Memory wall
    - Achievement sharing
 
 7. **Shop & Rewards**
+
    - Point system management
    - NFT reward shop
    - Perk redemption
@@ -96,6 +103,7 @@ tourii-backend/
 ## 🔧 Core Services
 
 ### 1. Authentication
+
 - Multi-provider (Discord, Google, Twitter)
 - Web3 wallet signature login
 - JWT token and refresh
@@ -103,45 +111,53 @@ tourii-backend/
 - Rate limiting support
 
 ### 2. Story System
+
 - CRUD for sagas, chapters
 - Location and route linking
 - Asset upload (images/videos)
 - Chapter progression recording
 
 ### 3. Quest System
+
 - Create/edit quests and sub-tasks
 - Task types: GPS, QR, photo, text, group
 - Quest start, complete, validate endpoints
 - Reward logic: points, NFTs, passport stamps
 
 ### 4. Blockchain
+
 - Mint: digital passport, log NFT, perk NFTs
 - Asset ownership lookup
 - Metadata sync with IPFS
 - Transaction status polling
 
 ### 5. User System
+
 - User profile and logs (travel, quest, story)
 - Points balance, level, rewards
 - Perk redemption + wallet export history
 
 ### 6. Social & Memory Wall
+
 - Post logs (auto-recorded)
 - Public feed and detail fetch
 - Commenting, liking (future extension)
 
 ### 7. Check-In System
+
 - Submit GPS/QR verification
 - Timeline and badge unlocks
 - Fraud check (distance/time rules)
 
 ### 8. Shop
+
 - NFT marketplace (perks)
 - Magatama point deduction
 - Inventory: status tracking (used/active/expired)
 - Burn-on-redeem logic
 
 ### 9. Admin
+
 - Quest/story/route/user/perk CRUD
 - Upload NFT metadata
 - View analytics and logs

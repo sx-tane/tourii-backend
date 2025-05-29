@@ -1,5 +1,5 @@
 import { QuestType } from '@prisma/client';
-import type { QuestEntityWithPagination } from './quest.entity';
+import type { QuestEntity, QuestEntityWithPagination } from './quest.entity';
 
 export interface QuestRepository {
     /**
@@ -13,4 +13,6 @@ export interface QuestRepository {
         isUnlocked?: boolean,
         questType?: QuestType,
     ): Promise<QuestEntityWithPagination>;
+
+    fetchQuestById(questId: string): Promise<QuestEntity>;
 }
