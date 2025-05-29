@@ -451,13 +451,34 @@ async function main() {
         data: {
             story_id: storyBungo.story_id,
             route_name: 'Sacred Falls Trail',
-            recommendation: ['Nature', 'Local Food', 'Photography'], // Example JSON array
+            region: 'Bungo Ono',
+            region_latitude: 32.9795,
+            region_longitude: 131.4172,
+            recommendation: ['Nature', 'Local Food', 'Photography'],
+            ins_user_id: 'system-seed',
+        },
+    });
+    const chapterBungo1 = await prisma.story_chapter.create({
+        data: {
+            story_id: storyBungo.story_id,
+            tourist_spot_id: 'HARAJIRI-001', // We'll update this after creating the spot
+            chapter_number: '1-1',
+            chapter_title: 'The Roar of Harajiri',
+            chapter_desc: 'Witness the power of the falls and learn its legend.',
+            chapter_image: 'https://cdn.tourii.app/images/bungo_ch1.jpg',
+            character_name_list: ['Local Elder', 'Kagura'],
+            real_world_image: 'https://cdn.tourii.app/images/harajiri_main.jpg',
+            chapter_video_url: 'https://cdn.tourii.app/videos/bungo_ch1.mp4',
+            chapter_video_mobile_url: 'https://cdn.tourii.app/videos/bungo_ch1_mobile.mp4',
+            chapter_pdf_url: 'https://cdn.tourii.app/pdfs/bungo_ch1.pdf',
+            is_unlocked: true,
             ins_user_id: 'system-seed',
         },
     });
     const spotHarajiri = await prisma.tourist_spot.create({
         data: {
             model_route_id: routeBungoMain.model_route_id,
+            story_chapter_id: chapterBungo1.story_chapter_id,
             tourist_spot_name: 'Harajiri Falls',
             tourist_spot_desc: 'Known as the "Niagara of the East", a majestic waterfall.',
             latitude: 32.9795,
@@ -465,7 +486,6 @@ async function main() {
             address: 'Harajiri, Ogatamachi, Bungoono, Oita 879-6631, Japan',
             tourist_spot_hashtag: ['#Waterfall', '#BungoOno', '#Nature'],
             image_set: {
-                // Example JSON object
                 main: 'https://cdn.tourii.app/images/harajiri_main.jpg',
                 small: [
                     'https://cdn.tourii.app/images/harajiri_1.jpg',
@@ -475,13 +495,39 @@ async function main() {
             ins_user_id: 'system-seed',
         },
     });
+    await prisma.story_chapter.update({
+        where: {
+            story_chapter_id: chapterBungo1.story_chapter_id,
+        },
+        data: {
+            tourist_spot_id: spotHarajiri.tourist_spot_id,
+        },
+    });
+    const chapterBungo2 = await prisma.story_chapter.create({
+        data: {
+            story_id: storyBungo.story_id,
+            tourist_spot_id: 'CAVE-001', // We'll update this after creating the spot
+            chapter_number: '1-2',
+            chapter_title: 'The Cave of Wisdom',
+            chapter_desc: 'Discover the ancient Buddhist carvings.',
+            chapter_image: 'https://cdn.tourii.app/images/bungo_ch2.jpg',
+            character_name_list: ['Local Guide', 'Monk'],
+            real_world_image: 'https://cdn.tourii.app/images/cave_main.jpg',
+            chapter_video_url: 'https://cdn.tourii.app/videos/bungo_ch2.mp4',
+            chapter_video_mobile_url: 'https://cdn.tourii.app/videos/bungo_ch2_mobile.mp4',
+            chapter_pdf_url: 'https://cdn.tourii.app/pdfs/bungo_ch2.pdf',
+            is_unlocked: true,
+            ins_user_id: 'system-seed',
+        },
+    });
     const spotCave = await prisma.tourist_spot.create({
         data: {
             model_route_id: routeBungoMain.model_route_id,
+            story_chapter_id: chapterBungo2.story_chapter_id,
             tourist_spot_name: 'Fukiji Cave Cliff Buddhas',
             tourist_spot_desc: 'Ancient Buddhist carvings in a cliff face.',
-            latitude: 33.03, // Example coordinates
-            longitude: 131.4, // Example coordinates
+            latitude: 33.03,
+            longitude: 131.4,
             address: 'Asajimachi Imazato, Bungoono, Oita 879-6223, Japan',
             tourist_spot_hashtag: ['#History', '#Buddhism', '#Cave'],
             image_set: {
@@ -489,6 +535,14 @@ async function main() {
                 small: [],
             },
             ins_user_id: 'system-seed',
+        },
+    });
+    await prisma.story_chapter.update({
+        where: {
+            story_chapter_id: chapterBungo2.story_chapter_id,
+        },
+        data: {
+            tourist_spot_id: spotCave.tourist_spot_id,
         },
     });
     const _chapterPrologue1 = await prisma.story_chapter.create({

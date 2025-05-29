@@ -3,11 +3,13 @@
 ## 📝 Data Structure Overview
 
 ### Core Storage
+
 | **Field**                     | **Table**      | **Purpose**                                                                   |
 | ----------------------------- | -------------- | ----------------------------------------------------------------------------- |
 | group_activity_members (JSON) | user_quest_log | Stores group membership data including user IDs, Discord IDs, and group names |
 
 ### JSON Structure Example
+
 ```json
 [
   {
@@ -30,12 +32,14 @@
 ## 🔄 Group Quest Workflow
 
 ### 1. Group Formation Phase
+
 - User either creates a new group or joins an existing one
 - Group information is stored in `user_quest_log.group_activity_members`
 - System validates group size requirements
 - Group leader can set group preferences/settings
 
 ### 2. Quest Progress Tracking
+
 - Individual Progress:
   - Each member completes assigned tasks
   - Progress tracked in user_quest_log (standard task status)
@@ -46,6 +50,7 @@
   - Updates group milestone achievements
 
 ### 3. Final Check-In Process
+
 - System Requirements:
   - All group members must complete their tasks
   - Group leader initiates final check-in
@@ -68,11 +73,13 @@
 ## ✨ Implementation Benefits
 
 1. **Schema Flexibility**
+
    - JSON structure allows easy extension
    - No database migrations needed
    - Future-proof for additional features
 
 2. **Performance Considerations**
+
    - Index group_activity_members for efficient queries
    - Consider caching for frequent group status checks
    - Optimize batch updates for group progress
@@ -85,11 +92,13 @@
 ## 📋 Technical Notes
 
 1. **Query Optimization**
+
    - Use JSON containment operators for member searches
    - Create appropriate indexes for group lookups
    - Consider materialized views for complex group stats
 
 2. **Error Handling**
+
    - Group size validation
    - Member duplicate prevention
    - Concurrent update handling
@@ -97,4 +106,4 @@
 3. **Monitoring**
    - Track group creation/completion rates
    - Monitor group size distributions
-   - Log failed group operations 
+   - Log failed group operations

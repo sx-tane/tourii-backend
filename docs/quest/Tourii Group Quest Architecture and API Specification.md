@@ -5,6 +5,7 @@
 ## 1. Overview
 
 Tourii uses a **hybrid architecture** combining:
+
 - **REST API**: for data persistence (quests, check-ins)
 - **WebSocket**: for real-time group collaboration (waiting room, check-ins)
 
@@ -12,11 +13,11 @@ Tourii uses a **hybrid architecture** combining:
 
 ## 2. Communication Design
 
-| Layer | Technology | Purpose |
-|:--|:--|:--|
-| Data Save | REST API | Stable writes to PostgreSQL |
-| Real-Time Notification | WebSocket (Socket.IO) | Push updates instantly |
-| Authentication | JWT | Required for both REST and WebSocket |
+| Layer                  | Technology            | Purpose                              |
+| :--------------------- | :-------------------- | :----------------------------------- |
+| Data Save              | REST API              | Stable writes to PostgreSQL          |
+| Real-Time Notification | WebSocket (Socket.IO) | Push updates instantly               |
+| Authentication         | JWT                   | Required for both REST and WebSocket |
 
 ---
 
@@ -109,17 +110,17 @@ src/
 
 ### Client Can Emit:
 
-| Event | Payload |
-|:--|:--|
-| `joinQuestRoom` | `{ questId: string }` |
-| `checkIn` | `{ questId: string, locationId: string }` |
+| Event           | Payload                                   |
+| :-------------- | :---------------------------------------- |
+| `joinQuestRoom` | `{ questId: string }`                     |
+| `checkIn`       | `{ questId: string, locationId: string }` |
 
 ### Server Emits:
 
-| Event | Payload |
-|:--|:--|
-| `playerJoined` | `{ userId: string, questId: string }` |
-| `newCheckIn` | `{ userId: string, questId: string, locationId: string, timestamp: string }` |
+| Event          | Payload                                                                      |
+| :------------- | :--------------------------------------------------------------------------- |
+| `playerJoined` | `{ userId: string, questId: string }`                                        |
+| `newCheckIn`   | `{ userId: string, questId: string, locationId: string, timestamp: string }` |
 
 ---
 
@@ -130,7 +131,7 @@ src/
 
 ```javascript
 const socket = io('https://tourii.xyz/realtime/quests', {
-  auth: { token: YOUR_JWT_TOKEN }
+  auth: { token: YOUR_JWT_TOKEN },
 });
 ```
 
@@ -169,12 +170,18 @@ export class QuestsController {
   constructor(private readonly questsService: QuestsService) {}
 
   @Post(':id/join')
-  async joinQuest(@Param('id') questId: string, @Body() body: { userId: string }) {
+  async joinQuest(
+    @Param('id') questId: string,
+    @Body() body: { userId: string },
+  ) {
     return this.questsService.joinQuest(body.userId, questId);
   }
 
   @Post(':id/check-in')
-  async checkIn(@Param('id') questId: string, @Body() body: { userId: string; locationId: string }) {
+  async checkIn(
+    @Param('id') questId: string,
+    @Body() body: { userId: string; locationId: string },
+  ) {
     return this.questsService.checkIn({
       userId: body.userId,
       questId,
@@ -191,7 +198,7 @@ export class QuestsController {
 ```typescript
 @WebSocketGateway({
   namespace: '/realtime/quests',
-  cors: { origin: '*' }
+  cors: { origin: '*' },
 })
 export class QuestsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -214,7 +221,10 @@ export class QuestsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinQuestRoom')
-  async joinQuestRoom(@ConnectedSocket() socket: Socket, @MessageBody() data: { questId: string }) {
+  async joinQuestRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { questId: string },
+  ) {
     socket.join(`quest_${data.questId}`);
   }
 
@@ -275,7 +285,11 @@ export class QuestsRepository {
     });
   }
 
-  async saveCheckIn(data: { userId: string; questId: string; locationId: string }) {
+  async saveCheckIn(data: {
+    userId: string;
+    questId: string;
+    locationId: string;
+  }) {
     return this.prisma.user_travel_log.create({
       data: {
         user_id: data.userId,

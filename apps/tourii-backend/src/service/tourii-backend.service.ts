@@ -20,7 +20,7 @@ import type { StoryCreateRequestDto } from '../controller/model/tourii-request/c
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
-import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
@@ -29,6 +29,7 @@ import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
+import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
 
 @Injectable()
 export class TouriiBackendService {
@@ -240,7 +241,7 @@ export class TouriiBackendService {
         isPremium?: boolean,
         isUnlocked?: boolean,
         questType?: QuestType,
-    ): Promise<QuestResponseDto> {
+    ): Promise<QuestListResponseDto> {
         const quests = await this.questRepository.fetchQuestsWithPagination(
             page,
             limit,
@@ -249,6 +250,11 @@ export class TouriiBackendService {
             questType,
         );
         return QuestResultBuilder.questWithPaginationToDto(quests);
+    }
+
+    async getQuestById(questId: string): Promise<QuestResponseDto> {
+        const quest = await this.questRepository.fetchQuestById(questId);
+        return QuestResultBuilder.questToDto(quest);
     }
 
     /**

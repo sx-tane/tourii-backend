@@ -35,9 +35,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
-import {
-    QuestListQueryDto,
-} from './model/tourii-request/fetch/quest-fetch-request.model';
+import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
@@ -54,7 +52,10 @@ import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
 } from './model/tourii-response/model-route-response.model';
-import { QuestResponseDto, QuestsResponseSchema } from './model/tourii-response/quest-response.model';
+import {
+    QuestListResponseDto,
+    QuestListResponseSchema,
+} from './model/tourii-response/quest-list-response.model';
 import {
     StoryResponseDto,
     StoryResponseSchema,
@@ -63,6 +64,10 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
+import {
+    QuestResponseDto,
+    QuestResponseSchema,
+} from './model/tourii-response/quest-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -77,6 +82,7 @@ import {
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
+    QuestListResponseDto,
     QuestResponseDto,
 )
 export class TouriiBackendController {
@@ -514,13 +520,13 @@ export class TouriiBackendController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Fetch quests successfully',
-        type: QuestResponseDto,
-        schema: zodToOpenAPI(QuestsResponseSchema),
+        type: QuestListResponseDto,
+        schema: zodToOpenAPI(QuestListResponseSchema),
     })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async getQuestList(@Query() query: QuestListQueryDto) {
+    async getQuestList(@Query() query: QuestListQueryDto): Promise<QuestListResponseDto> {
         const { page, limit, isPremium, isUnlocked, questType } = query;
         return await this.touriiBackendService.fetchQuestsWithPagination(
             Number(page),
@@ -529,6 +535,38 @@ export class TouriiBackendController {
             isUnlocked === undefined ? undefined : Boolean(isUnlocked),
             questType,
         );
+    }
+
+    @Get('/quests/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Get quest by ID',
+        description: 'Get quest by ID',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Quest found successfully',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getQuestById(
+        @Param('questId')
+        questId: string,
+    ): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.getQuestById(questId);
     }
 
     @Get('/routes')
