@@ -75,7 +75,7 @@ export class ModelRouteCreateRequestBuilder {
             {
                 storyId: storyEntity.id,
                 routeName: dto.routeName,
-                region: storyEntity.sagaName,
+                region: dto.region,
                 regionDesc: dto.regionDesc,
                 regionLatitude: regionInfo.latitude,
                 regionLongitude: regionInfo.longitude,

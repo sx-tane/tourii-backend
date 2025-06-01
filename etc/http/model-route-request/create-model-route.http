@@ -6,9 +6,9 @@ accept-version: 1.0.0
 
 {
     "storyId": "STO202505-a26441-292305-c178d6-BAAA",
-    "routeName": "The Awakening Route",
-    "region": "Aomori",
-    "regionDesc": "Aomori is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
+    "routeName": "The Sloth Route",
+    "region": "Bungo Ono",
+    "regionDesc": "Bungo Ono is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
     "recommendation": [
         "Ideal for First Time Visitors",
         "A good mix of nature and culture",
@@ -16,17 +16,17 @@ accept-version: 1.0.0
     ],
     "touristSpotList": [
         {
-            "storyChapterId": "SCT202505-b99a95-292305-35b10b-BAAA",
-            "touristSpotName": "Aomori Castle",
-            "touristSpotDesc": "Aomori Castle is a castle in the world of Tourii. It is a castle that is known for its beautiful nature and culture. It is a castle that is known for its beautiful nature and culture.",
+            "storyChapterId": "SCT202505-2b167e-292250-fcec15-CAAA",
+            "touristSpotName": "Ninomiya Shrine",
+            "touristSpotDesc": "Ninomiya Shrine is a shrine in the world of Tourii. It is a shrine that is known for its beautiful nature and culture. It is a shrine that is known for its beautiful nature and culture.",
             "bestVisitTime": "9:00 am",
-            "touristSpotHashtag": ["#Castle", "#History"],
+            "touristSpotHashtag": ["#Shrine", "#SpiritualSite"],
             "imageSet": {
-                "main": "/image/touriiverse/aomori/castle.png",
+                "main": "/image/touriiverse/bungo-ono/chapter2.png",
                 "small": [
-                    "/image/model-route/1/aomori/castle/1.jpg",
-                    "/image/model-route/1/aomori/castle/2.jpg",
-                    "/image/model-route/1/aomori/castle/3.jpg"
+                    "/image/model-route/1/ninomiya/1.jpg",
+                    "/image/model-route/1/ninomiya/2.jpg",
+                    "/image/model-route/1/ninomiya/3.jpg"
                 ]
             }
         }
