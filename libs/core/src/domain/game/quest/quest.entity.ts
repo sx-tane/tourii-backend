@@ -1,9 +1,9 @@
 import { QuestType, RewardType } from '@prisma/client';
 import { Entity } from '../../entity';
 import { TaskEntity } from '../task/task.entity';
+import { TouristSpot } from '../model-route/tourist-spot';
 
 export interface QuestProps {
-    touristSpotId?: string;
     questName?: string;
     questDesc?: string;
     questType?: QuestType;
@@ -19,6 +19,7 @@ export interface QuestProps {
     updDateTime: Date;
     requestId?: string;
     tasks?: TaskEntity[];
+    touristSpot?: TouristSpot;
 }
 
 export class QuestEntity extends Entity<QuestProps> {
@@ -29,10 +30,6 @@ export class QuestEntity extends Entity<QuestProps> {
 
     get questId(): string | undefined {
         return this.id;
-    }
-
-    get touristSpotId(): string | undefined {
-        return this.props.touristSpotId;
     }
 
     get questName(): string | undefined {
@@ -93,6 +90,10 @@ export class QuestEntity extends Entity<QuestProps> {
 
     get tasks(): TaskEntity[] | undefined {
         return this.props.tasks;
+    }
+
+    get touristSpot(): TouristSpot | undefined {
+        return this.props.touristSpot;
     }
 }
 

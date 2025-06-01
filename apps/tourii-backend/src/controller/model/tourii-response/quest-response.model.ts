@@ -1,6 +1,8 @@
 import { QuestType, TaskTheme, TaskType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { TouristSpotResponseSchema } from './tourist-spot-response.model';
+import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
 
 export const TaskResponseSchema = z.object({
     taskId: z.string().describe('Unique identifier for the task'),
@@ -19,17 +21,19 @@ export const TaskResponseSchema = z.object({
 });
 
 export const QuestResponseSchema = z.object({
-    quest: z.object({
-        questId: z.string().describe('Unique identifier for the quest'),
-        questName: z.string().describe('Name of the quest'),
-        questDesc: z.string().describe('Description of the quest'),
-        questImage: z.string().optional().describe('URL to the quest image'),
-        questType: z.nativeEnum(QuestType).describe('Quest type'),
-        isUnlocked: z.boolean().describe('Whether quest is unlocked'),
-        isPremium: z.boolean().describe('Whether quest is premium'),
-        totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
-        tasks: z.array(TaskResponseSchema).optional().describe('Tasks associated with this quest'),
-    }),
+    questId: z.string().describe('Unique identifier for the quest'),
+    questName: z.string().describe('Name of the quest'),
+    questDesc: z.string().describe('Description of the quest'),
+    questImage: z.string().optional().describe('URL to the quest image'),
+    questType: z.nativeEnum(QuestType).describe('Quest type'),
+    isUnlocked: z.boolean().describe('Whether quest is unlocked'),
+    isPremium: z.boolean().describe('Whether quest is premium'),
+    totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
+    tasks: z.array(TaskResponseSchema).optional().describe('Tasks associated with this quest'),
+    touristSpot: TouristSpotResponseSchema.optional().describe(
+        'Tourist spot associated with this quest',
+    ),
 });
 
+export class TaskResponseDto extends createZodDto(TaskResponseSchema) {}
 export class QuestResponseDto extends createZodDto(QuestResponseSchema) {}

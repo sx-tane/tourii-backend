@@ -102,4 +102,4 @@ export class TaskEntity extends Entity<TaskProps> {
     get requestId(): string | undefined {
         return this.props.requestId;
     }
-} 
+}

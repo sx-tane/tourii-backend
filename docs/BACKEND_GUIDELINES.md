@@ -164,12 +164,14 @@ tourii-backend/
 - Social content pushing
 
 ### 10. Weather & Location Services
+
 - OpenWeatherMap API integration with retry logic
 - Configurable caching (default: 15 minutes)
 - Rate limiting and batch processing
 - Automatic error recovery and fallback handling
 
 **Environment Variables:**
+
 ```bash
 # Weather API Configuration
 OPEN_WEATHER_API_KEY=your_openweather_api_key
@@ -177,7 +179,7 @@ WEATHER_CACHE_TTL_SECONDS=900  # Cache TTL in seconds (default: 15 minutes)
 WEATHER_API_TIMEOUT=10000      # API timeout in milliseconds (default: 10 seconds)
 WEATHER_ENABLE_FUZZY_LOOKUP=true  # Enable fuzzy name matching for weather lookups (default: true)
 
-# Google Maps API Configuration  
+# Google Maps API Configuration
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 GEO_API_TIMEOUT=5000          # API timeout in milliseconds (default: 5 seconds)
 ```
