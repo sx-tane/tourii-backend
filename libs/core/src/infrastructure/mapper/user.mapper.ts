@@ -1,7 +1,6 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRoleType, user } from '@prisma/client';
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class UserMapper {
     static userEntityToPrismaInput(userEntity: UserEntity): user {
         return {
@@ -14,6 +13,7 @@ export class UserMapper {
             google_email: userEntity.googleEmail ?? null,
             email: userEntity.email ?? null,
             password: userEntity.password,
+            refresh_token: userEntity.refreshToken ?? null,
             passport_wallet_address: userEntity.passportWalletAddress ?? null,
             perks_wallet_address: userEntity.perksWalletAddress,
             latest_ip_address: userEntity.latestIpAddress ?? null,

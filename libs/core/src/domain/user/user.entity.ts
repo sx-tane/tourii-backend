@@ -9,6 +9,7 @@ interface UserProps {
     googleEmail?: string;
     email?: string;
     password: string;
+    refreshToken?: string;
     passportWalletAddress?: string;
     perksWalletAddress: string;
     latestIpAddress?: string;
@@ -28,7 +29,6 @@ interface UserProps {
 }
 
 export class UserEntity extends Entity<UserProps> {
-    // biome-ignore lint/complexity/noUselessConstructor: <explanation>
     constructor(props: UserProps, id: string) {
         super(props, id);
     }
@@ -67,6 +67,10 @@ export class UserEntity extends Entity<UserProps> {
 
     get password(): string {
         return this.props.password;
+    }
+
+    get refreshToken(): string | undefined {
+        return this.props.refreshToken;
     }
 
     get passportWalletAddress(): string | undefined {
