@@ -366,6 +366,11 @@ model user {
   /// Hashed password for native authentication
   password String
 
+  /// Refresh Token
+  ///
+  /// Refresh token for native authentication
+  refresh_token String?
+
   //----
   // BLOCKCHAIN & WALLET
   //----
