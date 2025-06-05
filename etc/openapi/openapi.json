@@ -1802,6 +1802,10 @@
                     "description": "Description of the region",
                     "type": "string"
                   },
+                  "regionBackgroundMedia": {
+                    "description": "Background media of the region",
+                    "type": "string"
+                  },
                   "recommendation": {
                     "description": "Recommendation of the model route",
                     "type": "array",
@@ -1875,6 +1879,7 @@
                   "routeName",
                   "region",
                   "regionDesc",
+                  "regionBackgroundMedia",
                   "recommendation",
                   "touristSpotList"
                 ]
@@ -4376,6 +4381,10 @@
             "description": "Description of the region",
             "type": "string"
           },
+          "regionBackgroundMedia": {
+            "description": "Background media of the region",
+            "type": "string"
+          },
           "recommendation": {
             "description": "Recommendation of the model route",
             "type": "array",
@@ -4449,6 +4458,7 @@
           "routeName",
           "region",
           "regionDesc",
+          "regionBackgroundMedia",
           "recommendation",
           "touristSpotList"
         ]

@@ -1,14 +1,15 @@
 POST http://localhost:4000/routes/create-model-route
 Content-Type: application/json
-x-api-key: your-api-key-2       
+x-api-key: your-api-key-2
 accept-version: 1.0.0
 
 
 {
-    "storyId": "STO202505-a26441-292305-c178d6-BAAA",
+    "storyId": "STO202506-100eaf-052307-d7ef94-BAAA",
     "routeName": "The Sloth Route",
-    "region": "Bungo Ono",
-    "regionDesc": "Bungo Ono is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
+    "region": "Aomori",
+    "regionDesc": "Aomori is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
+    "regionBackgroundMedia": "/image/world/Aomori.png",
     "recommendation": [
         "Ideal for First Time Visitors",
         "A good mix of nature and culture",
@@ -16,8 +17,8 @@ accept-version: 1.0.0
     ],
     "touristSpotList": [
         {
-            "storyChapterId": "SCT202505-2b167e-292250-fcec15-CAAA",
-            "touristSpotName": "Ninomiya Shrine",
+            "storyChapterId": "SCT202506-21c4ae-052307-5de0cc-BAAA",
+            "touristSpotName": "Ninomiya Shrine Bungo Ono",
             "touristSpotDesc": "Ninomiya Shrine is a shrine in the world of Tourii. It is a shrine that is known for its beautiful nature and culture. It is a shrine that is known for its beautiful nature and culture.",
             "bestVisitTime": "9:00 am",
             "touristSpotHashtag": ["#Shrine", "#SpiritualSite"],

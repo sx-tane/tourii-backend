@@ -79,7 +79,7 @@ export class ModelRouteCreateRequestBuilder {
                 regionDesc: dto.regionDesc,
                 regionLatitude: regionInfo.latitude,
                 regionLongitude: regionInfo.longitude,
-                regionBackgroundMedia: storyEntity.backgroundMedia,
+                regionBackgroundMedia: dto.regionBackgroundMedia,
                 recommendation: dto.recommendation,
                 touristSpotList: dto.touristSpotList
                     ? ModelRouteCreateRequestBuilder.dtoToTouristSpot(
