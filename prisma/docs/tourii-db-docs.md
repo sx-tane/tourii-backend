@@ -266,7 +266,8 @@ define access levels and privileges in the system.
   - `refresh_token`
     > Refresh Token
     > 
-    > Refresh token for native authentication
+    > Bearer for rotating refresh token (hashed or plaintext)
+    > Each time we issue a new refresh token, we replace this field.
   - `passport_wallet_address`
     > Digital passport Wallet Address
     > 
