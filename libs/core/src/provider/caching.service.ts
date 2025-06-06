@@ -57,11 +57,10 @@ export class CachingService {
                     // Store fresh data in cache
                     if (freshData !== null && freshData !== undefined) {
                         try {
-                            await this.cacheManager.set(
-                                key,
-                                JSON.stringify(freshData),
-                                ttlSeconds * 1000, // Convert TTL to milliseconds
-                            );
+                            // cache-manager expects TTL in seconds. Avoid
+                            // multiplying by 1000 which would drastically
+                            // extend the expiration time.
+                            await this.cacheManager.set(key, JSON.stringify(freshData), ttlSeconds);
                             this.logger.log(
                                 `Stored fresh data in cache with key: ${key}, TTL: ${ttlSeconds}s`,
                             );
