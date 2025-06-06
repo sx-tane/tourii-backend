@@ -82,7 +82,10 @@ describe('AppController (e2e)', () => {
                 .set({
                     'accept-version': TEST_API_VERSION,
                 })
-                .expect(401);
+                .expect(401)
+                .expect(({ body }) => {
+                    expect(body.code).toBe('E_TB_010');
+                });
         });
 
         it('should fail without version', () => {
@@ -91,7 +94,10 @@ describe('AppController (e2e)', () => {
                 .set({
                     'x-api-key': TEST_API_KEY,
                 })
-                .expect(401);
+                .expect(401)
+                .expect(({ body }) => {
+                    expect(body.code).toBe('E_TB_020');
+                });
         });
 
         it('should fail with invalid API key', () => {
@@ -101,7 +107,10 @@ describe('AppController (e2e)', () => {
                     'x-api-key': 'invalid-key',
                     'accept-version': TEST_API_VERSION,
                 })
-                .expect(401);
+                .expect(401)
+                .expect(({ body }) => {
+                    expect(body.code).toBe('E_TB_011');
+                });
         });
 
         it('should fail with invalid version', () => {
@@ -111,7 +120,10 @@ describe('AppController (e2e)', () => {
                     'x-api-key': TEST_API_KEY,
                     'accept-version': 'invalid',
                 })
-                .expect(401);
+                .expect(401)
+                .expect(({ body }) => {
+                    expect(body.code).toBe('E_TB_021');
+                });
         });
 
         it('should fail with old version', () => {
@@ -121,7 +133,10 @@ describe('AppController (e2e)', () => {
                     'x-api-key': TEST_API_KEY,
                     'accept-version': '0.9.0',
                 })
-                .expect(401);
+                .expect(401)
+                .expect(({ body }) => {
+                    expect(body.code).toBe('E_TB_022');
+                });
         });
     });
 });
