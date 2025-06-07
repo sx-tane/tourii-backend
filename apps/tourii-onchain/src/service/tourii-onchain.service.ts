@@ -14,6 +14,8 @@ import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { SailsCalls } from 'sailscalls';
 import { TouriiOnchainConstants } from '../tourii-onchain.constant';
 import { JWTData } from './dto/jwt-dto';
+import { PassportChildLinkRepository } from '@app/core/domain/onchain/passport-child-link.repository';
+import { PrismaService } from '@app/core/provider/prisma.service';
 
 @Injectable()
 export class TouriiOnchainService {
@@ -24,6 +26,9 @@ export class TouriiOnchainService {
         private readonly jwtRepository: JwtRepository,
         @Inject(TouriiOnchainConstants.ENCRYPTION_REPOSITORY_TOKEN)
         private readonly encryptionRepository: EncryptionRepository,
+        @Inject(TouriiOnchainConstants.PASSPORT_CHILD_LINK_REPOSITORY_TOKEN)
+        private readonly passportChildLinkRepository: PassportChildLinkRepository,
+        private readonly prisma: PrismaService,
     ) {}
 
     private async initSailsCalls() {
@@ -273,5 +278,37 @@ export class TouriiOnchainService {
             methodName: 'TrafficLight',
         });
         return response;
+    }
+
+    async getLinkedChildren(passportTokenId: string) {
+        const links = await this.passportChildLinkRepository.findLinksByPassportTokenId(
+            passportTokenId,
+        );
+
+        const childTokenIds = links.map((l) => l.child_token_id);
+        const catalogItems = await this.prisma.onchain_item_catalog.findMany({
+            where: { token_id: { in: childTokenIds } },
+            select: { token_id: true, metadata_url: true },
+        });
+
+        const metadataMap = new Map(
+            catalogItems.map((i) => [i.token_id, i.metadata_url ?? '']),
+        );
+
+        const travelLogs = links
+            .filter((l) => l.child_type === 'TRAVEL_LOG')
+            .map((l) => ({
+                tokenId: l.child_token_id,
+                metadataUri: metadataMap.get(l.child_token_id) ?? '',
+            }));
+
+        const perks = links
+            .filter((l) => l.child_type === 'PERK')
+            .map((l) => ({
+                tokenId: l.child_token_id,
+                metadataUri: metadataMap.get(l.child_token_id) ?? '',
+            }));
+
+        return { passportTokenId, travelLogs, perks };
     }
 }

@@ -1,6 +1,8 @@
 import { SailsCallsRepositoryApi } from '@app/core/infrastructure/api/sails-calls-repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { JwtRepositoryAuth } from '@app/core/infrastructure/authentication/jwt-repository-auth';
+import { PassportChildLinkRepositoryDb } from '@app/core/infrastructure/datasource/passport-child-link.repository-db';
+import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-logging-service';
 import { getEnv } from '@app/core/utils/env-utils';
 import { HttpModule } from '@nestjs/axios';
@@ -23,6 +25,7 @@ import { TouriiOnchainConstants } from './tourii-onchain.constant';
         Logger,
         TouriiBackendLoggingService,
         TouriiOnchainService,
+        PrismaService,
         HttpAdapterHost,
         {
             provide: TouriiOnchainConstants.SAILS_CALLS_REPOSITORY_TOKEN,
@@ -35,6 +38,10 @@ import { TouriiOnchainConstants } from './tourii-onchain.constant';
         {
             provide: TouriiOnchainConstants.JWT_REPOSITORY_TOKEN,
             useClass: JwtRepositoryAuth,
+        },
+        {
+            provide: TouriiOnchainConstants.PASSPORT_CHILD_LINK_REPOSITORY_TOKEN,
+            useClass: PassportChildLinkRepositoryDb,
         },
     ],
 })

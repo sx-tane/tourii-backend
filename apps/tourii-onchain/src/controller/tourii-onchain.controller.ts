@@ -1,6 +1,6 @@
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Controller, Get, HttpStatus, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger, Post, Req, Res, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { TouriiOnchainService } from '../service/tourii-onchain.service';
@@ -172,5 +172,10 @@ export class TouriiOnchainController {
         } catch (e) {
             res.status(500).send(`Error: ${JSON.stringify(e)}`);
         }
+    }
+
+    @Get('web3/passport/:passportTokenId/linked-children')
+    async linkedChildren(@Param('passportTokenId') passportTokenId: string) {
+        return this.touriiOnchainService.getLinkedChildren(passportTokenId);
     }
 }
