@@ -5,6 +5,7 @@ import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
+import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
@@ -14,6 +15,7 @@ import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-ba
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType } from '@prisma/client';
+import { StoryStatus } from '@prisma/client';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
@@ -46,6 +48,8 @@ export class TouriiBackendService {
         private readonly weatherInfoRepository: WeatherInfoRepository,
         @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
         private readonly questRepository: QuestRepository,
+        @Inject(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN)
+        private readonly userStoryLogRepository: UserStoryLogRepository,
     ) {}
 
     /**
@@ -539,6 +543,14 @@ export class TouriiBackendService {
     // async getUserByUserId(userId: string) {
     //   return this.userRepository.getUserInfoByUserId(userId);
     // }
+
+    async trackChapterProgress(
+        userId: string,
+        chapterId: string,
+        status: StoryStatus,
+    ): Promise<void> {
+        await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
+    }
 
     // --- Private Helper Methods ---
 
