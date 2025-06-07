@@ -27,31 +27,28 @@ describe('UserRepositoryDb', () => {
 
     it('creates and retrieves a user record', async () => {
         const baseDate = new Date('2024-01-01T00:00:00.000Z');
-        const user = new UserEntity(
-            {
-                username: 'testuser',
-                password: 'secret',
-                perksWalletAddress: 'wallet',
-                isPremium: false,
-                totalQuestCompleted: 0,
-                totalTravelDistance: 0,
-                role: 'USER',
-                registeredAt: baseDate,
-                discordJoinedAt: baseDate,
-                isBanned: false,
-                delFlag: false,
-                insUserId: 'system',
-                insDateTime: baseDate,
-                updUserId: 'system',
-                updDateTime: baseDate,
-            },
-            'test-user-id',
-        );
+        const user = new UserEntity({
+            username: 'testuser',
+            password: 'secret',
+            perksWalletAddress: 'wallet',
+            isPremium: false,
+            totalQuestCompleted: 0,
+            totalTravelDistance: 0,
+            role: 'USER',
+            registeredAt: baseDate,
+            discordJoinedAt: baseDate,
+            isBanned: false,
+            delFlag: false,
+            insUserId: 'system',
+            insDateTime: baseDate,
+            updUserId: 'system',
+            updDateTime: baseDate,
+        });
 
         const created = await repository.createUser(user);
-        expect(created.userId).toEqual('test-user-id');
+        expect(created.userId).toBeDefined();
 
-        const found = await repository.getUserInfoByUserId('test-user-id');
+        const found = await repository.getUserInfoByUserId(created.userId ?? '');
         expect(found?.username).toEqual('testuser');
     });
 });

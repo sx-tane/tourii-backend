@@ -39,9 +39,8 @@ describe('ModelRouteRepositoryDb', () => {
     it('createModelRoute stores data in the database and invalidates cache', async () => {
         const baseDate = new Date('2024-01-01T00:00:00.000Z');
         // A story is required for a model route due to foreign key constraints.
-        await prisma.story.create({
+        const story = await prisma.story.create({
             data: {
-                story_id: 'story1',
                 saga_name: 'Test Saga',
                 saga_desc: 'A saga for testing',
                 order: 1,
@@ -52,7 +51,7 @@ describe('ModelRouteRepositoryDb', () => {
 
         const modelRoute = new ModelRouteEntity(
             {
-                storyId: 'story1',
+                storyId: story.story_id,
                 routeName: 'Route 1',
                 insUserId: 'system',
                 insDateTime: baseDate,
@@ -60,20 +59,20 @@ describe('ModelRouteRepositoryDb', () => {
                 updDateTime: baseDate,
                 touristSpotList: [],
             },
-            'route1',
+            undefined,
         );
         const created = await repository.createModelRoute(modelRoute);
-        expect(created.modelRouteId).toEqual('route1');
+        expect(created.modelRouteId).toBeDefined();
 
         // Verify the data was stored in the database.
         const found = await prisma.model_route.findUnique({
-            where: { model_route_id: 'route1' },
+            where: { model_route_id: created.modelRouteId },
         });
         expect(found).not.toBeNull();
         expect(found?.route_name).toEqual('Route 1');
 
         // Verify the cache was invalidated.
-        expect(caching.invalidate).toHaveBeenCalledWith('model_route_raw:route1');
+        expect(caching.invalidate).toHaveBeenCalledWith(`model_route_raw:${created.modelRouteId}`);
         expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
     });
 });

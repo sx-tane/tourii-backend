@@ -50,14 +50,14 @@ describe('StoryRepositoryDb', () => {
                 updUserId: 'system',
                 updDateTime: baseDate,
             },
-            'story1',
+            undefined,
         );
         const created = await repository.createStory(story);
-        expect(created.storyId).toEqual('story1');
+        expect(created.storyId).toBeDefined();
 
         // Verify the data was stored in the database.
         const found = await prisma.story.findUnique({
-            where: { story_id: 'story1' },
+            where: { story_id: created.storyId },
         });
         expect(found).not.toBeNull();
         expect(found?.saga_name).toEqual('Saga');

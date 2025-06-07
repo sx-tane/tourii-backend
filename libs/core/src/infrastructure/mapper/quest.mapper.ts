@@ -3,7 +3,6 @@ import { TaskEntity } from '@app/core/domain/game/task/task.entity';
 import type { quest, quest_task, tourist_spot } from '@prisma/client';
 import { TouristSpotMapper } from './tourist-spot-mapper';
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Mapper class is a common pattern for grouping static mapping functions
 export class QuestMapper {
     static prismaModelToQuestEntity(
         prismaModel: quest & { quest_task?: quest_task[]; tourist_spot?: tourist_spot },

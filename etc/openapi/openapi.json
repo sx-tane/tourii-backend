@@ -1754,6 +1754,111 @@
         ]
       }
     },
+    "/stories/chapters/{chapterId}/progress": {
+      "post": {
+        "description": "Track user reading progress for a story chapter",
+        "operationId": "TouriiBackendController_markChapterProgress",
+        "parameters": [
+          {
+            "name": "chapterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Progress request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "description": "ID of the user reading the chapter",
+                    "type": "string"
+                  },
+                  "status": {
+                    "description": "Current story status",
+                    "type": "string",
+                    "enum": [
+                      "UNREAD",
+                      "IN_PROGRESS",
+                      "COMPLETED"
+                    ],
+                    "x-enumNames": [
+                      "UNREAD",
+                      "IN_PROGRESS",
+                      "COMPLETED"
+                    ]
+                  }
+                },
+                "required": [
+                  "userId",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Progress recorded"
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Save chapter reading progress",
+        "tags": [
+          "Stories"
+        ]
+      }
+    },
     "/routes/create-model-route": {
       "post": {
         "description": "Create a new model route.",
