@@ -37,6 +37,10 @@ import {
 } from './model/tourii-request/create/tourist-spot-create-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
+    ChapterProgressRequestDto,
+    ChapterProgressRequestSchema,
+} from './model/tourii-request/update/chapter-progress-request.model';
+import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
@@ -57,6 +61,10 @@ import {
     QuestListResponseSchema,
 } from './model/tourii-response/quest-list-response.model';
 import {
+    QuestResponseDto,
+    QuestResponseSchema,
+} from './model/tourii-response/quest-response.model';
+import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
@@ -64,10 +72,6 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
-import {
-    QuestResponseDto,
-    QuestResponseSchema,
-} from './model/tourii-response/quest-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -331,6 +335,30 @@ export class TouriiBackendController {
         storyId: string,
     ): Promise<StoryChapterResponseDto[]> {
         return await this.touriiBackendService.getStoryChapters(storyId);
+    }
+
+    @Post('/stories/chapters/:chapterId/progress')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Save chapter reading progress',
+        description: 'Track user reading progress for a story chapter',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Progress request',
+        schema: zodToOpenAPI(ChapterProgressRequestSchema),
+    })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'Progress recorded' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async markChapterProgress(
+        @Param('chapterId') chapterId: string,
+        @Body() body: ChapterProgressRequestDto,
+    ): Promise<{ success: boolean }> {
+        await this.touriiBackendService.trackChapterProgress(body.userId, chapterId, body.status);
+        return { success: true };
     }
 
     @Post('/routes/create-model-route')
