@@ -1,11 +1,12 @@
 import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
+import { Task } from '@app/core/domain/game/quest/task';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType, quest, quest_task, tourist_spot } from '@prisma/client';
+import { Prisma, QuestType, RewardType, TaskTheme, TaskType, quest, quest_task, tourist_spot } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
@@ -94,5 +95,83 @@ export class QuestRepositoryDb implements QuestRepository {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
         return QuestMapper.prismaModelToQuestEntity(questDb);
+    }
+
+    async updateQuest(data: {
+        questId: string;
+        touristSpotId: string;
+        questName: string;
+        questDesc: string;
+        questImage?: string;
+        questType: QuestType;
+        isUnlocked: boolean;
+        isPremium: boolean;
+        totalMagatamaPointAwarded: number;
+        rewardType: RewardType;
+        delFlag: boolean;
+        updUserId: string;
+    }): Promise<QuestEntity> {
+        const updated = (await this.prisma.quest.update({
+            where: { quest_id: data.questId },
+            data: {
+                tourist_spot_id: data.touristSpotId,
+                quest_name: data.questName,
+                quest_desc: data.questDesc,
+                quest_image: data.questImage ?? null,
+                quest_type: data.questType,
+                is_unlocked: data.isUnlocked,
+                is_premium: data.isPremium,
+                total_magatama_point_awarded: data.totalMagatamaPointAwarded,
+                reward_type: data.rewardType,
+                del_flag: data.delFlag,
+                upd_user_id: data.updUserId,
+                upd_date_time: new Date(),
+            },
+            include: { quest_task: true, tourist_spot: true },
+        })) as QuestWithTasks;
+
+        await this.cachingService.invalidate(/^quests:/);
+        return QuestMapper.prismaModelToQuestEntity(updated);
+    }
+
+    async updateQuestTask(data: {
+        taskId: string;
+        questId: string;
+        taskTheme: TaskTheme;
+        taskType: TaskType;
+        taskName: string;
+        taskDesc: string;
+        isUnlocked: boolean;
+        requiredAction: string;
+        groupActivityMembers?: any[];
+        selectOptions?: any[];
+        antiCheatRules: any;
+        magatamaPointAwarded: number;
+        totalMagatamaPointAwarded: number;
+        delFlag: boolean;
+        updUserId: string;
+    }): Promise<Task> {
+        const updated = await this.prisma.quest_task.update({
+            where: { quest_task_id: data.taskId },
+            data: {
+                quest_id: data.questId,
+                task_theme: data.taskTheme,
+                task_type: data.taskType,
+                task_name: data.taskName,
+                task_desc: data.taskDesc,
+                is_unlocked: data.isUnlocked,
+                required_action: data.requiredAction,
+                group_activity_members: data.groupActivityMembers ?? [],
+                select_options: data.selectOptions ?? [],
+                anti_cheat_rules: data.antiCheatRules,
+                magatama_point_awarded: data.magatamaPointAwarded,
+                total_magatama_point_awarded: data.totalMagatamaPointAwarded,
+                del_flag: data.delFlag,
+                upd_user_id: data.updUserId,
+                upd_date_time: new Date(),
+            },
+        });
+
+        return QuestMapper.prismaTaskModelToTaskEntity(updated);
     }
 }

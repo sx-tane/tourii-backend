@@ -55,4 +55,28 @@ export class QuestMapper {
             prismaModel.quest_id,
         );
     }
+
+    static prismaTaskModelToTaskEntity(prismaModel: quest_task): Task {
+        return new Task({
+            taskId: prismaModel.quest_task_id,
+            questId: prismaModel.quest_id,
+            taskTheme: prismaModel.task_theme,
+            taskType: prismaModel.task_type,
+            taskName: prismaModel.task_name,
+            taskDesc: prismaModel.task_desc,
+            isUnlocked: prismaModel.is_unlocked,
+            requiredAction: prismaModel.required_action,
+            groupActivityMembers: prismaModel.group_activity_members as any[],
+            selectOptions: prismaModel.select_options as any[],
+            antiCheatRules: prismaModel.anti_cheat_rules as any,
+            magatamaPointAwarded: prismaModel.magatama_point_awarded,
+            totalMagatamaPointAwarded: prismaModel.total_magatama_point_awarded,
+            delFlag: prismaModel.del_flag,
+            insUserId: prismaModel.ins_user_id,
+            insDateTime: prismaModel.ins_date_time,
+            updUserId: prismaModel.upd_user_id,
+            updDateTime: prismaModel.upd_date_time,
+            requestId: prismaModel.request_id ?? undefined,
+        });
+    }
 }

@@ -23,6 +23,7 @@ import type { StoryChapterResponseDto } from '../controller/model/tourii-respons
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import { TaskResponseDto } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
@@ -31,6 +32,8 @@ import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
+import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
+import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 
 @Injectable()
@@ -259,6 +262,71 @@ export class TouriiBackendService {
     async getQuestById(questId: string): Promise<QuestResponseDto> {
         const quest = await this.questRepository.fetchQuestById(questId);
         return QuestResultBuilder.questToDto(quest);
+    }
+
+    async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        const updated = await this.questRepository.updateQuest({
+            questId: quest.questId,
+            touristSpotId: quest.touristSpotId,
+            questName: quest.questName,
+            questDesc: quest.questDesc,
+            questImage: quest.questImage,
+            questType: quest.questType,
+            isUnlocked: quest.isUnlocked,
+            isPremium: quest.isPremium,
+            totalMagatamaPointAwarded: quest.totalMagatamaPointAwarded,
+            rewardType: quest.rewardType,
+            delFlag: quest.delFlag,
+            updUserId: quest.updUserId,
+        });
+
+        if (quest.taskList && quest.taskList.length > 0) {
+            await Promise.all(
+                quest.taskList.map((task) =>
+                    this.questRepository.updateQuestTask({
+                        taskId: task.taskId,
+                        questId: task.questId,
+                        taskTheme: task.taskTheme,
+                        taskType: task.taskType,
+                        taskName: task.taskName,
+                        taskDesc: task.taskDesc,
+                        isUnlocked: task.isUnlocked,
+                        requiredAction: task.requiredAction,
+                        groupActivityMembers: task.groupActivityMembers,
+                        selectOptions: task.selectOptions,
+                        antiCheatRules: task.antiCheatRules,
+                        magatamaPointAwarded: task.magatamaPointAwarded,
+                        totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+                        delFlag: task.delFlag,
+                        updUserId: task.updUserId,
+                    }),
+                ),
+            );
+        }
+
+        return QuestResultBuilder.questToDto(updated);
+    }
+
+    async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        const updated = await this.questRepository.updateQuestTask({
+            taskId: task.taskId,
+            questId: task.questId,
+            taskTheme: task.taskTheme,
+            taskType: task.taskType,
+            taskName: task.taskName,
+            taskDesc: task.taskDesc,
+            isUnlocked: task.isUnlocked,
+            requiredAction: task.requiredAction,
+            groupActivityMembers: task.groupActivityMembers,
+            selectOptions: task.selectOptions,
+            antiCheatRules: task.antiCheatRules,
+            magatamaPointAwarded: task.magatamaPointAwarded,
+            totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+            delFlag: task.delFlag,
+            updUserId: task.updUserId,
+        });
+
+        return QuestResultBuilder.taskToDto(updated);
     }
 
     /**
