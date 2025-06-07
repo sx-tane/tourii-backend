@@ -18,7 +18,9 @@ import { QuestType, StoryStatus } from '@prisma/client';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
+import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
@@ -30,6 +32,7 @@ import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-req
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
+import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 
@@ -118,6 +121,22 @@ export class TouriiBackendService {
         return storyChapter.map((storyChapter) =>
             StoryResultBuilder.storyChapterToDto(storyChapter, storyId),
         );
+    }
+
+    async updateStory(saga: StoryUpdateRequestDto): Promise<StoryResponseDto> {
+        const updated = await this.storyRepository.updateStory(
+            StoryUpdateRequestBuilder.dtoToStory(saga),
+        );
+        return StoryResultBuilder.storyToDto(updated);
+    }
+
+    async updateStoryChapter(
+        chapter: StoryChapterUpdateRequestDto,
+    ): Promise<StoryChapterResponseDto> {
+        const updated = await this.storyRepository.updateStoryChapter(
+            StoryUpdateRequestBuilder.dtoToStoryChapter(chapter),
+        );
+        return StoryResultBuilder.storyChapterToDto(updated, updated.sagaName ?? '');
     }
 
     /**

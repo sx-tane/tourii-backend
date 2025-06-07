@@ -79,6 +79,47 @@ export class StoryMapper {
         };
     }
 
+    static storyEntityToPrismaUpdateInput(
+        storyEntity: StoryEntity,
+    ): Prisma.storyUncheckedUpdateInput {
+        return {
+            saga_name: storyEntity.sagaName ?? '',
+            saga_desc: storyEntity.sagaDesc ?? '',
+            background_media: storyEntity.backgroundMedia ?? null,
+            map_image: storyEntity.mapImage ?? null,
+            location: storyEntity.location ?? null,
+            order: storyEntity.order ?? 0,
+            is_prologue: storyEntity.isPrologue ?? false,
+            is_selected: storyEntity.isSelected ?? false,
+            del_flag: storyEntity.delFlag ?? false,
+            upd_user_id: storyEntity.updUserId,
+            upd_date_time: storyEntity.updDateTime,
+            request_id: storyEntity.requestId ?? null,
+        };
+    }
+
+    static storyChapterEntityToPrismaUpdateInput(
+        storyChapterEntity: StoryChapter,
+    ): Prisma.story_chapterUncheckedUpdateInput {
+        return {
+            tourist_spot_id: storyChapterEntity.touristSpotId ?? '',
+            chapter_number: storyChapterEntity.chapterNumber ?? '',
+            chapter_title: storyChapterEntity.chapterTitle ?? '',
+            chapter_desc: storyChapterEntity.chapterDesc ?? '',
+            chapter_image: storyChapterEntity.chapterImage ?? '',
+            character_name_list: storyChapterEntity.characterNameList ?? [],
+            real_world_image: storyChapterEntity.realWorldImage ?? '',
+            chapter_video_url: storyChapterEntity.chapterVideoUrl ?? '',
+            chapter_video_mobile_url: storyChapterEntity.chapterVideoMobileUrl ?? '',
+            chapter_pdf_url: storyChapterEntity.chapterPdfUrl ?? '',
+            is_unlocked: storyChapterEntity.isUnlocked ?? false,
+            del_flag: storyChapterEntity.delFlag ?? false,
+            upd_user_id: storyChapterEntity.updUserId,
+            upd_date_time: storyChapterEntity.updDateTime,
+            request_id: storyChapterEntity.requestId ?? null,
+        };
+    }
+
     static storyChapterToEntity = (
         prismaModel: story_chapter[],
         sagaName: string,
