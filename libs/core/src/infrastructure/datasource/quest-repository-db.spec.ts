@@ -34,7 +34,7 @@ describe('QuestRepositoryDb', () => {
         expect(quest.questId).toEqual('quest1');
         expect(prisma.quest.findUnique).toHaveBeenCalledWith({
             where: { quest_id: 'quest1' },
-            include: { quest_task: true },
+            include: { quest_task: true, tourist_spot: true },
         });
     });
 });
