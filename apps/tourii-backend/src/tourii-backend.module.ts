@@ -1,10 +1,11 @@
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
+import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
-import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
+import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -89,6 +90,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendLoggingService, // Custom logging
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
+        {
+            provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,
+            useClass: UserStoryLogRepositoryDb,
+        },
         HttpAdapterHost, // HTTP adapter
         CachingService,
         {

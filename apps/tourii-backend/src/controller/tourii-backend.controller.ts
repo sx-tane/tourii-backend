@@ -42,6 +42,10 @@ import {
 } from './model/tourii-request/create/tourist-spot-create-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
+    ChapterProgressRequestDto,
+    ChapterProgressRequestSchema,
+} from './model/tourii-request/update/chapter-progress-request.model';
+import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
@@ -344,6 +348,30 @@ export class TouriiBackendController {
         return await this.touriiBackendService.getStoryChapters(storyId);
     }
 
+    @Post('/stories/chapters/:chapterId/progress')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Save chapter reading progress',
+        description: 'Track user reading progress for a story chapter',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Progress request',
+        schema: zodToOpenAPI(ChapterProgressRequestSchema),
+    })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'Progress recorded' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async markChapterProgress(
+        @Param('chapterId') chapterId: string,
+        @Body() body: ChapterProgressRequestDto,
+    ): Promise<{ success: boolean }> {
+        await this.touriiBackendService.trackChapterProgress(body.userId, chapterId, body.status);
+        return { success: true };
+    }
+
     @Post('/routes/create-model-route')
     @ApiTags('Routes')
     @ApiOperation({
@@ -447,9 +475,8 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    createUser(@Body() _user: UserEntity): Promise<void> {
-        // return this.touriiBackendService.createUser(user);
-        return Promise.resolve();
+    createUser(@Body() user: UserEntity): Promise<UserEntity> {
+        return this.touriiBackendService.createUser(user);
     }
 
     @Post('/auth/signup')

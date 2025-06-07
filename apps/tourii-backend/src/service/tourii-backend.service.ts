@@ -6,15 +6,17 @@ import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
+import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType } from '@prisma/client';
+import { QuestType, StoryStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
@@ -52,6 +54,8 @@ export class TouriiBackendService {
         private readonly questRepository: QuestRepository,
         @Inject(TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN)
         private readonly encryptionRepository: EncryptionRepository,
+        @Inject(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN)
+        private readonly userStoryLogRepository: UserStoryLogRepository,
     ) {}
 
     /**
@@ -559,15 +563,23 @@ export class TouriiBackendService {
         );
     }
 
-    // async createUser(user: UserEntity) {
-    //   // service logic
-    //   // dto -> entity
-    //   return this.userRepository.createUser(user);
-    // }
+    async createUser(user: UserEntity) {
+        // service logic
+        // dto -> entity
+        return this.userRepository.createUser(user);
+    }
 
     // async getUserByUserId(userId: string) {
     //   return this.userRepository.getUserInfoByUserId(userId);
     // }
+
+    async trackChapterProgress(
+        userId: string,
+        chapterId: string,
+        status: StoryStatus,
+    ): Promise<void> {
+        await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
+    }
 
     // --- Private Helper Methods ---
 

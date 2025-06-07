@@ -1,7 +1,7 @@
 import { TaskTheme, TaskType } from '@prisma/client';
-import { Entity } from '../../entity';
 
 export interface TaskProps {
+    taskId: string;
     questId: string;
     taskTheme: TaskTheme;
     taskType: TaskType;
@@ -22,13 +22,15 @@ export interface TaskProps {
     requestId?: string;
 }
 
-export class TaskEntity extends Entity<TaskProps> {
-    constructor(props: TaskProps, id: string | undefined) {
-        super(props, id);
+export class Task {
+    private props: TaskProps;
+
+    constructor(props: TaskProps) {
+        this.props = props;
     }
 
     get taskId(): string | undefined {
-        return this.id;
+        return this.props.taskId;
     }
 
     get questId(): string {
@@ -102,4 +104,4 @@ export class TaskEntity extends Entity<TaskProps> {
     get requestId(): string | undefined {
         return this.props.requestId;
     }
-} 
+}

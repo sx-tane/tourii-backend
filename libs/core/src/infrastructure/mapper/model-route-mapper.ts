@@ -2,7 +2,41 @@ import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import type { Prisma, tourist_spot } from '@prisma/client';
 import { ModelRouteRelationModel } from 'prisma/relation-model/model-route-relation-model';
+
 export class ModelRouteMapper {
+    static prismaModelToTouristSpotEntity(prismaModel: tourist_spot): TouristSpot {
+        return new TouristSpot({
+            touristSpotId: prismaModel.tourist_spot_id,
+            storyChapterId: prismaModel.story_chapter_id,
+            touristSpotName: prismaModel.tourist_spot_name,
+            touristSpotDesc: prismaModel.tourist_spot_desc,
+            latitude: prismaModel.latitude,
+            longitude: prismaModel.longitude,
+            bestVisitTime: prismaModel.best_visit_time ?? undefined,
+            address: prismaModel.address ?? undefined,
+            storyChapterLink: prismaModel.story_chapter_link ?? undefined,
+            touristSpotHashtag: prismaModel.tourist_spot_hashtag,
+            imageSet:
+                typeof prismaModel.image_set === 'object' &&
+                prismaModel.image_set !== null &&
+                'main' in prismaModel.image_set &&
+                'small' in prismaModel.image_set &&
+                typeof (prismaModel.image_set as any).main === 'string' &&
+                Array.isArray((prismaModel.image_set as any).small) &&
+                (prismaModel.image_set as any).small.every(
+                    (item: unknown) => typeof item === 'string',
+                )
+                    ? (prismaModel.image_set as { main: string; small: string[] })
+                    : undefined,
+            delFlag: prismaModel.del_flag ?? false,
+            insUserId: prismaModel.ins_user_id ?? '',
+            insDateTime: prismaModel.ins_date_time,
+            updUserId: prismaModel.upd_user_id,
+            updDateTime: prismaModel.upd_date_time,
+            requestId: prismaModel.request_id ?? undefined,
+        });
+    }
+
     static touristSpotEntityToPrismaInput(
         touristSpotEntity: TouristSpot,
     ): Prisma.tourist_spotCreateWithoutModel_routeInput {
@@ -51,6 +85,12 @@ export class ModelRouteMapper {
         };
     }
 
+    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
+        return prismaModel.map((touristSpot) =>
+            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+        );
+    }
+
     static modelRouteEntityToPrismaInput(
         modelRouteEntity: ModelRouteEntity,
     ): Prisma.model_routeUncheckedCreateInput {
@@ -77,42 +117,6 @@ export class ModelRouteMapper {
         };
     }
 
-    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
-        return prismaModel.map((touristSpot) => {
-            return new TouristSpot({
-                touristSpotId: touristSpot.tourist_spot_id,
-                storyChapterId: touristSpot.story_chapter_id,
-                touristSpotName: touristSpot.tourist_spot_name,
-                touristSpotDesc: touristSpot.tourist_spot_desc,
-                latitude: touristSpot.latitude ?? 0,
-                longitude: touristSpot.longitude ?? 0,
-                bestVisitTime: touristSpot.best_visit_time ?? undefined,
-                address: touristSpot.address ?? undefined,
-                storyChapterLink: touristSpot.story_chapter_link ?? undefined,
-                touristSpotHashtag: touristSpot.tourist_spot_hashtag ?? [],
-                imageSet:
-                    // Type guard using explicit `any` cast after checks to satisfy linter
-                    typeof touristSpot.image_set === 'object' &&
-                    touristSpot.image_set !== null &&
-                    'main' in touristSpot.image_set &&
-                    'small' in touristSpot.image_set && // Check for 'small' first
-                    typeof (touristSpot.image_set as any).main === 'string' && // Cast to any before dot access
-                    Array.isArray((touristSpot.image_set as any).small) && // Cast to any before dot access
-                    (touristSpot.image_set as any).small.every(
-                        (item: unknown) => typeof item === 'string',
-                    ) // Cast to any before dot access
-                        ? (touristSpot.image_set as { main: string; small: string[] })
-                        : undefined,
-                delFlag: touristSpot.del_flag ?? false,
-                insUserId: touristSpot.ins_user_id ?? '',
-                insDateTime: touristSpot.ins_date_time,
-                updUserId: touristSpot.upd_user_id,
-                updDateTime: touristSpot.upd_date_time,
-                requestId: touristSpot.request_id ?? undefined,
-            });
-        });
-    }
-
     static prismaModelToModelRouteEntity(prismaModel: ModelRouteRelationModel): ModelRouteEntity {
         return new ModelRouteEntity(
             {
@@ -134,7 +138,9 @@ export class ModelRouteMapper {
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
-                touristSpotList: ModelRouteMapper.touristSpotToEntity(prismaModel.tourist_spot),
+                touristSpotList: prismaModel.tourist_spot.map((touristSpot) =>
+                    ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+                ),
             },
             prismaModel.model_route_id,
         );

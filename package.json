@@ -32,7 +32,7 @@
         "prisma:migrate:dev": "prisma format && pnpm run prisma:execute:db-scripts && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
-        "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test",
+        "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -187,12 +187,6 @@
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
         "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
-    },
-    "engines": {
-        "node": "20.18.0",
-        "pnpm": "9.15.5",
-        "npm": "use pnpm instead",
-        "yarn": "use pnpm instead"
     },
     "packageManager": "pnpm@9.15.5"
 }

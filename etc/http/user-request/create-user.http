@@ -1,10 +1,12 @@
 POST http://localhost:4000/user
 Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
 
 {
-    "username": "test",
+    "username": "tester",
     "password": "test",
-    "perksWalletAddress": "0x1234567890123456789012345678901234567890",
+    "perksWalletAddress": "0x123123",
     "role": "USER",
     "registeredAt": "2021-01-01T00:00:00.000Z",
     "discordJoinedAt": "2021-01-01T00:00:00.000Z",

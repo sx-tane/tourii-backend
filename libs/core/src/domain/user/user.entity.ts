@@ -30,7 +30,7 @@ interface UserProps {
 }
 
 export class UserEntity extends Entity<UserProps> {
-    constructor(props: UserProps, id: string) {
+    constructor(props: UserProps, id?: string) {
         super(props, id);
     }
 

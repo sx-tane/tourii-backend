@@ -694,7 +694,7 @@ async function main() {
     await prisma.user_story_log.create({
         data: {
             user_id: userAlice.user_id,
-            story_id: storyPrologue.story_id, // Assuming linking to Saga ID directly for overall progress
+            story_chapter_id: storyPrologue.story_id, // Assuming linking to Saga ID directly for overall progress
             status: StoryStatus.COMPLETED,
             unlocked_at: new Date('2024-04-01T10:15:00Z'),
             finished_at: new Date('2024-04-01T10:45:00Z'),
@@ -704,7 +704,7 @@ async function main() {
     await prisma.user_story_log.create({
         data: {
             user_id: userAlice.user_id,
-            story_id: storyBungo.story_id,
+            story_chapter_id: storyBungo.story_id,
             status: StoryStatus.IN_PROGRESS,
             unlocked_at: new Date('2024-05-01T14:00:00Z'),
             ins_user_id: 'system-seed',

@@ -1,11 +1,8 @@
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-// biome-ignore lint/style/useImportType: <explanation>
 import { Injectable, NestMiddleware } from '@nestjs/common';
-// biome-ignore lint/style/useImportType: <explanation>
 import { ConfigService } from '@nestjs/config';
 import cors from 'cors';
-// biome-ignore lint/style/useImportType: <explanation>
 import { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import semver from 'semver';

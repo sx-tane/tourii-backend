@@ -900,7 +900,7 @@ model user_story_log {
   user_id String
 
   /// ID of the story being tracked
-  story_id String
+  story_chapter_id String
 
   //----
   // PROGRESS TRACKING

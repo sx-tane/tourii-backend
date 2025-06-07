@@ -112,7 +112,7 @@ erDiagram
 "user_story_log" {
   String(255) user_story_log_id PK
   String user_id FK
-  String story_id
+  String story_chapter_id
   StoryStatus status
   DateTime(6) unlocked_at "nullable"
   DateTime(6) finished_at "nullable"
@@ -496,7 +496,7 @@ and analytics about user engagement with narrative content.
 **Properties**
   - `user_story_log_id`: Unique identifier for the story log record USLYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `user_id`: Associated user ID
-  - `story_id`: ID of the story being tracked
+  - `story_chapter_id`: ID of the story being tracked
   - `status`
     > Current status of the story for this user
     > 

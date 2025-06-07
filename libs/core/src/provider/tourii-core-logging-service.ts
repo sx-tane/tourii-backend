@@ -1,4 +1,3 @@
-// biome-ignore lint/style/useImportType: <explanation>
 import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';
 import { ContextStorage } from '../support/context/context-storage';
