@@ -520,6 +520,9 @@ export class TouriiBackendController {
         schema: zodToOpenAPI(AuthSignupResponseSchema),
     })
     @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
     async signup(
         @Body() dto: AuthSignupRequestDto,
         @Req() req: Request,
