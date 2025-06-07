@@ -27,9 +27,9 @@ export class QuestResultBuilder {
                 isUnlocked: quest.isUnlocked ?? false,
                 isPremium: quest.isPremium ?? false,
                 totalMagatamaPointAwarded: quest.totalMagatamaPointAwarded ?? 0,
-                tasks: quest.tasks?.map((task) => this.taskToDto(task)),
+                tasks: quest.tasks?.map((task) => QuestResultBuilder.taskToDto(task)),
                 touristSpot: quest.touristSpot
-                    ? this.touristSpotToDto(quest.touristSpot)
+                    ? QuestResultBuilder.touristSpotToDto(quest.touristSpot)
                     : undefined,
             })),
             pagination: {
@@ -50,8 +50,10 @@ export class QuestResultBuilder {
             isUnlocked: quest.isUnlocked ?? false,
             isPremium: quest.isPremium ?? false,
             totalMagatamaPointAwarded: quest.totalMagatamaPointAwarded ?? 0,
-            tasks: quest.tasks?.map((task) => this.taskToDto(task)),
-            touristSpot: quest.touristSpot ? this.touristSpotToDto(quest.touristSpot) : undefined,
+            tasks: quest.tasks?.map((task) => QuestResultBuilder.taskToDto(task)),
+            touristSpot: quest.touristSpot
+                ? QuestResultBuilder.touristSpotToDto(quest.touristSpot)
+                : undefined,
         };
     }
 

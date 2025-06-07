@@ -1,4 +1,3 @@
-// biome-ignore lint/style/useImportType: <explanation>
 import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { CachingService } from '@app/core/provider/caching.service';

@@ -1,8 +1,8 @@
 import { QuestType, TaskTheme, TaskType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { TouristSpotResponseSchema } from './tourist-spot-response.model';
 import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
+import { TouristSpotResponseSchema } from './tourist-spot-response.model';
 
 export const TaskResponseSchema = z.object({
     taskId: z.string().describe('Unique identifier for the task'),

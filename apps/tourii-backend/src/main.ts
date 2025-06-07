@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
 import { getEnv } from '@app/core/utils/env-utils';
 import { NestFactory } from '@nestjs/core';
@@ -5,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
 import { patchNestJsSwagger } from 'nestjs-zod';
-import fs from 'node:fs';
 import { TouriiBackendModule } from './tourii-backend.module';
 
 async function bootstrap() {

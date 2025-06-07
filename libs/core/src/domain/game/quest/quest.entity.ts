@@ -1,7 +1,7 @@
 import { QuestType, RewardType } from '@prisma/client';
 import { Entity } from '../../entity';
-import { TaskEntity } from '../task/task.entity';
 import { TouristSpot } from '../model-route/tourist-spot';
+import { TaskEntity } from '../task/task.entity';
 
 export interface QuestProps {
     questName?: string;

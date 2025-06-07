@@ -57,6 +57,10 @@ import {
     QuestListResponseSchema,
 } from './model/tourii-response/quest-list-response.model';
 import {
+    QuestResponseDto,
+    QuestResponseSchema,
+} from './model/tourii-response/quest-response.model';
+import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
@@ -64,10 +68,6 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
-import {
-    QuestResponseDto,
-    QuestResponseSchema,
-} from './model/tourii-response/quest-response.model';
 
 @Controller()
 @ApiExtraModels(

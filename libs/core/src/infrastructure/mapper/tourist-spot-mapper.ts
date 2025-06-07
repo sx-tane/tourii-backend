@@ -85,6 +85,8 @@ export class TouristSpotMapper {
     }
 
     static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
-        return prismaModel.map((touristSpot) => this.prismaModelToTouristSpotEntity(touristSpot));
+        return prismaModel.map((touristSpot) =>
+            TouristSpotMapper.prismaModelToTouristSpotEntity(touristSpot),
+        );
     }
 }
