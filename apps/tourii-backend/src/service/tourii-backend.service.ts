@@ -6,14 +6,12 @@ import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
-import type { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
-        @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
-        private readonly passportRepository: DigitalPassportRepository,
 import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
+import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -59,6 +57,8 @@ export class TouriiBackendService {
         private readonly encryptionRepository: EncryptionRepository,
         @Inject(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN)
         private readonly userStoryLogRepository: UserStoryLogRepository,
+        @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
+        private readonly passportRepository: DigitalPassportRepository,
     ) {}
 
     /**
@@ -258,15 +258,18 @@ export class TouriiBackendService {
         const quests = await this.questRepository.fetchQuestsWithPagination(
             page,
             limit,
-        try {
-            await this.passportRepository.mint(wallet.address);
-        } catch (error) {
-            Logger.warn(`Passport mint failed: ${error}`);
-        }
+
             isPremium,
             isUnlocked,
             questType,
         );
+
+        try {
+            await this.passportRepository.mint(wallet.address);
+        } catch (error) {
+            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
+        }
+
         return QuestResultBuilder.questWithPaginationToDto(quests);
     }
 

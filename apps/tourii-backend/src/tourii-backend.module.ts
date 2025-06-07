@@ -99,11 +99,11 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         CachingService,
         {
             provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,
+            useClass: TouriiBackendContextProvider,
+        },
         {
             provide: TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN,
             useClass: DigitalPassportRepositoryFake,
-        },
-            useClass: TouriiBackendContextProvider, // Request context
         },
         {
             provide: TouriiBackendConstants.USER_REPOSITORY_TOKEN,
