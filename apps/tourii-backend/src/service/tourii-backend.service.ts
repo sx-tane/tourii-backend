@@ -34,6 +34,7 @@ import { StoryCreateRequestBuilder } from './builder/story-create-request-builde
 import { StoryResultBuilder } from './builder/story-result-builder';
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
+import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 
 @Injectable()
@@ -265,42 +266,21 @@ export class TouriiBackendService {
     }
 
     async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
-        const updated = await this.questRepository.updateQuest({
-            questId: quest.questId,
-            touristSpotId: quest.touristSpotId,
-            questName: quest.questName,
-            questDesc: quest.questDesc,
-            questImage: quest.questImage,
-            questType: quest.questType,
-            isUnlocked: quest.isUnlocked,
-            isPremium: quest.isPremium,
-            totalMagatamaPointAwarded: quest.totalMagatamaPointAwarded,
-            rewardType: quest.rewardType,
-            delFlag: quest.delFlag,
-            updUserId: quest.updUserId,
-        });
+        const current = await this.questRepository.fetchQuestById(quest.questId);
+        const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
+        const updated = await this.questRepository.updateQuest(questEntity);
 
-        if (quest.taskList && quest.taskList.length > 0) {
+        if (quest.taskList && quest.taskList.length > 0 && current.tasks) {
+            const taskMap = new Map(current.tasks.map((t) => [t.taskId, t]));
             await Promise.all(
-                quest.taskList.map((task) =>
-                    this.questRepository.updateQuestTask({
-                        taskId: task.taskId,
-                        questId: task.questId,
-                        taskTheme: task.taskTheme,
-                        taskType: task.taskType,
-                        taskName: task.taskName,
-                        taskDesc: task.taskDesc,
-                        isUnlocked: task.isUnlocked,
-                        requiredAction: task.requiredAction,
-                        groupActivityMembers: task.groupActivityMembers,
-                        selectOptions: task.selectOptions,
-                        antiCheatRules: task.antiCheatRules,
-                        magatamaPointAwarded: task.magatamaPointAwarded,
-                        totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
-                        delFlag: task.delFlag,
-                        updUserId: task.updUserId,
-                    }),
-                ),
+                quest.taskList.map((taskDto) => {
+                    const baseTask = taskMap.get(taskDto.taskId);
+                    return baseTask
+                        ? this.questRepository.updateQuestTask(
+                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
+                          )
+                        : Promise.resolve();
+                }),
             );
         }
 
@@ -308,24 +288,13 @@ export class TouriiBackendService {
     }
 
     async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
-        const updated = await this.questRepository.updateQuestTask({
-            taskId: task.taskId,
-            questId: task.questId,
-            taskTheme: task.taskTheme,
-            taskType: task.taskType,
-            taskName: task.taskName,
-            taskDesc: task.taskDesc,
-            isUnlocked: task.isUnlocked,
-            requiredAction: task.requiredAction,
-            groupActivityMembers: task.groupActivityMembers,
-            selectOptions: task.selectOptions,
-            antiCheatRules: task.antiCheatRules,
-            magatamaPointAwarded: task.magatamaPointAwarded,
-            totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
-            delFlag: task.delFlag,
-            updUserId: task.updUserId,
-        });
-
+        const current = await this.questRepository.fetchQuestById(task.questId);
+        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
+        if (!baseTask) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
+        const updated = await this.questRepository.updateQuestTask(taskEntity);
         return QuestResultBuilder.taskToDto(updated);
     }
 

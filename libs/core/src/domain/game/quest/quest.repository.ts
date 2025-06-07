@@ -17,36 +17,7 @@ export interface QuestRepository {
 
     fetchQuestById(questId: string): Promise<QuestEntity>;
 
-    updateQuest(data: {
-        questId: string;
-        touristSpotId: string;
-        questName: string;
-        questDesc: string;
-        questImage?: string;
-        questType: QuestType;
-        isUnlocked: boolean;
-        isPremium: boolean;
-        totalMagatamaPointAwarded: number;
-        rewardType: RewardType;
-        delFlag: boolean;
-        updUserId: string;
-    }): Promise<QuestEntity>;
+    updateQuest(quest: QuestEntity): Promise<QuestEntity>;
 
-    updateQuestTask(data: {
-        taskId: string;
-        questId: string;
-        taskTheme: TaskTheme;
-        taskType: TaskType;
-        taskName: string;
-        taskDesc: string;
-        isUnlocked: boolean;
-        requiredAction: string;
-        groupActivityMembers?: any[];
-        selectOptions?: any[];
-        antiCheatRules: any;
-        magatamaPointAwarded: number;
-        totalMagatamaPointAwarded: number;
-        delFlag: boolean;
-        updUserId: string;
-    }): Promise<Task>;
+    updateQuestTask(task: Task): Promise<Task>;
 }

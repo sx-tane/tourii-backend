@@ -97,36 +97,10 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntity(questDb);
     }
 
-    async updateQuest(data: {
-        questId: string;
-        touristSpotId: string;
-        questName: string;
-        questDesc: string;
-        questImage?: string;
-        questType: QuestType;
-        isUnlocked: boolean;
-        isPremium: boolean;
-        totalMagatamaPointAwarded: number;
-        rewardType: RewardType;
-        delFlag: boolean;
-        updUserId: string;
-    }): Promise<QuestEntity> {
+    async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
         const updated = (await this.prisma.quest.update({
-            where: { quest_id: data.questId },
-            data: {
-                tourist_spot_id: data.touristSpotId,
-                quest_name: data.questName,
-                quest_desc: data.questDesc,
-                quest_image: data.questImage ?? null,
-                quest_type: data.questType,
-                is_unlocked: data.isUnlocked,
-                is_premium: data.isPremium,
-                total_magatama_point_awarded: data.totalMagatamaPointAwarded,
-                reward_type: data.rewardType,
-                del_flag: data.delFlag,
-                upd_user_id: data.updUserId,
-                upd_date_time: new Date(),
-            },
+            where: { quest_id: quest.questId },
+            data: QuestMapper.questEntityToPrismaUpdateInput(quest),
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
@@ -134,42 +108,10 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntity(updated);
     }
 
-    async updateQuestTask(data: {
-        taskId: string;
-        questId: string;
-        taskTheme: TaskTheme;
-        taskType: TaskType;
-        taskName: string;
-        taskDesc: string;
-        isUnlocked: boolean;
-        requiredAction: string;
-        groupActivityMembers?: any[];
-        selectOptions?: any[];
-        antiCheatRules: any;
-        magatamaPointAwarded: number;
-        totalMagatamaPointAwarded: number;
-        delFlag: boolean;
-        updUserId: string;
-    }): Promise<Task> {
+    async updateQuestTask(task: Task): Promise<Task> {
         const updated = await this.prisma.quest_task.update({
-            where: { quest_task_id: data.taskId },
-            data: {
-                quest_id: data.questId,
-                task_theme: data.taskTheme,
-                task_type: data.taskType,
-                task_name: data.taskName,
-                task_desc: data.taskDesc,
-                is_unlocked: data.isUnlocked,
-                required_action: data.requiredAction,
-                group_activity_members: data.groupActivityMembers ?? [],
-                select_options: data.selectOptions ?? [],
-                anti_cheat_rules: data.antiCheatRules,
-                magatama_point_awarded: data.magatamaPointAwarded,
-                total_magatama_point_awarded: data.totalMagatamaPointAwarded,
-                del_flag: data.delFlag,
-                upd_user_id: data.updUserId,
-                upd_date_time: new Date(),
-            },
+            where: { quest_task_id: task.taskId },
+            data: QuestMapper.taskEntityToPrismaUpdateInput(task),
         });
 
         return QuestMapper.prismaTaskModelToTaskEntity(updated);
