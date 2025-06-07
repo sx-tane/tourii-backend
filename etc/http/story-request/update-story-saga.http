@@ -1,0 +1,18 @@
+POST http://localhost:4000/stories/update-saga
+Content-Type: application/json
+x-api-key: your-api-key-2
+accept-version: 1.0.0
+
+{
+  "sagaId": "STO202506-000000-000000-000000-BAAA",
+  "sagaName": "Bungo Ono",
+  "sagaDesc": "Updated description for the Bungo Ono saga.",
+  "backgroundMedia": "/video/bungo-ono.mp4",
+  "mapImage": "/image/touriiverse/oita.png",
+  "location": "Bungo Ono",
+  "order": 1,
+  "isPrologue": false,
+  "isSelected": true,
+  "delFlag": false,
+  "updUserId": "TSU202506-000000-000000-000000-BAAA"
+}
