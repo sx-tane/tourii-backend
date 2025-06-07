@@ -25,4 +25,44 @@ export class UserRepositoryDb implements UserRepository {
 
         return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
     }
+
+    async getUserByUsername(username: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                username,
+            },
+        });
+
+        return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
+    }
+
+    async getUserByPassportWallet(walletAddress: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                passport_wallet_address: walletAddress,
+            },
+        });
+
+        return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
+    }
+
+    async getUserByDiscordId(discordId: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                discord_id: discordId,
+            },
+        });
+
+        return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
+    }
+
+    async getUserByGoogleEmail(googleEmail: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                google_email: googleEmail,
+            },
+        });
+
+        return user ? UserMapper.prismaModelToUserEntity(user) : undefined;
+    }
 }

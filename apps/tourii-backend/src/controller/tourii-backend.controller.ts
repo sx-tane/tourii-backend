@@ -35,6 +35,10 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import {
+    LoginRequestDto,
+    LoginRequestSchema,
+} from './model/tourii-request/create/login-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -88,6 +92,7 @@ import {
     UserEntity,
     QuestListResponseDto,
     QuestResponseDto,
+    LoginRequestDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -466,6 +471,33 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     createUser(@Body() user: UserEntity): Promise<UserEntity> {
         return this.touriiBackendService.createUser(user);
+    }
+
+    @Post('/login')
+    @ApiTags('Auth')
+    @ApiOperation({
+        summary: 'User Login',
+        description:
+            'Login using username or other identifiers with optional wallet/social checks.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({ description: 'Login request', type: LoginRequestDto })
+    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
+    @ApiUserNotFoundResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
+        return this.touriiBackendService.loginUser(login);
     }
 
     @Get('/:userId/user')

@@ -19,6 +19,7 @@ import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-re
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
@@ -538,6 +539,41 @@ export class TouriiBackendService {
         // service logic
         // dto -> entity
         return this.userRepository.createUser(user);
+    }
+
+    async loginUser(login: LoginRequestDto): Promise<UserEntity> {
+        let user: UserEntity | undefined;
+        if (login.username) {
+            user = await this.userRepository.getUserByUsername(login.username);
+        }
+        if (!user && login.passportWalletAddress) {
+            user = await this.userRepository.getUserByPassportWallet(login.passportWalletAddress);
+        }
+        if (!user && login.discordId) {
+            user = await this.userRepository.getUserByDiscordId(login.discordId);
+        }
+        if (!user && login.googleEmail) {
+            user = await this.userRepository.getUserByGoogleEmail(login.googleEmail);
+        }
+
+        if (!user) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        if (user.password !== login.password) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        if (
+            (login.passportWalletAddress &&
+                user.passportWalletAddress !== login.passportWalletAddress) ||
+            (login.discordId && user.discordId !== login.discordId) ||
+            (login.googleEmail && user.googleEmail !== login.googleEmail)
+        ) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        return user;
     }
 
     // async getUserByUserId(userId: string) {
