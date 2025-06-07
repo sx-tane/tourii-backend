@@ -2613,6 +2613,96 @@
         ]
       }
     },
+    "/auth/signup": {
+      "post": {
+        "operationId": "TouriiBackendController_signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Signup info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "socialProvider": {
+                    "type": "string"
+                  },
+                  "socialId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "socialProvider",
+                  "socialId"
+                ],
+                "$ref": "#/components/schemas/AuthSignupRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signup success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "walletAddress": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userId",
+                "walletAddress"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSignupResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid request body or version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_001"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "User signup with wallet",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/{userId}/user": {
       "get": {
         "description": "Retrieve user information by their user ID.",
@@ -6323,6 +6413,41 @@
           "isUnlocked",
           "isPremium",
           "totalMagatamaPointAwarded"
+        ]
+      },
+      "AuthSignupRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "socialProvider": {
+            "type": "string"
+          },
+          "socialId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "socialProvider",
+          "socialId"
+        ]
+      },
+      "AuthSignupResponseDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "walletAddress": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "walletAddress"
         ]
       }
     }

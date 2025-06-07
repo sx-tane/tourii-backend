@@ -10,6 +10,7 @@ interface UserProps {
     email?: string;
     password: string;
     refreshToken?: string;
+    encryptedPrivateKey?: string;
     passportWalletAddress?: string;
     perksWalletAddress: string;
     latestIpAddress?: string;
@@ -71,6 +72,10 @@ export class UserEntity extends Entity<UserProps> {
 
     get refreshToken(): string | undefined {
         return this.props.refreshToken;
+    }
+
+    get encryptedPrivateKey(): string | undefined {
+        return this.props.encryptedPrivateKey;
     }
 
     get passportWalletAddress(): string | undefined {
