@@ -1,8 +1,8 @@
 import { DigitalPassportMetadataRepository } from '@app/core/domain/passport/digital-passport-metadata.repository';
+import { S3Service } from '@app/core/provider/S3.service';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { S3Service } from '@app/core/provider/S3.service';
 
 @Injectable()
 export class DigitalPassportMetadataRepositoryS3 implements DigitalPassportMetadataRepository {
@@ -21,7 +21,7 @@ export class DigitalPassportMetadataRepositoryS3 implements DigitalPassportMetad
 
     async uploadMetadata(passportId: string, metadata: unknown): Promise<string> {
         const key = `metadata/${passportId}.json`;
-        await this.s3Service.getS3Client.send(
+        await this.s3Service.getS3Client().send(
             new PutObjectCommand({
                 Bucket: this.bucket,
                 Key: key,
