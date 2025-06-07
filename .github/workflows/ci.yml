@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 20.18.0
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --no-frozen-lockfile
       - run: cp .env.example .env.test
       - run: pnpm lint
       - run: pnpm test --runInBand
