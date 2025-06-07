@@ -29,6 +29,9 @@ describe('UserRepositoryDb', () => {
         const baseDate = new Date('2024-01-01T00:00:00.000Z');
         const user = new UserEntity({
             username: 'testuser',
+            discordId: 'discord123',
+            googleEmail: 'user@example.com',
+            passportWalletAddress: 'walletaddr',
             password: 'secret',
             perksWalletAddress: 'wallet',
             isPremium: false,
@@ -50,5 +53,17 @@ describe('UserRepositoryDb', () => {
 
         const found = await repository.getUserInfoByUserId(created.userId ?? '');
         expect(found?.username).toEqual('testuser');
+
+        const byUsername = await repository.getUserByUsername('testuser');
+        expect(byUsername?.userId).toEqual(created.userId);
+
+        const byWallet = await repository.getUserByPassportWallet('walletaddr');
+        expect(byWallet?.userId).toEqual(created.userId);
+
+        const byDiscord = await repository.getUserByDiscordId('discord123');
+        expect(byDiscord?.userId).toEqual(created.userId);
+
+        const byGoogle = await repository.getUserByGoogleEmail('user@example.com');
+        expect(byGoogle?.userId).toEqual(created.userId);
     });
 });
