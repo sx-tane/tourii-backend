@@ -1,5 +1,6 @@
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
+import type { Prisma } from '@prisma/client';
 import type { quest, quest_task, tourist_spot } from '@prisma/client';
 import { ModelRouteMapper } from './model-route-mapper';
 
@@ -54,5 +55,68 @@ export class QuestMapper {
             },
             prismaModel.quest_id,
         );
+    }
+
+    static prismaTaskModelToTaskEntity(prismaModel: quest_task): Task {
+        return new Task({
+            taskId: prismaModel.quest_task_id,
+            questId: prismaModel.quest_id,
+            taskTheme: prismaModel.task_theme,
+            taskType: prismaModel.task_type,
+            taskName: prismaModel.task_name,
+            taskDesc: prismaModel.task_desc,
+            isUnlocked: prismaModel.is_unlocked,
+            requiredAction: prismaModel.required_action,
+            groupActivityMembers: prismaModel.group_activity_members as any[],
+            selectOptions: prismaModel.select_options as any[],
+            antiCheatRules: prismaModel.anti_cheat_rules as any,
+            magatamaPointAwarded: prismaModel.magatama_point_awarded,
+            totalMagatamaPointAwarded: prismaModel.total_magatama_point_awarded,
+            delFlag: prismaModel.del_flag,
+            insUserId: prismaModel.ins_user_id,
+            insDateTime: prismaModel.ins_date_time,
+            updUserId: prismaModel.upd_user_id,
+            updDateTime: prismaModel.upd_date_time,
+            requestId: prismaModel.request_id ?? undefined,
+        });
+    }
+
+    static questEntityToPrismaUpdateInput(
+        questEntity: QuestEntity,
+    ): Prisma.questUncheckedUpdateInput {
+        return {
+            tourist_spot_id: questEntity.touristSpot?.touristSpotId ?? undefined,
+            quest_name: questEntity.questName ?? '',
+            quest_desc: questEntity.questDesc ?? '',
+            quest_image: questEntity.questImage ?? null,
+            quest_type: questEntity.questType ?? undefined,
+            is_unlocked: questEntity.isUnlocked ?? false,
+            is_premium: questEntity.isPremium ?? false,
+            total_magatama_point_awarded: questEntity.totalMagatamaPointAwarded ?? 0,
+            reward_type: questEntity.rewardType ?? undefined,
+            del_flag: questEntity.delFlag ?? false,
+            upd_user_id: questEntity.updUserId,
+            upd_date_time: questEntity.updDateTime,
+        };
+    }
+
+    static taskEntityToPrismaUpdateInput(task: Task): Prisma.quest_taskUncheckedUpdateInput {
+        return {
+            quest_id: task.questId,
+            task_theme: task.taskTheme,
+            task_type: task.taskType,
+            task_name: task.taskName,
+            task_desc: task.taskDesc,
+            is_unlocked: task.isUnlocked,
+            required_action: task.requiredAction,
+            group_activity_members: task.groupActivityMembers ?? [],
+            select_options: task.selectOptions ?? [],
+            anti_cheat_rules: task.antiCheatRules,
+            magatama_point_awarded: task.magatamaPointAwarded,
+            total_magatama_point_awarded: task.totalMagatamaPointAwarded,
+            del_flag: task.delFlag,
+            upd_user_id: task.updUserId,
+            upd_date_time: task.updDateTime,
+        };
     }
 }

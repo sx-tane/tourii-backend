@@ -51,9 +51,18 @@ import {
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
 import {
+    QuestTaskUpdateRequestDto,
+    QuestTaskUpdateRequestSchema,
+} from './model/tourii-request/update/quest-task-update-request.model';
+import {
+    QuestUpdateRequestDto,
+    QuestUpdateRequestSchema,
+} from './model/tourii-request/update/quest-update-request.model';
+import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -73,6 +82,8 @@ import {
 import {
     QuestResponseDto,
     QuestResponseSchema,
+    TaskResponseDto,
+    TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
     StoryResponseDto,
@@ -98,6 +109,7 @@ import {
     UserEntity,
     QuestListResponseDto,
     QuestResponseDto,
+    TaskResponseDto,
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
@@ -661,6 +673,50 @@ export class TouriiBackendController {
         questId: string,
     ): Promise<QuestResponseDto> {
         return await this.touriiBackendService.getQuestById(questId);
+    }
+
+    @Post('/quests/update-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest update request',
+        schema: zodToOpenAPI(QuestUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated quest',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateQuest(@Body() quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.updateQuest(quest);
+    }
+
+    @Post('/quests/update-task')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Update Quest Task', description: 'Update an existing quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest task update request',
+        schema: zodToOpenAPI(QuestTaskUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated quest task',
+        type: TaskResponseDto,
+        schema: zodToOpenAPI(TaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.updateQuestTask(task);
     }
 
     @Get('/routes')

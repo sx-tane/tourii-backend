@@ -25,18 +25,24 @@ import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-requ
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
+import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
+import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
-import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import {
+    QuestResponseDto,
+    TaskResponseDto,
+} from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
+import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
@@ -289,6 +295,39 @@ export class TouriiBackendService {
     async getQuestById(questId: string): Promise<QuestResponseDto> {
         const quest = await this.questRepository.fetchQuestById(questId);
         return QuestResultBuilder.questToDto(quest);
+    }
+
+    async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        const current = await this.questRepository.fetchQuestById(quest.questId);
+        const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
+        const updated = await this.questRepository.updateQuest(questEntity);
+
+        if (quest.taskList && quest.taskList.length > 0 && current.tasks) {
+            const taskMap = new Map(current.tasks.map((t) => [t.taskId, t]));
+            await Promise.all(
+                quest.taskList.map((taskDto) => {
+                    const baseTask = taskMap.get(taskDto.taskId);
+                    return baseTask
+                        ? this.questRepository.updateQuestTask(
+                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
+                          )
+                        : Promise.resolve();
+                }),
+            );
+        }
+
+        return QuestResultBuilder.questToDto(updated);
+    }
+
+    async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        const current = await this.questRepository.fetchQuestById(task.questId);
+        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
+        if (!baseTask) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
+        const updated = await this.questRepository.updateQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(updated);
     }
 
     /**

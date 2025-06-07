@@ -3718,6 +3718,908 @@
         ]
       }
     },
+    "/quests/update-quest": {
+      "post": {
+        "description": "Update an existing quest.",
+        "operationId": "TouriiBackendController_updateQuest",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Quest update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "questId": {
+                    "description": "Unique identifier for the quest",
+                    "type": "string"
+                  },
+                  "touristSpotId": {
+                    "description": "Unique identifier for the tourist spot",
+                    "type": "string"
+                  },
+                  "questName": {
+                    "description": "Name of the quest",
+                    "type": "string"
+                  },
+                  "questDesc": {
+                    "description": "Description of the quest",
+                    "type": "string"
+                  },
+                  "questImage": {
+                    "description": "URL to the quest image",
+                    "type": "string"
+                  },
+                  "questType": {
+                    "description": "Quest type",
+                    "type": "string",
+                    "enum": [
+                      "UNKNOWN",
+                      "TRAVEL_TO_EARN",
+                      "EARN_TO_TRAVEL",
+                      "CAMPAIGN",
+                      "COMMUNITY_EVENT"
+                    ],
+                    "x-enumNames": [
+                      "UNKNOWN",
+                      "TRAVEL_TO_EARN",
+                      "EARN_TO_TRAVEL",
+                      "CAMPAIGN",
+                      "COMMUNITY_EVENT"
+                    ]
+                  },
+                  "isUnlocked": {
+                    "description": "Whether quest is unlocked",
+                    "type": "boolean"
+                  },
+                  "isPremium": {
+                    "description": "Whether quest is premium",
+                    "type": "boolean"
+                  },
+                  "totalMagatamaPointAwarded": {
+                    "description": "Total Magatama points awarded",
+                    "type": "number"
+                  },
+                  "rewardType": {
+                    "description": "Reward type",
+                    "type": "string",
+                    "enum": [
+                      "UNKNOWN",
+                      "LOCAL_EXPERIENCES",
+                      "CULINARY",
+                      "ADVENTURE_NATURE",
+                      "CULTURAL_COMMUNITY",
+                      "HIDDEN_PERKS",
+                      "SURPRISE_TREATS",
+                      "BONUS_UPGRADES",
+                      "SOCIAL_RECOGNITION",
+                      "RETURNING_VISITOR_BONUS",
+                      "ELITE_EXPERIENCES",
+                      "WELLNESS",
+                      "SHOPPING",
+                      "ENTERTAINMENT",
+                      "TRANSPORT_CONNECTIVITY",
+                      "LOCAL_PARTNERSHIPS"
+                    ],
+                    "x-enumNames": [
+                      "UNKNOWN",
+                      "LOCAL_EXPERIENCES",
+                      "CULINARY",
+                      "ADVENTURE_NATURE",
+                      "CULTURAL_COMMUNITY",
+                      "HIDDEN_PERKS",
+                      "SURPRISE_TREATS",
+                      "BONUS_UPGRADES",
+                      "SOCIAL_RECOGNITION",
+                      "RETURNING_VISITOR_BONUS",
+                      "ELITE_EXPERIENCES",
+                      "WELLNESS",
+                      "SHOPPING",
+                      "ENTERTAINMENT",
+                      "TRANSPORT_CONNECTIVITY",
+                      "LOCAL_PARTNERSHIPS"
+                    ]
+                  },
+                  "delFlag": {
+                    "description": "Flag to indicate if the quest is deleted",
+                    "type": "boolean"
+                  },
+                  "updUserId": {
+                    "description": "Unique identifier for the user who updated the quest",
+                    "type": "string"
+                  },
+                  "taskList": {
+                    "description": "List of tasks for the quest",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "taskId": {
+                          "description": "Unique identifier for the task",
+                          "type": "string"
+                        },
+                        "questId": {
+                          "description": "ID of the parent quest",
+                          "type": "string"
+                        },
+                        "taskTheme": {
+                          "description": "Theme of the task",
+                          "type": "string",
+                          "enum": [
+                            "STORY",
+                            "LOCAL_CULTURE",
+                            "FOOD",
+                            "URBAN_EXPLORE",
+                            "NATURE"
+                          ],
+                          "x-enumNames": [
+                            "STORY",
+                            "LOCAL_CULTURE",
+                            "FOOD",
+                            "URBAN_EXPLORE",
+                            "NATURE"
+                          ]
+                        },
+                        "taskType": {
+                          "description": "Type of the task",
+                          "type": "string",
+                          "enum": [
+                            "VISIT_LOCATION",
+                            "PHOTO_UPLOAD",
+                            "ANSWER_TEXT",
+                            "SELECT_OPTION",
+                            "SHARE_SOCIAL",
+                            "CHECK_IN",
+                            "GROUP_ACTIVITY",
+                            "LOCAL_INTERACTION"
+                          ],
+                          "x-enumNames": [
+                            "VISIT_LOCATION",
+                            "PHOTO_UPLOAD",
+                            "ANSWER_TEXT",
+                            "SELECT_OPTION",
+                            "SHARE_SOCIAL",
+                            "CHECK_IN",
+                            "GROUP_ACTIVITY",
+                            "LOCAL_INTERACTION"
+                          ]
+                        },
+                        "taskName": {
+                          "description": "Name of the task",
+                          "type": "string"
+                        },
+                        "taskDesc": {
+                          "description": "Description of the task",
+                          "type": "string"
+                        },
+                        "isUnlocked": {
+                          "description": "Whether task is unlocked",
+                          "type": "boolean"
+                        },
+                        "requiredAction": {
+                          "description": "Action required to complete the task",
+                          "type": "string"
+                        },
+                        "groupActivityMembers": {
+                          "description": "Members for group activities",
+                          "type": "array",
+                          "items": {}
+                        },
+                        "selectOptions": {
+                          "description": "Options for selection tasks",
+                          "type": "array",
+                          "items": {}
+                        },
+                        "antiCheatRules": {
+                          "description": "Rules to prevent cheating"
+                        },
+                        "magatamaPointAwarded": {
+                          "description": "Magatama points awarded for this task",
+                          "type": "number"
+                        },
+                        "totalMagatamaPointAwarded": {
+                          "description": "Total Magatama points awarded",
+                          "type": "number"
+                        },
+                        "delFlag": {
+                          "description": "Flag to indicate if the task is deleted",
+                          "type": "boolean"
+                        },
+                        "updUserId": {
+                          "description": "Unique identifier for the user who updated the task",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "taskId",
+                        "questId",
+                        "taskTheme",
+                        "taskType",
+                        "taskName",
+                        "taskDesc",
+                        "isUnlocked",
+                        "requiredAction",
+                        "antiCheatRules",
+                        "magatamaPointAwarded",
+                        "totalMagatamaPointAwarded",
+                        "delFlag",
+                        "updUserId"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "questId",
+                  "touristSpotId",
+                  "questName",
+                  "questDesc",
+                  "questType",
+                  "isUnlocked",
+                  "isPremium",
+                  "totalMagatamaPointAwarded",
+                  "rewardType",
+                  "delFlag",
+                  "updUserId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully updated quest",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "questId": {
+                  "description": "Unique identifier for the quest",
+                  "type": "string"
+                },
+                "questName": {
+                  "description": "Name of the quest",
+                  "type": "string"
+                },
+                "questDesc": {
+                  "description": "Description of the quest",
+                  "type": "string"
+                },
+                "questImage": {
+                  "description": "URL to the quest image",
+                  "type": "string"
+                },
+                "questType": {
+                  "description": "Quest type",
+                  "type": "string",
+                  "enum": [
+                    "UNKNOWN",
+                    "TRAVEL_TO_EARN",
+                    "EARN_TO_TRAVEL",
+                    "CAMPAIGN",
+                    "COMMUNITY_EVENT"
+                  ],
+                  "x-enumNames": [
+                    "UNKNOWN",
+                    "TRAVEL_TO_EARN",
+                    "EARN_TO_TRAVEL",
+                    "CAMPAIGN",
+                    "COMMUNITY_EVENT"
+                  ]
+                },
+                "isUnlocked": {
+                  "description": "Whether quest is unlocked",
+                  "type": "boolean"
+                },
+                "isPremium": {
+                  "description": "Whether quest is premium",
+                  "type": "boolean"
+                },
+                "totalMagatamaPointAwarded": {
+                  "description": "Total Magatama points awarded",
+                  "type": "number"
+                },
+                "tasks": {
+                  "description": "Tasks associated with this quest",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "taskId": {
+                        "description": "Unique identifier for the task",
+                        "type": "string"
+                      },
+                      "questId": {
+                        "description": "ID of the parent quest",
+                        "type": "string"
+                      },
+                      "taskTheme": {
+                        "description": "Theme of the task",
+                        "type": "string",
+                        "enum": [
+                          "STORY",
+                          "LOCAL_CULTURE",
+                          "FOOD",
+                          "URBAN_EXPLORE",
+                          "NATURE"
+                        ],
+                        "x-enumNames": [
+                          "STORY",
+                          "LOCAL_CULTURE",
+                          "FOOD",
+                          "URBAN_EXPLORE",
+                          "NATURE"
+                        ]
+                      },
+                      "taskType": {
+                        "description": "Type of the task",
+                        "type": "string",
+                        "enum": [
+                          "VISIT_LOCATION",
+                          "PHOTO_UPLOAD",
+                          "ANSWER_TEXT",
+                          "SELECT_OPTION",
+                          "SHARE_SOCIAL",
+                          "CHECK_IN",
+                          "GROUP_ACTIVITY",
+                          "LOCAL_INTERACTION"
+                        ],
+                        "x-enumNames": [
+                          "VISIT_LOCATION",
+                          "PHOTO_UPLOAD",
+                          "ANSWER_TEXT",
+                          "SELECT_OPTION",
+                          "SHARE_SOCIAL",
+                          "CHECK_IN",
+                          "GROUP_ACTIVITY",
+                          "LOCAL_INTERACTION"
+                        ]
+                      },
+                      "taskName": {
+                        "description": "Name of the task",
+                        "type": "string"
+                      },
+                      "taskDesc": {
+                        "description": "Description of the task",
+                        "type": "string"
+                      },
+                      "isUnlocked": {
+                        "description": "Whether task is unlocked",
+                        "type": "boolean"
+                      },
+                      "requiredAction": {
+                        "description": "Action required to complete the task",
+                        "type": "string"
+                      },
+                      "groupActivityMembers": {
+                        "description": "Members for group activities",
+                        "type": "array",
+                        "items": {}
+                      },
+                      "selectOptions": {
+                        "description": "Options for selection tasks",
+                        "type": "array",
+                        "items": {}
+                      },
+                      "antiCheatRules": {
+                        "description": "Rules to prevent cheating"
+                      },
+                      "magatamaPointAwarded": {
+                        "description": "Magatama points awarded for this task",
+                        "type": "number"
+                      },
+                      "totalMagatamaPointAwarded": {
+                        "description": "Total Magatama points awarded",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "taskId",
+                      "questId",
+                      "taskTheme",
+                      "taskType",
+                      "taskName",
+                      "taskDesc",
+                      "isUnlocked",
+                      "requiredAction",
+                      "antiCheatRules",
+                      "magatamaPointAwarded",
+                      "totalMagatamaPointAwarded"
+                    ]
+                  }
+                },
+                "touristSpot": {
+                  "description": "Tourist spot associated with this quest",
+                  "type": "object",
+                  "properties": {
+                    "touristSpotId": {
+                      "description": "Unique identifier for the tourist spot",
+                      "type": "string"
+                    },
+                    "storyChapterId": {
+                      "description": "Unique identifier for the story chapter",
+                      "type": "string"
+                    },
+                    "touristSpotName": {
+                      "description": "Name of the tourist spot",
+                      "type": "string"
+                    },
+                    "touristSpotDesc": {
+                      "description": "Description of the tourist spot",
+                      "type": "string"
+                    },
+                    "bestVisitTime": {
+                      "description": "Best visit time of the tourist spot",
+                      "type": "string"
+                    },
+                    "address": {
+                      "description": "Address of the tourist spot",
+                      "type": "string"
+                    },
+                    "touristSpotLatitude": {
+                      "description": "Latitude of the tourist spot",
+                      "type": "number"
+                    },
+                    "touristSpotLongitude": {
+                      "description": "Longitude of the tourist spot",
+                      "type": "number"
+                    },
+                    "touristSpotHashtag": {
+                      "description": "Hashtags associated with this location",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "storyChapterLink": {
+                      "description": "Link to the related story chapter",
+                      "type": "string"
+                    },
+                    "imageSet": {
+                      "description": "Image set for the tourist spot",
+                      "type": "object",
+                      "properties": {
+                        "main": {
+                          "description": "Main image of the tourist spot",
+                          "type": "string"
+                        },
+                        "small": {
+                          "description": "Small images of the tourist spot",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "main",
+                        "small"
+                      ]
+                    },
+                    "weatherInfo": {
+                      "description": "Weather info for the tourist spot",
+                      "type": "object",
+                      "properties": {
+                        "temperatureCelsius": {
+                          "description": "Temperature of the weather",
+                          "type": "number"
+                        },
+                        "weatherName": {
+                          "description": "Name of the weather",
+                          "type": "string"
+                        },
+                        "weatherDesc": {
+                          "description": "Description of the weather",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "temperatureCelsius",
+                        "weatherName",
+                        "weatherDesc"
+                      ]
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the record is deleted",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "touristSpotId",
+                    "storyChapterId",
+                    "touristSpotName",
+                    "touristSpotDesc",
+                    "bestVisitTime",
+                    "address",
+                    "touristSpotLatitude",
+                    "touristSpotLongitude",
+                    "touristSpotHashtag"
+                  ]
+                }
+              },
+              "required": [
+                "questId",
+                "questName",
+                "questDesc",
+                "questType",
+                "isUnlocked",
+                "isPremium",
+                "totalMagatamaPointAwarded"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Update Quest",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
+    "/quests/update-task": {
+      "post": {
+        "description": "Update an existing quest task.",
+        "operationId": "TouriiBackendController_updateQuestTask",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Quest task update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "description": "Unique identifier for the task",
+                    "type": "string"
+                  },
+                  "questId": {
+                    "description": "ID of the parent quest",
+                    "type": "string"
+                  },
+                  "taskTheme": {
+                    "description": "Theme of the task",
+                    "type": "string",
+                    "enum": [
+                      "STORY",
+                      "LOCAL_CULTURE",
+                      "FOOD",
+                      "URBAN_EXPLORE",
+                      "NATURE"
+                    ],
+                    "x-enumNames": [
+                      "STORY",
+                      "LOCAL_CULTURE",
+                      "FOOD",
+                      "URBAN_EXPLORE",
+                      "NATURE"
+                    ]
+                  },
+                  "taskType": {
+                    "description": "Type of the task",
+                    "type": "string",
+                    "enum": [
+                      "VISIT_LOCATION",
+                      "PHOTO_UPLOAD",
+                      "ANSWER_TEXT",
+                      "SELECT_OPTION",
+                      "SHARE_SOCIAL",
+                      "CHECK_IN",
+                      "GROUP_ACTIVITY",
+                      "LOCAL_INTERACTION"
+                    ],
+                    "x-enumNames": [
+                      "VISIT_LOCATION",
+                      "PHOTO_UPLOAD",
+                      "ANSWER_TEXT",
+                      "SELECT_OPTION",
+                      "SHARE_SOCIAL",
+                      "CHECK_IN",
+                      "GROUP_ACTIVITY",
+                      "LOCAL_INTERACTION"
+                    ]
+                  },
+                  "taskName": {
+                    "description": "Name of the task",
+                    "type": "string"
+                  },
+                  "taskDesc": {
+                    "description": "Description of the task",
+                    "type": "string"
+                  },
+                  "isUnlocked": {
+                    "description": "Whether task is unlocked",
+                    "type": "boolean"
+                  },
+                  "requiredAction": {
+                    "description": "Action required to complete the task",
+                    "type": "string"
+                  },
+                  "groupActivityMembers": {
+                    "description": "Members for group activities",
+                    "type": "array",
+                    "items": {}
+                  },
+                  "selectOptions": {
+                    "description": "Options for selection tasks",
+                    "type": "array",
+                    "items": {}
+                  },
+                  "antiCheatRules": {
+                    "description": "Rules to prevent cheating"
+                  },
+                  "magatamaPointAwarded": {
+                    "description": "Magatama points awarded for this task",
+                    "type": "number"
+                  },
+                  "totalMagatamaPointAwarded": {
+                    "description": "Total Magatama points awarded",
+                    "type": "number"
+                  },
+                  "delFlag": {
+                    "description": "Flag to indicate if the task is deleted",
+                    "type": "boolean"
+                  },
+                  "updUserId": {
+                    "description": "Unique identifier for the user who updated the task",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "questId",
+                  "taskTheme",
+                  "taskType",
+                  "taskName",
+                  "taskDesc",
+                  "isUnlocked",
+                  "requiredAction",
+                  "antiCheatRules",
+                  "magatamaPointAwarded",
+                  "totalMagatamaPointAwarded",
+                  "delFlag",
+                  "updUserId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully updated quest task",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "taskId": {
+                  "description": "Unique identifier for the task",
+                  "type": "string"
+                },
+                "questId": {
+                  "description": "ID of the parent quest",
+                  "type": "string"
+                },
+                "taskTheme": {
+                  "description": "Theme of the task",
+                  "type": "string",
+                  "enum": [
+                    "STORY",
+                    "LOCAL_CULTURE",
+                    "FOOD",
+                    "URBAN_EXPLORE",
+                    "NATURE"
+                  ],
+                  "x-enumNames": [
+                    "STORY",
+                    "LOCAL_CULTURE",
+                    "FOOD",
+                    "URBAN_EXPLORE",
+                    "NATURE"
+                  ]
+                },
+                "taskType": {
+                  "description": "Type of the task",
+                  "type": "string",
+                  "enum": [
+                    "VISIT_LOCATION",
+                    "PHOTO_UPLOAD",
+                    "ANSWER_TEXT",
+                    "SELECT_OPTION",
+                    "SHARE_SOCIAL",
+                    "CHECK_IN",
+                    "GROUP_ACTIVITY",
+                    "LOCAL_INTERACTION"
+                  ],
+                  "x-enumNames": [
+                    "VISIT_LOCATION",
+                    "PHOTO_UPLOAD",
+                    "ANSWER_TEXT",
+                    "SELECT_OPTION",
+                    "SHARE_SOCIAL",
+                    "CHECK_IN",
+                    "GROUP_ACTIVITY",
+                    "LOCAL_INTERACTION"
+                  ]
+                },
+                "taskName": {
+                  "description": "Name of the task",
+                  "type": "string"
+                },
+                "taskDesc": {
+                  "description": "Description of the task",
+                  "type": "string"
+                },
+                "isUnlocked": {
+                  "description": "Whether task is unlocked",
+                  "type": "boolean"
+                },
+                "requiredAction": {
+                  "description": "Action required to complete the task",
+                  "type": "string"
+                },
+                "groupActivityMembers": {
+                  "description": "Members for group activities",
+                  "type": "array",
+                  "items": {}
+                },
+                "selectOptions": {
+                  "description": "Options for selection tasks",
+                  "type": "array",
+                  "items": {}
+                },
+                "antiCheatRules": {
+                  "description": "Rules to prevent cheating"
+                },
+                "magatamaPointAwarded": {
+                  "description": "Magatama points awarded for this task",
+                  "type": "number"
+                },
+                "totalMagatamaPointAwarded": {
+                  "description": "Total Magatama points awarded",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "taskId",
+                "questId",
+                "taskTheme",
+                "taskType",
+                "taskName",
+                "taskDesc",
+                "isUnlocked",
+                "requiredAction",
+                "antiCheatRules",
+                "magatamaPointAwarded",
+                "totalMagatamaPointAwarded"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Update Quest Task",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
     "/routes": {
       "get": {
         "description": "Retrieve a list of all available model routes with their details.",
@@ -6519,6 +7421,111 @@
           "questType",
           "isUnlocked",
           "isPremium",
+          "totalMagatamaPointAwarded"
+        ]
+      },
+      "TaskResponseDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "description": "Unique identifier for the task",
+            "type": "string"
+          },
+          "questId": {
+            "description": "ID of the parent quest",
+            "type": "string"
+          },
+          "taskTheme": {
+            "description": "Theme of the task",
+            "type": "string",
+            "enum": [
+              "STORY",
+              "LOCAL_CULTURE",
+              "FOOD",
+              "URBAN_EXPLORE",
+              "NATURE"
+            ],
+            "x-enumNames": [
+              "STORY",
+              "LOCAL_CULTURE",
+              "FOOD",
+              "URBAN_EXPLORE",
+              "NATURE"
+            ]
+          },
+          "taskType": {
+            "description": "Type of the task",
+            "type": "string",
+            "enum": [
+              "VISIT_LOCATION",
+              "PHOTO_UPLOAD",
+              "ANSWER_TEXT",
+              "SELECT_OPTION",
+              "SHARE_SOCIAL",
+              "CHECK_IN",
+              "GROUP_ACTIVITY",
+              "LOCAL_INTERACTION"
+            ],
+            "x-enumNames": [
+              "VISIT_LOCATION",
+              "PHOTO_UPLOAD",
+              "ANSWER_TEXT",
+              "SELECT_OPTION",
+              "SHARE_SOCIAL",
+              "CHECK_IN",
+              "GROUP_ACTIVITY",
+              "LOCAL_INTERACTION"
+            ]
+          },
+          "taskName": {
+            "description": "Name of the task",
+            "type": "string"
+          },
+          "taskDesc": {
+            "description": "Description of the task",
+            "type": "string"
+          },
+          "isUnlocked": {
+            "description": "Whether task is unlocked",
+            "type": "boolean"
+          },
+          "requiredAction": {
+            "description": "Action required to complete the task",
+            "type": "string"
+          },
+          "groupActivityMembers": {
+            "description": "Members for group activities",
+            "type": "array",
+            "items": {}
+          },
+          "selectOptions": {
+            "description": "Options for selection tasks",
+            "type": "array",
+            "items": {}
+          },
+          "antiCheatRules": {
+            "description": "Rules to prevent cheating"
+          },
+          "magatamaPointAwarded": {
+            "description": "Magatama points awarded for this task",
+            "type": "number"
+          },
+          "totalMagatamaPointAwarded": {
+            "description": "Total Magatama points awarded",
+            "type": "number"
+          }
+        },
+        "required": [
+          "taskId",
+          "questId",
+          "taskTheme",
+          "taskType",
+          "taskName",
+          "taskDesc",
+          "isUnlocked",
+          "requiredAction",
+          "antiCheatRules",
+          "magatamaPointAwarded",
           "totalMagatamaPointAwarded"
         ]
       },

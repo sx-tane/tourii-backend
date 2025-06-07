@@ -1,0 +1,38 @@
+POST http://localhost:4000/quests/update-quest
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+{
+    "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
+    "touristSpotId": "TST_AomoriFurukawaMarket",
+    "questName": "Updated Quest Name",
+    "questDesc": "Updated quest description",
+    "questImage": "/image/quest.png",
+    "questType": "CAMPAIGN",
+    "isUnlocked": true,
+    "isPremium": false,
+    "totalMagatamaPointAwarded": 100,
+    "rewardType": "LOCAL_EXPERIENCES",
+    "delFlag": false,
+    "updUserId": "admin",
+    "taskList": [
+        {
+            "taskId": "TASK202505-1",
+            "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
+            "taskTheme": "STORY",
+            "taskType": "ANSWER_TEXT",
+            "taskName": "Updated Task",
+            "taskDesc": "Updated task description",
+            "isUnlocked": true,
+            "requiredAction": "Answer correctly",
+            "groupActivityMembers": [],
+            "selectOptions": [],
+            "antiCheatRules": {},
+            "magatamaPointAwarded": 10,
+            "totalMagatamaPointAwarded": 10,
+            "delFlag": false,
+            "updUserId": "admin"
+        }
+    ]
+}
