@@ -1,9 +1,9 @@
-POST http://localhost:4000/stories/chapters/CHP123/progress
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/progress
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0
 
 {
-  "userId": "USR123",
-  "status": "IN_PROGRESS"
+  "userId": "TSU202506-1bda5f-071407-504e5c-BAAA",
+  "status": "COMPLETED"
 }

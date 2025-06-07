@@ -296,7 +296,7 @@ EVENT EVENT
   "user_story_log" {
     String user_story_log_id "🗝️"
     String user_id 
-    String story_id 
+    String story_chapter_id 
     StoryStatus status 
     DateTime unlocked_at "❓"
     DateTime finished_at "❓"

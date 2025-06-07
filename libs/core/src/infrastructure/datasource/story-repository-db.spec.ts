@@ -1,39 +1,48 @@
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
-import type { CachingService } from '@app/core/provider/caching.service';
+import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { StoryRepositoryDb } from './story-repository-db';
 
 describe('StoryRepositoryDb', () => {
-    it('createStory stores data and invalidates cache', async () => {
+    let repository: StoryRepositoryDb;
+    let prisma: PrismaService;
+    let caching: CachingService;
+
+    beforeAll(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                StoryRepositoryDb,
+                PrismaService,
+                {
+                    provide: CachingService,
+                    useValue: {
+                        get: jest.fn(),
+                        set: jest.fn(),
+                        invalidate: jest.fn(),
+                    },
+                },
+            ],
+        }).compile();
+
+        repository = module.get(StoryRepositoryDb);
+        prisma = module.get(PrismaService);
+        caching = module.get(CachingService);
+        await prisma.$connect();
+    });
+
+    afterAll(async () => {
+        await cleanDb();
+    });
+
+    it('creates a story in the database and invalidates cache', async () => {
         const baseDate = new Date('2024-01-01T00:00:00.000Z');
-        const prisma = {
-            story: {
-                create: jest.fn().mockResolvedValue({
-                    story_id: 'story1',
-                    saga_name: 'Saga',
-                    saga_desc: 'desc',
-                    background_media: null,
-                    map_image: null,
-                    location: null,
-                    order: 1,
-                    is_prologue: true,
-                    is_selected: false,
-                    del_flag: false,
-                    ins_user_id: 'system',
-                    ins_date_time: baseDate,
-                    upd_user_id: 'system',
-                    upd_date_time: baseDate,
-                    request_id: null,
-                    story_chapter: [],
-                }),
-            },
-        } as unknown as PrismaService;
-        const caching = { invalidate: jest.fn() } as unknown as CachingService;
-        const repository = new StoryRepositoryDb(prisma, caching);
         const story = new StoryEntity(
             {
                 sagaName: 'Saga',
                 sagaDesc: 'desc',
+                order: 1,
                 isPrologue: true,
                 isSelected: false,
                 insUserId: 'system',
@@ -41,11 +50,19 @@ describe('StoryRepositoryDb', () => {
                 updUserId: 'system',
                 updDateTime: baseDate,
             },
-            'story1',
+            undefined,
         );
         const created = await repository.createStory(story);
-        expect(created.storyId).toEqual('story1');
-        expect(prisma.story.create).toHaveBeenCalled();
+        expect(created.storyId).toBeDefined();
+
+        // Verify the data was stored in the database.
+        const found = await prisma.story.findUnique({
+            where: { story_id: created.storyId },
+        });
+        expect(found).not.toBeNull();
+        expect(found?.saga_name).toEqual('Saga');
+
+        // Verify the cache was invalidated.
         expect(caching.invalidate).toHaveBeenCalledWith('stories:all');
     });
 });

@@ -464,9 +464,8 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    createUser(@Body() _user: UserEntity): Promise<void> {
-        // return this.touriiBackendService.createUser(user);
-        return Promise.resolve();
+    createUser(@Body() user: UserEntity): Promise<UserEntity> {
+        return this.touriiBackendService.createUser(user);
     }
 
     @Get('/:userId/user')

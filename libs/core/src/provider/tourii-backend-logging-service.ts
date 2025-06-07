@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-// biome-ignore lint/style/useImportType: <explanation>
 import { ConfigService } from '@nestjs/config';
 import { ContextStorage } from '../support/context/context-storage';
 import { TouriiCoreLoggingService } from './tourii-core-logging-service';
