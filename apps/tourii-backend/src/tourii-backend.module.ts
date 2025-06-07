@@ -1,6 +1,7 @@
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
+import { DigitalPassportRepositoryFake } from '@app/core/infrastructure/blockchain/digital-passport.repository.fake';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
@@ -98,6 +99,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         CachingService,
         {
             provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,
+        {
+            provide: TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN,
+            useClass: DigitalPassportRepositoryFake,
+        },
             useClass: TouriiBackendContextProvider, // Request context
         },
         {
