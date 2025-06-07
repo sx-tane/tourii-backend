@@ -280,6 +280,13 @@ export class TouriiOnchainService {
         return response;
     }
 
+    /**
+     * Returns travel logs and perk NFTs linked to a specific digital passport.
+     *
+     * The parent passport token ID corresponds to a row in the
+     * `user_onchain_item` table, while child token metadata comes from the
+     * `onchain_item_catalog` table.
+     */
     async getLinkedChildren(passportTokenId: string) {
         const links = await this.passportChildLinkRepository.findLinksByPassportTokenId(
             passportTokenId,
