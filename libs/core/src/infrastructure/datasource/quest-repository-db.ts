@@ -104,7 +104,7 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
-        await this.cachingService.invalidate(`quests:*`);
+        await this.cachingService.invalidate('quests:*');
         return QuestMapper.prismaModelToQuestEntity(updated);
     }
 
