@@ -1,0 +1,8 @@
+POST http://localhost:4000/auth/signup
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "socialProvider": "google",
+    "socialId": "123456789"
+}
