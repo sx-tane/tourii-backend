@@ -32,6 +32,8 @@ jobs:
           node-version: 20.18.0
           cache: 'pnpm'
       - run: pnpm install --no-frozen-lockfile
-      - run: echo 'DATABASE_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' > .env.test
+      - run: |
+          echo 'MIGRATION_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' > .env.test
+          echo 'DATABASE_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' >> .env.test
       - run: pnpm lint
       - run: pnpm run test
