@@ -1,12 +1,12 @@
 import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
-import { Task } from '@app/core/domain/game/quest/task';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
+import { Task } from '@app/core/domain/game/quest/task';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType, RewardType, TaskTheme, TaskType, quest, quest_task, tourist_spot } from '@prisma/client';
+import { Prisma, QuestType, quest, quest_task, tourist_spot } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
@@ -104,7 +104,7 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
-        await this.cachingService.invalidate(/^quests:/);
+        await this.cachingService.invalidate(`quests:*`);
         return QuestMapper.prismaModelToQuestEntity(updated);
     }
 

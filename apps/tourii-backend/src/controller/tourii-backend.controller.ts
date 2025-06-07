@@ -63,7 +63,10 @@ import {
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
 
-import { AuthSignupResponseDto } from './model/tourii-response/auth-signup-response.model';
+import {
+    AuthSignupResponseDto,
+    AuthSignupResponseSchema,
+} from './model/tourii-response/auth-signup-response.model';
 import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
