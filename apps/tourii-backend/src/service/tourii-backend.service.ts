@@ -258,17 +258,10 @@ export class TouriiBackendService {
         const quests = await this.questRepository.fetchQuestsWithPagination(
             page,
             limit,
-
             isPremium,
             isUnlocked,
             questType,
         );
-
-        try {
-            await this.passportRepository.mint(wallet.address);
-        } catch (error) {
-            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
-        }
 
         return QuestResultBuilder.questWithPaginationToDto(quests);
     }
@@ -302,6 +295,11 @@ export class TouriiBackendService {
             encryptedPrivateKey,
             ipAddress,
         );
+        try {
+            await this.passportRepository.mint(wallet.address);
+        } catch (error) {
+            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
+        }
         const created = await this.userRepository.createUser(userEntity);
         return {
             userId: created.userId ?? '',
