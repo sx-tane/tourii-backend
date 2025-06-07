@@ -23,6 +23,8 @@ import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-re
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
+import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
@@ -36,6 +38,7 @@ import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
+import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 
 @Injectable()
@@ -127,6 +130,22 @@ export class TouriiBackendService {
         return storyChapter.map((storyChapter) =>
             StoryResultBuilder.storyChapterToDto(storyChapter, storyId),
         );
+    }
+
+    async updateStory(saga: StoryUpdateRequestDto): Promise<StoryResponseDto> {
+        const updated = await this.storyRepository.updateStory(
+            StoryUpdateRequestBuilder.dtoToStory(saga),
+        );
+        return StoryResultBuilder.storyToDto(updated);
+    }
+
+    async updateStoryChapter(
+        chapter: StoryChapterUpdateRequestDto,
+    ): Promise<StoryChapterResponseDto> {
+        const updated = await this.storyRepository.updateStoryChapter(
+            StoryUpdateRequestBuilder.dtoToStoryChapter(chapter),
+        );
+        return StoryResultBuilder.storyChapterToDto(updated, updated.sagaName ?? '');
     }
 
     /**

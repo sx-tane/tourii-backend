@@ -241,10 +241,9 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateStory(
         @Body()
-        _saga: StoryUpdateRequestDto,
+        saga: StoryUpdateRequestDto,
     ): Promise<StoryResponseDto> {
-        // return await this.touriiBackendService.updateStory(saga);
-        return <StoryResponseDto>{};
+        return await this.touriiBackendService.updateStory(saga);
     }
 
     @Post('/stories/update-chapter')
@@ -278,10 +277,9 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateStoryChapter(
         @Body()
-        _chapter: StoryChapterUpdateRequestDto,
+        chapter: StoryChapterUpdateRequestDto,
     ): Promise<StoryChapterResponseDto> {
-        // return await this.touriiBackendService.updateStoryChapter(chapter);
-        return <StoryChapterResponseDto>{};
+        return await this.touriiBackendService.updateStoryChapter(chapter);
     }
 
     @Get('/stories/sagas')

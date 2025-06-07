@@ -57,6 +57,35 @@ export class StoryRepositoryDb implements StoryRepository {
         )[0];
     }
 
+    async updateStory(story: StoryEntity): Promise<StoryEntity> {
+        if (!story.storyId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const updated = await this.prisma.story.update({
+            where: { story_id: story.storyId },
+            data: StoryMapper.storyEntityToPrismaUpdateInput(story),
+            include: { story_chapter: true },
+        });
+        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        return StoryMapper.prismaModelToStoryEntity(updated);
+    }
+
+    async updateStoryChapter(chapter: StoryChapter): Promise<StoryChapter> {
+        if (!chapter.storyChapterId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const updated = await this.prisma.story_chapter.update({
+            where: { story_chapter_id: chapter.storyChapterId },
+            data: StoryMapper.storyChapterEntityToPrismaUpdateInput(chapter),
+            include: {
+                story: { select: { saga_name: true, story_id: true } },
+            },
+        });
+        const cacheKey = `${STORY_CHAPTER_RAW_CACHE_KEY_PREFIX}:${updated.story.story_id}`;
+        await this.cachingService.invalidate(cacheKey);
+        return StoryMapper.storyChapterToEntity([updated], updated.story.saga_name)[0];
+    }
+
     async getStories(): Promise<StoryEntity[] | undefined> {
         // Define the function to fetch data from the database
         const fetchDataFn = async (): Promise<StoryRelationModel[]> => {
