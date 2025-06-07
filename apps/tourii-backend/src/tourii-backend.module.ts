@@ -4,6 +4,7 @@ import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/mode
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
+import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -117,6 +118,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN,
             useClass: WeatherInfoRepositoryApi, // Weather info database access
+        },
+        {
+            provide: TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN,
+            useClass: EncryptionRepositoryAuth,
         },
         {
             provide: APP_PIPE,

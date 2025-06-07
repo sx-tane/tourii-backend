@@ -1,3 +1,4 @@
+import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -14,13 +15,16 @@ import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-ba
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType } from '@prisma/client';
+import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
+import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
@@ -29,7 +33,7 @@ import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
-import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import { UserCreateBuilder } from './builder/user-create-builder';
 
 @Injectable()
 export class TouriiBackendService {
@@ -46,6 +50,8 @@ export class TouriiBackendService {
         private readonly weatherInfoRepository: WeatherInfoRepository,
         @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
         private readonly questRepository: QuestRepository,
+        @Inject(TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN)
+        private readonly encryptionRepository: EncryptionRepository,
     ) {}
 
     /**
@@ -255,6 +261,29 @@ export class TouriiBackendService {
     async getQuestById(questId: string): Promise<QuestResponseDto> {
         const quest = await this.questRepository.fetchQuestById(questId);
         return QuestResultBuilder.questToDto(quest);
+    }
+
+    async signupUser(
+        email: string,
+        socialProvider: string,
+        socialId: string,
+        ipAddress: string,
+    ): Promise<AuthSignupResponseDto> {
+        const wallet = ethers.Wallet.createRandom();
+        const encryptedPrivateKey = this.encryptionRepository.encryptString(wallet.privateKey);
+        const userEntity = UserCreateBuilder.fromSignup(
+            email,
+            socialProvider,
+            socialId,
+            wallet.address,
+            encryptedPrivateKey,
+            ipAddress,
+        );
+        const created = await this.userRepository.createUser(userEntity);
+        return {
+            userId: created.userId ?? '',
+            walletAddress: wallet.address,
+        };
     }
 
     /**

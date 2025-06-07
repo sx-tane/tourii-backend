@@ -387,6 +387,9 @@ model user {
   /// Blockchain wallet address for travel perks
   perks_wallet_address String @unique @default("''")
 
+  /// Encrypted private key for the user's wallet
+  encrypted_private_key String?
+
   //----
   // USER METRICS & STATUS
   //----
