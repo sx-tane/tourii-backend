@@ -267,6 +267,14 @@ export class TouriiBackendService {
         return QuestResultBuilder.questToDto(quest);
     }
 
+    /**
+     * Signup user
+     * @param email Email
+     * @param socialProvider Social provider
+     * @param socialId Social ID
+     * @param ipAddress IP address
+     * @returns Auth signup response DTO
+     */
     async signupUser(
         email: string,
         socialProvider: string,

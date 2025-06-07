@@ -502,7 +502,7 @@ export class TouriiBackendController {
             dto.email,
             dto.socialProvider,
             dto.socialId,
-            req.ip,
+            req.ip ?? '',
         );
     }
 
