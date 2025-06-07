@@ -47,6 +47,29 @@ We now break down **each API** inside its domain with:
   - `GET /auth/nonce`: get nonce for wallet signature → `AuthController.getNonce()` → `AuthService.generateNonce()`
   - `POST /auth/verify-signature`: wallet login → `AuthController.verifySignature()` → `Web3Service.verifyAndLogin()`
   - `POST /auth/social/:provider`: OAuth login → `AuthController.socialLogin()` → `OAuthService.validateToken()`
+  - `POST /auth/signup`: create wallet and user record
+
+  **Request Example**
+
+  ```http
+  POST /auth/signup HTTP/1.1
+  Content-Type: application/json
+
+  {
+    "email": "user@example.com",
+    "socialProvider": "google",
+    "socialId": "123456789"
+  }
+  ```
+
+  **Response**
+
+  ```json
+  {
+    "userId": "user-uuid",
+    "walletAddress": "0xabc..."
+  }
+  ```
 
 ### 2 USER
 
