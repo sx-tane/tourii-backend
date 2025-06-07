@@ -1,7 +1,8 @@
-import { Test, type TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@app/core/provider/prisma.service';
-import { UserRepositoryDb } from './user-repository-db';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { UserEntity } from '@app/core/domain/user/user.entity';
+import { PrismaService } from '@app/core/provider/prisma.service';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { UserRepositoryDb } from './user-repository-db';
 
 /**
  * Simple integration test for {@link UserRepositoryDb}
@@ -21,8 +22,7 @@ describe('UserRepositoryDb', () => {
     });
 
     afterAll(async () => {
-        await prisma.user.deleteMany();
-        await prisma.$disconnect();
+        await cleanDb();
     });
 
     it('creates and retrieves a user record', async () => {
