@@ -1,4 +1,4 @@
-name: Tourii Backend CI Pipeline
+name: Tourii Backend Test Pipeline
 
 on:
   push:
