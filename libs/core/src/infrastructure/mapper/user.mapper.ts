@@ -1,10 +1,9 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import type { UserRoleType, user } from '@prisma/client';
+import type { Prisma, UserRoleType, user } from '@prisma/client';
 
 export class UserMapper {
-    static userEntityToPrismaInput(userEntity: UserEntity): user {
+    static userEntityToPrismaInput(userEntity: UserEntity): Prisma.userUncheckedCreateInput {
         return {
-            user_id: userEntity.userId ?? '',
             username: userEntity.username,
             discord_id: userEntity.discordId ?? null,
             discord_username: userEntity.discordUsername ?? null,

@@ -1,23 +1,93 @@
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
-import { TouristSpotMapper } from '@app/core/infrastructure/mapper/tourist-spot-mapper';
 import type { Prisma, tourist_spot } from '@prisma/client';
 import { ModelRouteRelationModel } from 'prisma/relation-model/model-route-relation-model';
 
 export class ModelRouteMapper {
+    static prismaModelToTouristSpotEntity(prismaModel: tourist_spot): TouristSpot {
+        return new TouristSpot({
+            touristSpotId: prismaModel.tourist_spot_id,
+            storyChapterId: prismaModel.story_chapter_id,
+            touristSpotName: prismaModel.tourist_spot_name,
+            touristSpotDesc: prismaModel.tourist_spot_desc,
+            latitude: prismaModel.latitude,
+            longitude: prismaModel.longitude,
+            bestVisitTime: prismaModel.best_visit_time ?? undefined,
+            address: prismaModel.address ?? undefined,
+            storyChapterLink: prismaModel.story_chapter_link ?? undefined,
+            touristSpotHashtag: prismaModel.tourist_spot_hashtag,
+            imageSet:
+                typeof prismaModel.image_set === 'object' &&
+                prismaModel.image_set !== null &&
+                'main' in prismaModel.image_set &&
+                'small' in prismaModel.image_set &&
+                typeof (prismaModel.image_set as any).main === 'string' &&
+                Array.isArray((prismaModel.image_set as any).small) &&
+                (prismaModel.image_set as any).small.every(
+                    (item: unknown) => typeof item === 'string',
+                )
+                    ? (prismaModel.image_set as { main: string; small: string[] })
+                    : undefined,
+            delFlag: prismaModel.del_flag ?? false,
+            insUserId: prismaModel.ins_user_id ?? '',
+            insDateTime: prismaModel.ins_date_time,
+            updUserId: prismaModel.upd_user_id,
+            updDateTime: prismaModel.upd_date_time,
+            requestId: prismaModel.request_id ?? undefined,
+        });
+    }
+
     static touristSpotEntityToPrismaInput(
         touristSpotEntity: TouristSpot,
     ): Prisma.tourist_spotCreateWithoutModel_routeInput {
-        return TouristSpotMapper.touristSpotEntityToPrismaInput(touristSpotEntity);
+        return {
+            story_chapter_id: touristSpotEntity.storyChapterId ?? '',
+            tourist_spot_name: touristSpotEntity.touristSpotName ?? '',
+            tourist_spot_desc: touristSpotEntity.touristSpotDesc ?? '',
+            latitude: touristSpotEntity.latitude ?? 0,
+            longitude: touristSpotEntity.longitude ?? 0,
+            best_visit_time: touristSpotEntity.bestVisitTime ?? null,
+            address: touristSpotEntity.address ?? null,
+            story_chapter_link: touristSpotEntity.storyChapterLink ?? null,
+            tourist_spot_hashtag: touristSpotEntity.touristSpotHashtag ?? [],
+            image_set: touristSpotEntity.imageSet ?? undefined,
+            del_flag: touristSpotEntity.delFlag ?? false,
+            ins_user_id: touristSpotEntity.insUserId ?? '',
+            ins_date_time: touristSpotEntity.insDateTime,
+            upd_user_id: touristSpotEntity.updUserId,
+            upd_date_time: touristSpotEntity.updDateTime,
+            request_id: touristSpotEntity.requestId,
+        };
     }
 
     static touristSpotOnlyEntityToPrismaInput(
         touristSpotEntity: TouristSpot,
         modelRouteId: string,
     ): Prisma.tourist_spotUncheckedCreateInput {
-        return TouristSpotMapper.touristSpotOnlyEntityToPrismaInput(
-            touristSpotEntity,
-            modelRouteId,
+        return {
+            model_route_id: modelRouteId,
+            story_chapter_id: touristSpotEntity.storyChapterId ?? '',
+            tourist_spot_name: touristSpotEntity.touristSpotName ?? '',
+            tourist_spot_desc: touristSpotEntity.touristSpotDesc ?? '',
+            latitude: touristSpotEntity.latitude ?? 0,
+            longitude: touristSpotEntity.longitude ?? 0,
+            best_visit_time: touristSpotEntity.bestVisitTime ?? null,
+            address: touristSpotEntity.address ?? null,
+            story_chapter_link: touristSpotEntity.storyChapterLink ?? null,
+            tourist_spot_hashtag: touristSpotEntity.touristSpotHashtag ?? [],
+            image_set: touristSpotEntity.imageSet ?? undefined,
+            del_flag: touristSpotEntity.delFlag ?? false,
+            ins_user_id: touristSpotEntity.insUserId ?? '',
+            ins_date_time: touristSpotEntity.insDateTime,
+            upd_user_id: touristSpotEntity.updUserId,
+            upd_date_time: touristSpotEntity.updDateTime,
+            request_id: touristSpotEntity.requestId,
+        };
+    }
+
+    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
+        return prismaModel.map((touristSpot) =>
+            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
         );
     }
 
@@ -41,14 +111,10 @@ export class ModelRouteMapper {
             request_id: modelRouteEntity.requestId,
             tourist_spot: {
                 create: modelRouteEntity.touristSpotList?.map((touristSpot) =>
-                    TouristSpotMapper.touristSpotEntityToPrismaInput(touristSpot),
+                    ModelRouteMapper.touristSpotEntityToPrismaInput(touristSpot),
                 ),
             },
         };
-    }
-
-    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
-        return TouristSpotMapper.touristSpotToEntity(prismaModel);
     }
 
     static prismaModelToModelRouteEntity(prismaModel: ModelRouteRelationModel): ModelRouteEntity {
@@ -72,7 +138,9 @@ export class ModelRouteMapper {
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
-                touristSpotList: TouristSpotMapper.touristSpotToEntity(prismaModel.tourist_spot),
+                touristSpotList: prismaModel.tourist_spot.map((touristSpot) =>
+                    ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+                ),
             },
             prismaModel.model_route_id,
         );

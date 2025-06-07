@@ -14,8 +14,7 @@ import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType } from '@prisma/client';
-import { StoryStatus } from '@prisma/client';
+import { QuestType, StoryStatus } from '@prisma/client';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
@@ -32,6 +31,7 @@ import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 
 @Injectable()
 export class TouriiBackendService {
@@ -534,11 +534,11 @@ export class TouriiBackendService {
         );
     }
 
-    // async createUser(user: UserEntity) {
-    //   // service logic
-    //   // dto -> entity
-    //   return this.userRepository.createUser(user);
-    // }
+    async createUser(user: UserEntity) {
+        // service logic
+        // dto -> entity
+        return this.userRepository.createUser(user);
+    }
 
     // async getUserByUserId(userId: string) {
     //   return this.userRepository.getUserInfoByUserId(userId);

@@ -1,6 +1,6 @@
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
-import { TaskEntity } from '@app/core/domain/game/task/task.entity';
+import { Task } from '@app/core/domain/game/quest/task';
 import { TransformDate } from '@app/core/support/transformer/date-transformer';
 import type { QuestListResponseDto } from '@app/tourii-backend/controller/model/tourii-response/quest-list-response.model';
 import {
@@ -10,7 +10,6 @@ import {
 import { TouristSpotResponseDto } from '@app/tourii-backend/controller/model/tourii-response/tourist-spot-response.model';
 import { QuestType } from '@prisma/client';
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class QuestResultBuilder {
     static questWithPaginationToDto(
         questWithPagination: QuestEntityWithPagination,
@@ -57,7 +56,7 @@ export class QuestResultBuilder {
         };
     }
 
-    static taskToDto(task: TaskEntity): TaskResponseDto {
+    static taskToDto(task: Task): TaskResponseDto {
         return {
             taskId: task.taskId ?? '',
             questId: task.questId,

@@ -97,7 +97,7 @@ describe('UserStoryLogRepositoryDb', () => {
         await repository.trackProgress(userId, chapterId, StoryStatus.IN_PROGRESS);
 
         const log = await prisma.user_story_log.findFirst({
-            where: { user_id: userId, story_id: storyId },
+            where: { user_id: userId, story_chapter_id: chapterId },
         });
 
         expect(log).not.toBeNull();
@@ -110,14 +110,14 @@ describe('UserStoryLogRepositoryDb', () => {
         // First, create the log
         await repository.trackProgress(userId, chapterId, StoryStatus.IN_PROGRESS);
         const initialLog = await prisma.user_story_log.findFirst({
-            where: { user_id: userId, story_id: storyId },
+            where: { user_id: userId, story_chapter_id: chapterId },
         });
         expect(initialLog?.finished_at).toBeNull();
 
         // Then, update it to COMPLETED
         await repository.trackProgress(userId, chapterId, StoryStatus.COMPLETED);
         const updatedLog = await prisma.user_story_log.findFirst({
-            where: { user_id: userId, story_id: storyId },
+            where: { user_id: userId, story_chapter_id: chapterId },
         });
 
         expect(updatedLog).not.toBeNull();
