@@ -32,7 +32,7 @@
         "prisma:migrate:dev": "prisma format && pnpm run prisma:execute:db-scripts && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
-        "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test",
+        "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -47,11 +47,15 @@
         "seed": "ts-node prisma/seed.ts"
     },
     "lint-staged": {
-        "**/*": ["cspell --config cspell.config.json --no-must-find-files"],
+        "**/*": [
+            "cspell --config cspell.config.json --no-must-find-files"
+        ],
         "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
             "biome check --apply --no-errors-on-unmatched"
         ],
-        "*.{yaml,yml,md,d.ts}": ["prettier --write"],
+        "*.{yaml,yml,md,d.ts}": [
+            "prettier --write"
+        ],
         "project-words.txt": [
             "sed -i '/^$/d' project-words.txt",
             "env LC_ALL=C sort -u -o project-words.txt"
@@ -148,7 +152,11 @@
         "typescript": "5.8.3"
     },
     "jest": {
-        "moduleFileExtensions": ["js", "json", "ts"],
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
         "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
@@ -173,11 +181,16 @@
                 }
             ]
         },
-        "collectCoverageFrom": ["**/*.(t|j)s"],
+        "collectCoverageFrom": [
+            "**/*.(t|j)s"
+        ],
         "coverageDirectory": "./coverage",
         "testEnvironment": "node",
         "maxWorkers": 1,
-        "roots": ["<rootDir>/libs/", "<rootDir>/apps/"],
+        "roots": [
+            "<rootDir>/libs/",
+            "<rootDir>/apps/"
+        ],
         "moduleNameMapper": {
             "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
             "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
@@ -186,13 +199,9 @@
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
-        "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
-    },
-    "engines": {
-        "node": "20.18.0",
-        "pnpm": "9.15.5",
-        "npm": "use pnpm instead",
-        "yarn": "use pnpm instead"
+        "setupFiles": [
+            "<rootDir>/apps/tourii-backend/test/dotenv/config.ts"
+        ]
     },
     "packageManager": "pnpm@9.15.5"
 }

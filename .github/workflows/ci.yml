@@ -1,0 +1,39 @@
+name: Tourii Backend Test Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: touriibackenddev
+          POSTGRES_PASSWORD: touriibackenddev
+          POSTGRES_DB: tourii_backend_test
+        ports:
+          - 7442:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.0
+          cache: 'pnpm'
+      - run: pnpm install --no-frozen-lockfile
+      - run: |
+          echo 'MIGRATION_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' > .env.test
+          echo 'DATABASE_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' >> .env.test
+      - run: pnpm lint
+      - run: pnpm run test
