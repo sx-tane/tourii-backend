@@ -2613,6 +2613,110 @@
         ]
       }
     },
+    "/login": {
+      "post": {
+        "description": "Login using username or other identifiers with optional wallet/social checks.",
+        "operationId": "TouriiBackendController_login",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Login request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_004"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User is not registered"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "User Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/auth/signup": {
       "post": {
         "operationId": "TouriiBackendController_signup",
@@ -2695,6 +2799,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": ""
           }
         },
         "summary": "User signup with wallet",
@@ -6413,6 +6520,34 @@
           "isUnlocked",
           "isPremium",
           "totalMagatamaPointAwarded"
+        ]
+      },
+      "LoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "description": "Username for login",
+            "type": "string"
+          },
+          "password": {
+            "description": "User password",
+            "type": "string"
+          },
+          "passportWalletAddress": {
+            "description": "Passport wallet address to validate",
+            "type": "string"
+          },
+          "discordId": {
+            "description": "Discord user ID",
+            "type": "string"
+          },
+          "googleEmail": {
+            "description": "Google email address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
         ]
       },
       "AuthSignupRequestDto": {

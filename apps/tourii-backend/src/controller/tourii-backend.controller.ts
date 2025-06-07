@@ -28,6 +28,7 @@ import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
 } from './model/tourii-request/create/chapter-story-create-request.model';
+import { LoginRequestDto } from './model/tourii-request/create/login-request.model';
 import {
     ModelRouteCreateRequestDto,
     ModelRouteCreateRequestSchema,
@@ -106,6 +107,7 @@ import {
     QuestListResponseDto,
     QuestResponseDto,
     TaskResponseDto,
+    LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
 )
@@ -486,6 +488,32 @@ export class TouriiBackendController {
         return this.touriiBackendService.createUser(user);
     }
 
+    @Post('/login')
+    @ApiTags('Auth')
+    @ApiOperation({
+        summary: 'User Login',
+        description:
+            'Login using username or other identifiers with optional wallet/social checks.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({ description: 'Login request', type: LoginRequestDto })
+    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
+    @ApiUserNotFoundResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
+        return this.touriiBackendService.loginUser(login);
+    }
     @Post('/auth/signup')
     @ApiTags('Auth')
     @ApiOperation({ summary: 'User signup with wallet' })
@@ -501,6 +529,9 @@ export class TouriiBackendController {
         schema: zodToOpenAPI(AuthSignupResponseSchema),
     })
     @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
     async signup(
         @Body() dto: AuthSignupRequestDto,
         @Req() req: Request,
