@@ -5,12 +5,19 @@ import { randomUUID } from 'node:crypto';
 @Injectable()
 export class DigitalPassportRepositoryFake implements DigitalPassportRepository {
     private readonly logger = new Logger(DigitalPassportRepositoryFake.name);
-    async mint(to: string): Promise<{ tokenId: string; txHash: string }> {
+    private nextId = 0;
+    async mint(to: string, metadataUrl: string): Promise<{ tokenId: string; txHash: string }> {
         // In a real implementation this would send a transaction to the
         // blockchain. Here we simply log and return a fake token.
-        const tokenId = randomUUID();
+        const tokenId = (this.nextId++).toString();
         const txHash = randomUUID();
-        this.logger.log(`Minted digital passport to ${to} token ${tokenId}`);
+        this.logger.log(
+            `Minted digital passport to ${to} token ${tokenId} with metadata ${metadataUrl}`,
+        );
         return { tokenId, txHash };
+    }
+
+    async getNextTokenId(): Promise<string> {
+        return this.nextId.toString();
     }
 }

@@ -12,6 +12,7 @@ import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
+import { DigitalPassportMetadataRepository } from '@app/core/domain/passport/digital-passport-metadata.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -69,6 +70,8 @@ export class TouriiBackendService {
         private readonly userStoryLogRepository: UserStoryLogRepository,
         @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
         private readonly passportRepository: DigitalPassportRepository,
+        @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_METADATA_REPOSITORY_TOKEN)
+        private readonly passportMetadataRepository: DigitalPassportMetadataRepository,
     ) {}
 
     /**
@@ -355,7 +358,16 @@ export class TouriiBackendService {
             ipAddress,
         );
         try {
-            await this.passportRepository.mint(wallet.address);
+            const nextId = await this.passportRepository.getNextTokenId();
+            const metadata = {
+                email,
+                walletAddress: wallet.address,
+            };
+            const metadataUrl = await this.passportMetadataRepository.uploadMetadata(
+                nextId,
+                metadata,
+            );
+            await this.passportRepository.mint(wallet.address, metadataUrl);
         } catch (error) {
             Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
         }
