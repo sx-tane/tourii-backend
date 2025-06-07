@@ -63,7 +63,7 @@ We now break down **each API** inside its domain with:
   - [x] `POST /stories/create-saga`: create saga → `StoryController.createStory()`
   - [x] `GET /stories/sagas`: list sagas → `StoryController.getSagas()`
   - [x] `GET /stories/sagas/:storyId/chapters`: saga chapters → `StoryController.getStoryChapters()`
-  - [ ] `POST /stories/chapters/:chapterId/progress`: save reading progress → `ChapterController.markProgress()` → `UserStoryLogService.track()`
+  - [x] `POST /stories/chapters/:chapterId/progress`: save reading progress → `TouriiBackendController.markChapterProgress()` → `UserStoryLogRepository.trackProgress()`
 
 ### 4 ROUTES
 

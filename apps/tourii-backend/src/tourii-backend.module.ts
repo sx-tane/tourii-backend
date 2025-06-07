@@ -4,6 +4,7 @@ import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/mode
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
+import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -88,6 +89,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendLoggingService, // Custom logging
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
+        {
+            provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,
+            useClass: UserStoryLogRepositoryDb,
+        },
         HttpAdapterHost, // HTTP adapter
         CachingService,
         {
