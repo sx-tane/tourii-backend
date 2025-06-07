@@ -1,5 +1,5 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
@@ -11,6 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { QuestType } from '@prisma/client';
+import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
@@ -19,6 +20,10 @@ import {
     ApiUserExistsResponse,
     ApiUserNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
+import {
+    AuthSignupRequestDto,
+    AuthSignupRequestSchema,
+} from './model/tourii-request/create/auth-signup-request.model';
 import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
@@ -48,6 +53,10 @@ import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+import {
+    AuthSignupResponseDto,
+    AuthSignupResponseSchema,
+} from './model/tourii-response/auth-signup-response.model';
 import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
@@ -88,6 +97,8 @@ import {
     UserEntity,
     QuestListResponseDto,
     QuestResponseDto,
+    AuthSignupRequestDto,
+    AuthSignupResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -464,6 +475,33 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     createUser(@Body() user: UserEntity): Promise<UserEntity> {
         return this.touriiBackendService.createUser(user);
+    }
+
+    @Post('/auth/signup')
+    @ApiTags('Auth')
+    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiBody({
+        description: 'Signup info',
+        type: AuthSignupRequestDto,
+        schema: zodToOpenAPI(AuthSignupRequestSchema),
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Signup success',
+        type: AuthSignupResponseDto,
+        schema: zodToOpenAPI(AuthSignupResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    async signup(
+        @Body() dto: AuthSignupRequestDto,
+        @Req() req: Request,
+    ): Promise<AuthSignupResponseDto> {
+        return this.touriiBackendService.signupUser(
+            dto.email,
+            dto.socialProvider,
+            dto.socialId,
+            req.ip ?? '',
+        );
     }
 
     @Get('/:userId/user')
