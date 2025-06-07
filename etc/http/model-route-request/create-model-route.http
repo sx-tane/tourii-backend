@@ -1,14 +1,15 @@
 POST http://localhost:4000/routes/create-model-route
 Content-Type: application/json
-x-api-key: your-api-key-2       
+x-api-key: your-api-key-2
 accept-version: 1.0.0
 
 
 {
-    "storyId": "STO202505-a26441-292305-c178d6-BAAA",
-    "routeName": "The Awakening Route",
+    "storyId": "STO202506-100eaf-052307-d7ef94-BAAA",
+    "routeName": "The Sloth Route",
     "region": "Aomori",
     "regionDesc": "Aomori is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
+    "regionBackgroundMedia": "/image/world/Aomori.png",
     "recommendation": [
         "Ideal for First Time Visitors",
         "A good mix of nature and culture",
@@ -16,17 +17,17 @@ accept-version: 1.0.0
     ],
     "touristSpotList": [
         {
-            "storyChapterId": "SCT202505-b99a95-292305-35b10b-BAAA",
-            "touristSpotName": "Aomori Castle",
-            "touristSpotDesc": "Aomori Castle is a castle in the world of Tourii. It is a castle that is known for its beautiful nature and culture. It is a castle that is known for its beautiful nature and culture.",
+            "storyChapterId": "SCT202506-21c4ae-052307-5de0cc-BAAA",
+            "touristSpotName": "Ninomiya Shrine Bungo Ono",
+            "touristSpotDesc": "Ninomiya Shrine is a shrine in the world of Tourii. It is a shrine that is known for its beautiful nature and culture. It is a shrine that is known for its beautiful nature and culture.",
             "bestVisitTime": "9:00 am",
-            "touristSpotHashtag": ["#Castle", "#History"],
+            "touristSpotHashtag": ["#Shrine", "#SpiritualSite"],
             "imageSet": {
-                "main": "/image/touriiverse/aomori/castle.png",
+                "main": "/image/touriiverse/bungo-ono/chapter2.png",
                 "small": [
-                    "/image/model-route/1/aomori/castle/1.jpg",
-                    "/image/model-route/1/aomori/castle/2.jpg",
-                    "/image/model-route/1/aomori/castle/3.jpg"
+                    "/image/model-route/1/ninomiya/1.jpg",
+                    "/image/model-route/1/ninomiya/2.jpg",
+                    "/image/model-route/1/ninomiya/3.jpg"
                 ]
             }
         }

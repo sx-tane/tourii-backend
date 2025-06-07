@@ -193,6 +193,7 @@ EVENT EVENT
     String google_email "❓"
     String email "❓"
     String password 
+    String refresh_token "❓"
     String passport_wallet_address "❓"
     String perks_wallet_address 
     String latest_ip_address "❓"

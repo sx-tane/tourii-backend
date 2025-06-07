@@ -124,7 +124,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                     tourist_spot: true,
                 },
                 orderBy: {
-                    upd_date_time: 'desc',
+                    ins_date_time: 'asc',
                 },
             });
             this.logger.debug(

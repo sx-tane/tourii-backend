@@ -19,6 +19,7 @@ erDiagram
   String google_email UK "nullable"
   String email UK "nullable"
   String password
+  String refresh_token "nullable"
   String passport_wallet_address UK "nullable"
   String perks_wallet_address UK
   String latest_ip_address "nullable"
@@ -262,6 +263,11 @@ define access levels and privileges in the system.
     > User Password
     > 
     > Hashed password for native authentication
+  - `refresh_token`
+    > Refresh Token
+    > 
+    > Bearer for rotating refresh token (hashed or plaintext)
+    > Each time we issue a new refresh token, we replace this field.
   - `passport_wallet_address`
     > Digital passport Wallet Address
     > 

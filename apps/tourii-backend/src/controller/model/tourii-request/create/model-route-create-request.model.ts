@@ -6,6 +6,7 @@ export const ModelRouteCreateRequestSchema = z.object({
     routeName: z.string().describe('Name of the model route'),
     region: z.string().describe('Region of the model route'),
     regionDesc: z.string().describe('Description of the region'),
+    regionBackgroundMedia: z.string().describe('Background media of the region'),
     recommendation: z.array(z.string()).describe('Recommendation of the model route'),
     touristSpotList: z
         .array(TouristSpotCreateRequestSchema)
