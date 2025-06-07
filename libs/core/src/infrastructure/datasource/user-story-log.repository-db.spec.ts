@@ -1,5 +1,7 @@
 import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { StoryStatus } from '@prisma/client';
 import { UserStoryLogRepositoryDb } from './user-story-log.repository-db';
@@ -129,6 +131,6 @@ describe('UserStoryLogRepositoryDb', () => {
     it('should throw an error if the chapter does not exist', async () => {
         await expect(
             repository.trackProgress(userId, 'non-existent-chapter', StoryStatus.IN_PROGRESS),
-        ).rejects.toThrow('Story chapter not found');
+        ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023));
     });
 });
