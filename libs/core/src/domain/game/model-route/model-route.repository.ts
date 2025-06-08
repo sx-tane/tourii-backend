@@ -43,4 +43,16 @@ export interface ModelRouteRepository {
      * @returns ModelRouteEntity[]
      */
     getModelRoutes(): Promise<ModelRouteEntity[]>;
+
+    /**
+     * Delete model route and its tourist spots
+     * @param modelRouteId Model route ID
+     */
+    deleteModelRoute(modelRouteId: string): Promise<boolean>;
+
+    /**
+     * Delete tourist spot
+     * @param touristSpotId Tourist spot ID
+     */
+    deleteTouristSpot(touristSpotId: string): Promise<boolean>;
 }

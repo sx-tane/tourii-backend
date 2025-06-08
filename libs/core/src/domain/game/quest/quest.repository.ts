@@ -24,4 +24,16 @@ export interface QuestRepository {
     updateQuest(quest: QuestEntity): Promise<QuestEntity>;
 
     updateQuestTask(task: Task): Promise<Task>;
+
+    /**
+     * Delete quest and its tasks
+     * @param questId Quest ID
+     */
+    deleteQuest(questId: string): Promise<boolean>;
+
+    /**
+     * Delete quest task
+     * @param taskId Task ID
+     */
+    deleteQuestTask(taskId: string): Promise<boolean>;
 }

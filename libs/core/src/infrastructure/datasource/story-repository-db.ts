@@ -217,4 +217,26 @@ export class StoryRepositoryDb implements StoryRepository {
         // Return the array of proper StoryChapter instances
         return storyChapterInstances;
     }
+
+    async deleteStory(storyId: string): Promise<boolean> {
+        await this.prisma.$transaction([
+            this.prisma.story_chapter.deleteMany({ where: { story_id: storyId } }),
+            this.prisma.story.delete({ where: { story_id: storyId } }),
+        ]);
+        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        await this.cachingService.invalidate(`${STORY_CHAPTER_RAW_CACHE_KEY_PREFIX}:${storyId}`);
+        return true;
+    }
+
+    async deleteStoryChapter(chapterId: string): Promise<boolean> {
+        const chapter = await this.prisma.story_chapter.delete({
+            where: { story_chapter_id: chapterId },
+            select: { story_id: true },
+        });
+        await this.cachingService.invalidate(
+            `${STORY_CHAPTER_RAW_CACHE_KEY_PREFIX}:${chapter.story_id}`,
+        );
+        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        return true;
+    }
 }

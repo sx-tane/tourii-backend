@@ -1,5 +1,5 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
@@ -335,6 +335,32 @@ export class TouriiBackendController {
         return await this.touriiBackendService.updateStoryChapter(chapter);
     }
 
+    @Delete('/stories/:storyId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story', description: 'Delete a story saga.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStory(@Param('storyId') storyId: string): Promise<void> {
+        await this.touriiBackendService.deleteStory(storyId);
+    }
+
+    @Delete('/stories/chapters/:chapterId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story Chapter', description: 'Delete a story chapter.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story chapter deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStoryChapter(@Param('chapterId') chapterId: string): Promise<void> {
+        await this.touriiBackendService.deleteStoryChapter(chapterId);
+    }
+
     @Get('/stories/sagas')
     @ApiTags('Stories')
     @ApiOperation({
@@ -546,6 +572,32 @@ export class TouriiBackendController {
         @Body() touristSpot: TouristSpotUpdateRequestDto,
     ): Promise<TouristSpotResponseDto> {
         return await this.touriiBackendService.updateTouristSpot(touristSpot);
+    }
+
+    @Delete('/routes/:modelRouteId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Model Route', description: 'Delete an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Model route deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteModelRoute(@Param('modelRouteId') modelRouteId: string): Promise<void> {
+        await this.touriiBackendService.deleteModelRoute(modelRouteId);
+    }
+
+    @Delete('/routes/tourist-spot/:touristSpotId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Tourist Spot', description: 'Delete a tourist spot.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Tourist spot deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteTouristSpot(@Param('touristSpotId') touristSpotId: string): Promise<void> {
+        await this.touriiBackendService.deleteTouristSpot(touristSpotId);
     }
 
     @Post('/user')
@@ -854,6 +906,32 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
         return await this.touriiBackendService.updateQuestTask(task);
+    }
+
+    @Delete('/quests/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest', description: 'Delete a quest and its tasks.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuest(@Param('questId') questId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuest(questId);
+    }
+
+    @Delete('/quests/tasks/:taskId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest Task', description: 'Delete an individual quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest task deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuestTask(@Param('taskId') taskId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuestTask(taskId);
     }
 
     @Get('/quests/:questId/group/members')

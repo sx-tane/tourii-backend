@@ -134,4 +134,19 @@ export class QuestRepositoryDb implements QuestRepository {
 
         return QuestMapper.prismaTaskModelToTaskEntity(updated);
     }
+
+    async deleteQuest(questId: string): Promise<boolean> {
+        await this.prisma.$transaction([
+            this.prisma.quest_task.deleteMany({ where: { quest_id: questId } }),
+            this.prisma.quest.delete({ where: { quest_id: questId } }),
+        ]);
+        await this.cachingService.invalidate('quests:*');
+        return true;
+    }
+
+    async deleteQuestTask(taskId: string): Promise<boolean> {
+        await this.prisma.quest_task.delete({ where: { quest_task_id: taskId } });
+        await this.cachingService.invalidate('quests:*');
+        return true;
+    }
 }

@@ -981,6 +981,30 @@ export class TouriiBackendService {
         return this.locationInfoRepository.getLocationInfo(query);
     }
 
+    async deleteStory(storyId: string): Promise<void> {
+        await this.storyRepository.deleteStory(storyId);
+    }
+
+    async deleteStoryChapter(chapterId: string): Promise<void> {
+        await this.storyRepository.deleteStoryChapter(chapterId);
+    }
+
+    async deleteModelRoute(modelRouteId: string): Promise<void> {
+        await this.modelRouteRepository.deleteModelRoute(modelRouteId);
+    }
+
+    async deleteTouristSpot(touristSpotId: string): Promise<void> {
+        await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
+    }
+
+    async deleteQuest(questId: string): Promise<void> {
+        await this.questRepository.deleteQuest(questId);
+    }
+
+    async deleteQuestTask(taskId: string): Promise<void> {
+        await this.questRepository.deleteQuestTask(taskId);
+    }
+
     /**
      * Track chapter progress
      * @param userId User ID

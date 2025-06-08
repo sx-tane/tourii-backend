@@ -220,4 +220,92 @@ describe('ModelRouteRepositoryDb', () => {
         expect(caching.invalidate).toHaveBeenCalledWith(`model_route_raw:${route.model_route_id}`);
         expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
     });
+
+    it('deleteModelRoute removes route and spots', async () => {
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'DelRoute',
+                saga_desc: 'd',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const route = await prisma.model_route.create({
+            data: {
+                model_route_id: 'delr',
+                story_id: story.story_id,
+                route_name: 'R',
+                region: 'reg',
+                region_latitude: 0,
+                region_longitude: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'delsp',
+                model_route_id: route.model_route_id,
+                story_chapter_id: 'c',
+                tourist_spot_name: 'n',
+                tourist_spot_desc: 'd',
+                latitude: 0,
+                longitude: 0,
+                tourist_spot_hashtag: [],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteModelRoute(route.model_route_id);
+
+        const foundRoute = await prisma.model_route.findUnique({ where: { model_route_id: route.model_route_id } });
+        const spots = await prisma.tourist_spot.findMany({ where: { model_route_id: route.model_route_id } });
+        expect(foundRoute).toBeNull();
+        expect(spots.length).toBe(0);
+    });
+
+    it('deleteTouristSpot removes spot', async () => {
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'DelSpot',
+                saga_desc: 'd',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const route = await prisma.model_route.create({
+            data: {
+                model_route_id: 'delr2',
+                story_id: story.story_id,
+                route_name: 'R',
+                region: 'reg',
+                region_latitude: 0,
+                region_longitude: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const spot = await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'delsp2',
+                model_route_id: route.model_route_id,
+                story_chapter_id: 'c2',
+                tourist_spot_name: 'n',
+                tourist_spot_desc: 'd',
+                latitude: 0,
+                longitude: 0,
+                tourist_spot_hashtag: [],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteTouristSpot(spot.tourist_spot_id);
+
+        const found = await prisma.tourist_spot.findUnique({ where: { tourist_spot_id: spot.tourist_spot_id } });
+        expect(found).toBeNull();
+    });
 });

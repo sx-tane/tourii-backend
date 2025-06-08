@@ -65,4 +65,74 @@ describe('StoryRepositoryDb', () => {
         // Verify the cache was invalidated.
         expect(caching.invalidate).toHaveBeenCalledWith('stories:all');
     });
+
+    it('deletes a story and its chapters', async () => {
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'DelSaga',
+                saga_desc: 'd',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.story_chapter.create({
+            data: {
+                story_chapter_id: 'cDel',
+                tourist_spot_id: 'spDel',
+                story_id: story.story_id,
+                chapter_title: 't',
+                chapter_number: '1',
+                chapter_desc: 'd',
+                chapter_image: 'i',
+                real_world_image: 'i',
+                chapter_pdf_url: 'p',
+                chapter_video_url: 'v',
+                chapter_video_mobile_url: 'vm',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteStory(story.story_id);
+
+        const foundStory = await prisma.story.findUnique({ where: { story_id: story.story_id } });
+        const chapters = await prisma.story_chapter.findMany({ where: { story_id: story.story_id } });
+        expect(foundStory).toBeNull();
+        expect(chapters.length).toBe(0);
+    });
+
+    it('deletes a single story chapter', async () => {
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'Saga2',
+                saga_desc: 'd',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const chapter = await prisma.story_chapter.create({
+            data: {
+                story_chapter_id: 'cDel2',
+                tourist_spot_id: 'sp2',
+                story_id: story.story_id,
+                chapter_title: 't',
+                chapter_number: '1',
+                chapter_desc: 'd',
+                chapter_image: 'i',
+                real_world_image: 'i',
+                chapter_pdf_url: 'p',
+                chapter_video_url: 'v',
+                chapter_video_mobile_url: 'vm',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteStoryChapter(chapter.story_chapter_id);
+
+        const found = await prisma.story_chapter.findUnique({ where: { story_chapter_id: chapter.story_chapter_id } });
+        expect(found).toBeNull();
+    });
 });
