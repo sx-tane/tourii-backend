@@ -177,22 +177,6 @@ export class TouriiBackendService {
      * @returns Model route response DTO
      */
     async createModelRoute(modelRoute: ModelRouteCreateRequestDto): Promise<ModelRouteResponseDto> {
-        // 1. Standardize region name using Google Places API
-        let standardizedRegionName = modelRoute.region;
-        try {
-            const regionLocationInfo = await this.locationInfoRepository.getLocationInfo(
-                modelRoute.region,
-            );
-            standardizedRegionName = regionLocationInfo.name;
-            Logger.log(
-                `Using standardized region name: "${standardizedRegionName}" instead of "${modelRoute.region}"`,
-            );
-        } catch (error) {
-            Logger.warn(
-                `Failed to get standardized region name for "${modelRoute.region}": ${error}`,
-            );
-        }
-
         // 2. Standardize tourist spot names using Google Places API
         const standardizedTouristSpots = await Promise.all(
             modelRoute.touristSpotList.map(async (spot) => {
@@ -217,7 +201,7 @@ export class TouriiBackendService {
         // 3. Create modified model route DTO with standardized names
         const modifiedModelRoute = {
             ...modelRoute,
-            region: standardizedRegionName,
+            region: modelRoute.region,
             touristSpotList: standardizedTouristSpots,
         };
 
@@ -227,8 +211,9 @@ export class TouriiBackendService {
             await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
                 standardizedTouristSpots.map((spot) => spot.touristSpotName),
             );
-        const regionInfo =
-            await this.geoInfoRepository.getRegionInfoByRegionName(standardizedRegionName);
+        const regionInfo = await this.geoInfoRepository.getRegionInfoByRegionName(
+            modelRoute.region,
+        );
 
         // 5. Create model route entity and save to database
         const modelRouteEntity: ModelRouteEntity = await this.modelRouteRepository.createModelRoute(
@@ -877,6 +862,29 @@ export class TouriiBackendService {
             currentTouristSpotWeatherList,
             currentRegionWeatherInfo,
         );
+    }
+
+    async getTouristSpotsByStoryChapterId(
+        storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        const spots =
+            await this.modelRouteRepository.getTouristSpotsByStoryChapterId(storyChapterId);
+
+        if (!spots || spots.length === 0) {
+            return [];
+        }
+
+        const geoInfos: GeoInfo[] = spots.map((spot) => ({
+            touristSpotName: spot.touristSpotName ?? '',
+            latitude: spot.latitude ?? 0,
+            longitude: spot.longitude ?? 0,
+            formattedAddress: spot.address ?? '',
+        }));
+
+        const weatherInfos =
+            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(geoInfos);
+
+        return spots.map((spot) => ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfos));
     }
 
     async createUser(user: UserEntity) {

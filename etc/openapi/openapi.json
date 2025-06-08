@@ -3229,6 +3229,212 @@
         ]
       }
     },
+    "/routes/tourist-spots/{storyChapterId}": {
+      "get": {
+        "description": "Retrieve tourist spot information linked to a story chapter.",
+        "operationId": "TouriiBackendController_getTouristSpotsByChapterId",
+        "parameters": [
+          {
+            "name": "storyChapterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved tourist spots",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "touristSpotId": {
+                    "description": "Unique identifier for the tourist spot",
+                    "type": "string"
+                  },
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter",
+                    "type": "string"
+                  },
+                  "touristSpotName": {
+                    "description": "Name of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotDesc": {
+                    "description": "Description of the tourist spot",
+                    "type": "string"
+                  },
+                  "bestVisitTime": {
+                    "description": "Best visit time of the tourist spot",
+                    "type": "string"
+                  },
+                  "address": {
+                    "description": "Address of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotLatitude": {
+                    "description": "Latitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotLongitude": {
+                    "description": "Longitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotHashtag": {
+                    "description": "Hashtags associated with this location",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "storyChapterLink": {
+                    "description": "Link to the related story chapter",
+                    "type": "string"
+                  },
+                  "imageSet": {
+                    "description": "Image set for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "main": {
+                        "description": "Main image of the tourist spot",
+                        "type": "string"
+                      },
+                      "small": {
+                        "description": "Small images of the tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "main",
+                      "small"
+                    ]
+                  },
+                  "weatherInfo": {
+                    "description": "Weather info for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "temperatureCelsius": {
+                        "description": "Temperature of the weather",
+                        "type": "number"
+                      },
+                      "weatherName": {
+                        "description": "Name of the weather",
+                        "type": "string"
+                      },
+                      "weatherDesc": {
+                        "description": "Description of the weather",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "temperatureCelsius",
+                      "weatherName",
+                      "weatherDesc"
+                    ]
+                  },
+                  "delFlag": {
+                    "description": "Flag to indicate if the record is deleted",
+                    "type": "boolean"
+                  },
+                  "insUserId": {
+                    "description": "ID of user who created this record",
+                    "type": "string"
+                  },
+                  "insDateTime": {
+                    "description": "Timestamp of record creation",
+                    "type": "string"
+                  },
+                  "updUserId": {
+                    "description": "ID of user who last updated this record",
+                    "type": "string"
+                  },
+                  "updDateTime": {
+                    "description": "Timestamp of last record update",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "touristSpotId",
+                  "storyChapterId",
+                  "touristSpotName",
+                  "touristSpotDesc",
+                  "bestVisitTime",
+                  "address",
+                  "touristSpotLatitude",
+                  "touristSpotLongitude",
+                  "touristSpotHashtag"
+                ]
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TouristSpotResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get Tourist Spots by Story Chapter",
+        "tags": [
+          "Routes"
+        ]
+      }
+    },
     "/user": {
       "post": {
         "description": "Create a new user in the system.",

@@ -600,6 +600,32 @@ export class TouriiBackendController {
         await this.touriiBackendService.deleteTouristSpot(touristSpotId);
     }
 
+    @Get('/routes/tourist-spots/:storyChapterId')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Tourist Spots by Story Chapter',
+        description: 'Retrieve tourist spot information linked to a story chapter.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved tourist spots',
+        type: TouristSpotResponseDto,
+        isArray: true,
+        schema: { type: 'array', items: zodToOpenAPI(TouristSpotResponseSchema) },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getTouristSpotsByChapterId(
+        @Param('storyChapterId') storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
+    }
+
+    }
+
     @Post('/user')
     @ApiTags('User')
     @ApiOperation({

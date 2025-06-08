@@ -32,6 +32,15 @@ export interface ModelRouteRepository {
     updateTouristSpot(touristSpot: TouristSpot): Promise<TouristSpot>;
 
     /**
+     * Get tourist spots by story chapter id
+     * @param storyChapterId story chapter identifier
+     * @returns list of TouristSpot entities
+     */
+    getTouristSpotsByStoryChapterId(
+        storyChapterId: string,
+    ): Promise<TouristSpot[]>;
+
+    /**
      * Get model route by model route id
      * @param modelRouteId
      * @returns ModelRouteEntity

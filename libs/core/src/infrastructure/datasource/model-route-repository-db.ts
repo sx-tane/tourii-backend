@@ -6,6 +6,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
+import type { tourist_spot } from '@prisma/client';
 import { ModelRouteRelationModel } from 'prisma/relation-model/model-route-relation-model';
 import { ModelRouteMapper } from '../mapper/model-route-mapper';
 
@@ -33,14 +34,10 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             ModelRouteMapper.prismaModelToModelRouteEntity(createdModelRouteData);
 
         this.logger.debug(
-            `Invalidating cache for new model route: ${createdModelRouteEntity.modelRouteId}`,
+            `Clearing cache for new model route: ${createdModelRouteEntity.modelRouteId}`,
         );
-        if (createdModelRouteEntity.modelRouteId) {
-            await this.cachingService.invalidate(
-                `${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${createdModelRouteEntity.modelRouteId}`,
-            );
-        }
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return createdModelRouteEntity;
     }
@@ -54,12 +51,10 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         ])[0];
 
         this.logger.debug(
-            `Invalidating cache for model route ${modelRouteId} due to new tourist spot.`,
+            `Clearing cache for model route ${modelRouteId} due to new tourist spot.`,
         );
-        await this.cachingService.invalidate(
-            `${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${modelRouteId}`,
-        );
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return createdTouristSpotEntity;
     }
@@ -74,8 +69,8 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             include: { tourist_spot: true },
         });
 
-        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${modelRoute.modelRouteId}`);
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return ModelRouteMapper.prismaModelToModelRouteEntity(updated);
     }
@@ -89,10 +84,33 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             data: ModelRouteMapper.touristSpotEntityToPrismaUpdateInput(touristSpot),
         });
 
-        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${updated.model_route_id}`);
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return ModelRouteMapper.touristSpotToEntity([updated])[0];
+    }
+
+    async getTouristSpotsByStoryChapterId(storyChapterId: string): Promise<TouristSpot[]> {
+        const cacheKey = `tourist_spots_by_chapter:${storyChapterId}`;
+
+        const fetchDataFn = async () => {
+            const spots = await this.prisma.tourist_spot.findMany({
+                where: { story_chapter_id: storyChapterId },
+            });
+            return spots;
+        };
+
+        const spotPrisma = await this.cachingService.getOrSet<tourist_spot[] | null>(
+            cacheKey,
+            fetchDataFn,
+            DEFAULT_CACHE_TTL_SECONDS,
+        );
+
+        if (!spotPrisma || spotPrisma.length === 0) {
+            return [];
+        }
+
+        return ModelRouteMapper.touristSpotToEntity(spotPrisma);
     }
 
     async getModelRouteByModelRouteId(modelRouteId: string): Promise<ModelRouteEntity> {
