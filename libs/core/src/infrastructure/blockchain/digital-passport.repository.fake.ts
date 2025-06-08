@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class DigitalPassportRepositoryFake implements DigitalPassportRepository {
