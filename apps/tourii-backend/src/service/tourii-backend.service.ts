@@ -11,6 +11,8 @@ import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
+import { LocationInfo } from '@app/core/domain/geo/location-info';
+import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
@@ -61,6 +63,8 @@ export class TouriiBackendService {
         private readonly geoInfoRepository: GeoInfoRepository,
         @Inject(TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN)
         private readonly weatherInfoRepository: WeatherInfoRepository,
+        @Inject(TouriiBackendConstants.LOCATION_INFO_REPOSITORY_TOKEN)
+        private readonly locationInfoRepository: LocationInfoRepository,
         @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
         private readonly questRepository: QuestRepository,
         @Inject(TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN)
@@ -678,6 +682,10 @@ export class TouriiBackendService {
         }
 
         return user;
+    }
+
+    async getLocationInfo(query: string): Promise<LocationInfo> {
+        return this.locationInfoRepository.getLocationInfo(query);
     }
 
     // async getUserByUserId(userId: string) {
