@@ -63,6 +63,14 @@ import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+import {
+    ModelRouteUpdateRequestDto,
+    ModelRouteUpdateRequestSchema,
+} from './model/tourii-request/update/model-route-update-request.model';
+import {
+    TouristSpotUpdateRequestDto,
+    TouristSpotUpdateRequestSchema,
+} from './model/tourii-request/update/tourist-spot-update-request.model';
 
 import {
     AuthSignupResponseDto,
@@ -103,6 +111,8 @@ import {
     TouristSpotCreateRequestDto,
     StoryUpdateRequestDto,
     StoryChapterUpdateRequestDto,
+    ModelRouteUpdateRequestDto,
+    TouristSpotUpdateRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
     ModelRouteResponseDto,
@@ -458,6 +468,48 @@ export class TouriiBackendController {
         touristSpot: TouristSpotCreateRequestDto,
     ): Promise<TouristSpotResponseDto> {
         return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
+    }
+
+    @Post('/routes/update-model-route')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Update Model Route', description: 'Update an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({ description: 'Model Route update request', schema: zodToOpenAPI(ModelRouteUpdateRequestSchema) })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateModelRoute(
+        @Body() modelRoute: ModelRouteUpdateRequestDto,
+    ): Promise<ModelRouteResponseDto> {
+        return await this.touriiBackendService.updateModelRoute(modelRoute);
+    }
+
+    @Post('/routes/update-tourist-spot')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Update Tourist Spot', description: 'Update an existing tourist spot.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({ description: 'Tourist Spot update request', schema: zodToOpenAPI(TouristSpotUpdateRequestSchema) })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateTouristSpot(
+        @Body() touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        return await this.touriiBackendService.updateTouristSpot(touristSpot);
     }
 
     @Post('/user')
