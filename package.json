@@ -25,12 +25,8 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/apps/tourii-backend/main",
         "test": "pnpm run prisma:migrate:test && jest",
-        "build:tourii-backend:vercel": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate --schema=./prisma/schema.prisma && nest build tourii-backend",
-        "prisma:db:seed": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db seed",
-        "prisma:generate": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate",
-        "prisma:migrate:dev:create-only": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --create-only",
-        "prisma:execute:db-scripts": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/common_setup.sql",
-        "prisma:migrate:dev": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
+        "**/*": ["cspell --config cspell.config.json --no-must-find-files"],
+        "*.{yaml,yml,md,d.ts}": ["prettier --write"],
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
         "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
@@ -147,10 +143,6 @@
         "supertest": "^7.1.0",
         "ts-loader": "^9.5.1",
         "tsconfig-paths": "4.2.0",
-        "typescript": "5.8.3",
-        "webpack-node-externals": "^3.0.0"
-    },
-    "jest": {
         "moduleFileExtensions": ["js", "json", "ts"],
         "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
@@ -177,19 +169,12 @@
             ]
         },
         "collectCoverageFrom": ["**/*.(t|j)s"],
-        "coverageDirectory": "./coverage",
-        "testEnvironment": "node",
         "maxWorkers": 1,
         "roots": ["<rootDir>/libs/", "<rootDir>/apps/"],
-        "moduleNameMapper": {
-            "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
-            "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
             "^@app/tourii-backend(|/.*)$": "<rootDir>/apps/tourii-backend/src/$1",
             "^@app/tourii-backend-test(|/.*)$": "<rootDir>/apps/tourii-backend/test/$1",
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
         "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
-    },
-    "packageManager": "pnpm@9.15.5"
 }
