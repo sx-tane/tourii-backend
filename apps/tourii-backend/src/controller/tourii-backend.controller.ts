@@ -41,6 +41,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -113,6 +114,7 @@ import {
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
+    LocationQueryDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -779,5 +781,31 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
+    }
+
+    @Get('/location-info')
+    @ApiTags('Location')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info',
+        schema: {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                formattedAddress: { type: 'string' },
+            },
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(@Query() queryParams: LocationQueryDto) {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }
