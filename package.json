@@ -29,7 +29,7 @@
         "prisma:generate": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate",
         "prisma:migrate:dev:create-only": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --create-only",
         "prisma:execute:db-scripts": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/common_setup.sql",
-        "prisma:migrate:dev": "prisma format && pnpm run prisma:execute:db-scripts && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
+        "prisma:migrate:dev": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
         "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
@@ -150,7 +150,8 @@
         "supertest": "^7.1.0",
         "ts-loader": "^9.5.1",
         "tsconfig-paths": "4.2.0",
-        "typescript": "5.8.3"
+        "typescript": "5.8.3",
+        "webpack-node-externals": "^3.0.0"
     },
     "jest": {
         "moduleFileExtensions": [
