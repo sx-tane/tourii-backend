@@ -20,7 +20,6 @@ interface StoryProps {
 }
 
 export class StoryEntity extends Entity<StoryProps> {
-    // biome-ignore lint/complexity/noUselessConstructor: <explanation>
     constructor(props: StoryProps, id: string | undefined) {
         super(props, id);
     }

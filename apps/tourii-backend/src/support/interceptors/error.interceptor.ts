@@ -1,4 +1,3 @@
-import { ErrorType } from '@app/core/support/exception/error-type';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import {
     ApiAppError,
