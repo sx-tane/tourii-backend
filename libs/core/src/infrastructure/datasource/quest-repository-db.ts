@@ -97,6 +97,24 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntity(questDb);
     }
 
+    async createQuest(quest: QuestEntity): Promise<QuestEntity> {
+        const created = (await this.prisma.quest.create({
+            data: QuestMapper.questEntityToPrismaInput(quest),
+            include: { quest_task: true, tourist_spot: true },
+        })) as QuestWithTasks;
+
+        await this.cachingService.invalidate('quests:*');
+        return QuestMapper.prismaModelToQuestEntity(created);
+    }
+
+    async createQuestTask(task: Task): Promise<Task> {
+        const created = await this.prisma.quest_task.create({
+            data: QuestMapper.taskEntityToPrismaInput(task),
+        });
+        await this.cachingService.invalidate('quests:*');
+        return QuestMapper.prismaTaskModelToTaskEntity(created);
+    }
+
     async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
         const updated = (await this.prisma.quest.update({
             where: { quest_id: quest.questId },
