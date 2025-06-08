@@ -93,6 +93,18 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
+import {
+    GroupMembersResponseDto,
+    GroupMembersResponseSchema,
+} from './model/tourii-response/group-members-response.model';
+import {
+    StartGroupQuestRequestDto,
+    StartGroupQuestRequestSchema,
+} from './model/tourii-request/update/start-group-quest-request.model';
+import {
+    StartGroupQuestResponseDto,
+    StartGroupQuestResponseSchema,
+} from './model/tourii-response/start-group-quest-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -113,6 +125,9 @@ import {
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
+    GroupMembersResponseDto,
+    StartGroupQuestRequestDto,
+    StartGroupQuestResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -717,6 +732,55 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
         return await this.touriiBackendService.updateQuestTask(task);
+    }
+
+    @Get('/quests/:questId/group/members')
+    @ApiTags('Group Quest')
+    @ApiOperation({
+        summary: 'Get Group Members',
+        description: 'Return current members of the group quest.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Member list',
+        type: GroupMembersResponseDto,
+        schema: zodToOpenAPI(GroupMembersResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getGroupMembers(@Param('questId') questId: string): Promise<GroupMembersResponseDto> {
+        return this.touriiBackendService.getGroupMembers(questId);
+    }
+
+    @Post('/quests/:questId/group/start')
+    @ApiTags('Group Quest')
+    @ApiOperation({
+        summary: 'Start Group Quest',
+        description: 'Leader starts the quest for all members.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Start group quest request',
+        schema: zodToOpenAPI(StartGroupQuestRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Group quest started',
+        type: StartGroupQuestResponseDto,
+        schema: zodToOpenAPI(StartGroupQuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async startGroupQuest(
+        @Param('questId') questId: string,
+        @Body() body: StartGroupQuestRequestDto,
+    ): Promise<StartGroupQuestResponseDto> {
+        return this.touriiBackendService.startGroupQuest(questId, body.userId);
     }
 
     @Get('/routes')

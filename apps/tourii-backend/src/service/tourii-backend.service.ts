@@ -16,8 +16,8 @@ import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType, StoryStatus } from '@prisma/client';
+import { Inject, Injectable, Logger, ForbiddenException } from '@nestjs/common';
+import { QuestType, StoryStatus, QuestStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
@@ -47,6 +47,8 @@ import { StoryCreateRequestBuilder } from './builder/story-create-request-builde
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
+import { GroupQuestRepository } from '@app/core/domain/game/quest/group-quest.repository';
+import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 
 @Injectable()
 export class TouriiBackendService {
@@ -69,6 +71,9 @@ export class TouriiBackendService {
         private readonly userStoryLogRepository: UserStoryLogRepository,
         @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
         private readonly passportRepository: DigitalPassportRepository,
+        @Inject(TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN)
+        private readonly groupQuestRepository: GroupQuestRepository,
+        private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
     /**
@@ -678,6 +683,25 @@ export class TouriiBackendService {
         }
 
         return user;
+    }
+
+    async getGroupMembers(questId: string) {
+        return this.groupQuestRepository.getGroupMembers(questId);
+    }
+
+    async startGroupQuest(questId: string, leaderId: string) {
+        const group = await this.getGroupMembers(questId);
+        if (group.leader_user_id !== leaderId) {
+            throw new ForbiddenException('Only leader can start the quest');
+        }
+        if (group.members.length === 0) return { message: 'Group quest started!' };
+        await this.groupQuestRepository.updateMembersStatus(
+            questId,
+            group.members.map((m) => m.user_id),
+            QuestStatus.ONGOING,
+        );
+        this.groupQuestGateway.broadcastQuestStarted(questId);
+        return { message: 'Group quest started!' };
     }
 
     // async getUserByUserId(userId: string) {
