@@ -780,4 +780,31 @@ export class TouriiBackendController {
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
     }
+
+    @Get('/location-info')
+    @ApiTags('Location')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'query', description: 'Place name or search query', type: String })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info',
+        schema: {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                formattedAddress: { type: 'string' },
+            },
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(@Query('query') query: string) {
+        return this.touriiBackendService.getLocationInfo(query);
+    }
 }
