@@ -1,7 +1,7 @@
 import { cleanDb } from '@app/core-test/prisma/clean-db';
+import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
-import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Test, type TestingModule } from '@nestjs/testing';
@@ -215,13 +215,16 @@ describe('QuestRepositoryDb', () => {
         const task = new Task({
             taskId: '',
             questId: 'qtask',
-            taskTheme: 'GENERAL',
+            taskTheme: 'LOCAL_CULTURE',
             taskType: 'CHECK_IN',
             taskName: 'T',
             taskDesc: 'D',
             isUnlocked: true,
             requiredAction: 'A',
-            antiCheatRules: {},
+            antiCheatRules: {
+                claim_once: true,
+                cooldown_hours: 24,
+            },
             magatamaPointAwarded: 1,
             totalMagatamaPointAwarded: 1,
             delFlag: false,

@@ -24,10 +24,10 @@ import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
-import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
-import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
 import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-request/create/quest-task-create-request.model';
+import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
+import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
 import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
@@ -48,9 +48,9 @@ import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
+import { QuestCreateRequestBuilder } from './builder/quest-create-request-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
-import { QuestCreateRequestBuilder } from './builder/quest-create-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
@@ -379,11 +379,7 @@ export class TouriiBackendService {
         questId: string,
         dto: QuestTaskCreateRequestDto,
     ): Promise<TaskResponseDto> {
-        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(
-            dto,
-            questId,
-            'admin',
-        );
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
         const created = await this.questRepository.createQuestTask(taskEntity);
         return QuestResultBuilder.taskToDto(created);
     }

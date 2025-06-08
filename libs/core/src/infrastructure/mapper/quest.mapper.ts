@@ -1,7 +1,7 @@
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
-import type { Prisma } from '@prisma/client';
-import type { quest, quest_task, tourist_spot } from '@prisma/client';
+import type { Prisma, quest, quest_task, tourist_spot } from '@prisma/client';
+import { InputJsonValue } from '@prisma/client/runtime/library';
 import { ModelRouteMapper } from './model-route-mapper';
 
 export class QuestMapper {
@@ -81,9 +81,7 @@ export class QuestMapper {
         });
     }
 
-    static questEntityToPrismaInput(
-        questEntity: QuestEntity,
-    ): Prisma.questUncheckedCreateInput {
+    static questEntityToPrismaInput(questEntity: QuestEntity): Prisma.questUncheckedCreateInput {
         return {
             tourist_spot_id: questEntity.touristSpot?.touristSpotId ?? '',
             quest_name: questEntity.questName ?? '',
@@ -101,15 +99,14 @@ export class QuestMapper {
             upd_date_time: questEntity.updDateTime,
             request_id: questEntity.requestId ?? null,
             quest_task: {
-                create: questEntity.tasks?.map((task) =>
-                    QuestMapper.taskEntityToPrismaInput(task),
-                ),
+                create: questEntity.tasks?.map((task) => QuestMapper.taskEntityToPrismaInput(task)),
             },
         };
     }
 
-    static taskEntityToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateWithoutQuestInput {
+    static taskEntityToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateInput {
         return {
+            quest_id: task.questId,
             task_theme: task.taskTheme,
             task_type: task.taskType,
             task_name: task.taskName,
@@ -118,7 +115,7 @@ export class QuestMapper {
             required_action: task.requiredAction,
             group_activity_members: task.groupActivityMembers ?? [],
             select_options: task.selectOptions ?? [],
-            anti_cheat_rules: task.antiCheatRules,
+            anti_cheat_rules: task.antiCheatRules as InputJsonValue,
             magatama_point_awarded: task.magatamaPointAwarded,
             total_magatama_point_awarded: task.totalMagatamaPointAwarded,
             del_flag: task.delFlag,
@@ -160,7 +157,7 @@ export class QuestMapper {
             required_action: task.requiredAction,
             group_activity_members: task.groupActivityMembers ?? [],
             select_options: task.selectOptions ?? [],
-            anti_cheat_rules: task.antiCheatRules,
+            anti_cheat_rules: task.antiCheatRules as InputJsonValue,
             magatama_point_awarded: task.magatamaPointAwarded,
             total_magatama_point_awarded: task.totalMagatamaPointAwarded,
             del_flag: task.delFlag,
