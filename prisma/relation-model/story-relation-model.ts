@@ -1,9 +1,7 @@
 import { Prisma } from '@prisma/client';
 
-const StoryRelationModel = Prisma.validator<Prisma.storyDefaultArgs>()({
+export type StoryRelationModel = Prisma.storyGetPayload<{
     include: {
-        story_chapter: true,
-    },
-});
-
-export type StoryRelationModel = Prisma.storyGetPayload<typeof StoryRelationModel>;
+        story_chapter: true;
+    };
+}>;

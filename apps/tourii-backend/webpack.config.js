@@ -15,6 +15,12 @@ module.exports = (options, _webpack) => {
                 allowlist: ['@app/core', /^@app\/core\/.*$/],
             }),
         ],
+        output: {
+            ...options.output,
+            library: {
+                type: 'commonjs2',
+            },
+        },
         plugins: [
             ...options.plugins,
             new _webpack.IgnorePlugin({

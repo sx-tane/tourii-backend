@@ -25,6 +25,7 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/apps/tourii-backend/main",
         "test": "pnpm run prisma:migrate:test && jest",
+        "build:tourii-backend:vercel": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate --schema=./prisma/schema.prisma && nest build tourii-backend",
         "prisma:db:seed": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db seed",
         "prisma:generate": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate",
         "prisma:migrate:dev:create-only": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --create-only",
