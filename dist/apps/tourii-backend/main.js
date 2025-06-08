@@ -6649,6 +6649,7 @@ exports.TouriiBackendApiMiddleware = TouriiBackendApiMiddleware = __decorate([
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	var __webpack_exports__ = __webpack_require__(__webpack_require__.s = 0);
+/******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
 ;
