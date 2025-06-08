@@ -1,8 +1,5 @@
 import { QuestType, RewardType } from '@prisma/client';
-    taskList: z
-        .array(QuestTaskUpdateRequestSchema)
-        .optional()
-        .describe('List of tasks for the quest'),
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { QuestTaskUpdateRequestSchema } from './quest-task-update-request.model';
 
