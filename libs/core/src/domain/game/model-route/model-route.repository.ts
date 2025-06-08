@@ -18,6 +18,20 @@ export interface ModelRouteRepository {
     createTouristSpot(touristSpot: TouristSpot, modelRouteId: string): Promise<TouristSpot>;
 
     /**
+     * Update model route
+     * @param modelRoute Updated model route entity
+     * @returns ModelRouteEntity
+     */
+    updateModelRoute(modelRoute: ModelRouteEntity): Promise<ModelRouteEntity>;
+
+    /**
+     * Update tourist spot
+     * @param touristSpot Updated tourist spot entity
+     * @returns TouristSpot
+     */
+    updateTouristSpot(touristSpot: TouristSpot): Promise<TouristSpot>;
+
+    /**
      * Get model route by model route id
      * @param modelRouteId
      * @returns ModelRouteEntity

@@ -64,6 +64,37 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         return createdTouristSpotEntity;
     }
 
+    async updateModelRoute(modelRoute: ModelRouteEntity): Promise<ModelRouteEntity> {
+        if (!modelRoute.modelRouteId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+        const updated = await this.prisma.model_route.update({
+            where: { model_route_id: modelRoute.modelRouteId },
+            data: ModelRouteMapper.modelRouteEntityToPrismaUpdateInput(modelRoute),
+            include: { tourist_spot: true },
+        });
+
+        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${modelRoute.modelRouteId}`);
+        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+
+        return ModelRouteMapper.prismaModelToModelRouteEntity(updated);
+    }
+
+    async updateTouristSpot(touristSpot: TouristSpot): Promise<TouristSpot> {
+        if (!touristSpot.touristSpotId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+        const updated = await this.prisma.tourist_spot.update({
+            where: { tourist_spot_id: touristSpot.touristSpotId },
+            data: ModelRouteMapper.touristSpotEntityToPrismaUpdateInput(touristSpot),
+        });
+
+        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${updated.model_route_id}`);
+        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+
+        return ModelRouteMapper.touristSpotToEntity([updated])[0];
+    }
+
     async getModelRouteByModelRouteId(modelRouteId: string): Promise<ModelRouteEntity> {
         const cacheKey = `${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${modelRouteId}`;
 
