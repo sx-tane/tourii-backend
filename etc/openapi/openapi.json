@@ -2909,6 +2909,15 @@
         "operationId": "TouriiBackendController_getQuestList",
         "parameters": [
           {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "questType",
             "required": false,
             "in": "query",
@@ -3128,6 +3137,10 @@
                             "totalMagatamaPointAwarded": {
                               "description": "Total Magatama points awarded",
                               "type": "number"
+                            },
+                            "isCompleted": {
+                              "description": "Whether task is completed",
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -3141,7 +3154,8 @@
                             "requiredAction",
                             "antiCheatRules",
                             "magatamaPointAwarded",
-                            "totalMagatamaPointAwarded"
+                            "totalMagatamaPointAwarded",
+                            "isCompleted"
                           ]
                         }
                       },
@@ -3362,6 +3376,15 @@
             }
           },
           {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
@@ -3524,6 +3547,10 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -3537,7 +3564,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -4129,6 +4157,10 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -4142,7 +4174,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -4562,6 +4595,10 @@
                 "totalMagatamaPointAwarded": {
                   "description": "Total Magatama points awarded",
                   "type": "number"
+                },
+                "isCompleted": {
+                  "description": "Whether task is completed",
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -4575,7 +4612,8 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded"
+                "totalMagatamaPointAwarded",
+                "isCompleted"
               ]
             },
             "content": {
@@ -6953,6 +6991,10 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -6966,7 +7008,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -7272,6 +7315,10 @@
                 "totalMagatamaPointAwarded": {
                   "description": "Total Magatama points awarded",
                   "type": "number"
+                },
+                "isCompleted": {
+                  "description": "Whether task is completed",
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -7285,7 +7332,8 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded"
+                "totalMagatamaPointAwarded",
+                "isCompleted"
               ]
             }
           },
@@ -7513,6 +7561,10 @@
           "totalMagatamaPointAwarded": {
             "description": "Total Magatama points awarded",
             "type": "number"
+          },
+          "isCompleted": {
+            "description": "Whether task is completed",
+            "type": "boolean"
           }
         },
         "required": [
@@ -7526,7 +7578,8 @@
           "requiredAction",
           "antiCheatRules",
           "magatamaPointAwarded",
-          "totalMagatamaPointAwarded"
+          "totalMagatamaPointAwarded",
+          "isCompleted"
         ]
       },
       "LoginRequestDto": {

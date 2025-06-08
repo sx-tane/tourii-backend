@@ -280,6 +280,7 @@ export class TouriiBackendService {
         isPremium?: boolean,
         isUnlocked?: boolean,
         questType?: QuestType,
+        userId?: string,
     ): Promise<QuestListResponseDto> {
         const quests = await this.questRepository.fetchQuestsWithPagination(
             page,
@@ -287,13 +288,14 @@ export class TouriiBackendService {
             isPremium,
             isUnlocked,
             questType,
+            userId,
         );
 
         return QuestResultBuilder.questWithPaginationToDto(quests);
     }
 
-    async getQuestById(questId: string): Promise<QuestResponseDto> {
-        const quest = await this.questRepository.fetchQuestById(questId);
+    async getQuestById(questId: string, userId?: string): Promise<QuestResponseDto> {
+        const quest = await this.questRepository.fetchQuestById(questId, userId);
         return QuestResultBuilder.questToDto(quest);
     }
 

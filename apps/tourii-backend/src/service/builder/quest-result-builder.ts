@@ -71,6 +71,7 @@ export class QuestResultBuilder {
             antiCheatRules: task.antiCheatRules,
             magatamaPointAwarded: task.magatamaPointAwarded,
             totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+            isCompleted: task.isCompleted ?? false,
         };
     }
 

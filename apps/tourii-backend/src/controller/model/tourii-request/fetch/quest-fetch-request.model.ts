@@ -8,6 +8,7 @@ export const QuestFetchRequestSchema = z.object({
     limit: z.number().max(100).default(20).describe('Number of quests per page'),
     isPremium: z.boolean().optional().describe('Whether the quest is premium'),
     isUnlocked: z.boolean().optional().describe('Whether the quest is unlocked'),
+    userId: z.string().optional().describe('User ID'),
 });
 
 export class QuestListQueryDto extends createZodDto(QuestFetchRequestSchema) {}

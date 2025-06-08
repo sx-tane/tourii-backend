@@ -1,7 +1,6 @@
 import { QuestType, TaskTheme, TaskType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { MetadataFieldsSchema } from './common/metadata-fields-response.model';
 import { TouristSpotResponseSchema } from './tourist-spot-response.model';
 
 export const TaskResponseSchema = z.object({
@@ -18,6 +17,7 @@ export const TaskResponseSchema = z.object({
     antiCheatRules: z.any().describe('Rules to prevent cheating'),
     magatamaPointAwarded: z.number().describe('Magatama points awarded for this task'),
     totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
+    isCompleted: z.boolean().describe('Whether task is completed'),
 });
 
 export const QuestResponseSchema = z.object({

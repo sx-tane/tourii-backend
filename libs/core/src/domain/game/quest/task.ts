@@ -20,6 +20,7 @@ export interface TaskProps {
     updUserId: string;
     updDateTime: Date;
     requestId?: string;
+    isCompleted?: boolean;
 }
 
 export class Task {
@@ -103,5 +104,9 @@ export class Task {
 
     get requestId(): string | undefined {
         return this.props.requestId;
+    }
+
+    get isCompleted(): boolean | undefined {
+        return this.props.isCompleted;
     }
 }
