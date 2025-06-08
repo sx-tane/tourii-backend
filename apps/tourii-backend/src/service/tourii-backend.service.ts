@@ -27,10 +27,10 @@ import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-requ
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
+import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
-import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
@@ -45,12 +45,12 @@ import type { TouristSpotResponseDto } from '../controller/model/tourii-response
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
+import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
-import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 
@@ -399,11 +399,62 @@ export class TouriiBackendService {
         return QuestResultBuilder.taskToDto(updated);
     }
 
-    async updateModelRoute(
-        modelRoute: ModelRouteUpdateRequestDto,
-    ): Promise<ModelRouteResponseDto> {
+    async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
+        // 1. Standardize region name using Google Places API (if provided)
+        let standardizedRegionName = modelRoute.region;
+        if (modelRoute.region) {
+            try {
+                const regionLocationInfo = await this.locationInfoRepository.getLocationInfo(
+                    modelRoute.region,
+                );
+                standardizedRegionName = regionLocationInfo.name;
+                Logger.log(
+                    `Using standardized region name: "${standardizedRegionName}" instead of "${modelRoute.region}"`,
+                );
+            } catch (error) {
+                Logger.warn(
+                    `Failed to get standardized region name for "${modelRoute.region}": ${error}`,
+                );
+            }
+        }
+
+        // 2. Standardize tourist spot names using Google Places API (if provided)
+        let standardizedTouristSpots = modelRoute.touristSpotList;
+        if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
+            standardizedTouristSpots = await Promise.all(
+                modelRoute.touristSpotList.map(async (spot) => {
+                    let standardizedSpotName = spot.touristSpotName;
+                    if (spot.touristSpotName) {
+                        try {
+                            const spotLocationInfo =
+                                await this.locationInfoRepository.getLocationInfo(
+                                    spot.touristSpotName,
+                                );
+                            standardizedSpotName = spotLocationInfo.name;
+                            Logger.log(
+                                `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
+                            );
+                        } catch (error) {
+                            Logger.warn(
+                                `Failed to get standardized name for spot "${spot.touristSpotName}": ${error}`,
+                            );
+                        }
+                    }
+                    return { ...spot, touristSpotName: standardizedSpotName };
+                }),
+            );
+        }
+
+        // 3. Create modified model route DTO with standardized names
+        const modifiedModelRoute = {
+            ...modelRoute,
+            region: standardizedRegionName,
+            touristSpotList: standardizedTouristSpots,
+        };
+
+        // 4. Update model route with standardized names
         const updated = await this.modelRouteRepository.updateModelRoute(
-            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modelRoute),
+            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modifiedModelRoute),
         );
         if (!updated.modelRouteId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
@@ -414,8 +465,29 @@ export class TouriiBackendService {
     async updateTouristSpot(
         touristSpot: TouristSpotUpdateRequestDto,
     ): Promise<TouristSpotResponseDto> {
+        // 1. Standardize tourist spot name using Google Places API (if provided)
+        let standardizedTouristSpot = touristSpot;
+        if (touristSpot.touristSpotName) {
+            let standardizedSpotName = touristSpot.touristSpotName;
+            try {
+                const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                    touristSpot.touristSpotName,
+                );
+                standardizedSpotName = locationInfo.name;
+                Logger.log(
+                    `Using standardized name: "${standardizedSpotName}" instead of "${touristSpot.touristSpotName}"`,
+                );
+            } catch (error) {
+                Logger.warn(
+                    `Failed to get standardized name for "${touristSpot.touristSpotName}": ${error}`,
+                );
+            }
+            standardizedTouristSpot = { ...touristSpot, touristSpotName: standardizedSpotName };
+        }
+
+        // 2. Update tourist spot with standardized name
         const updated = await this.modelRouteRepository.updateTouristSpot(
-            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(touristSpot),
+            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(standardizedTouristSpot),
         );
 
         if (updated.touristSpotId && updated.storyChapterId) {
@@ -427,12 +499,45 @@ export class TouriiBackendService {
             ]);
         }
 
-        const [geoInfo] = await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
-            updated.touristSpotName ?? '',
-        ]);
-        const [weatherInfo] = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([
-            geoInfo,
-        ]);
+        // 3. Validate tourist spot name before proceeding with geo/weather lookups
+        if (!updated.touristSpotName || updated.touristSpotName.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Fetch geo information with proper error handling
+        let geoInfo: GeoInfo;
+        try {
+            const geoInfoList =
+                await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+                    updated.touristSpotName,
+                ]);
+
+            if (!geoInfoList || geoInfoList.length === 0) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+            }
+
+            geoInfo = geoInfoList[0];
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+        }
+
+        // Fetch weather information with proper error handling
+        let weatherInfo: WeatherInfo;
+        try {
+            const weatherInfoList = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                [geoInfo],
+            );
+
+            if (!weatherInfoList || weatherInfoList.length === 0) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+            }
+
+            weatherInfo = weatherInfoList[0];
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_WEATHER_004);
+        }
 
         return ModelRouteResultBuilder.touristSpotToDto(updated, [weatherInfo]);
     }

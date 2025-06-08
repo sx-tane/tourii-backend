@@ -10,8 +10,6 @@ export class ModelRouteUpdateRequestBuilder {
                 routeName: dto.routeName,
                 region: dto.region,
                 regionDesc: dto.regionDesc,
-                regionLatitude: dto.regionLatitude,
-                regionLongitude: dto.regionLongitude,
                 regionBackgroundMedia: dto.regionBackgroundMedia,
                 recommendation: dto.recommendation,
                 delFlag: dto.delFlag,
