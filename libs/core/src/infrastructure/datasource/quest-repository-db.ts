@@ -103,7 +103,8 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
-        await this.cachingService.invalidate('quests:*');
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
         return QuestMapper.prismaModelToQuestEntity(created);
     }
 
@@ -111,7 +112,8 @@ export class QuestRepositoryDb implements QuestRepository {
         const created = await this.prisma.quest_task.create({
             data: QuestMapper.taskEntityToPrismaInput(task),
         });
-        await this.cachingService.invalidate('quests:*');
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
         return QuestMapper.prismaTaskModelToTaskEntity(created);
     }
 
@@ -122,7 +124,8 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
-        await this.cachingService.invalidate('quests:*');
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
         return QuestMapper.prismaModelToQuestEntity(updated);
     }
 

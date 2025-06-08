@@ -33,8 +33,8 @@ export class StoryRepositoryDb implements StoryRepository {
             },
         });
 
-        // Invalidate the cache using the CachingService
-        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return StoryMapper.prismaModelToStoryEntity(createdStoryDb);
     }
@@ -66,7 +66,8 @@ export class StoryRepositoryDb implements StoryRepository {
             data: StoryMapper.storyEntityToPrismaUpdateInput(story),
             include: { story_chapter: true },
         });
-        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
         return StoryMapper.prismaModelToStoryEntity(updated);
     }
 
