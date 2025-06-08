@@ -21,6 +21,7 @@ describe('StoryRepositoryDb', () => {
                         get: jest.fn(),
                         set: jest.fn(),
                         invalidate: jest.fn(),
+                        clearAll: jest.fn(),
                     },
                 },
             ],
@@ -62,8 +63,8 @@ describe('StoryRepositoryDb', () => {
         expect(found).not.toBeNull();
         expect(found?.saga_name).toEqual('Saga');
 
-        // Verify the cache was invalidated.
-        expect(caching.invalidate).toHaveBeenCalledWith('stories:all');
+        // Verify the cache was cleared.
+        expect(caching.clearAll).toHaveBeenCalled();
     });
 
     it('deletes a story and its chapters', async () => {
@@ -97,7 +98,9 @@ describe('StoryRepositoryDb', () => {
         await repository.deleteStory(story.story_id);
 
         const foundStory = await prisma.story.findUnique({ where: { story_id: story.story_id } });
-        const chapters = await prisma.story_chapter.findMany({ where: { story_id: story.story_id } });
+        const chapters = await prisma.story_chapter.findMany({
+            where: { story_id: story.story_id },
+        });
         expect(foundStory).toBeNull();
         expect(chapters.length).toBe(0);
     });
@@ -132,7 +135,9 @@ describe('StoryRepositoryDb', () => {
 
         await repository.deleteStoryChapter(chapter.story_chapter_id);
 
-        const found = await prisma.story_chapter.findUnique({ where: { story_chapter_id: chapter.story_chapter_id } });
+        const found = await prisma.story_chapter.findUnique({
+            where: { story_chapter_id: chapter.story_chapter_id },
+        });
         expect(found).toBeNull();
     });
 });

@@ -624,8 +624,6 @@ export class TouriiBackendController {
         return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
     }
 
-    }
-
     @Post('/user')
     @ApiTags('User')
     @ApiOperation({

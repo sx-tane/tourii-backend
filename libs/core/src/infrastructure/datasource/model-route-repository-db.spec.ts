@@ -22,6 +22,7 @@ describe('ModelRouteRepositoryDb', () => {
                         get: jest.fn(),
                         set: jest.fn(),
                         invalidate: jest.fn(),
+                        clearAll: jest.fn(),
                         getOrSet: jest.fn(async (_k: string, fn: () => Promise<any>) => fn()),
                     },
                 },
@@ -73,9 +74,8 @@ describe('ModelRouteRepositoryDb', () => {
         expect(found).not.toBeNull();
         expect(found?.route_name).toEqual('Route 1');
 
-        // Verify the cache was invalidated.
-        expect(caching.invalidate).toHaveBeenCalledWith(`model_route_raw:${created.modelRouteId}`);
-        expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
+        // Verify the cache was cleared.
+        expect(caching.clearAll).toHaveBeenCalled();
     });
 
     it('updateModelRoute updates the route and clears cache', async () => {
@@ -129,10 +129,7 @@ describe('ModelRouteRepositoryDb', () => {
         expect(found?.route_name).toEqual('New Name');
         expect(found?.region_desc).toEqual('Updated');
 
-        expect(caching.invalidate).toHaveBeenCalledWith(
-            `model_route_raw:${createdRoute.model_route_id}`,
-        );
-        expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
+        expect(caching.clearAll).toHaveBeenCalled();
     });
 
     it('updateTouristSpot updates the spot and clears cache', async () => {
@@ -166,8 +163,8 @@ describe('ModelRouteRepositoryDb', () => {
         const chapter = await prisma.story_chapter.create({
             data: {
                 story_id: story.story_id,
-                tourist_spot_id: 'spot1',
-                story_chapter_id: 'chapter1',
+                tourist_spot_id: 'spotUpdate1',
+                story_chapter_id: 'chapterUpdate1',
                 chapter_title: 'c',
                 chapter_number: '1',
                 chapter_desc: 'd',
@@ -184,7 +181,7 @@ describe('ModelRouteRepositoryDb', () => {
 
         const spot = await prisma.tourist_spot.create({
             data: {
-                tourist_spot_id: 'spot1',
+                tourist_spot_id: 'spotUpdate1',
                 model_route_id: route.model_route_id,
                 story_chapter_id: chapter.story_chapter_id,
                 tourist_spot_name: 'Old Spot',
@@ -218,8 +215,7 @@ describe('ModelRouteRepositoryDb', () => {
         });
         expect(foundSpot?.tourist_spot_name).toEqual('New Spot');
 
-        expect(caching.invalidate).toHaveBeenCalledWith(`model_route_raw:${route.model_route_id}`);
-        expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
+        expect(caching.clearAll).toHaveBeenCalled();
     });
 
     it('deleteModelRoute removes route and spots', async () => {
@@ -349,8 +345,8 @@ describe('ModelRouteRepositoryDb', () => {
         const chapter = await prisma.story_chapter.create({
             data: {
                 story_id: story.story_id,
-                tourist_spot_id: 'spot1',
-                story_chapter_id: 'chapter1',
+                tourist_spot_id: 'spotByChapterTest1',
+                story_chapter_id: 'chapterByChapterTest1',
                 chapter_title: 'c',
                 chapter_number: '1',
                 chapter_desc: 'd',
@@ -367,7 +363,7 @@ describe('ModelRouteRepositoryDb', () => {
 
         await prisma.tourist_spot.create({
             data: {
-                tourist_spot_id: 'spot1',
+                tourist_spot_id: 'spotByChapterTest1',
                 model_route_id: route.model_route_id,
                 story_chapter_id: chapter.story_chapter_id,
                 tourist_spot_name: 'Spot 1',
@@ -384,7 +380,7 @@ describe('ModelRouteRepositoryDb', () => {
 
         await prisma.tourist_spot.create({
             data: {
-                tourist_spot_id: 'spot2',
+                tourist_spot_id: 'spotByChapterTest2',
                 model_route_id: route.model_route_id,
                 story_chapter_id: chapter.story_chapter_id,
                 tourist_spot_name: 'Spot 2',

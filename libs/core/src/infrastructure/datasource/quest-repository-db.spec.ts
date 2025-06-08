@@ -23,6 +23,7 @@ describe('QuestRepositoryDb', () => {
                         get: jest.fn(),
                         set: jest.fn(),
                         invalidate: jest.fn(),
+                        clearAll: jest.fn(),
                     },
                 },
             ],
@@ -190,7 +191,7 @@ describe('QuestRepositoryDb', () => {
 
         const created = await repository.createQuest(questEntity);
         expect(created.questId).toBeDefined();
-        expect(caching.invalidate).toHaveBeenCalledWith('quests:*');
+        expect(caching.clearAll).toHaveBeenCalled();
 
         const found = await prisma.quest.findUnique({
             where: { quest_id: created.questId ?? '' },
@@ -373,7 +374,9 @@ describe('QuestRepositoryDb', () => {
 
         await repository.deleteQuestTask(task.quest_task_id);
 
-        const found = await prisma.quest_task.findUnique({ where: { quest_task_id: task.quest_task_id } });
+        const found = await prisma.quest_task.findUnique({
+            where: { quest_task_id: task.quest_task_id },
+        });
         expect(found).toBeNull();
     });
 });

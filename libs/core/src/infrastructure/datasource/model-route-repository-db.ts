@@ -210,18 +210,17 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             this.prisma.tourist_spot.deleteMany({ where: { model_route_id: modelRouteId } }),
             this.prisma.model_route.delete({ where: { model_route_id: modelRouteId } }),
         ]);
-        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${modelRouteId}`);
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return true;
     }
 
     async deleteTouristSpot(touristSpotId: string): Promise<boolean> {
-        const spot = await this.prisma.tourist_spot.delete({
+        await this.prisma.tourist_spot.delete({
             where: { tourist_spot_id: touristSpotId },
-            select: { model_route_id: true },
         });
-        await this.cachingService.invalidate(`${_MODEL_ROUTE_RAW_CACHE_KEY_PREFIX}:${spot.model_route_id}`);
-        await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return true;
     }
 }

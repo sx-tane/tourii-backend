@@ -135,6 +135,8 @@ export class QuestRepositoryDb implements QuestRepository {
             data: QuestMapper.taskEntityToPrismaUpdateInput(task),
         });
 
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return QuestMapper.prismaTaskModelToTaskEntity(updated);
     }
 
@@ -143,13 +145,15 @@ export class QuestRepositoryDb implements QuestRepository {
             this.prisma.quest_task.deleteMany({ where: { quest_id: questId } }),
             this.prisma.quest.delete({ where: { quest_id: questId } }),
         ]);
-        await this.cachingService.invalidate('quests:*');
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return true;
     }
 
     async deleteQuestTask(taskId: string): Promise<boolean> {
         await this.prisma.quest_task.delete({ where: { quest_task_id: taskId } });
-        await this.cachingService.invalidate('quests:*');
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return true;
     }
 }
