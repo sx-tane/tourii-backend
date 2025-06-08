@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "command": "pnpm run prisma:generate && pnpm run build:tourii-backend",
   "builds": [
     {
       "src": "apps/tourii-backend/src/main.ts",
