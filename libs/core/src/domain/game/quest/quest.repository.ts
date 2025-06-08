@@ -17,6 +17,10 @@ export interface QuestRepository {
 
     fetchQuestById(questId: string): Promise<QuestEntity>;
 
+    createQuest(quest: QuestEntity): Promise<QuestEntity>;
+
+    createQuestTask(task: Task): Promise<Task>;
+
     updateQuest(quest: QuestEntity): Promise<QuestEntity>;
 
     updateQuestTask(task: Task): Promise<Task>;

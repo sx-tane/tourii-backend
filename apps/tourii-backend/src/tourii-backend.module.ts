@@ -1,5 +1,6 @@
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
+import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location-info-repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { DigitalPassportRepositoryFake } from '@app/core/infrastructure/blockchain/digital-passport.repository.fake';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
@@ -135,6 +136,10 @@ import { GroupQuestGateway } from './group-quest/group-quest.gateway';
         {
             provide: TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN,
             useClass: WeatherInfoRepositoryApi, // Weather info database access
+        },
+        {
+            provide: TouriiBackendConstants.LOCATION_INFO_REPOSITORY_TOKEN,
+            useClass: LocationInfoRepositoryApi,
         },
         {
             provide: TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN,

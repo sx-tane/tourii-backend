@@ -34,6 +34,14 @@ import {
     ModelRouteCreateRequestSchema,
 } from './model/tourii-request/create/model-route-create-request.model';
 import {
+    QuestCreateRequestDto,
+    QuestCreateRequestSchema,
+} from './model/tourii-request/create/quest-create-request.model';
+import {
+    QuestTaskCreateRequestDto,
+    QuestTaskCreateRequestSchema,
+} from './model/tourii-request/create/quest-task-create-request.model';
+import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
@@ -41,6 +49,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -50,6 +59,10 @@ import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
+import {
+    ModelRouteUpdateRequestDto,
+    ModelRouteUpdateRequestSchema,
+} from './model/tourii-request/update/model-route-update-request.model';
 import {
     QuestTaskUpdateRequestDto,
     QuestTaskUpdateRequestSchema,
@@ -62,7 +75,15 @@ import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+import {
+    TouristSpotUpdateRequestDto,
+    TouristSpotUpdateRequestSchema,
+} from './model/tourii-request/update/tourist-spot-update-request.model';
 
+import {
+    StartGroupQuestRequestDto,
+    StartGroupQuestRequestSchema,
+} from './model/tourii-request/update/start-group-quest-request.model';
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -71,6 +92,10 @@ import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
 } from './model/tourii-response/chapter-story-response.model';
+import {
+    GroupMembersResponseDto,
+    GroupMembersResponseSchema,
+} from './model/tourii-response/group-members-response.model';
 import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
@@ -86,6 +111,10 @@ import {
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
+    StartGroupQuestResponseDto,
+    StartGroupQuestResponseSchema,
+} from './model/tourii-response/start-group-quest-response.model';
+import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
@@ -93,18 +122,6 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
-import {
-    GroupMembersResponseDto,
-    GroupMembersResponseSchema,
-} from './model/tourii-response/group-members-response.model';
-import {
-    StartGroupQuestRequestDto,
-    StartGroupQuestRequestSchema,
-} from './model/tourii-request/update/start-group-quest-request.model';
-import {
-    StartGroupQuestResponseDto,
-    StartGroupQuestResponseSchema,
-} from './model/tourii-response/start-group-quest-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -114,6 +131,8 @@ import {
     TouristSpotCreateRequestDto,
     StoryUpdateRequestDto,
     StoryChapterUpdateRequestDto,
+    ModelRouteUpdateRequestDto,
+    TouristSpotUpdateRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
     ModelRouteResponseDto,
@@ -122,12 +141,17 @@ import {
     QuestListResponseDto,
     QuestResponseDto,
     TaskResponseDto,
+    QuestCreateRequestDto,
+    QuestTaskCreateRequestDto,
+    QuestUpdateRequestDto,
+    QuestTaskUpdateRequestDto,
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
     GroupMembersResponseDto,
     StartGroupQuestRequestDto,
     StartGroupQuestResponseDto,
+    LocationQueryDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -473,6 +497,57 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
     }
 
+    @Post('/routes/update-model-route')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Update Model Route', description: 'Update an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Model Route update request',
+        schema: zodToOpenAPI(ModelRouteUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateModelRoute(
+        @Body() modelRoute: ModelRouteUpdateRequestDto,
+    ): Promise<ModelRouteResponseDto> {
+        return await this.touriiBackendService.updateModelRoute(modelRoute);
+    }
+
+    @Post('/routes/update-tourist-spot')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Update Tourist Spot',
+        description: 'Update an existing tourist spot.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Tourist Spot update request',
+        schema: zodToOpenAPI(TouristSpotUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateTouristSpot(
+        @Body() touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        return await this.touriiBackendService.updateTouristSpot(touristSpot);
+    }
+
     @Post('/user')
     @ApiTags('User')
     @ApiOperation({
@@ -690,6 +765,53 @@ export class TouriiBackendController {
         return await this.touriiBackendService.getQuestById(questId);
     }
 
+    @Post('/quests/create-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest create request',
+        schema: zodToOpenAPI(QuestCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuest(@Body() quest: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.createQuest(quest);
+    }
+
+    @Post('/quests/create-task/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest task create request',
+        schema: zodToOpenAPI(QuestTaskCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest task',
+        type: TaskResponseDto,
+        schema: zodToOpenAPI(TaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuestTask(
+        @Param('questId') questId: string,
+        @Body() task: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.createQuestTask(questId, task);
+    }
+
     @Post('/quests/update-quest')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
@@ -843,5 +965,31 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
+    }
+
+    @Get('/location-info')
+    @ApiTags('Location')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info',
+        schema: {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                formattedAddress: { type: 'string' },
+            },
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(@Query() queryParams: LocationQueryDto) {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }

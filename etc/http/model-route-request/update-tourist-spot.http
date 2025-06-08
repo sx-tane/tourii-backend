@@ -1,0 +1,33 @@
+POST http://localhost:4000/routes/update-tourist-spot
+Content-Type: application/json
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+
+{
+    "touristSpotId": "TST202506-2db90c-071420-3f0397-EAAA",
+    "storyChapterId": "SCT202506-f1807f-071350-a2b305-BAAA",
+    "touristSpotName": "Harajiri Falls Observation Deck",
+    "touristSpotDesc": "Updated description: The main observation deck at Harajiri Falls offers the best panoramic view of this spectacular 20-meter waterfall. Known locally as the 'Niagara of Kyushu', this location provides excellent photo opportunities and a peaceful setting for contemplation. The deck has been recently renovated with new safety railings and viewing platforms.",
+    "bestVisitTime": "8:30 AM - 10:30 AM (best lighting for photos)",
+    "touristSpotHashtag": [
+        "#HarajiriFalls", 
+        "#Waterfall", 
+        "#Photography", 
+        "#NatureSpot", 
+        "#Kyushu", 
+        "#BungoOno",
+        "#Scenic"
+    ],
+    "imageSet": {
+        "main": "/image/touriiverse/bungo-ono/harajiri-deck-main.png",
+        "small": [
+            "/image/model-route/harajiri/deck-view-1.jpg",
+            "/image/model-route/harajiri/deck-view-2.jpg",
+            "/image/model-route/harajiri/deck-view-3.jpg",
+            "/image/model-route/harajiri/deck-sunset.jpg",
+            "/image/model-route/harajiri/deck-morning.jpg"
+        ]
+    },
+    "delFlag": false,
+    "updUserId": "admin"
+}
