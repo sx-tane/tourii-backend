@@ -1,6 +1,6 @@
+import { TaskTheme, TaskType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { TaskTheme, TaskType } from '@prisma/client';
 
 export const QuestTaskUpdateRequestSchema = z.object({
     taskId: z.string().describe('Unique identifier for the task'),
