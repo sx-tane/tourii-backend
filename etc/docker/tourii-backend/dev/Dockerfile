@@ -18,5 +18,8 @@ USER node
 
 WORKDIR /usr/local/service/tourii-backend
 
+# Default schema for local development
+ENV DATABASE_SCHEMA=touriidev
+
 CMD if [ ! -d "node_modules" ]; then pnpm install --frozen-lockfile; fi \
     && pnpm run start:dev:tourii-backend
