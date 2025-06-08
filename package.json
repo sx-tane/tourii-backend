@@ -188,8 +188,9 @@
             "<rootDir>/libs/",
             "<rootDir>/apps/"
         ],
-        "moduleNameMapping": {
+        "moduleNameMapper": {
             "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
+            "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
             "^@app/tourii-backend(|/.*)$": "<rootDir>/apps/tourii-backend/src/$1",
             "^@app/tourii-backend-test(|/.*)$": "<rootDir>/apps/tourii-backend/test/$1",
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",

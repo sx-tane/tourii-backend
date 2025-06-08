@@ -936,17 +936,39 @@ export class TouriiBackendService {
      * @returns void
      */
     async startGroupQuest(questId: string, leaderId: string) {
+        // Validate input parameters
+        if (!leaderId || typeof leaderId !== 'string' || leaderId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
         const group = await this.getGroupMembers(questId);
+
+        // Validate that the quest has a valid leader
+        if (!group.leaderUserId || group.leaderUserId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        // Authorization check - only the actual leader can start the quest
         if (group.leaderUserId !== leaderId) {
+            Logger.warn(
+                `Unauthorized quest start attempt. Quest: ${questId}, Leader: ${group.leaderUserId}, Attempted by: ${leaderId}`,
+                'TouriiBackendService',
+            );
             throw new ForbiddenException('Only leader can start the quest');
         }
-        if (group.members.length === 0) return { message: 'Group quest started!' };
-        await this.groupQuestRepository.updateMembersStatus(
-            questId,
-            group.members.map((m) => m.userId),
-            QuestStatus.ONGOING,
-        );
+
+        // Update member statuses if there are members
+        if (group.members.length > 0) {
+            await this.groupQuestRepository.updateMembersStatus(
+                questId,
+                group.members.map((m) => m.userId),
+                QuestStatus.ONGOING,
+            );
+        }
+
+        // Always broadcast quest started for consistency
         this.groupQuestGateway.broadcastQuestStarted(questId);
+
         return { message: 'Group quest started!' };
     }
 
