@@ -1,9 +1,7 @@
 import { Prisma } from '@prisma/client';
 
-const ModelRouteRelationModel = Prisma.validator<Prisma.model_routeDefaultArgs>()({
+export type ModelRouteRelationModel = Prisma.model_routeGetPayload<{
     include: {
-        tourist_spot: true,
-    },
-});
-
-export type ModelRouteRelationModel = Prisma.model_routeGetPayload<typeof ModelRouteRelationModel>;
+        tourist_spot: true;
+    };
+}>;
