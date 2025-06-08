@@ -1,5 +1,5 @@
 # compiled output
-/dist
+/dist  <- commented out to include dist in git for Vercel deployment
 /node_modules
 
 # Logs
@@ -48,5 +48,4 @@ etc/docker/localstack/prod/volume
 
 # cspell
 .cspell
-
 .vercel

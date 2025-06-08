@@ -18,5 +18,6 @@ USER node
 
 WORKDIR /usr/local/service/tourii-backend
 
+
 CMD if [ ! -d "node_modules" ]; then pnpm install --frozen-lockfile; fi \
     && pnpm run start:dev:tourii-backend
