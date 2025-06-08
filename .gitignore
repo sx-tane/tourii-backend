@@ -48,3 +48,4 @@ etc/docker/localstack/prod/volume
 
 # cspell
 .cspell
+.vercel
