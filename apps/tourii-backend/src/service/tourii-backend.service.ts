@@ -24,6 +24,8 @@ import type { LoginRequestDto } from '../controller/model/tourii-request/create/
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
+import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-request/create/quest-task-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
@@ -43,6 +45,7 @@ import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-req
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
+import { QuestCreateRequestBuilder } from './builder/quest-create-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
@@ -295,6 +298,25 @@ export class TouriiBackendService {
     async getQuestById(questId: string): Promise<QuestResponseDto> {
         const quest = await this.questRepository.fetchQuestById(questId);
         return QuestResultBuilder.questToDto(quest);
+    }
+
+    async createQuest(dto: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        const questEntity = QuestCreateRequestBuilder.dtoToQuest(dto, 'admin');
+        const created = await this.questRepository.createQuest(questEntity);
+        return QuestResultBuilder.questToDto(created);
+    }
+
+    async createQuestTask(
+        questId: string,
+        dto: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(
+            dto,
+            questId,
+            'admin',
+        );
+        const created = await this.questRepository.createQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(created);
     }
 
     async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {

@@ -81,6 +81,55 @@ export class QuestMapper {
         });
     }
 
+    static questEntityToPrismaInput(
+        questEntity: QuestEntity,
+    ): Prisma.questUncheckedCreateInput {
+        return {
+            tourist_spot_id: questEntity.touristSpot?.touristSpotId ?? '',
+            quest_name: questEntity.questName ?? '',
+            quest_desc: questEntity.questDesc ?? '',
+            quest_image: questEntity.questImage ?? null,
+            quest_type: questEntity.questType ?? undefined,
+            is_unlocked: questEntity.isUnlocked ?? false,
+            is_premium: questEntity.isPremium ?? false,
+            total_magatama_point_awarded: questEntity.totalMagatamaPointAwarded ?? 0,
+            reward_type: questEntity.rewardType ?? undefined,
+            del_flag: questEntity.delFlag ?? false,
+            ins_user_id: questEntity.insUserId,
+            ins_date_time: questEntity.insDateTime,
+            upd_user_id: questEntity.updUserId,
+            upd_date_time: questEntity.updDateTime,
+            request_id: questEntity.requestId ?? null,
+            quest_task: {
+                create: questEntity.tasks?.map((task) =>
+                    QuestMapper.taskEntityToPrismaInput(task),
+                ),
+            },
+        };
+    }
+
+    static taskEntityToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateWithoutQuestInput {
+        return {
+            task_theme: task.taskTheme,
+            task_type: task.taskType,
+            task_name: task.taskName,
+            task_desc: task.taskDesc,
+            is_unlocked: task.isUnlocked,
+            required_action: task.requiredAction,
+            group_activity_members: task.groupActivityMembers ?? [],
+            select_options: task.selectOptions ?? [],
+            anti_cheat_rules: task.antiCheatRules,
+            magatama_point_awarded: task.magatamaPointAwarded,
+            total_magatama_point_awarded: task.totalMagatamaPointAwarded,
+            del_flag: task.delFlag,
+            ins_user_id: task.insUserId,
+            ins_date_time: task.insDateTime,
+            upd_user_id: task.updUserId,
+            upd_date_time: task.updDateTime,
+            request_id: task.requestId ?? null,
+        };
+    }
+
     static questEntityToPrismaUpdateInput(
         questEntity: QuestEntity,
     ): Prisma.questUncheckedUpdateInput {

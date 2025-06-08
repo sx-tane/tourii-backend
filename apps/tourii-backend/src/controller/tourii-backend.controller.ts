@@ -41,6 +41,14 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import {
+    QuestCreateRequestDto,
+    QuestCreateRequestSchema,
+} from './model/tourii-request/create/quest-create-request.model';
+import {
+    QuestTaskCreateRequestDto,
+    QuestTaskCreateRequestSchema,
+} from './model/tourii-request/create/quest-task-create-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -110,6 +118,8 @@ import {
     QuestListResponseDto,
     QuestResponseDto,
     TaskResponseDto,
+    QuestCreateRequestDto,
+    QuestTaskCreateRequestDto,
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
@@ -673,6 +683,37 @@ export class TouriiBackendController {
         questId: string,
     ): Promise<QuestResponseDto> {
         return await this.touriiBackendService.getQuestById(questId);
+    }
+
+    @Post('/quests/create-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({ description: 'Quest create request', schema: zodToOpenAPI(QuestCreateRequestSchema) })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'Successfully created quest', type: QuestResponseDto, schema: zodToOpenAPI(QuestResponseSchema) })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuest(@Body() quest: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.createQuest(quest);
+    }
+
+    @Post('/quests/create-task/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({ description: 'Quest task create request', schema: zodToOpenAPI(QuestTaskCreateRequestSchema) })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'Successfully created quest task', type: TaskResponseDto, schema: zodToOpenAPI(TaskResponseSchema) })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuestTask(
+        @Param('questId') questId: string,
+        @Body() task: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.createQuestTask(questId, task);
     }
 
     @Post('/quests/update-quest')
