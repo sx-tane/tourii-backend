@@ -2,6 +2,7 @@ import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repo
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
+import { GroupQuestRepository } from '@app/core/domain/game/quest/group-quest.repository';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
@@ -18,8 +19,8 @@ import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType, StoryStatus } from '@prisma/client';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
+import { QuestStatus, QuestType, StoryStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
@@ -44,6 +45,7 @@ import {
 } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
+import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
@@ -80,6 +82,9 @@ export class TouriiBackendService {
         private readonly userStoryLogRepository: UserStoryLogRepository,
         @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
         private readonly passportRepository: DigitalPassportRepository,
+        @Inject(TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN)
+        private readonly groupQuestRepository: GroupQuestRepository,
+        private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
     /**
@@ -384,6 +389,11 @@ export class TouriiBackendService {
         return QuestResultBuilder.taskToDto(created);
     }
 
+    /**
+     * Update quest
+     * @param quest Quest update request DTO
+     * @returns Quest response DTO
+     */
     async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
         const current = await this.questRepository.fetchQuestById(quest.questId);
         const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
@@ -910,14 +920,74 @@ export class TouriiBackendService {
         return user;
     }
 
+    /**
+     * Get group members
+     * @param questId Quest ID
+     * @returns Group members
+     */
+    async getGroupMembers(questId: string) {
+        return this.groupQuestRepository.getGroupMembers(questId);
+    }
+
+    /**
+     * Start group quest
+     * @param questId Quest ID
+     * @param leaderId Leader ID
+     * @returns void
+     */
+    async startGroupQuest(questId: string, leaderId: string) {
+        // Validate input parameters
+        if (!leaderId || typeof leaderId !== 'string' || leaderId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        const group = await this.getGroupMembers(questId);
+
+        // Validate that the quest has a valid leader
+        if (!group.leaderUserId || group.leaderUserId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        // Authorization check - only the actual leader can start the quest
+        if (group.leaderUserId !== leaderId) {
+            Logger.warn(
+                `Unauthorized quest start attempt. Quest: ${questId}, Leader: ${group.leaderUserId}, Attempted by: ${leaderId}`,
+                'TouriiBackendService',
+            );
+            throw new ForbiddenException('Only leader can start the quest');
+        }
+
+        // Update member statuses if there are members
+        if (group.members.length > 0) {
+            await this.groupQuestRepository.updateMembersStatus(
+                questId,
+                group.members.map((m) => m.userId),
+                QuestStatus.ONGOING,
+            );
+        }
+
+        // Always broadcast quest started for consistency
+        this.groupQuestGateway.broadcastQuestStarted(questId);
+
+        return { message: 'Group quest started!' };
+    }
+
+    /**
+     * Get location info
+     * @param query Query string
+     * @returns Location info
+     */
     async getLocationInfo(query: string): Promise<LocationInfo> {
         return this.locationInfoRepository.getLocationInfo(query);
     }
 
-    // async getUserByUserId(userId: string) {
-    //   return this.userRepository.getUserInfoByUserId(userId);
-    // }
-
+    /**
+     * Track chapter progress
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @param status Story status
+     * @returns void
+     */
     async trackChapterProgress(
         userId: string,
         chapterId: string,
@@ -925,8 +995,6 @@ export class TouriiBackendService {
     ): Promise<void> {
         await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
     }
-
-    // --- Private Helper Methods ---
 
     /**
      * Update story chapters with tourist spot ids
