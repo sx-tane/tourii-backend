@@ -1,5 +1,5 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
@@ -11,6 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { QuestType } from '@prisma/client';
+import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
@@ -20,9 +21,14 @@ import {
     ApiUserNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
 import {
+    AuthSignupRequestDto,
+    AuthSignupRequestSchema,
+} from './model/tourii-request/create/auth-signup-request.model';
+import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
 } from './model/tourii-request/create/chapter-story-create-request.model';
+import { LoginRequestDto } from './model/tourii-request/create/login-request.model';
 import {
     ModelRouteCreateRequestDto,
     ModelRouteCreateRequestSchema,
@@ -45,9 +51,22 @@ import {
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
 import {
+    QuestTaskUpdateRequestDto,
+    QuestTaskUpdateRequestSchema,
+} from './model/tourii-request/update/quest-task-update-request.model';
+import {
+    QuestUpdateRequestDto,
+    QuestUpdateRequestSchema,
+} from './model/tourii-request/update/quest-update-request.model';
+import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+
+import {
+    AuthSignupResponseDto,
+    AuthSignupResponseSchema,
+} from './model/tourii-response/auth-signup-response.model';
 import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
@@ -63,6 +82,8 @@ import {
 import {
     QuestResponseDto,
     QuestResponseSchema,
+    TaskResponseDto,
+    TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
     StoryResponseDto,
@@ -88,6 +109,10 @@ import {
     UserEntity,
     QuestListResponseDto,
     QuestResponseDto,
+    TaskResponseDto,
+    LoginRequestDto,
+    AuthSignupRequestDto,
+    AuthSignupResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -230,10 +255,9 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateStory(
         @Body()
-        _saga: StoryUpdateRequestDto,
+        saga: StoryUpdateRequestDto,
     ): Promise<StoryResponseDto> {
-        // return await this.touriiBackendService.updateStory(saga);
-        return <StoryResponseDto>{};
+        return await this.touriiBackendService.updateStory(saga);
     }
 
     @Post('/stories/update-chapter')
@@ -267,10 +291,9 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateStoryChapter(
         @Body()
-        _chapter: StoryChapterUpdateRequestDto,
+        chapter: StoryChapterUpdateRequestDto,
     ): Promise<StoryChapterResponseDto> {
-        // return await this.touriiBackendService.updateStoryChapter(chapter);
-        return <StoryChapterResponseDto>{};
+        return await this.touriiBackendService.updateStoryChapter(chapter);
     }
 
     @Get('/stories/sagas')
@@ -468,6 +491,62 @@ export class TouriiBackendController {
         return this.touriiBackendService.createUser(user);
     }
 
+    @Post('/login')
+    @ApiTags('Auth')
+    @ApiOperation({
+        summary: 'User Login',
+        description:
+            'Login using username or other identifiers with optional wallet/social checks.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({ description: 'Login request', type: LoginRequestDto })
+    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
+    @ApiUserNotFoundResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
+        return this.touriiBackendService.loginUser(login);
+    }
+    @Post('/auth/signup')
+    @ApiTags('Auth')
+    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiBody({
+        description: 'Signup info',
+        type: AuthSignupRequestDto,
+        schema: zodToOpenAPI(AuthSignupRequestSchema),
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Signup success',
+        type: AuthSignupResponseDto,
+        schema: zodToOpenAPI(AuthSignupResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
+    async signup(
+        @Body() dto: AuthSignupRequestDto,
+        @Req() req: Request,
+    ): Promise<AuthSignupResponseDto> {
+        return this.touriiBackendService.signupUser(
+            dto.email,
+            dto.socialProvider,
+            dto.socialId,
+            req.ip ?? '',
+        );
+    }
+
     @Get('/:userId/user')
     @ApiTags('User')
     @ApiOperation({
@@ -594,6 +673,50 @@ export class TouriiBackendController {
         questId: string,
     ): Promise<QuestResponseDto> {
         return await this.touriiBackendService.getQuestById(questId);
+    }
+
+    @Post('/quests/update-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest update request',
+        schema: zodToOpenAPI(QuestUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated quest',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateQuest(@Body() quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.updateQuest(quest);
+    }
+
+    @Post('/quests/update-task')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Update Quest Task', description: 'Update an existing quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest task update request',
+        schema: zodToOpenAPI(QuestTaskUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated quest task',
+        type: TaskResponseDto,
+        schema: zodToOpenAPI(TaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.updateQuestTask(task);
     }
 
     @Get('/routes')

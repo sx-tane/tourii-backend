@@ -22,6 +22,7 @@ erDiagram
   String refresh_token "nullable"
   String passport_wallet_address UK "nullable"
   String perks_wallet_address UK
+  String encrypted_private_key "nullable"
   String latest_ip_address "nullable"
   Boolean is_premium
   Int total_quest_completed
@@ -276,6 +277,7 @@ define access levels and privileges in the system.
     > Travel perk NFT Wallet Address
     > 
     > Blockchain wallet address for travel perks
+  - `encrypted_private_key`: Encrypted private key for the user's wallet
   - `latest_ip_address`: User's latest IP address
   - `is_premium`
     > User is premium or not

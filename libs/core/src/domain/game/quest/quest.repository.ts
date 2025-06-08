@@ -1,5 +1,6 @@
-import { QuestType } from '@prisma/client';
+import { QuestType, RewardType, TaskTheme, TaskType } from '@prisma/client';
 import type { QuestEntity, QuestEntityWithPagination } from './quest.entity';
+import type { Task } from './task';
 
 export interface QuestRepository {
     /**
@@ -15,4 +16,8 @@ export interface QuestRepository {
     ): Promise<QuestEntityWithPagination>;
 
     fetchQuestById(questId: string): Promise<QuestEntity>;
+
+    updateQuest(quest: QuestEntity): Promise<QuestEntity>;
+
+    updateQuestTask(task: Task): Promise<Task>;
 }

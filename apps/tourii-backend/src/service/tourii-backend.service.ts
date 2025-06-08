@@ -1,3 +1,4 @@
+import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -10,28 +11,42 @@ import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
+import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType, StoryStatus } from '@prisma/client';
+import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
+import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
+import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
+import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
+import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
+import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
-import { QuestResponseDto } from '../controller/model/tourii-response/quest-response.model';
+import {
+    QuestResponseDto,
+    TaskResponseDto,
+} from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
+import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
-import { UserEntity } from '@app/core/domain/user/user.entity';
+import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
+import { UserCreateBuilder } from './builder/user-create-builder';
 
 @Injectable()
 export class TouriiBackendService {
@@ -48,8 +63,12 @@ export class TouriiBackendService {
         private readonly weatherInfoRepository: WeatherInfoRepository,
         @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
         private readonly questRepository: QuestRepository,
+        @Inject(TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN)
+        private readonly encryptionRepository: EncryptionRepository,
         @Inject(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN)
         private readonly userStoryLogRepository: UserStoryLogRepository,
+        @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_REPOSITORY_TOKEN)
+        private readonly passportRepository: DigitalPassportRepository,
     ) {}
 
     /**
@@ -118,6 +137,22 @@ export class TouriiBackendService {
         return storyChapter.map((storyChapter) =>
             StoryResultBuilder.storyChapterToDto(storyChapter, storyId),
         );
+    }
+
+    async updateStory(saga: StoryUpdateRequestDto): Promise<StoryResponseDto> {
+        const updated = await this.storyRepository.updateStory(
+            StoryUpdateRequestBuilder.dtoToStory(saga),
+        );
+        return StoryResultBuilder.storyToDto(updated);
+    }
+
+    async updateStoryChapter(
+        chapter: StoryChapterUpdateRequestDto,
+    ): Promise<StoryChapterResponseDto> {
+        const updated = await this.storyRepository.updateStoryChapter(
+            StoryUpdateRequestBuilder.dtoToStoryChapter(chapter),
+        );
+        return StoryResultBuilder.storyChapterToDto(updated, updated.sagaName ?? '');
     }
 
     /**
@@ -253,12 +288,82 @@ export class TouriiBackendService {
             isUnlocked,
             questType,
         );
+
         return QuestResultBuilder.questWithPaginationToDto(quests);
     }
 
     async getQuestById(questId: string): Promise<QuestResponseDto> {
         const quest = await this.questRepository.fetchQuestById(questId);
         return QuestResultBuilder.questToDto(quest);
+    }
+
+    async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        const current = await this.questRepository.fetchQuestById(quest.questId);
+        const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
+        const updated = await this.questRepository.updateQuest(questEntity);
+
+        if (quest.taskList && quest.taskList.length > 0 && current.tasks) {
+            const taskMap = new Map(current.tasks.map((t) => [t.taskId, t]));
+            await Promise.all(
+                quest.taskList.map((taskDto) => {
+                    const baseTask = taskMap.get(taskDto.taskId);
+                    return baseTask
+                        ? this.questRepository.updateQuestTask(
+                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
+                          )
+                        : Promise.resolve();
+                }),
+            );
+        }
+
+        return QuestResultBuilder.questToDto(updated);
+    }
+
+    async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        const current = await this.questRepository.fetchQuestById(task.questId);
+        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
+        if (!baseTask) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
+        const updated = await this.questRepository.updateQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(updated);
+    }
+
+    /**
+     * Signup user
+     * @param email Email
+     * @param socialProvider Social provider
+     * @param socialId Social ID
+     * @param ipAddress IP address
+     * @returns Auth signup response DTO
+     */
+    async signupUser(
+        email: string,
+        socialProvider: string,
+        socialId: string,
+        ipAddress: string,
+    ): Promise<AuthSignupResponseDto> {
+        const wallet = ethers.Wallet.createRandom();
+        const encryptedPrivateKey = this.encryptionRepository.encryptString(wallet.privateKey);
+        const userEntity = UserCreateBuilder.fromSignup(
+            email,
+            socialProvider,
+            socialId,
+            wallet.address,
+            encryptedPrivateKey,
+            ipAddress,
+        );
+        try {
+            await this.passportRepository.mint(wallet.address);
+        } catch (error) {
+            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
+        }
+        const created = await this.userRepository.createUser(userEntity);
+        return {
+            userId: created.userId ?? '',
+            walletAddress: wallet.address,
+        };
     }
 
     /**
@@ -538,6 +643,41 @@ export class TouriiBackendService {
         // service logic
         // dto -> entity
         return this.userRepository.createUser(user);
+    }
+
+    async loginUser(login: LoginRequestDto): Promise<UserEntity> {
+        let user: UserEntity | undefined;
+        if (login.username) {
+            user = await this.userRepository.getUserByUsername(login.username);
+        }
+        if (!user && login.passportWalletAddress) {
+            user = await this.userRepository.getUserByPassportWallet(login.passportWalletAddress);
+        }
+        if (!user && login.discordId) {
+            user = await this.userRepository.getUserByDiscordId(login.discordId);
+        }
+        if (!user && login.googleEmail) {
+            user = await this.userRepository.getUserByGoogleEmail(login.googleEmail);
+        }
+
+        if (!user) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        if (user.password !== login.password) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        if (
+            (login.passportWalletAddress &&
+                user.passportWalletAddress !== login.passportWalletAddress) ||
+            (login.discordId && user.discordId !== login.discordId) ||
+            (login.googleEmail && user.googleEmail !== login.googleEmail)
+        ) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        return user;
     }
 
     // async getUserByUserId(userId: string) {

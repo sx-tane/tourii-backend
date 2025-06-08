@@ -1,5 +1,6 @@
 import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
+import { Task } from '@app/core/domain/game/quest/task';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -94,5 +95,25 @@ export class QuestRepositoryDb implements QuestRepository {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
         return QuestMapper.prismaModelToQuestEntity(questDb);
+    }
+
+    async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
+        const updated = (await this.prisma.quest.update({
+            where: { quest_id: quest.questId },
+            data: QuestMapper.questEntityToPrismaUpdateInput(quest),
+            include: { quest_task: true, tourist_spot: true },
+        })) as QuestWithTasks;
+
+        await this.cachingService.invalidate('quests:*');
+        return QuestMapper.prismaModelToQuestEntity(updated);
+    }
+
+    async updateQuestTask(task: Task): Promise<Task> {
+        const updated = await this.prisma.quest_task.update({
+            where: { quest_task_id: task.taskId },
+            data: QuestMapper.taskEntityToPrismaUpdateInput(task),
+        });
+
+        return QuestMapper.prismaTaskModelToTaskEntity(updated);
     }
 }

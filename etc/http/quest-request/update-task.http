@@ -1,0 +1,22 @@
+POST http://localhost:4000/quests/update-task
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+{
+    "taskId": "TASK202505-1",
+    "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
+    "taskTheme": "STORY",
+    "taskType": "ANSWER_TEXT",
+    "taskName": "Updated Task",
+    "taskDesc": "Updated task description",
+    "isUnlocked": true,
+    "requiredAction": "Answer correctly",
+    "groupActivityMembers": [],
+    "selectOptions": [],
+    "antiCheatRules": {},
+    "magatamaPointAwarded": 10,
+    "totalMagatamaPointAwarded": 10,
+    "delFlag": false,
+    "updUserId": "admin"
+}

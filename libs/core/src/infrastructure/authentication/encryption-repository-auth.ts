@@ -8,19 +8,28 @@ import { u8aToHex } from '@polkadot/util';
 
 @Injectable()
 export class EncryptionRepositoryAuth implements EncryptionRepository {
-    private readonly secretKey: string;
+    private readonly secretKey: Buffer;
     constructor(protected readonly configService: ConfigService) {
-        this.secretKey = this.configService.get<string>('ENCRYPTION_KEY') || 'defaultSecretKey';
+        const key = this.configService.get<string>('ENCRYPTION_KEY') || 'defaultSecretKey';
+        this.secretKey = crypto.createHash('sha256').update(key).digest();
     }
 
     encryptString(text: string): string {
         const algorithm = 'aes-256-ctr';
         const iv = crypto.randomBytes(16);
-
         const cipher = crypto.createCipheriv(algorithm, this.secretKey, iv);
-        const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-
+        const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
         return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
+    }
+
+    decryptString(text: string): string {
+        const algorithm = 'aes-256-ctr';
+        const [ivHex, contentHex] = text.split(':');
+        const iv = Buffer.from(ivHex, 'hex');
+        const encryptedText = Buffer.from(contentHex, 'hex');
+        const decipher = crypto.createDecipheriv(algorithm, this.secretKey, iv);
+        const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+        return decrypted.toString('utf8');
     }
 
     decodeAddress(publicKey: string): HexString {
