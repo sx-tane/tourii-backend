@@ -112,9 +112,7 @@ PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_SCHEMA=touriidev
-MIGRATION_URL=postgresql://user:pass@localhost:5432/tourii?schema=touriidev
-DATABASE_URL=postgresql://user:pass@localhost:5432/tourii?schema=touriidev
+DATABASE_URL=postgresql://user:pass@localhost:5432/tourii
 
 # Auth
 JWT_SECRET=supersecret
@@ -222,8 +220,7 @@ pnpm start:prod
 ### CI/CD
 
 - GitHub Actions for lint/test/build
-- Deploys to Vercel and runs Supabase migrations via `.github/workflows/deploy.yml` (seed not run)
-- Secrets (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `MIGRATION_URL`, `DATABASE_URL`) via GitHub Encrypted Secrets or Doppler
+- Secrets via GitHub Encrypted Secrets or Doppler
 
 ---
 
