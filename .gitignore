@@ -1,5 +1,5 @@
 # compiled output
-# /dist  <- commented out to include dist in git for Vercel deployment
+/dist  <- commented out to include dist in git for Vercel deployment
 /node_modules
 
 # Logs
