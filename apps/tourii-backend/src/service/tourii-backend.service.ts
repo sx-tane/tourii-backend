@@ -879,6 +879,34 @@ export class TouriiBackendService {
         );
     }
 
+    async getTouristSpotsByStoryChapterId(
+        storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        const spots =
+            await this.modelRouteRepository.getTouristSpotsByStoryChapterId(
+                storyChapterId,
+            );
+
+        if (!spots || spots.length === 0) {
+            return [];
+        }
+
+        const geoInfos: GeoInfo[] = spots.map((spot) => ({
+            touristSpotName: spot.touristSpotName ?? '',
+            latitude: spot.latitude ?? 0,
+            longitude: spot.longitude ?? 0,
+            formattedAddress: spot.address ?? '',
+        }));
+
+        const weatherInfos = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+            geoInfos,
+        );
+
+        return spots.map((spot) =>
+            ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfos),
+        );
+    }
+
     async createUser(user: UserEntity) {
         // service logic
         // dto -> entity

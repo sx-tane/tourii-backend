@@ -22,6 +22,7 @@ describe('ModelRouteRepositoryDb', () => {
                         get: jest.fn(),
                         set: jest.fn(),
                         invalidate: jest.fn(),
+                        getOrSet: jest.fn(async (_k: string, fn: () => Promise<any>) => fn()),
                     },
                 },
             ],
@@ -219,5 +220,93 @@ describe('ModelRouteRepositoryDb', () => {
 
         expect(caching.invalidate).toHaveBeenCalledWith(`model_route_raw:${route.model_route_id}`);
         expect(caching.invalidate).toHaveBeenCalledWith('model_routes_all_list');
+    });
+
+    it('retrieves tourist spots by story chapter id', async () => {
+        const baseDate = new Date('2024-01-01T00:00:00.000Z');
+
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'Saga',
+                saga_desc: 'desc',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        const route = await prisma.model_route.create({
+            data: {
+                story_id: story.story_id,
+                route_name: 'Route',
+                recommendation: [],
+                region: 'R',
+                region_latitude: 0,
+                region_longitude: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+                ins_date_time: baseDate,
+                upd_date_time: baseDate,
+            },
+        });
+
+        const chapter = await prisma.story_chapter.create({
+            data: {
+                story_id: story.story_id,
+                tourist_spot_id: 'spot1',
+                story_chapter_id: 'chapter1',
+                chapter_title: 'c',
+                chapter_number: '1',
+                chapter_desc: 'd',
+                chapter_image: 'i',
+                character_name_list: [],
+                real_world_image: 'i',
+                chapter_video_url: 'v',
+                chapter_video_mobile_url: 'vm',
+                chapter_pdf_url: 'p',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'spot1',
+                model_route_id: route.model_route_id,
+                story_chapter_id: chapter.story_chapter_id,
+                tourist_spot_name: 'Spot 1',
+                tourist_spot_desc: 'desc',
+                latitude: 0,
+                longitude: 0,
+                tourist_spot_hashtag: [],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+                ins_date_time: baseDate,
+                upd_date_time: baseDate,
+            },
+        });
+
+        await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'spot2',
+                model_route_id: route.model_route_id,
+                story_chapter_id: chapter.story_chapter_id,
+                tourist_spot_name: 'Spot 2',
+                tourist_spot_desc: 'desc',
+                latitude: 1,
+                longitude: 1,
+                tourist_spot_hashtag: [],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+                ins_date_time: baseDate,
+                upd_date_time: baseDate,
+            },
+        });
+
+        const spots = await repository.getTouristSpotsByStoryChapterId(chapter.story_chapter_id);
+
+        expect(spots).toHaveLength(2);
+        const names = spots.map((s) => s.touristSpotName).sort();
+        expect(names).toEqual(['Spot 1', 'Spot 2']);
     });
 });

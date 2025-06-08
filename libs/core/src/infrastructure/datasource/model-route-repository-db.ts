@@ -8,6 +8,7 @@ import { TouriiBackendAppException } from '@app/core/support/exception/tourii-ba
 import { Injectable, Logger } from '@nestjs/common';
 import { ModelRouteRelationModel } from 'prisma/relation-model/model-route-relation-model';
 import { ModelRouteMapper } from '../mapper/model-route-mapper';
+import type { tourist_spot } from '@prisma/client';
 
 const _MODEL_ROUTE_RAW_CACHE_KEY_PREFIX = 'model_route_raw';
 const _MODEL_ROUTES_ALL_LIST_CACHE_KEY = 'model_routes_all_list';
@@ -93,6 +94,29 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         await this.cachingService.invalidate(_MODEL_ROUTES_ALL_LIST_CACHE_KEY);
 
         return ModelRouteMapper.touristSpotToEntity([updated])[0];
+    }
+
+    async getTouristSpotsByStoryChapterId(storyChapterId: string): Promise<TouristSpot[]> {
+        const cacheKey = `tourist_spots_by_chapter:${storyChapterId}`;
+
+        const fetchDataFn = async () => {
+            const spots = await this.prisma.tourist_spot.findMany({
+                where: { story_chapter_id: storyChapterId },
+            });
+            return spots;
+        };
+
+        const spotPrisma = await this.cachingService.getOrSet<tourist_spot[] | null>(
+            cacheKey,
+            fetchDataFn,
+            DEFAULT_CACHE_TTL_SECONDS,
+        );
+
+        if (!spotPrisma || spotPrisma.length === 0) {
+            return [];
+        }
+
+        return ModelRouteMapper.touristSpotToEntity(spotPrisma);
     }
 
     async getModelRouteByModelRouteId(modelRouteId: string): Promise<ModelRouteEntity> {
