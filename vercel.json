@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "apps/tourii-backend/main.ts",
+      "src": "apps/tourii-backend/src/main.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "apps/tourii-backend/main.ts",
+      "dest": "apps/tourii-backend/src/main.ts",
       "methods": [
         "GET",
         "POST",
