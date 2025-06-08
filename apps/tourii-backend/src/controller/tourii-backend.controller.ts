@@ -41,6 +41,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -113,6 +114,7 @@ import {
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
+    LocationQueryDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -789,7 +791,6 @@ export class TouriiBackendController {
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiQuery({ name: 'query', description: 'Place name or search query', type: String })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Successfully retrieved location info',
@@ -804,7 +805,7 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async getLocationInfo(@Query('query') query: string) {
-        return this.touriiBackendService.getLocationInfo(query);
+    async getLocationInfo(@Query() queryParams: LocationQueryDto) {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }

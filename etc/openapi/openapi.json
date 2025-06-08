@@ -5236,6 +5236,83 @@
         ]
       }
     },
+    "/location-info": {
+      "get": {
+        "description": "Retrieve basic location details using Google Places.",
+        "operationId": "TouriiBackendController_getLocationInfo",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved location info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "formattedAddress": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get Location Info",
+        "tags": [
+          "Location"
+        ]
+      }
+    },
     "/test/headers": {
       "get": {
         "description": "Tests the security headers set by SecurityMiddleware. Returns all configured security headers in the response.",
@@ -7590,6 +7667,19 @@
         "required": [
           "userId",
           "walletAddress"
+        ]
+      },
+      "LocationQueryDto": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "description": "Place name or search query",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "query"
         ]
       }
     }
