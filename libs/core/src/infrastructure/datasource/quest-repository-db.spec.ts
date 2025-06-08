@@ -23,6 +23,7 @@ describe('QuestRepositoryDb', () => {
                         get: jest.fn(),
                         set: jest.fn(),
                         invalidate: jest.fn(),
+                        clearAll: jest.fn(),
                     },
                 },
             ],
@@ -190,7 +191,7 @@ describe('QuestRepositoryDb', () => {
 
         const created = await repository.createQuest(questEntity);
         expect(created.questId).toBeDefined();
-        expect(caching.invalidate).toHaveBeenCalledWith('quests:*');
+        expect(caching.clearAll).toHaveBeenCalled();
 
         const found = await prisma.quest.findUnique({
             where: { quest_id: created.questId ?? '' },
@@ -241,5 +242,141 @@ describe('QuestRepositoryDb', () => {
             where: { quest_task_id: created.taskId ?? '' },
         });
         expect(found?.task_name).toEqual('T');
+    });
+
+    it('deleteQuest removes quest and tasks', async () => {
+        await prisma.quest_task.deleteMany();
+        const story = await prisma.story.create({
+            data: {
+                story_id: 'sDel',
+                saga_name: 's',
+                saga_desc: 'd',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const route = await prisma.model_route.create({
+            data: {
+                model_route_id: 'rDel',
+                story_id: story.story_id,
+                route_name: 'R',
+                region: 'reg',
+                region_latitude: 0,
+                region_longitude: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const chapter = await prisma.story_chapter.create({
+            data: {
+                story_chapter_id: 'cDelQ',
+                tourist_spot_id: 'spDelQ',
+                story_id: story.story_id,
+                chapter_title: 't',
+                chapter_number: '1',
+                chapter_desc: 'd',
+                chapter_image: 'i',
+                real_world_image: 'i',
+                chapter_pdf_url: 'p',
+                chapter_video_url: 'v',
+                chapter_video_mobile_url: 'vm',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const spot = await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'spDelQ',
+                model_route_id: route.model_route_id,
+                story_chapter_id: chapter.story_chapter_id,
+                tourist_spot_name: 'n',
+                tourist_spot_desc: 'd',
+                latitude: 0,
+                longitude: 0,
+                tourist_spot_hashtag: [],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const quest = await prisma.quest.create({
+            data: {
+                quest_id: 'qDel',
+                tourist_spot_id: spot.tourist_spot_id,
+                quest_name: 'Q',
+                quest_desc: 'd',
+                quest_type: 'TRAVEL_TO_EARN',
+                reward_type: 'LOCAL_EXPERIENCES',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.quest_task.create({
+            data: {
+                quest_task_id: 'tDel',
+                quest_id: quest.quest_id,
+                task_theme: 'STORY',
+                task_type: 'CHECK_IN',
+                task_name: 'T',
+                task_desc: 'd',
+                is_unlocked: true,
+                required_action: 'A',
+                group_activity_members: [],
+                select_options: [],
+                anti_cheat_rules: {},
+                magatama_point_awarded: 1,
+                total_magatama_point_awarded: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteQuest(quest.quest_id);
+
+        const foundQuest = await prisma.quest.findUnique({ where: { quest_id: quest.quest_id } });
+        const tasks = await prisma.quest_task.findMany({ where: { quest_id: quest.quest_id } });
+        expect(foundQuest).toBeNull();
+        expect(tasks.length).toBe(0);
+    });
+
+    it('deleteQuestTask removes task', async () => {
+        const quest = await prisma.quest.create({
+            data: {
+                quest_id: 'qDel2',
+                tourist_spot_id: 'spDelQ',
+                quest_name: 'Q',
+                quest_desc: 'd',
+                quest_type: 'TRAVEL_TO_EARN',
+                reward_type: 'LOCAL_EXPERIENCES',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        const task = await prisma.quest_task.create({
+            data: {
+                quest_task_id: 'tDel2',
+                quest_id: quest.quest_id,
+                task_theme: 'STORY',
+                task_type: 'CHECK_IN',
+                task_name: 'T',
+                task_desc: 'd',
+                is_unlocked: true,
+                required_action: 'A',
+                group_activity_members: [],
+                select_options: [],
+                anti_cheat_rules: {},
+                magatama_point_awarded: 1,
+                total_magatama_point_awarded: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await repository.deleteQuestTask(task.quest_task_id);
+
+        const found = await prisma.quest_task.findUnique({
+            where: { quest_task_id: task.quest_task_id },
+        });
+        expect(found).toBeNull();
     });
 });
