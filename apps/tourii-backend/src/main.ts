@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { TouriiCoreLoggingService, getEnv } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -5,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
 import { patchNestJsSwagger } from 'nestjs-zod';
-import fs from 'node:fs';
 import { TouriiBackendModule } from './tourii-backend.module';
 
 let app: NestExpressApplication;

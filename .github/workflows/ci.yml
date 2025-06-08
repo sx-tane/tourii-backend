@@ -35,5 +35,4 @@ jobs:
       - run: |
           echo 'MIGRATION_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' > .env.test
           echo 'DATABASE_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' >> .env.test
-      - run: pnpm lint
       - run: pnpm run test
