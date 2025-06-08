@@ -28,6 +28,8 @@ import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-re
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
+import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
+import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
@@ -46,6 +48,8 @@ import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builde
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
+import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
+import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 
 @Injectable()
@@ -328,6 +332,44 @@ export class TouriiBackendService {
         const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
         const updated = await this.questRepository.updateQuestTask(taskEntity);
         return QuestResultBuilder.taskToDto(updated);
+    }
+
+    async updateModelRoute(
+        modelRoute: ModelRouteUpdateRequestDto,
+    ): Promise<ModelRouteResponseDto> {
+        const updated = await this.modelRouteRepository.updateModelRoute(
+            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modelRoute),
+        );
+        if (!updated.modelRouteId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+        return this.getModelRouteById(updated.modelRouteId);
+    }
+
+    async updateTouristSpot(
+        touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        const updated = await this.modelRouteRepository.updateTouristSpot(
+            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(touristSpot),
+        );
+
+        if (updated.touristSpotId && updated.storyChapterId) {
+            await this.updateStoryChaptersWithTouristSpotIds([
+                {
+                    storyChapterId: updated.storyChapterId,
+                    touristSpotId: updated.touristSpotId,
+                },
+            ]);
+        }
+
+        const [geoInfo] = await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+            updated.touristSpotName ?? '',
+        ]);
+        const [weatherInfo] = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([
+            geoInfo,
+        ]);
+
+        return ModelRouteResultBuilder.touristSpotToDto(updated, [weatherInfo]);
     }
 
     /**
