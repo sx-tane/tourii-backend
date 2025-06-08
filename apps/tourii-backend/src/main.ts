@@ -87,7 +87,8 @@ async function bootstrap() {
 // Export for Vercel serverless
 export default async (req: any, res: any) => {
     const nestApp = await createApp();
-    return nestApp.getHttpAdapter().getInstance()(req, res);
+    const expressInstance = nestApp.getHttpAdapter().getInstance();
+    return expressInstance(req, res);
 };
 
 // Start the app locally if not in serverless environment
