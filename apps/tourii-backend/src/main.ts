@@ -1,5 +1,4 @@
-import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
-import { getEnv } from '@app/core/utils/env-utils';
+import { TouriiCoreLoggingService, getEnv } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
