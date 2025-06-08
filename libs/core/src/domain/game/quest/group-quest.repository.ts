@@ -1,14 +1,14 @@
 import { QuestStatus } from '@prisma/client';
 
 export interface GroupQuestMember {
-    user_id: string;
+    userId: string;
     username: string;
     role?: string | null;
 }
 
 export interface GroupQuestMembers {
-    group_id: string;
-    leader_user_id: string;
+    groupId: string;
+    leaderUserId: string;
     members: GroupQuestMember[];
 }
 

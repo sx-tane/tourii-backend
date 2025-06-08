@@ -691,13 +691,13 @@ export class TouriiBackendService {
 
     async startGroupQuest(questId: string, leaderId: string) {
         const group = await this.getGroupMembers(questId);
-        if (group.leader_user_id !== leaderId) {
+        if (group.leaderUserId !== leaderId) {
             throw new ForbiddenException('Only leader can start the quest');
         }
         if (group.members.length === 0) return { message: 'Group quest started!' };
         await this.groupQuestRepository.updateMembersStatus(
             questId,
-            group.members.map((m) => m.user_id),
+            group.members.map((m) => m.userId),
             QuestStatus.ONGOING,
         );
         this.groupQuestGateway.broadcastQuestStarted(questId);

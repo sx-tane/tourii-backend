@@ -17,7 +17,7 @@ export class GroupQuestRepositoryDb implements GroupQuestRepository {
             select: { group_activity_members: true },
         });
         if (!log) {
-            return { group_id: questId, leader_user_id: '', members: [] };
+            return { groupId: questId, leaderUserId: '', members: [] };
         }
 
         const membersData = log.group_activity_members as Array<{
@@ -32,12 +32,16 @@ export class GroupQuestRepositoryDb implements GroupQuestRepository {
         const members: GroupQuestMember[] = memberIds.map((id) => {
             const user = users.find((u) => u.user_id === id);
             const member = membersData.find((m) => m.user_id === id);
-            return { user_id: id, username: user?.username ?? '', role: member?.role ?? null };
+            return {
+                userId: id,
+                username: user?.username ?? '',
+                role: member?.role ?? null,
+            };
         });
         const leader = membersData.find((m) => m.role === 'leader');
         return {
-            group_id: questId,
-            leader_user_id: leader?.user_id ?? memberIds[0] ?? '',
+            groupId: questId,
+            leaderUserId: leader?.user_id ?? memberIds[0] ?? '',
             members,
         };
     }
