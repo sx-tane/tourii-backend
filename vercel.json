@@ -1,10 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build:tourii-backend:vercel",
+  "builds": [
+    {
+      "src": "dist/apps/tourii-backend/main.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "apps/tourii-backend/src/main.ts",
+      "dest": "dist/apps/tourii-backend/main.js",
       "methods": [
         "GET",
         "POST",
