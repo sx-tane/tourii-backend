@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm prisma:generate && pnpm build:tourii-backend",
+  "buildCommand": "pnpm build:tourii-backend:vercel",
   "builds": [
     {
       "src": "apps/tourii-backend/src/main.ts",
