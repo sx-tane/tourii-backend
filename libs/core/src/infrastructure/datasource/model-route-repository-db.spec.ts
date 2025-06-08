@@ -1,5 +1,6 @@
 import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
+import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Test, type TestingModule } from '@nestjs/testing';
