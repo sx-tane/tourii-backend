@@ -6,4 +6,12 @@ export interface LocationInfo {
     rating?: number;
     googleMapsUrl?: string;
     openingHours?: string[];
+    images?: LocationImage[];
+}
+
+export interface LocationImage {
+    url: string;
+    width: number;
+    height: number;
+    photoReference: string;
 }

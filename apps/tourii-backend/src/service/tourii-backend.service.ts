@@ -10,7 +10,6 @@ import type { StoryRepository } from '@app/core/domain/game/story/story.reposito
 import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
-import { LocationInfo } from '@app/core/domain/geo/location-info';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
@@ -37,6 +36,7 @@ import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/u
 import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
+import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
@@ -47,6 +47,7 @@ import type { StoryResponseDto } from '../controller/model/tourii-response/story
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
+import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
@@ -983,10 +984,11 @@ export class TouriiBackendService {
     /**
      * Get location info
      * @param query Query string
-     * @returns Location info
+     * @returns Location info response DTO
      */
-    async getLocationInfo(query: string): Promise<LocationInfo> {
-        return this.locationInfoRepository.getLocationInfo(query);
+    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
+        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
+        return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
     }
 
     async deleteStory(storyId: string): Promise<void> {

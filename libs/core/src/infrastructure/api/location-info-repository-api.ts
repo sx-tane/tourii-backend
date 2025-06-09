@@ -1,4 +1,4 @@
-import { LocationInfo } from '@app/core/domain/geo/location-info';
+import { LocationImage, LocationInfo } from '@app/core/domain/geo/location-info';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
 import { CachingService } from '@app/core/provider/caching.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -10,6 +10,9 @@ import { firstValueFrom } from 'rxjs';
 
 const LOCATION_CACHE_PREFIX = 'location_info';
 const CACHE_TTL_SECONDS = 86400; // 24 hours
+const DEFAULT_PHOTO_MAX_WIDTH = 400; // Default thumbnail width
+const DEFAULT_PHOTO_MAX_HEIGHT = 400; // Default thumbnail height
+const MAX_PHOTOS = 3; // Maximum number of photos to fetch
 
 @Injectable()
 export class LocationInfoRepositoryApi implements LocationInfoRepository {
@@ -50,6 +53,7 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
                     'rating',
                     'url',
                     'opening_hours',
+                    'photos',
                 ].join(',');
                 const detailUrl =
                     `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}` +
@@ -62,6 +66,9 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
                     throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
                 }
 
+                // Process photos if available
+                const images = this.processPhotos(result.photos, apiKey);
+
                 return {
                     name: result.name ?? query,
                     formattedAddress: result.formatted_address,
@@ -70,6 +77,7 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
                     rating: result.rating,
                     googleMapsUrl: result.url,
                     openingHours: result.opening_hours?.weekday_text,
+                    images,
                 };
             } catch (error) {
                 if (error instanceof TouriiBackendAppException) {
@@ -89,5 +97,47 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
         }
         return data;
+    }
+
+    /**
+     * Process photos from Google Places API response
+     * @param photos Photo array from Google Places API
+     * @param apiKey Google Places API key
+     * @returns Array of LocationImage objects
+     */
+    private processPhotos(photos: any[], apiKey: string): LocationImage[] | undefined {
+        if (!photos || !Array.isArray(photos) || photos.length === 0) {
+            return undefined;
+        }
+
+        try {
+            const processedImages: LocationImage[] = photos
+                .slice(0, MAX_PHOTOS) // Limit number of photos
+                .map((photo) => {
+                    if (!photo.photo_reference) {
+                        return null;
+                    }
+
+                    // Use photo dimensions if available, otherwise use defaults
+                    const width = photo.width || DEFAULT_PHOTO_MAX_WIDTH;
+                    const height = photo.height || DEFAULT_PHOTO_MAX_HEIGHT;
+
+                    // Generate photo URL using Google Places Photos API
+                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${DEFAULT_PHOTO_MAX_WIDTH}&maxheight=${DEFAULT_PHOTO_MAX_HEIGHT}&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+
+                    return {
+                        url: photoUrl,
+                        width: Math.min(width, DEFAULT_PHOTO_MAX_WIDTH),
+                        height: Math.min(height, DEFAULT_PHOTO_MAX_HEIGHT),
+                        photoReference: photo.photo_reference,
+                    };
+                })
+                .filter((image): image is LocationImage => image !== null);
+
+            return processedImages.length > 0 ? processedImages : undefined;
+        } catch (error) {
+            Logger.warn(`Failed to process photos for location: ${error}`);
+            return undefined;
+        }
     }
 }

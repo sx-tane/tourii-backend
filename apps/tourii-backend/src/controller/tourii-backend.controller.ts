@@ -97,6 +97,10 @@ import {
     GroupMembersResponseSchema,
 } from './model/tourii-response/group-members-response.model';
 import {
+    LocationInfoResponseDto,
+    LocationInfoResponseSchema,
+} from './model/tourii-response/location-info-response.model';
+import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
 } from './model/tourii-response/model-route-response.model';
@@ -152,6 +156,7 @@ import {
     StartGroupQuestRequestDto,
     StartGroupQuestResponseDto,
     LocationQueryDto,
+    LocationInfoResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -1073,25 +1078,22 @@ export class TouriiBackendController {
     @ApiTags('Location')
     @ApiOperation({
         summary: 'Get Location Info',
-        description: 'Retrieve basic location details using Google Places.',
+        description: 'Retrieve basic location details with thumbnail images using Google Places.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Successfully retrieved location info',
-        schema: {
-            type: 'object',
-            properties: {
-                name: { type: 'string' },
-                formattedAddress: { type: 'string' },
-            },
-        },
+        description: 'Successfully retrieved location info with images',
+        type: LocationInfoResponseDto,
+        schema: zodToOpenAPI(LocationInfoResponseSchema),
     })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async getLocationInfo(@Query() queryParams: LocationQueryDto) {
+    async getLocationInfo(
+        @Query() queryParams: LocationQueryDto,
+    ): Promise<LocationInfoResponseDto> {
         return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }

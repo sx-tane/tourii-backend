@@ -4310,6 +4310,26 @@
                             "totalMagatamaPointAwarded": {
                               "description": "Total Magatama points awarded",
                               "type": "number"
+                            },
+                            "delFlag": {
+                              "description": "Flag to indicate if the record is deleted",
+                              "type": "boolean"
+                            },
+                            "insUserId": {
+                              "description": "ID of user who created this record",
+                              "type": "string"
+                            },
+                            "insDateTime": {
+                              "description": "Timestamp of record creation",
+                              "type": "string"
+                            },
+                            "updUserId": {
+                              "description": "ID of user who last updated this record",
+                              "type": "string"
+                            },
+                            "updDateTime": {
+                              "description": "Timestamp of last record update",
+                              "type": "string"
                             }
                           },
                           "required": [
@@ -4450,6 +4470,26 @@
                           "touristSpotLongitude",
                           "touristSpotHashtag"
                         ]
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -4706,6 +4746,26 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -4846,6 +4906,26 @@
                     "touristSpotLongitude",
                     "touristSpotHashtag"
                   ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -5250,6 +5330,26 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -5390,6 +5490,26 @@
                     "touristSpotLongitude",
                     "touristSpotHashtag"
                   ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -5676,6 +5796,26 @@
                 "totalMagatamaPointAwarded": {
                   "description": "Total Magatama points awarded",
                   "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -6145,6 +6285,26 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -6285,6 +6445,26 @@
                     "touristSpotLongitude",
                     "touristSpotHashtag"
                   ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -6578,6 +6758,26 @@
                 "totalMagatamaPointAwarded": {
                   "description": "Total Magatama points awarded",
                   "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -7549,7 +7749,7 @@
     },
     "/location-info": {
       "get": {
-        "description": "Retrieve basic location details using Google Places.",
+        "description": "Retrieve basic location details with thumbnail images using Google Places.",
         "operationId": "TouriiBackendController_getLocationInfo",
         "parameters": [
           {
@@ -7573,19 +7773,81 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved location info",
+            "description": "Successfully retrieved location info with images",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Location name from Google Places",
+                  "type": "string"
+                },
+                "formattedAddress": {
+                  "description": "Formatted address from Google Places",
+                  "type": "string"
+                },
+                "phoneNumber": {
+                  "description": "International phone number",
+                  "type": "string"
+                },
+                "website": {
+                  "description": "Website URL",
+                  "type": "string"
+                },
+                "rating": {
+                  "description": "Google Places rating (1-5 scale)",
+                  "type": "number"
+                },
+                "googleMapsUrl": {
+                  "description": "Direct Google Maps URL",
+                  "type": "string"
+                },
+                "openingHours": {
+                  "description": "Opening hours for each day of the week",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "images": {
+                  "description": "Thumbnail images of the location (up to 3 images, 400x400px)",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "description": "Direct URL to the image from Google Places Photos API",
+                        "type": "string"
+                      },
+                      "width": {
+                        "description": "Image width in pixels",
+                        "type": "number"
+                      },
+                      "height": {
+                        "description": "Image height in pixels",
+                        "type": "number"
+                      },
+                      "photoReference": {
+                        "description": "Google Places photo reference ID",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url",
+                      "width",
+                      "height",
+                      "photoReference"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "formattedAddress": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/LocationInfoResponseDto"
                 }
               }
             }
@@ -9528,6 +9790,26 @@
                       "totalMagatamaPointAwarded": {
                         "description": "Total Magatama points awarded",
                         "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -9668,6 +9950,26 @@
                     "touristSpotLongitude",
                     "touristSpotHashtag"
                   ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -9847,6 +10149,26 @@
                 "totalMagatamaPointAwarded": {
                   "description": "Total Magatama points awarded",
                   "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
                 }
               },
               "required": [
@@ -9987,6 +10309,26 @@
               "touristSpotLongitude",
               "touristSpotHashtag"
             ]
+          },
+          "delFlag": {
+            "description": "Flag to indicate if the record is deleted",
+            "type": "boolean"
+          },
+          "insUserId": {
+            "description": "ID of user who created this record",
+            "type": "string"
+          },
+          "insDateTime": {
+            "description": "Timestamp of record creation",
+            "type": "string"
+          },
+          "updUserId": {
+            "description": "ID of user who last updated this record",
+            "type": "string"
+          },
+          "updDateTime": {
+            "description": "Timestamp of last record update",
+            "type": "string"
           }
         },
         "required": [
@@ -10088,6 +10430,26 @@
           "totalMagatamaPointAwarded": {
             "description": "Total Magatama points awarded",
             "type": "number"
+          },
+          "delFlag": {
+            "description": "Flag to indicate if the record is deleted",
+            "type": "boolean"
+          },
+          "insUserId": {
+            "description": "ID of user who created this record",
+            "type": "string"
+          },
+          "insDateTime": {
+            "description": "Timestamp of record creation",
+            "type": "string"
+          },
+          "updUserId": {
+            "description": "ID of user who last updated this record",
+            "type": "string"
+          },
+          "updDateTime": {
+            "description": "Timestamp of last record update",
+            "type": "string"
           }
         },
         "required": [
@@ -10797,6 +11159,76 @@
         },
         "required": [
           "query"
+        ]
+      },
+      "LocationInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Location name from Google Places",
+            "type": "string"
+          },
+          "formattedAddress": {
+            "description": "Formatted address from Google Places",
+            "type": "string"
+          },
+          "phoneNumber": {
+            "description": "International phone number",
+            "type": "string"
+          },
+          "website": {
+            "description": "Website URL",
+            "type": "string"
+          },
+          "rating": {
+            "description": "Google Places rating (1-5 scale)",
+            "type": "number"
+          },
+          "googleMapsUrl": {
+            "description": "Direct Google Maps URL",
+            "type": "string"
+          },
+          "openingHours": {
+            "description": "Opening hours for each day of the week",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "images": {
+            "description": "Thumbnail images of the location (up to 3 images, 400x400px)",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "description": "Direct URL to the image from Google Places Photos API",
+                  "type": "string"
+                },
+                "width": {
+                  "description": "Image width in pixels",
+                  "type": "number"
+                },
+                "height": {
+                  "description": "Image height in pixels",
+                  "type": "number"
+                },
+                "photoReference": {
+                  "description": "Google Places photo reference ID",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url",
+                "width",
+                "height",
+                "photoReference"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
         ]
       }
     }

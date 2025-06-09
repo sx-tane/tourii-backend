@@ -18,6 +18,7 @@ export const TaskResponseSchema = z.object({
     antiCheatRules: z.any().describe('Rules to prevent cheating'),
     magatamaPointAwarded: z.number().describe('Magatama points awarded for this task'),
     totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
+    ...MetadataFieldsSchema,
 });
 
 export const QuestResponseSchema = z.object({
@@ -33,6 +34,7 @@ export const QuestResponseSchema = z.object({
     touristSpot: TouristSpotResponseSchema.optional().describe(
         'Tourist spot associated with this quest',
     ),
+    ...MetadataFieldsSchema,
 });
 
 export class TaskResponseDto extends createZodDto(TaskResponseSchema) {}

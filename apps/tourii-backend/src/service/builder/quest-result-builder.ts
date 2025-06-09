@@ -27,6 +27,11 @@ export class QuestResultBuilder {
                 isPremium: quest.isPremium ?? false,
                 totalMagatamaPointAwarded: quest.totalMagatamaPointAwarded ?? 0,
                 tasks: quest.tasks?.map((task) => QuestResultBuilder.taskToDto(task)),
+                delFlag: quest.delFlag ?? false,
+                insUserId: quest.insUserId ?? '',
+                insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(quest.insDateTime) ?? '',
+                updUserId: quest.updUserId,
+                updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(quest.updDateTime) ?? '',
                 touristSpot: quest.touristSpot
                     ? QuestResultBuilder.touristSpotToDto(quest.touristSpot)
                     : undefined,
@@ -53,6 +58,11 @@ export class QuestResultBuilder {
             touristSpot: quest.touristSpot
                 ? QuestResultBuilder.touristSpotToDto(quest.touristSpot)
                 : undefined,
+            delFlag: quest.delFlag ?? false,
+            insUserId: quest.insUserId ?? '',
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(quest.insDateTime) ?? '',
+            updUserId: quest.updUserId,
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(quest.updDateTime) ?? '',
         };
     }
 
@@ -71,6 +81,11 @@ export class QuestResultBuilder {
             antiCheatRules: task.antiCheatRules,
             magatamaPointAwarded: task.magatamaPointAwarded,
             totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+            delFlag: task.delFlag ?? false,
+            insUserId: task.insUserId ?? '',
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(task.insDateTime) ?? '',
+            updUserId: task.updUserId,
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(task.updDateTime) ?? '',
         };
     }
 
