@@ -13,9 +13,7 @@
             "entryFile": "main",
             "sourceRoot": "apps/tourii-backend/src",
             "compilerOptions": {
-                "tsConfigPath": "apps/tourii-backend/tsconfig.app.json",
-                "webpack": true,
-                "webpackConfigPath": "apps/tourii-backend/webpack.config.js"
+                "tsConfigPath": "apps/tourii-backend/tsconfig.app.json"
             }
         },
         "tourii-onchain": {
