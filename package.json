@@ -25,12 +25,6 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/apps/tourii-backend/main",
         "test": "pnpm run prisma:migrate:test && jest",
-        "build:tourii-backend:vercel": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate --schema=./prisma/schema.prisma && nest build tourii-backend",
-        "prisma:db:seed": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db seed",
-        "prisma:generate": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma generate",
-        "prisma:migrate:dev:create-only": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --create-only",
-        "prisma:execute:db-scripts": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/common_setup.sql",
-        "prisma:migrate:dev": "prisma format && cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma migrate dev --schema=./prisma/schema.prisma",
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
         "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
@@ -48,11 +42,15 @@
         "seed": "ts-node prisma/seed.ts"
     },
     "lint-staged": {
-        "**/*": ["cspell --config cspell.config.json --no-must-find-files"],
+        "**/*": [
+            "cspell --config cspell.config.json --no-must-find-files"
+        ],
         "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
             "biome check --apply --no-errors-on-unmatched"
         ],
-        "*.{yaml,yml,md,d.ts}": ["prettier --write"],
+        "*.{yaml,yml,md,d.ts}": [
+            "prettier --write"
+        ],
         "project-words.txt": [
             "sed -i '/^$/d' project-words.txt",
             "env LC_ALL=C sort -u -o project-words.txt"
@@ -68,8 +66,10 @@
         "@nestjs/config": "^4.0.2",
         "@nestjs/core": "^10.4.15",
         "@nestjs/platform-express": "^10.4.15",
+        "@nestjs/platform-socket.io": "^10.4.15",
         "@nestjs/swagger": "^8.1.0",
         "@nestjs/throttler": "^6.4.0",
+        "@nestjs/websockets": "^10.4.15",
         "@polkadot/api": "13.2.1",
         "@polkadot/util": "13.3.1",
         "@prisma/client": "^6.5.0",
@@ -101,6 +101,7 @@
         "sails-js-parser": "0.3.1",
         "sailscalls": "Vara-Lab/SailsCalls#types-test",
         "semver": "^7.5.4",
+        "socket.io": "^4.8.1",
         "ts-node": "^10.9.2",
         "uuid": "^11.1.0",
         "winston": "^3.17.0",
@@ -147,11 +148,14 @@
         "supertest": "^7.1.0",
         "ts-loader": "^9.5.1",
         "tsconfig-paths": "4.2.0",
-        "typescript": "5.8.3",
-        "webpack-node-externals": "^3.0.0"
+        "typescript": "^5.1.3"
     },
     "jest": {
-        "moduleFileExtensions": ["js", "json", "ts"],
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
         "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
@@ -176,11 +180,14 @@
                 }
             ]
         },
-        "collectCoverageFrom": ["**/*.(t|j)s"],
-        "coverageDirectory": "./coverage",
-        "testEnvironment": "node",
+        "collectCoverageFrom": [
+            "**/*.(t|j)s"
+        ],
         "maxWorkers": 1,
-        "roots": ["<rootDir>/libs/", "<rootDir>/apps/"],
+        "roots": [
+            "<rootDir>/libs/",
+            "<rootDir>/apps/"
+        ],
         "moduleNameMapper": {
             "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
             "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
@@ -189,7 +196,8 @@
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
-        "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
-    },
-    "packageManager": "pnpm@9.15.5"
+        "setupFiles": [
+            "<rootDir>/apps/tourii-backend/test/dotenv/config.ts"
+        ]
+    }
 }

@@ -1,5 +1,5 @@
 # compiled output
-/dist  <- commented out to include dist in git for Vercel deployment
+dist/apps/tourii-backend/
 /node_modules
 
 # Logs

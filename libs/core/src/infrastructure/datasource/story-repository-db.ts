@@ -33,8 +33,8 @@ export class StoryRepositoryDb implements StoryRepository {
             },
         });
 
-        // Invalidate the cache using the CachingService
-        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
 
         return StoryMapper.prismaModelToStoryEntity(createdStoryDb);
     }
@@ -66,7 +66,8 @@ export class StoryRepositoryDb implements StoryRepository {
             data: StoryMapper.storyEntityToPrismaUpdateInput(story),
             include: { story_chapter: true },
         });
-        await this.cachingService.invalidate(ALL_STORIES_CACHE_KEY);
+        // Clear all cache to ensure updates are reflected
+        await this.cachingService.clearAll();
         return StoryMapper.prismaModelToStoryEntity(updated);
     }
 
@@ -216,5 +217,24 @@ export class StoryRepositoryDb implements StoryRepository {
 
         // Return the array of proper StoryChapter instances
         return storyChapterInstances;
+    }
+
+    async deleteStory(storyId: string): Promise<boolean> {
+        await this.prisma.$transaction([
+            this.prisma.story_chapter.deleteMany({ where: { story_id: storyId } }),
+            this.prisma.story.delete({ where: { story_id: storyId } }),
+        ]);
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
+        return true;
+    }
+
+    async deleteStoryChapter(chapterId: string): Promise<boolean> {
+        await this.prisma.story_chapter.delete({
+            where: { story_chapter_id: chapterId },
+        });
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
+        return true;
     }
 }
