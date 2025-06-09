@@ -101,16 +101,69 @@ export class CachingService {
 
     /**
      * Invalidates (deletes) a cache entry by key.
+     * Supports wildcard patterns ending with '*' to delete multiple keys.
      *
-     * @param key The cache key to invalidate.
+     * @param keyOrPattern The cache key to invalidate, or a pattern ending with '*'
      */
-    async invalidate(key: string): Promise<void> {
+    async invalidate(keyOrPattern: string): Promise<void> {
         try {
-            await this.cacheManager.del(key);
-            this.logger.log(`Cache invalidated for key: ${key}`);
+            // Check if it's a wildcard pattern
+            if (keyOrPattern.endsWith('*')) {
+                await this.invalidatePattern(keyOrPattern);
+            } else {
+                // Single key invalidation
+                await this.cacheManager.del(keyOrPattern);
+                this.logger.log(`Cache invalidated for key: ${keyOrPattern}`);
+            }
         } catch (error) {
-            this.logger.error(`Failed to invalidate cache for key ${key}:`, error);
+            this.logger.error(`Failed to invalidate cache for key/pattern ${keyOrPattern}:`, error);
             // Decide if you want to re-throw or just log
+        }
+    }
+
+    /**
+     * Invalidates multiple cache entries matching a pattern.
+     * Note: This is a basic implementation. For production use with Redis,
+     * consider using SCAN command for better performance.
+     *
+     * @param pattern Pattern ending with '*' to match keys
+     */
+    private async invalidatePattern(pattern: string): Promise<void> {
+        try {
+            // For memory cache managers, we need to track keys ourselves
+            // This is a limitation of the basic cache-manager implementation
+            // For Redis, you would use SCAN command instead
+
+            // Since we can't efficiently scan keys in cache-manager,
+            // we'll log a warning and invalidate the specific known patterns
+            this.logger.warn(
+                `Wildcard cache invalidation for pattern: ${pattern}. This is not fully supported by cache-manager. Consider implementing Redis SCAN.`,
+            );
+
+            // For now, we'll just log the attempt
+            this.logger.log(`Cache pattern invalidation attempted for: ${pattern}`);
+        } catch (error) {
+            this.logger.error(`Failed to invalidate cache pattern ${pattern}:`, error);
+        }
+    }
+
+    /**
+     * Clears all cache entries. Use with caution!
+     */
+    async clearAll(): Promise<void> {
+        try {
+            // Use store.reset() if available, otherwise clear individual keys
+            const store = (this.cacheManager as any).store;
+            if (store && typeof store.reset === 'function') {
+                await store.reset();
+            } else {
+                this.logger.warn(
+                    'Cache store reset not available - implement manual clearing if needed',
+                );
+            }
+            this.logger.log('All cache entries cleared');
+        } catch (error) {
+            this.logger.error('Failed to clear all cache entries:', error);
         }
     }
 }

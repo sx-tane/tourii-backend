@@ -1,5 +1,5 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
@@ -34,6 +34,14 @@ import {
     ModelRouteCreateRequestSchema,
 } from './model/tourii-request/create/model-route-create-request.model';
 import {
+    QuestCreateRequestDto,
+    QuestCreateRequestSchema,
+} from './model/tourii-request/create/quest-create-request.model';
+import {
+    QuestTaskCreateRequestDto,
+    QuestTaskCreateRequestSchema,
+} from './model/tourii-request/create/quest-task-create-request.model';
+import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
@@ -41,6 +49,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -50,6 +59,10 @@ import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
+import {
+    ModelRouteUpdateRequestDto,
+    ModelRouteUpdateRequestSchema,
+} from './model/tourii-request/update/model-route-update-request.model';
 import {
     QuestTaskUpdateRequestDto,
     QuestTaskUpdateRequestSchema,
@@ -62,7 +75,15 @@ import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+import {
+    TouristSpotUpdateRequestDto,
+    TouristSpotUpdateRequestSchema,
+} from './model/tourii-request/update/tourist-spot-update-request.model';
 
+import {
+    StartGroupQuestRequestDto,
+    StartGroupQuestRequestSchema,
+} from './model/tourii-request/update/start-group-quest-request.model';
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -71,6 +92,10 @@ import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
 } from './model/tourii-response/chapter-story-response.model';
+import {
+    GroupMembersResponseDto,
+    GroupMembersResponseSchema,
+} from './model/tourii-response/group-members-response.model';
 import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
@@ -85,6 +110,10 @@ import {
     TaskResponseDto,
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
+import {
+    StartGroupQuestResponseDto,
+    StartGroupQuestResponseSchema,
+} from './model/tourii-response/start-group-quest-response.model';
 import {
     StoryResponseDto,
     StoryResponseSchema,
@@ -102,6 +131,8 @@ import {
     TouristSpotCreateRequestDto,
     StoryUpdateRequestDto,
     StoryChapterUpdateRequestDto,
+    ModelRouteUpdateRequestDto,
+    TouristSpotUpdateRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
     ModelRouteResponseDto,
@@ -110,9 +141,17 @@ import {
     QuestListResponseDto,
     QuestResponseDto,
     TaskResponseDto,
+    QuestCreateRequestDto,
+    QuestTaskCreateRequestDto,
+    QuestUpdateRequestDto,
+    QuestTaskUpdateRequestDto,
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
+    GroupMembersResponseDto,
+    StartGroupQuestRequestDto,
+    StartGroupQuestResponseDto,
+    LocationQueryDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -296,6 +335,32 @@ export class TouriiBackendController {
         return await this.touriiBackendService.updateStoryChapter(chapter);
     }
 
+    @Delete('/stories/:storyId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story', description: 'Delete a story saga.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStory(@Param('storyId') storyId: string): Promise<void> {
+        await this.touriiBackendService.deleteStory(storyId);
+    }
+
+    @Delete('/stories/chapters/:chapterId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story Chapter', description: 'Delete a story chapter.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story chapter deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStoryChapter(@Param('chapterId') chapterId: string): Promise<void> {
+        await this.touriiBackendService.deleteStoryChapter(chapterId);
+    }
+
     @Get('/stories/sagas')
     @ApiTags('Stories')
     @ApiOperation({
@@ -456,6 +521,107 @@ export class TouriiBackendController {
         touristSpot: TouristSpotCreateRequestDto,
     ): Promise<TouristSpotResponseDto> {
         return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
+    }
+
+    @Post('/routes/update-model-route')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Update Model Route', description: 'Update an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Model Route update request',
+        schema: zodToOpenAPI(ModelRouteUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateModelRoute(
+        @Body() modelRoute: ModelRouteUpdateRequestDto,
+    ): Promise<ModelRouteResponseDto> {
+        return await this.touriiBackendService.updateModelRoute(modelRoute);
+    }
+
+    @Post('/routes/update-tourist-spot')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Update Tourist Spot',
+        description: 'Update an existing tourist spot.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Tourist Spot update request',
+        schema: zodToOpenAPI(TouristSpotUpdateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateTouristSpot(
+        @Body() touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        return await this.touriiBackendService.updateTouristSpot(touristSpot);
+    }
+
+    @Delete('/routes/:modelRouteId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Model Route', description: 'Delete an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Model route deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteModelRoute(@Param('modelRouteId') modelRouteId: string): Promise<void> {
+        await this.touriiBackendService.deleteModelRoute(modelRouteId);
+    }
+
+    @Delete('/routes/tourist-spot/:touristSpotId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Tourist Spot', description: 'Delete a tourist spot.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Tourist spot deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteTouristSpot(@Param('touristSpotId') touristSpotId: string): Promise<void> {
+        await this.touriiBackendService.deleteTouristSpot(touristSpotId);
+    }
+
+    @Get('/routes/tourist-spots/:storyChapterId')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Tourist Spots by Story Chapter',
+        description: 'Retrieve tourist spot information linked to a story chapter.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved tourist spots',
+        type: TouristSpotResponseDto,
+        isArray: true,
+        schema: { type: 'array', items: zodToOpenAPI(TouristSpotResponseSchema) },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getTouristSpotsByChapterId(
+        @Param('storyChapterId') storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
     }
 
     @Post('/user')
@@ -675,6 +841,53 @@ export class TouriiBackendController {
         return await this.touriiBackendService.getQuestById(questId);
     }
 
+    @Post('/quests/create-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest create request',
+        schema: zodToOpenAPI(QuestCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuest(@Body() quest: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.createQuest(quest);
+    }
+
+    @Post('/quests/create-task/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest task create request',
+        schema: zodToOpenAPI(QuestTaskCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest task',
+        type: TaskResponseDto,
+        schema: zodToOpenAPI(TaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuestTask(
+        @Param('questId') questId: string,
+        @Body() task: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.createQuestTask(questId, task);
+    }
+
     @Post('/quests/update-quest')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
@@ -717,6 +930,81 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
         return await this.touriiBackendService.updateQuestTask(task);
+    }
+
+    @Delete('/quests/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest', description: 'Delete a quest and its tasks.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuest(@Param('questId') questId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuest(questId);
+    }
+
+    @Delete('/quests/tasks/:taskId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest Task', description: 'Delete an individual quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest task deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuestTask(@Param('taskId') taskId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuestTask(taskId);
+    }
+
+    @Get('/quests/:questId/group/members')
+    @ApiTags('Group Quest')
+    @ApiOperation({
+        summary: 'Get Group Members',
+        description: 'Return current members of the group quest.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Member list',
+        type: GroupMembersResponseDto,
+        schema: zodToOpenAPI(GroupMembersResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getGroupMembers(@Param('questId') questId: string): Promise<GroupMembersResponseDto> {
+        return this.touriiBackendService.getGroupMembers(questId);
+    }
+
+    @Post('/quests/:questId/group/start')
+    @ApiTags('Group Quest')
+    @ApiOperation({
+        summary: 'Start Group Quest',
+        description: 'Leader starts the quest for all members.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Start group quest request',
+        schema: zodToOpenAPI(StartGroupQuestRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Group quest started',
+        type: StartGroupQuestResponseDto,
+        schema: zodToOpenAPI(StartGroupQuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async startGroupQuest(
+        @Param('questId') questId: string,
+        @Body() body: StartGroupQuestRequestDto,
+    ): Promise<StartGroupQuestResponseDto> {
+        return this.touriiBackendService.startGroupQuest(questId, body.userId);
     }
 
     @Get('/routes')
@@ -779,5 +1067,31 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
+    }
+
+    @Get('/location-info')
+    @ApiTags('Location')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info',
+        schema: {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                formattedAddress: { type: 'string' },
+            },
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(@Query() queryParams: LocationQueryDto) {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }

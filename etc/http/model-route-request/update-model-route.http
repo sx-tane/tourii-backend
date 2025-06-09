@@ -1,0 +1,54 @@
+POST http://localhost:4000/routes/update-model-route
+Content-Type: application/json
+x-api-key: your-api-key-2
+accept-version: 1.0.0
+
+{
+    "modelRouteId": "MRT202506-2fd478-071420-09930a-EAAA",
+    "storyId": "STO202506-9a8ca7-071351-8f26d9-BAAA",
+    "routeName": "The Updated Sloth Route",
+    "region": "Bungo Ono City",
+    "regionDesc": "Updated description: Bungo Ono is a beautiful region in Oita Prefecture known for its stunning waterfalls, ancient shrines, and rich cultural heritage. Perfect for travelers seeking nature and spiritual experiences.",
+    "regionBackgroundMedia": "/image/world/Bungo-Ono-Updated.png",
+    "recommendation": [
+        "Perfect for Nature Lovers",
+        "Spiritual and Cultural Journey",
+        "Photography Enthusiasts",
+        "Local Cuisine Experience"
+    ],
+    "touristSpotList": [
+        {
+            "storyChapterId": "SCT202506-7053db-071351-6c7986-BAAA",
+            "touristSpotName": "Ninomiya Hachiman Shrine",
+            "touristSpotDesc": "An ancient shrine with over 800 years of history, established by the noble warrior Ogata No Saburo Koreyoshi. This sacred site offers a peaceful retreat and spiritual experience with beautiful traditional architecture.",
+            "bestVisitTime": "8:00 AM - 10:00 AM",
+            "touristSpotHashtag": ["#Shrine", "#SpiritualSite", "#History", "#Culture"],
+            "imageSet": {
+                "main": "/image/touriiverse/bungo-ono/ninomiya-main-updated.png",
+                "small": [
+                    "/image/model-route/1/ninomiya/updated-1.jpg",
+                    "/image/model-route/1/ninomiya/updated-2.jpg",
+                    "/image/model-route/1/ninomiya/updated-3.jpg",
+                    "/image/model-route/1/ninomiya/updated-4.jpg"
+                ]
+            }
+        },
+        {
+            "storyChapterId": "SCT202506-f1807f-071350-a2b305-BAAA",
+            "touristSpotName": "Harajiri Falls",
+            "touristSpotDesc": "A magnificent 20-meter waterfall known as the 'Niagara of Kyushu'. This spectacular natural wonder offers breathtaking views and is particularly beautiful during the rainy season and autumn.",
+            "bestVisitTime": "9:00 AM - 11:00 AM",
+            "touristSpotHashtag": ["#Waterfall", "#Nature", "#Photography", "#Scenic"],
+            "imageSet": {
+                "main": "/image/touriiverse/bungo-ono/harajiri-main.png",
+                "small": [
+                    "/image/model-route/1/harajiri/1.jpg",
+                    "/image/model-route/1/harajiri/2.jpg",
+                    "/image/model-route/1/harajiri/3.jpg"
+                ]
+            }
+        }
+    ],
+    "delFlag": false,
+    "updUserId": "admin"
+}

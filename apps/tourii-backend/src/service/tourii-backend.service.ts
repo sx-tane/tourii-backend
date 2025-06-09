@@ -2,6 +2,7 @@ import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repo
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
+import { GroupQuestRepository } from '@app/core/domain/game/quest/group-quest.repository';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
@@ -9,26 +10,32 @@ import type { StoryRepository } from '@app/core/domain/game/story/story.reposito
 import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
+import { LocationInfo } from '@app/core/domain/geo/location-info';
+import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
-import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { DigitalPassportMetadataRepository } from '@app/core/domain/passport/digital-passport-metadata.repository';
+import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType, StoryStatus } from '@prisma/client';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
+import { QuestStatus, QuestType, StoryStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
+import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
+import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-request/create/quest-task-create-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
+import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
+import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
@@ -39,14 +46,18 @@ import {
 } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
+import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
+import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
+import { QuestCreateRequestBuilder } from './builder/quest-create-request-builder';
 import { QuestResultBuilder } from './builder/quest-result-builder';
 import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builder';
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
+import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 
 @Injectable()
@@ -62,6 +73,8 @@ export class TouriiBackendService {
         private readonly geoInfoRepository: GeoInfoRepository,
         @Inject(TouriiBackendConstants.WEATHER_INFO_REPOSITORY_TOKEN)
         private readonly weatherInfoRepository: WeatherInfoRepository,
+        @Inject(TouriiBackendConstants.LOCATION_INFO_REPOSITORY_TOKEN)
+        private readonly locationInfoRepository: LocationInfoRepository,
         @Inject(TouriiBackendConstants.QUEST_REPOSITORY_TOKEN)
         private readonly questRepository: QuestRepository,
         @Inject(TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN)
@@ -72,6 +85,9 @@ export class TouriiBackendService {
         private readonly passportRepository: DigitalPassportRepository,
         @Inject(TouriiBackendConstants.DIGITAL_PASSPORT_METADATA_REPOSITORY_TOKEN)
         private readonly passportMetadataRepository: DigitalPassportMetadataRepository,
+        @Inject(TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN)
+        private readonly groupQuestRepository: GroupQuestRepository,
+        private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
     /**
@@ -164,20 +180,48 @@ export class TouriiBackendService {
      * @returns Model route response DTO
      */
     async createModelRoute(modelRoute: ModelRouteCreateRequestDto): Promise<ModelRouteResponseDto> {
-        // 1. Fetch dependencies
+        // 2. Standardize tourist spot names using Google Places API
+        const standardizedTouristSpots = await Promise.all(
+            modelRoute.touristSpotList.map(async (spot) => {
+                let standardizedSpotName = spot.touristSpotName;
+                try {
+                    const spotLocationInfo = await this.locationInfoRepository.getLocationInfo(
+                        spot.touristSpotName,
+                    );
+                    standardizedSpotName = spotLocationInfo.name;
+                    Logger.log(
+                        `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
+                    );
+                } catch (error) {
+                    Logger.warn(
+                        `Failed to get standardized name for spot "${spot.touristSpotName}": ${error}`,
+                    );
+                }
+                return { ...spot, touristSpotName: standardizedSpotName };
+            }),
+        );
+
+        // 3. Create modified model route DTO with standardized names
+        const modifiedModelRoute = {
+            ...modelRoute,
+            region: modelRoute.region,
+            touristSpotList: standardizedTouristSpots,
+        };
+
+        // 4. Fetch dependencies using standardized names
         const storyEntity = await this.storyRepository.getStoryById(modelRoute.storyId);
         const touristSpotGeoInfoList =
             await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
-                modelRoute.touristSpotList.map((spot) => spot.touristSpotName),
+                standardizedTouristSpots.map((spot) => spot.touristSpotName),
             );
         const regionInfo = await this.geoInfoRepository.getRegionInfoByRegionName(
             modelRoute.region,
         );
 
-        // 2. Create model route entity and save to database
+        // 5. Create model route entity and save to database
         const modelRouteEntity: ModelRouteEntity = await this.modelRouteRepository.createModelRoute(
             ModelRouteCreateRequestBuilder.dtoToModelRoute(
-                modelRoute,
+                modifiedModelRoute, // Use modified DTO with standardized names
                 storyEntity,
                 touristSpotGeoInfoList,
                 regionInfo,
@@ -185,14 +229,14 @@ export class TouriiBackendService {
             ),
         );
 
-        // 3. Fetch weather data
+        // 6. Fetch weather data
         const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
             this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(touristSpotGeoInfoList),
             this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]), // Fetch weather for region
         ]);
         const currentRegionWeatherInfo = currentRegionWeather[0]; // Expecting single result
 
-        // 4. Build response DTO
+        // 7. Build response DTO
         const modelRouteResponseDto: ModelRouteResponseDto =
             ModelRouteResultBuilder.modelRouteToDto(
                 modelRouteEntity,
@@ -200,7 +244,7 @@ export class TouriiBackendService {
                 currentRegionWeatherInfo,
             );
 
-        // 5. Update story chapters using the entity returned from the repository
+        // 8. Update story chapters using the entity returned from the repository
         const pairsToUpdate = modelRouteEntity.getValidChapterSpotPairs();
         if (pairsToUpdate.length > 0) {
             await this.updateStoryChaptersWithTouristSpotIds(pairsToUpdate);
@@ -211,7 +255,7 @@ export class TouriiBackendService {
 
     /**
      * Create tourist spot and add it to an existing model route
-     * @param touristSpot Tourist spot create request DTO
+     * @param touristSpotDto Tourist spot create request DTO
      * @param modelRouteId ID of the model route to add the spot to
      * @returns Tourist spot response DTO
      */
@@ -219,7 +263,24 @@ export class TouriiBackendService {
         touristSpotDto: TouristSpotCreateRequestDto,
         modelRouteId: string,
     ): Promise<TouristSpotResponseDto> {
-        // 1. Fetch parent model route (to get storyId and validate existence)
+        // 1. Fetch standardized place name from Google Places API
+        let standardizedSpotName = touristSpotDto.touristSpotName;
+        try {
+            const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                touristSpotDto.touristSpotName,
+            );
+            standardizedSpotName = locationInfo.name; // Use Google's standardized name
+            Logger.log(
+                `Using standardized name: "${standardizedSpotName}" instead of "${touristSpotDto.touristSpotName}"`,
+            );
+        } catch (error) {
+            // If Google Places lookup fails, log but continue with user-provided name
+            Logger.warn(
+                `Failed to get standardized name for "${touristSpotDto.touristSpotName}": ${error}`,
+            );
+        }
+
+        // 2. Fetch parent model route (to get storyId and validate existence)
         const modelRouteEntity: ModelRouteEntity =
             await this.modelRouteRepository.getModelRouteByModelRouteId(modelRouteId);
 
@@ -228,43 +289,44 @@ export class TouriiBackendService {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
 
-        // 2. Fetch necessary data using helpers
+        // 3. Fetch necessary data using helpers (using standardized name for geo lookup)
         const storyEntity = await this.storyRepository.getStoryById(modelRouteEntity.storyId);
         const [touristSpotGeoInfo] =
             await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
-                touristSpotDto.touristSpotName,
+                standardizedSpotName, // Use standardized name for geo lookup
             ]); // Expecting single result
 
-        // 3. Create tourist spot entity instance
+        // 4. Create tourist spot entity instance with standardized name
         //    Note: dtoToTouristSpot expects an array and returns an array, we take the first element.
+        const modifiedDto = { ...touristSpotDto, touristSpotName: standardizedSpotName };
         const touristSpotEntityInstance = ModelRouteCreateRequestBuilder.dtoToTouristSpot(
-            [touristSpotDto],
+            [modifiedDto],
             [touristSpotGeoInfo], // Pass the fetched geo info
             storyEntity,
             'admin', // Assuming 'admin' for insUserId
         )[0];
 
-        // 4. Add tourist spot to the model route via repository
+        // 5. Add tourist spot to the model route via repository
         const createdTouristSpotEntity: TouristSpot =
             await this.modelRouteRepository.createTouristSpot(
                 touristSpotEntityInstance,
                 modelRouteId,
             );
 
-        // 5. Fetch weather data for the new spot
+        // 6. Fetch weather data for the new spot
         const [currentTouristSpotWeatherInfo] =
             await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([
                 touristSpotGeoInfo, // Use the geo info fetched earlier
             ]);
 
-        // 6. Build response DTO
+        // 7. Build response DTO
         //    Note: touristSpotToDto might expect an array of weather info
         const touristSpotResponseDto: TouristSpotResponseDto =
             ModelRouteResultBuilder.touristSpotToDto(createdTouristSpotEntity, [
                 currentTouristSpotWeatherInfo,
             ]);
 
-        // 7. Update the corresponding story chapter if needed
+        // 8. Update the corresponding story chapter if needed
         if (createdTouristSpotEntity.touristSpotId && createdTouristSpotEntity.storyChapterId) {
             await this.updateStoryChaptersWithTouristSpotIds([
                 {
@@ -300,6 +362,26 @@ export class TouriiBackendService {
         return QuestResultBuilder.questToDto(quest);
     }
 
+    async createQuest(dto: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        const questEntity = QuestCreateRequestBuilder.dtoToQuest(dto, 'admin');
+        const created = await this.questRepository.createQuest(questEntity);
+        return QuestResultBuilder.questToDto(created);
+    }
+
+    async createQuestTask(
+        questId: string,
+        dto: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
+        const created = await this.questRepository.createQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(created);
+    }
+
+    /**
+     * Update quest
+     * @param quest Quest update request DTO
+     * @returns Quest response DTO
+     */
     async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
         const current = await this.questRepository.fetchQuestById(quest.questId);
         const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
@@ -331,6 +413,149 @@ export class TouriiBackendService {
         const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
         const updated = await this.questRepository.updateQuestTask(taskEntity);
         return QuestResultBuilder.taskToDto(updated);
+    }
+
+    async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
+        // 1. Standardize region name using Google Places API (if provided)
+        let standardizedRegionName = modelRoute.region;
+        if (modelRoute.region) {
+            try {
+                const regionLocationInfo = await this.locationInfoRepository.getLocationInfo(
+                    modelRoute.region,
+                );
+                standardizedRegionName = regionLocationInfo.name;
+                Logger.log(
+                    `Using standardized region name: "${standardizedRegionName}" instead of "${modelRoute.region}"`,
+                );
+            } catch (error) {
+                Logger.warn(
+                    `Failed to get standardized region name for "${modelRoute.region}": ${error}`,
+                );
+            }
+        }
+
+        // 2. Standardize tourist spot names using Google Places API (if provided)
+        let standardizedTouristSpots = modelRoute.touristSpotList;
+        if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
+            standardizedTouristSpots = await Promise.all(
+                modelRoute.touristSpotList.map(async (spot) => {
+                    let standardizedSpotName = spot.touristSpotName;
+                    if (spot.touristSpotName) {
+                        try {
+                            const spotLocationInfo =
+                                await this.locationInfoRepository.getLocationInfo(
+                                    spot.touristSpotName,
+                                );
+                            standardizedSpotName = spotLocationInfo.name;
+                            Logger.log(
+                                `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
+                            );
+                        } catch (error) {
+                            Logger.warn(
+                                `Failed to get standardized name for spot "${spot.touristSpotName}": ${error}`,
+                            );
+                        }
+                    }
+                    return { ...spot, touristSpotName: standardizedSpotName };
+                }),
+            );
+        }
+
+        // 3. Create modified model route DTO with standardized names
+        const modifiedModelRoute = {
+            ...modelRoute,
+            region: standardizedRegionName,
+            touristSpotList: standardizedTouristSpots,
+        };
+
+        // 4. Update model route with standardized names
+        const updated = await this.modelRouteRepository.updateModelRoute(
+            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modifiedModelRoute),
+        );
+        if (!updated.modelRouteId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+        return this.getModelRouteById(updated.modelRouteId);
+    }
+
+    async updateTouristSpot(
+        touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        // 1. Standardize tourist spot name using Google Places API (if provided)
+        let standardizedTouristSpot = touristSpot;
+        if (touristSpot.touristSpotName) {
+            let standardizedSpotName = touristSpot.touristSpotName;
+            try {
+                const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                    touristSpot.touristSpotName,
+                );
+                standardizedSpotName = locationInfo.name;
+                Logger.log(
+                    `Using standardized name: "${standardizedSpotName}" instead of "${touristSpot.touristSpotName}"`,
+                );
+            } catch (error) {
+                Logger.warn(
+                    `Failed to get standardized name for "${touristSpot.touristSpotName}": ${error}`,
+                );
+            }
+            standardizedTouristSpot = { ...touristSpot, touristSpotName: standardizedSpotName };
+        }
+
+        // 2. Update tourist spot with standardized name
+        const updated = await this.modelRouteRepository.updateTouristSpot(
+            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(standardizedTouristSpot),
+        );
+
+        if (updated.touristSpotId && updated.storyChapterId) {
+            await this.updateStoryChaptersWithTouristSpotIds([
+                {
+                    storyChapterId: updated.storyChapterId,
+                    touristSpotId: updated.touristSpotId,
+                },
+            ]);
+        }
+
+        // 3. Validate tourist spot name before proceeding with geo/weather lookups
+        if (!updated.touristSpotName || updated.touristSpotName.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Fetch geo information with proper error handling
+        let geoInfo: GeoInfo;
+        try {
+            const geoInfoList =
+                await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+                    updated.touristSpotName,
+                ]);
+
+            if (!geoInfoList || geoInfoList.length === 0) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+            }
+
+            geoInfo = geoInfoList[0];
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+        }
+
+        // Fetch weather information with proper error handling
+        let weatherInfo: WeatherInfo;
+        try {
+            const weatherInfoList = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                [geoInfo],
+            );
+
+            if (!weatherInfoList || weatherInfoList.length === 0) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+            }
+
+            weatherInfo = weatherInfoList[0];
+        } catch (error) {
+            if (error instanceof TouriiBackendAppException) throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_WEATHER_004);
+        }
+
+        return ModelRouteResultBuilder.touristSpotToDto(updated, [weatherInfo]);
     }
 
     /**
@@ -651,6 +876,29 @@ export class TouriiBackendService {
         );
     }
 
+    async getTouristSpotsByStoryChapterId(
+        storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        const spots =
+            await this.modelRouteRepository.getTouristSpotsByStoryChapterId(storyChapterId);
+
+        if (!spots || spots.length === 0) {
+            return [];
+        }
+
+        const geoInfos: GeoInfo[] = spots.map((spot) => ({
+            touristSpotName: spot.touristSpotName ?? '',
+            latitude: spot.latitude ?? 0,
+            longitude: spot.longitude ?? 0,
+            formattedAddress: spot.address ?? '',
+        }));
+
+        const weatherInfos =
+            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(geoInfos);
+
+        return spots.map((spot) => ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfos));
+    }
+
     async createUser(user: UserEntity) {
         // service logic
         // dto -> entity
@@ -692,10 +940,98 @@ export class TouriiBackendService {
         return user;
     }
 
-    // async getUserByUserId(userId: string) {
-    //   return this.userRepository.getUserInfoByUserId(userId);
-    // }
+    /**
+     * Get group members
+     * @param questId Quest ID
+     * @returns Group members
+     */
+    async getGroupMembers(questId: string) {
+        return this.groupQuestRepository.getGroupMembers(questId);
+    }
 
+    /**
+     * Start group quest
+     * @param questId Quest ID
+     * @param leaderId Leader ID
+     * @returns void
+     */
+    async startGroupQuest(questId: string, leaderId: string) {
+        // Validate input parameters
+        if (!leaderId || typeof leaderId !== 'string' || leaderId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        const group = await this.getGroupMembers(questId);
+
+        // Validate that the quest has a valid leader
+        if (!group.leaderUserId || group.leaderUserId.trim() === '') {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        // Authorization check - only the actual leader can start the quest
+        if (group.leaderUserId !== leaderId) {
+            Logger.warn(
+                `Unauthorized quest start attempt. Quest: ${questId}, Leader: ${group.leaderUserId}, Attempted by: ${leaderId}`,
+                'TouriiBackendService',
+            );
+            throw new ForbiddenException('Only leader can start the quest');
+        }
+
+        // Update member statuses if there are members
+        if (group.members.length > 0) {
+            await this.groupQuestRepository.updateMembersStatus(
+                questId,
+                group.members.map((m) => m.userId),
+                QuestStatus.ONGOING,
+            );
+        }
+
+        // Always broadcast quest started for consistency
+        this.groupQuestGateway.broadcastQuestStarted(questId);
+
+        return { message: 'Group quest started!' };
+    }
+
+    /**
+     * Get location info
+     * @param query Query string
+     * @returns Location info
+     */
+    async getLocationInfo(query: string): Promise<LocationInfo> {
+        return this.locationInfoRepository.getLocationInfo(query);
+    }
+
+    async deleteStory(storyId: string): Promise<void> {
+        await this.storyRepository.deleteStory(storyId);
+    }
+
+    async deleteStoryChapter(chapterId: string): Promise<void> {
+        await this.storyRepository.deleteStoryChapter(chapterId);
+    }
+
+    async deleteModelRoute(modelRouteId: string): Promise<void> {
+        await this.modelRouteRepository.deleteModelRoute(modelRouteId);
+    }
+
+    async deleteTouristSpot(touristSpotId: string): Promise<void> {
+        await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
+    }
+
+    async deleteQuest(questId: string): Promise<void> {
+        await this.questRepository.deleteQuest(questId);
+    }
+
+    async deleteQuestTask(taskId: string): Promise<void> {
+        await this.questRepository.deleteQuestTask(taskId);
+    }
+
+    /**
+     * Track chapter progress
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @param status Story status
+     * @returns void
+     */
     async trackChapterProgress(
         userId: string,
         chapterId: string,
@@ -703,8 +1039,6 @@ export class TouriiBackendService {
     ): Promise<void> {
         await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
     }
-
-    // --- Private Helper Methods ---
 
     /**
      * Update story chapters with tourist spot ids
