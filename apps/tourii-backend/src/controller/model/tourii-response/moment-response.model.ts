@@ -13,6 +13,11 @@ export const MomentResponseSchema = z
 
 export const MomentListResponseSchema = z.object({
     moments: z.array(MomentResponseSchema),
+    pagination: z.object({
+        currentPage: z.number().describe('Current page number'),
+        totalPages: z.number().describe('Total number of pages'),
+        totalItems: z.number().describe('Total number of items'),
+    }),
 });
 
 export class MomentResponseDto extends createZodDto(MomentResponseSchema) {}

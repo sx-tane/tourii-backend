@@ -71,136 +71,6 @@
         ]
       }
     },
-    "/moments": {
-      "get": {
-        "description": "Latest traveler moments",
-        "operationId": "TouriiBackendController_getMoments",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Items per page",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Page number",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Fetch moments successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "moments": {
-                  "type": "array",
-                  "items": {
-                    "description": "Traveler moment information",
-                    "type": "object",
-                    "properties": {
-                      "imageUrl": {
-                        "description": "URL of the moment image",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "username": {
-                        "description": "Traveler display name",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "description": {
-                        "description": "Short moment description",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "rewardText": {
-                        "description": "Text describing earned rewards",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "insDateTime": {
-                        "description": "Timestamp when the moment occurred"
-                      }
-                    },
-                    "required": [
-                      "insDateTime"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "moments"
-              ]
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MomentListResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "Get latest moments",
-        "tags": [
-          "Moment"
-        ]
-      }
-    },
     "/stories/create-saga": {
       "post": {
         "description": "Create a new story saga with optional chapters.",
@@ -7153,7 +7023,7 @@
         },
         "summary": "Get Group Members",
         "tags": [
-          "Group Quest"
+          "Quest"
         ]
       }
     },
@@ -7262,7 +7132,7 @@
         },
         "summary": "Start Group Quest",
         "tags": [
-          "Group Quest"
+          "Quest"
         ]
       }
     },
@@ -8017,7 +7887,160 @@
         },
         "summary": "Get Location Info",
         "tags": [
-          "Location"
+          "Routes"
+        ]
+      }
+    },
+    "/moments": {
+      "get": {
+        "description": "Latest traveler moments",
+        "operationId": "TouriiBackendController_getMoments",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetch moments successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "moments": {
+                  "type": "array",
+                  "items": {
+                    "description": "Traveler moment information",
+                    "type": "object",
+                    "properties": {
+                      "imageUrl": {
+                        "description": "URL of the moment image",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "username": {
+                        "description": "Traveler display name",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "description": {
+                        "description": "Short moment description",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "rewardText": {
+                        "description": "Text describing earned rewards",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp when the moment occurred"
+                      }
+                    },
+                    "required": [
+                      "insDateTime"
+                    ]
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    },
+                    "totalItems": {
+                      "description": "Total number of items",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "currentPage",
+                    "totalPages",
+                    "totalItems"
+                  ]
+                }
+              },
+              "required": [
+                "moments",
+                "pagination"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MomentListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get latest moments",
+        "tags": [
+          "Moment"
         ]
       }
     },
@@ -11408,10 +11431,33 @@
                 "insDateTime"
               ]
             }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "currentPage": {
+                "description": "Current page number",
+                "type": "number"
+              },
+              "totalPages": {
+                "description": "Total number of pages",
+                "type": "number"
+              },
+              "totalItems": {
+                "description": "Total number of items",
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentPage",
+              "totalPages",
+              "totalItems"
+            ]
           }
         },
         "required": [
-          "moments"
+          "moments",
+          "pagination"
         ]
       },
       "MomentResponseDto": {

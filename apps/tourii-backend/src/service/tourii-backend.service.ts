@@ -1,5 +1,5 @@
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
-import { MomentEntity } from '@app/core/domain/feed/moment.entity';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
@@ -40,6 +40,7 @@ import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
+import { MomentResponseDto } from '../controller/model/tourii-response/moment-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
     QuestResponseDto,
@@ -1042,9 +1043,16 @@ export class TouriiBackendService {
      * @param page page number (default: 1)
      * @param limit items per page (default: 10)
      */
-    async getLatestMoments(page = 1, limit = 10): Promise<MomentEntity[]> {
+    async getLatestMoments(
+        page = 1,
+        limit = 10,
+        momentType?: MomentType,
+    ): Promise<MomentResponseDto[]> {
         const offset = (page - 1) * limit;
-        return this.momentRepository.getLatest(limit, offset);
+        const moments = await this.momentRepository.getLatest(limit, offset, momentType);
+        const totalItems = moments.length;
+        const totalPages = Math.ceil(totalItems / limit);
+        return { moments, pagination: { currentPage: page, totalPages, totalItems } };
     }
 
     /**
