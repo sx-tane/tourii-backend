@@ -1,5 +1,7 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
     ApiExtraModels,
@@ -34,6 +36,14 @@ import {
     ModelRouteCreateRequestSchema,
 } from './model/tourii-request/create/model-route-create-request.model';
 import {
+    QuestCreateRequestDto,
+    QuestCreateRequestSchema,
+} from './model/tourii-request/create/quest-create-request.model';
+import {
+    QuestTaskCreateRequestDto,
+    QuestTaskCreateRequestSchema,
+} from './model/tourii-request/create/quest-task-create-request.model';
+import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
@@ -41,6 +51,7 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -50,6 +61,10 @@ import {
     StoryChapterUpdateRequestDto,
     StoryChapterUpdateRequestSchema,
 } from './model/tourii-request/update/chapter-story-update-request.model';
+import {
+    ModelRouteUpdateRequestDto,
+    ModelRouteUpdateRequestSchema,
+} from './model/tourii-request/update/model-route-update-request.model';
 import {
     QuestTaskUpdateRequestDto,
     QuestTaskUpdateRequestSchema,
@@ -62,7 +77,16 @@ import {
     StoryUpdateRequestDto,
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
+import {
+    TouristSpotUpdateRequestDto,
+    TouristSpotUpdateRequestSchema,
+} from './model/tourii-request/update/tourist-spot-update-request.model';
 
+import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
+import {
+    StartGroupQuestRequestDto,
+    StartGroupQuestRequestSchema,
+} from './model/tourii-request/update/start-group-quest-request.model';
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -72,9 +96,22 @@ import {
     StoryChapterResponseSchema,
 } from './model/tourii-response/chapter-story-response.model';
 import {
+    GroupMembersResponseDto,
+    GroupMembersResponseSchema,
+} from './model/tourii-response/group-members-response.model';
+import {
+    LocationInfoResponseDto,
+    LocationInfoResponseSchema,
+} from './model/tourii-response/location-info-response.model';
+import {
     ModelRouteResponseDto,
     ModelRouteResponseSchema,
 } from './model/tourii-response/model-route-response.model';
+import {
+    MomentListResponseDto,
+    MomentListResponseSchema,
+    MomentResponseDto,
+} from './model/tourii-response/moment-response.model';
 import {
     QuestListResponseDto,
     QuestListResponseSchema,
@@ -86,6 +123,10 @@ import {
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
+    StartGroupQuestResponseDto,
+    StartGroupQuestResponseSchema,
+} from './model/tourii-response/start-group-quest-response.model';
+import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
@@ -93,6 +134,12 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
+import {
+    UserResponseDto,
+    UserResponseSchema,
+    UserSensitiveInfoResponseDto,
+    UserSensitiveInfoResponseSchema,
+} from './model/tourii-response/user/user-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -102,6 +149,8 @@ import {
     TouristSpotCreateRequestDto,
     StoryUpdateRequestDto,
     StoryChapterUpdateRequestDto,
+    ModelRouteUpdateRequestDto,
+    TouristSpotUpdateRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
     ModelRouteResponseDto,
@@ -110,12 +159,28 @@ import {
     QuestListResponseDto,
     QuestResponseDto,
     TaskResponseDto,
+    QuestCreateRequestDto,
+    QuestTaskCreateRequestDto,
+    QuestUpdateRequestDto,
+    QuestTaskUpdateRequestDto,
     LoginRequestDto,
     AuthSignupRequestDto,
     AuthSignupResponseDto,
+    GroupMembersResponseDto,
+    StartGroupQuestRequestDto,
+    StartGroupQuestResponseDto,
+    LocationQueryDto,
+    LocationInfoResponseDto,
+    MomentListResponseDto,
+    MomentResponseDto,
+    UserResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
+
+    // ==========================================
+    // HELPER ENDPOINTS
+    // ==========================================
 
     @Get('/health-check')
     @ApiTags('Health Check')
@@ -147,6 +212,152 @@ export class TouriiBackendController {
     checkHealth(): string {
         return 'OK';
     }
+
+    // ==========================================
+    // USER & AUTH ENDPOINTS
+    // ==========================================
+
+    @Get('/user/sensitive-info')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Get user sensitive info',
+        description: 'Get user sensitive info',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: 200,
+        description: 'User sensitive info',
+        type: UserSensitiveInfoResponseDto,
+        schema: zodToOpenAPI(UserSensitiveInfoResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getUserSensitiveInfo(@Req() req: Request): Promise<UserSensitiveInfoResponseDto> {
+        //TODO: add more auth check
+        return this.touriiBackendService.getUserSensitiveInfo(req.headers['x-user-id'] as string);
+    }
+
+    @Post('/user')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Create User',
+        description: 'Create a new user in the system.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({
+        description: 'User creation request',
+        type: UserEntity,
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'User created successfully',
+        type: UserEntity,
+    })
+    @ApiUserExistsResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    createUser(@Body() user: UserEntity): Promise<UserEntity> {
+        return this.touriiBackendService.createUser(user);
+    }
+
+    @Post('/login')
+    @ApiTags('Auth')
+    @ApiOperation({
+        summary: 'User Login',
+        description:
+            'Login using username or other identifiers with optional wallet/social checks.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({ description: 'Login request', type: LoginRequestDto })
+    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
+    @ApiUserNotFoundResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
+        return this.touriiBackendService.loginUser(login);
+    }
+
+    @Post('/auth/signup')
+    @ApiTags('Auth')
+    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiBody({
+        description: 'Signup info',
+        type: AuthSignupRequestDto,
+        schema: zodToOpenAPI(AuthSignupRequestSchema),
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Signup success',
+        type: AuthSignupResponseDto,
+        schema: zodToOpenAPI(AuthSignupResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
+    async signup(
+        @Body() dto: AuthSignupRequestDto,
+        @Req() req: Request,
+    ): Promise<AuthSignupResponseDto> {
+        return this.touriiBackendService.signupUser(
+            dto.email,
+            dto.socialProvider,
+            dto.socialId,
+            req.ip ?? '',
+        );
+    }
+
+    @Get('/user/me')
+    @ApiTags('User')
+    @ApiOperation({ summary: "Get current user's basic profile" })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    // TODO: Replace header-based userId retrieval with proper auth guard
+    @ApiResponse({
+        status: 200,
+        description: 'Current user basic profile',
+        type: UserResponseDto,
+        schema: zodToOpenAPI(UserResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserNotFoundResponse()
+    async me(@Req() req: Request): Promise<UserResponseDto> {
+        const userId = req.headers['x-user-id'] as string; // TODO: extract from auth token
+
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        return this.touriiBackendService.getUserProfile(userId);
+    }
+
+    // ==========================================
+    // STORY ENDPOINTS
+    // ==========================================
 
     @Post('/stories/create-saga')
     @ApiTags('Stories')
@@ -296,6 +507,32 @@ export class TouriiBackendController {
         return await this.touriiBackendService.updateStoryChapter(chapter);
     }
 
+    @Delete('/stories/:storyId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story', description: 'Delete a story saga.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStory(@Param('storyId') storyId: string): Promise<void> {
+        await this.touriiBackendService.deleteStory(storyId);
+    }
+
+    @Delete('/stories/chapters/:chapterId')
+    @ApiTags('Stories')
+    @ApiOperation({ summary: 'Delete Story Chapter', description: 'Delete a story chapter.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Story chapter deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteStoryChapter(@Param('chapterId') chapterId: string): Promise<void> {
+        await this.touriiBackendService.deleteStoryChapter(chapterId);
+    }
+
     @Get('/stories/sagas')
     @ApiTags('Stories')
     @ApiOperation({
@@ -384,6 +621,10 @@ export class TouriiBackendController {
         return { success: true };
     }
 
+    // ==========================================
+    // MODEL ROUTE ENDPOINTS
+    // ==========================================
+
     @Post('/routes/create-model-route')
     @ApiTags('Routes')
     @ApiOperation({
@@ -458,124 +699,110 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
     }
 
-    @Post('/user')
-    @ApiTags('User')
-    @ApiOperation({
-        summary: 'Create User',
-        description: 'Create a new user in the system.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
+    @Post('/routes/update-model-route')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Update Model Route', description: 'Update an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiBody({
-        description: 'User creation request',
-        type: UserEntity,
+        description: 'Model Route update request',
+        schema: zodToOpenAPI(ModelRouteUpdateRequestSchema),
     })
     @ApiResponse({
-        status: 201,
-        description: 'User created successfully',
-        type: UserEntity,
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
     })
-    @ApiUserExistsResponse()
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    createUser(@Body() user: UserEntity): Promise<UserEntity> {
-        return this.touriiBackendService.createUser(user);
+    async updateModelRoute(
+        @Body() modelRoute: ModelRouteUpdateRequestDto,
+    ): Promise<ModelRouteResponseDto> {
+        return await this.touriiBackendService.updateModelRoute(modelRoute);
     }
 
-    @Post('/login')
-    @ApiTags('Auth')
+    @Post('/routes/update-tourist-spot')
+    @ApiTags('Routes')
     @ApiOperation({
-        summary: 'User Login',
-        description:
-            'Login using username or other identifiers with optional wallet/social checks.',
+        summary: 'Update Tourist Spot',
+        description: 'Update an existing tourist spot.',
     })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiBody({ description: 'Login request', type: LoginRequestDto })
-    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
-    @ApiUserNotFoundResponse()
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
-        return this.touriiBackendService.loginUser(login);
-    }
-    @Post('/auth/signup')
-    @ApiTags('Auth')
-    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiBody({
-        description: 'Signup info',
-        type: AuthSignupRequestDto,
-        schema: zodToOpenAPI(AuthSignupRequestSchema),
+        description: 'Tourist Spot update request',
+        schema: zodToOpenAPI(TouristSpotUpdateRequestSchema),
     })
     @ApiResponse({
-        status: 201,
-        description: 'Signup success',
-        type: AuthSignupResponseDto,
-        schema: zodToOpenAPI(AuthSignupResponseSchema),
+        status: HttpStatus.CREATED,
+        description: 'Successfully updated tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
     })
-    @ApiDefaultBadRequestResponse()
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
-    @ApiUserExistsResponse()
-    async signup(
-        @Body() dto: AuthSignupRequestDto,
-        @Req() req: Request,
-    ): Promise<AuthSignupResponseDto> {
-        return this.touriiBackendService.signupUser(
-            dto.email,
-            dto.socialProvider,
-            dto.socialId,
-            req.ip ?? '',
-        );
+    @ApiDefaultBadRequestResponse()
+    async updateTouristSpot(
+        @Body() touristSpot: TouristSpotUpdateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        return await this.touriiBackendService.updateTouristSpot(touristSpot);
     }
 
-    @Get('/:userId/user')
-    @ApiTags('User')
-    @ApiOperation({
-        summary: 'Get User by ID',
-        description: 'Retrieve user information by their user ID.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiResponse({
-        status: 201,
-        description: 'User found successfully',
-        type: UserEntity,
-    })
-    @ApiUserNotFoundResponse()
+    @Delete('/routes/:modelRouteId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Model Route', description: 'Delete an existing model route.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Model route deleted' })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async getUserByUserId(_userId: string): Promise<UserEntity | undefined> {
-        // return await this.touriiBackendService.getUserByUserId(userId);
-        return undefined;
+    async deleteModelRoute(@Param('modelRouteId') modelRouteId: string): Promise<void> {
+        await this.touriiBackendService.deleteModelRoute(modelRouteId);
     }
+
+    @Delete('/routes/tourist-spot/:touristSpotId')
+    @ApiTags('Routes')
+    @ApiOperation({ summary: 'Delete Tourist Spot', description: 'Delete a tourist spot.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Tourist spot deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteTouristSpot(@Param('touristSpotId') touristSpotId: string): Promise<void> {
+        await this.touriiBackendService.deleteTouristSpot(touristSpotId);
+    }
+
+    @Get('/routes/tourist-spots/:storyChapterId')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Tourist Spots by Story Chapter',
+        description: 'Retrieve tourist spot information linked to a story chapter.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved tourist spots',
+        type: TouristSpotResponseDto,
+        isArray: true,
+        schema: { type: 'array', items: zodToOpenAPI(TouristSpotResponseSchema) },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getTouristSpotsByChapterId(
+        @Param('storyChapterId') storyChapterId: string,
+    ): Promise<TouristSpotResponseDto[]> {
+        return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
+    }
+
+    // ==========================================
+    // QUEST ENDPOINTS
+    // ==========================================
 
     @Get('/quests')
     @ApiTags('Quest')
@@ -690,6 +917,53 @@ export class TouriiBackendController {
         return await this.touriiBackendService.getQuestById(questId, userId);
     }
 
+    @Post('/quests/create-quest')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest create request',
+        schema: zodToOpenAPI(QuestCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest',
+        type: QuestResponseDto,
+        schema: zodToOpenAPI(QuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuest(@Body() quest: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        return await this.touriiBackendService.createQuest(quest);
+    }
+
+    @Post('/quests/create-task/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Quest task create request',
+        schema: zodToOpenAPI(QuestTaskCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created quest task',
+        type: TaskResponseDto,
+        schema: zodToOpenAPI(TaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createQuestTask(
+        @Param('questId') questId: string,
+        @Body() task: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        return await this.touriiBackendService.createQuestTask(questId, task);
+    }
+
     @Post('/quests/update-quest')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
@@ -732,6 +1006,81 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async updateQuestTask(@Body() task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
         return await this.touriiBackendService.updateQuestTask(task);
+    }
+
+    @Delete('/quests/:questId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest', description: 'Delete a quest and its tasks.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuest(@Param('questId') questId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuest(questId);
+    }
+
+    @Delete('/quests/tasks/:taskId')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Delete Quest Task', description: 'Delete an individual quest task.' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Quest task deleted' })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async deleteQuestTask(@Param('taskId') taskId: string): Promise<void> {
+        await this.touriiBackendService.deleteQuestTask(taskId);
+    }
+
+    @Get('/quests/:questId/group/members')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Get Group Members',
+        description: 'Return current members of the group quest.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Member list',
+        type: GroupMembersResponseDto,
+        schema: zodToOpenAPI(GroupMembersResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getGroupMembers(@Param('questId') questId: string): Promise<GroupMembersResponseDto> {
+        return this.touriiBackendService.getGroupMembers(questId);
+    }
+
+    @Post('/quests/:questId/group/start')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Start Group Quest',
+        description: 'Leader starts the quest for all members.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Start group quest request',
+        schema: zodToOpenAPI(StartGroupQuestRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Group quest started',
+        type: StartGroupQuestResponseDto,
+        schema: zodToOpenAPI(StartGroupQuestResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async startGroupQuest(
+        @Param('questId') questId: string,
+        @Body() body: StartGroupQuestRequestDto,
+    ): Promise<StartGroupQuestResponseDto> {
+        return this.touriiBackendService.startGroupQuest(questId, body.userId);
     }
 
     @Get('/routes')
@@ -794,5 +1143,52 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
+    }
+
+    @Get('/location-info')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details with thumbnail images using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info with images',
+        type: LocationInfoResponseDto,
+        schema: zodToOpenAPI(LocationInfoResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(
+        @Query() queryParams: LocationQueryDto,
+    ): Promise<LocationInfoResponseDto> {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
+    }
+
+    @Get('/moments')
+    @ApiTags('Moment')
+    @ApiOperation({ summary: 'Get latest moments', description: 'Latest traveler moments' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Fetch moments successfully',
+        type: MomentListResponseDto,
+        schema: zodToOpenAPI(MomentListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
+        return await this.touriiBackendService.getLatestMoments(
+            Number(query.page),
+            Number(query.limit),
+            query.momentType,
+        );
     }
 }

@@ -18,6 +18,29 @@ export interface ModelRouteRepository {
     createTouristSpot(touristSpot: TouristSpot, modelRouteId: string): Promise<TouristSpot>;
 
     /**
+     * Update model route
+     * @param modelRoute Updated model route entity
+     * @returns ModelRouteEntity
+     */
+    updateModelRoute(modelRoute: ModelRouteEntity): Promise<ModelRouteEntity>;
+
+    /**
+     * Update tourist spot
+     * @param touristSpot Updated tourist spot entity
+     * @returns TouristSpot
+     */
+    updateTouristSpot(touristSpot: TouristSpot): Promise<TouristSpot>;
+
+    /**
+     * Get tourist spots by story chapter id
+     * @param storyChapterId story chapter identifier
+     * @returns list of TouristSpot entities
+     */
+    getTouristSpotsByStoryChapterId(
+        storyChapterId: string,
+    ): Promise<TouristSpot[]>;
+
+    /**
      * Get model route by model route id
      * @param modelRouteId
      * @returns ModelRouteEntity
@@ -29,4 +52,16 @@ export interface ModelRouteRepository {
      * @returns ModelRouteEntity[]
      */
     getModelRoutes(): Promise<ModelRouteEntity[]>;
+
+    /**
+     * Delete model route and its tourist spots
+     * @param modelRouteId Model route ID
+     */
+    deleteModelRoute(modelRouteId: string): Promise<boolean>;
+
+    /**
+     * Delete tourist spot
+     * @param touristSpotId Tourist spot ID
+     */
+    deleteTouristSpot(touristSpotId: string): Promise<boolean>;
 }

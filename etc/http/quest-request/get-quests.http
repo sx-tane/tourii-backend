@@ -1,4 +1,3 @@
-curl --location 'localhost:4000/quests/QST202505-1cfc35-241541-fd2c4d-CAAA' \
---header 'X-API-KEY: your-api-key-1' \
---header 'accept-version: 1.0.0' \
---data ''
+GET http://localhost:4000/quests/QST202505-1cfc35-241541-fd2c4d-CAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0

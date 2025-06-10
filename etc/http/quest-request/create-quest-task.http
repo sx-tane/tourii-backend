@@ -1,0 +1,28 @@
+POST http://localhost:4000/quests/create-task/QST202506-aeee89-082115-bb0191-BAAA
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+{
+    "taskTheme": "NATURE",
+    "taskType": "PHOTO_UPLOAD",
+    "taskName": "Capture the Rainbow in the Mist",
+    "taskDesc": "Take a photograph of the rainbow that forms in the mist of Harajiri Falls. The best time to see this natural phenomenon is between 10:00 AM and 2:00 PM on sunny days. Stand at the main observation deck and look for the rainbow in the waterfall's spray.",
+    "isUnlocked": true,
+    "requiredAction": "Upload a photo showing the rainbow in the waterfall mist",
+    "groupActivityMembers": [],
+    "selectOptions": [],
+    "antiCheatRules": {
+        "gpsRequired": true,
+        "radiusMeters": 50,
+        "timeWindowHours": 24,
+        "photoValidation": {
+            "required": true,
+            "minResolution": "1080x720",
+            "geotagRequired": true
+        }
+    },
+    "magatamaPointAwarded": 50,
+    "totalMagatamaPointAwarded": 50,
+    "delFlag": false
+} 

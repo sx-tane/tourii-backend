@@ -61,4 +61,18 @@ export interface StoryRepository {
      * @returns StoryEntity
      */
     getStoryById(storyId: string): Promise<StoryEntity>;
+
+    /**
+     * Delete story and its chapters
+     * @param storyId Story ID to delete
+     * @returns boolean
+     */
+    deleteStory(storyId: string): Promise<boolean>;
+
+    /**
+     * Delete a single story chapter
+     * @param chapterId Chapter ID to delete
+     * @returns boolean
+     */
+    deleteStoryChapter(chapterId: string): Promise<boolean>;
 }

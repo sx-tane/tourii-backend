@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  // previewFeatures = ["views"]
+  provider        = "prisma-client-js"
+  // output   = "../node_modules/.prisma/client"
+  previewFeatures = ["views"]
 }
 
 generator markdown {
@@ -2403,3 +2404,17 @@ model kendama_random_range {
 //   /// Uniqueness constraint for deduplication
 //   @@unique([user_id, type, related_id, created_at])
 // }
+
+/// Moment feed view aggregating recent user activities
+view moment_view {
+  id            String   @id
+  user_id       String
+  username      String?
+  image_url     String?
+  description   String?
+  reward_text   String?
+  ins_date_time DateTime
+  moment_type   String
+
+  @@map("moment_view")
+}

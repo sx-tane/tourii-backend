@@ -1,6 +1,6 @@
+import { QuestType, RewardType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { QuestType, RewardType } from '@prisma/client';
 import { QuestTaskUpdateRequestSchema } from './quest-task-update-request.model';
 
 export const QuestUpdateRequestSchema = z.object({

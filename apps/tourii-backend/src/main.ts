@@ -1,15 +1,21 @@
 import fs from 'node:fs';
-import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
-import { getEnv } from '@app/core/utils/env-utils';
+import { TouriiCoreLoggingService, getEnv } from '@app/core';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
 import { patchNestJsSwagger } from 'nestjs-zod';
 import { TouriiBackendModule } from './tourii-backend.module';
 
-async function bootstrap() {
-    const app = await NestFactory.create(TouriiBackendModule, {
+let app: NestExpressApplication;
+
+async function createApp(): Promise<NestExpressApplication> {
+    if (app) {
+        return app;
+    }
+
+    app = await NestFactory.create<NestExpressApplication>(TouriiBackendModule, {
         logger: new TouriiCoreLoggingService('debug'),
     });
 
@@ -25,6 +31,9 @@ async function bootstrap() {
             extended: true,
         }),
     );
+
+    // Enable CORS for Vercel
+    app.enableCors();
 
     if (
         getEnv({
@@ -45,14 +54,44 @@ async function bootstrap() {
                 autoTagControllers: false,
             });
 
-        fs.writeFileSync('./etc/openapi/openapi.json', JSON.stringify(documentFactory(), null, 2));
+        // Only write file in local development, not in serverless
+        if (getEnv({ key: 'NODE_ENV', defaultValue: 'dev' }) !== 'production') {
+            try {
+                fs.writeFileSync(
+                    './etc/openapi/openapi.json',
+                    JSON.stringify(documentFactory(), null, 2),
+                );
+            } catch (error) {
+                console.warn('Could not write OpenAPI JSON file:', error);
+            }
+        }
         SwaggerModule.setup('api/docs', app, documentFactory);
     }
 
+    await app.init();
+    return app;
+}
+
+// For local development
+async function bootstrap() {
+    const nestApp = await createApp();
     const port = getEnv({
         key: 'TOURII_BACKEND_PORT',
         defaultValue: '3000',
     });
-    await app.listen(port);
+    await nestApp.listen(port);
+    const logger = new TouriiCoreLoggingService('bootstrap');
+    logger.log(`🚀 Tourii Backend running on port ${port}`);
 }
-bootstrap();
+
+// Export for Vercel serverless
+export default async (req: any, res: any) => {
+    const nestApp = await createApp();
+    const expressInstance = nestApp.getHttpAdapter().getInstance();
+    return expressInstance(req, res);
+};
+
+// Start the app locally if not in serverless environment
+if (require.main === module) {
+    bootstrap();
+}

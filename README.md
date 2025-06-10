@@ -98,7 +98,8 @@ tourii-backend/
 ```bash
 pnpm install
 cp .env.example .env
-pnpm prisma migrate dev
+pnpm run prisma:migrate:dev
+pnpm run prisma:db:execute
 pnpm start:dev
 ```
 

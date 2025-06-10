@@ -1,8 +1,8 @@
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
 import { ContextStorage } from '@app/core/support/context/context-storage';
-import type { QuestUpdateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/update/quest-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/update/quest-task-update-request.model';
+import type { QuestUpdateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/update/quest-update-request.model';
 
 export class QuestUpdateRequestBuilder {
     static dtoToQuest(dto: QuestUpdateRequestDto, base: QuestEntity): QuestEntity {

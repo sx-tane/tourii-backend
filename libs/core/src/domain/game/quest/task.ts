@@ -1,4 +1,5 @@
 import { TaskTheme, TaskType } from '@prisma/client';
+import { JsonValue } from '@prisma/client/runtime/library';
 
 export interface TaskProps {
     taskId: string;
@@ -9,9 +10,9 @@ export interface TaskProps {
     taskDesc: string;
     isUnlocked: boolean;
     requiredAction: string;
-    groupActivityMembers?: any[];
-    selectOptions?: any[];
-    antiCheatRules: any;
+    groupActivityMembers?: string[];
+    selectOptions?: string[];
+    antiCheatRules: JsonValue;
     magatamaPointAwarded: number;
     totalMagatamaPointAwarded: number;
     delFlag: boolean;
@@ -62,15 +63,15 @@ export class Task {
         return this.props.requiredAction;
     }
 
-    get groupActivityMembers(): any[] | undefined {
+    get groupActivityMembers(): string[] | undefined {
         return this.props.groupActivityMembers;
     }
 
-    get selectOptions(): any[] | undefined {
+    get selectOptions(): string[] | undefined {
         return this.props.selectOptions;
     }
 
-    get antiCheatRules(): any {
+    get antiCheatRules(): JsonValue {
         return this.props.antiCheatRules;
     }
 

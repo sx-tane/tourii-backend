@@ -181,6 +181,7 @@ WEATHER_ENABLE_FUZZY_LOOKUP=true  # Enable fuzzy name matching for weather looku
 
 # Google Maps API Configuration
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+GOOGLE_PLACES_API_KEY=your_google_places_api_key
 GEO_API_TIMEOUT=5000          # API timeout in milliseconds (default: 5 seconds)
 ```
 

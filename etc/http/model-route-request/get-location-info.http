@@ -1,0 +1,4 @@
+GET http://localhost:4000/location-info?query=EiffelTower
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 

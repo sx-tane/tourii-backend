@@ -130,6 +130,26 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(questDb, completedTasks);
     }
 
+    async createQuest(quest: QuestEntity): Promise<QuestEntity> {
+        const created = (await this.prisma.quest.create({
+            data: QuestMapper.questEntityToPrismaInput(quest),
+            include: { quest_task: true, tourist_spot: true },
+        })) as QuestWithTasks;
+
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
+        return QuestMapper.prismaModelToQuestEntity(created);
+    }
+
+    async createQuestTask(task: Task): Promise<Task> {
+        const created = await this.prisma.quest_task.create({
+            data: QuestMapper.taskEntityToPrismaInput(task),
+        });
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
+        return QuestMapper.prismaTaskModelToTaskEntity(created);
+    }
+
     async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
         const updated = (await this.prisma.quest.update({
             where: { quest_id: quest.questId },
@@ -137,7 +157,8 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         })) as QuestWithTasks;
 
-        await this.cachingService.invalidate('quests:*');
+        // Clear all quest-related cache entries
+        await this.cachingService.clearAll();
         return QuestMapper.prismaModelToQuestEntity(updated);
     }
 
@@ -147,6 +168,25 @@ export class QuestRepositoryDb implements QuestRepository {
             data: QuestMapper.taskEntityToPrismaUpdateInput(task),
         });
 
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
         return QuestMapper.prismaTaskModelToTaskEntity(updated);
+    }
+
+    async deleteQuest(questId: string): Promise<boolean> {
+        await this.prisma.$transaction([
+            this.prisma.quest_task.deleteMany({ where: { quest_id: questId } }),
+            this.prisma.quest.delete({ where: { quest_id: questId } }),
+        ]);
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
+        return true;
+    }
+
+    async deleteQuestTask(taskId: string): Promise<boolean> {
+        await this.prisma.quest_task.delete({ where: { quest_task_id: taskId } });
+        // Clear all cache to ensure consistency
+        await this.cachingService.clearAll();
+        return true;
     }
 }
