@@ -1,4 +1,6 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
@@ -126,6 +128,12 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
+import {
+    UserResponseDto,
+    UserResponseSchema,
+    UserSensitiveInfoResponseDto,
+    UserSensitiveInfoResponseSchema,
+} from './model/tourii-response/user/user-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -157,9 +165,14 @@ import {
     StartGroupQuestResponseDto,
     LocationQueryDto,
     LocationInfoResponseDto,
+    UserResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
+
+    // ==========================================
+    // HELPER ENDPOINTS
+    // ==========================================
 
     @Get('/health-check')
     @ApiTags('Health Check')
@@ -191,6 +204,175 @@ export class TouriiBackendController {
     checkHealth(): string {
         return 'OK';
     }
+
+    @Get('/location-info')
+    @ApiTags('Location')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details with thumbnail images using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info with images',
+        type: LocationInfoResponseDto,
+        schema: zodToOpenAPI(LocationInfoResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(
+        @Query() queryParams: LocationQueryDto,
+    ): Promise<LocationInfoResponseDto> {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
+    }
+
+    // ==========================================
+    // USER & AUTH ENDPOINTS
+    // ==========================================
+
+    @Get('/user/sensitive-info')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Get user sensitive info',
+        description: 'Get user sensitive info',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: 200,
+        description: 'User sensitive info',
+        type: UserSensitiveInfoResponseDto,
+        schema: zodToOpenAPI(UserSensitiveInfoResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getUserSensitiveInfo(@Req() req: Request): Promise<UserSensitiveInfoResponseDto> {
+        //TODO: add more auth check
+        return this.touriiBackendService.getUserSensitiveInfo(req.headers['x-user-id'] as string);
+    }
+
+    @Post('/user')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Create User',
+        description: 'Create a new user in the system.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({
+        description: 'User creation request',
+        type: UserEntity,
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'User created successfully',
+        type: UserEntity,
+    })
+    @ApiUserExistsResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    createUser(@Body() user: UserEntity): Promise<UserEntity> {
+        return this.touriiBackendService.createUser(user);
+    }
+
+    @Post('/login')
+    @ApiTags('Auth')
+    @ApiOperation({
+        summary: 'User Login',
+        description:
+            'Login using username or other identifiers with optional wallet/social checks.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({ description: 'Login request', type: LoginRequestDto })
+    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
+    @ApiUserNotFoundResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
+        return this.touriiBackendService.loginUser(login);
+    }
+
+    @Post('/auth/signup')
+    @ApiTags('Auth')
+    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiBody({
+        description: 'Signup info',
+        type: AuthSignupRequestDto,
+        schema: zodToOpenAPI(AuthSignupRequestSchema),
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Signup success',
+        type: AuthSignupResponseDto,
+        schema: zodToOpenAPI(AuthSignupResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
+    async signup(
+        @Body() dto: AuthSignupRequestDto,
+        @Req() req: Request,
+    ): Promise<AuthSignupResponseDto> {
+        return this.touriiBackendService.signupUser(
+            dto.email,
+            dto.socialProvider,
+            dto.socialId,
+            req.ip ?? '',
+        );
+    }
+
+    @Get('/user/me')
+    @ApiTags('User')
+    @ApiOperation({ summary: "Get current user's basic profile" })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    // TODO: Replace header-based userId retrieval with proper auth guard
+    @ApiResponse({
+        status: 200,
+        description: 'Current user basic profile',
+        type: UserResponseDto,
+        schema: zodToOpenAPI(UserResponseSchema),
+    })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserNotFoundResponse()
+    async me(@Req() req: Request): Promise<UserResponseDto> {
+        const userId = req.headers['x-user-id'] as string; // TODO: extract from auth token
+
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        return this.touriiBackendService.getUserProfile(userId);
+    }
+
+    // ==========================================
+    // STORY ENDPOINTS
+    // ==========================================
 
     @Post('/stories/create-saga')
     @ApiTags('Stories')
@@ -454,6 +636,10 @@ export class TouriiBackendController {
         return { success: true };
     }
 
+    // ==========================================
+    // MODEL ROUTE ENDPOINTS
+    // ==========================================
+
     @Post('/routes/create-model-route')
     @ApiTags('Routes')
     @ApiOperation({
@@ -629,124 +815,9 @@ export class TouriiBackendController {
         return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
     }
 
-    @Post('/user')
-    @ApiTags('User')
-    @ApiOperation({
-        summary: 'Create User',
-        description: 'Create a new user in the system.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiBody({
-        description: 'User creation request',
-        type: UserEntity,
-    })
-    @ApiResponse({
-        status: 201,
-        description: 'User created successfully',
-        type: UserEntity,
-    })
-    @ApiUserExistsResponse()
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    createUser(@Body() user: UserEntity): Promise<UserEntity> {
-        return this.touriiBackendService.createUser(user);
-    }
-
-    @Post('/login')
-    @ApiTags('Auth')
-    @ApiOperation({
-        summary: 'User Login',
-        description:
-            'Login using username or other identifiers with optional wallet/social checks.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiBody({ description: 'Login request', type: LoginRequestDto })
-    @ApiResponse({ status: 201, description: 'Login successful', type: UserEntity })
-    @ApiUserNotFoundResponse()
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    login(@Body() login: LoginRequestDto): Promise<UserEntity> {
-        return this.touriiBackendService.loginUser(login);
-    }
-    @Post('/auth/signup')
-    @ApiTags('Auth')
-    @ApiOperation({ summary: 'User signup with wallet' })
-    @ApiBody({
-        description: 'Signup info',
-        type: AuthSignupRequestDto,
-        schema: zodToOpenAPI(AuthSignupRequestSchema),
-    })
-    @ApiResponse({
-        status: 201,
-        description: 'Signup success',
-        type: AuthSignupResponseDto,
-        schema: zodToOpenAPI(AuthSignupResponseSchema),
-    })
-    @ApiDefaultBadRequestResponse()
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiUserExistsResponse()
-    async signup(
-        @Body() dto: AuthSignupRequestDto,
-        @Req() req: Request,
-    ): Promise<AuthSignupResponseDto> {
-        return this.touriiBackendService.signupUser(
-            dto.email,
-            dto.socialProvider,
-            dto.socialId,
-            req.ip ?? '',
-        );
-    }
-
-    @Get('/:userId/user')
-    @ApiTags('User')
-    @ApiOperation({
-        summary: 'Get User by ID',
-        description: 'Retrieve user information by their user ID.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiResponse({
-        status: 201,
-        description: 'User found successfully',
-        type: UserEntity,
-    })
-    @ApiUserNotFoundResponse()
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getUserByUserId(_userId: string): Promise<UserEntity | undefined> {
-        // return await this.touriiBackendService.getUserByUserId(userId);
-        return undefined;
-    }
+    // ==========================================
+    // QUEST ENDPOINTS
+    // ==========================================
 
     @Get('/quests')
     @ApiTags('Quest')
@@ -1072,28 +1143,5 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
         return this.touriiBackendService.getModelRouteById(id);
-    }
-
-    @Get('/location-info')
-    @ApiTags('Location')
-    @ApiOperation({
-        summary: 'Get Location Info',
-        description: 'Retrieve basic location details with thumbnail images using Google Places.',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Successfully retrieved location info with images',
-        type: LocationInfoResponseDto,
-        schema: zodToOpenAPI(LocationInfoResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getLocationInfo(
-        @Query() queryParams: LocationQueryDto,
-    ): Promise<LocationInfoResponseDto> {
-        return this.touriiBackendService.getLocationInfo(queryParams.query);
     }
 }

@@ -22,9 +22,9 @@ export class StoryResultBuilder {
             isUnlocked: storyChapter.isUnlocked ?? false,
             delFlag: storyChapter.delFlag ?? false,
             insUserId: storyChapter.insUserId ?? '',
-            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.insDateTime) ?? '',
-            updUserId: storyChapter.updUserId,
-            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.updDateTime) ?? '',
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.insDateTime),
+            updUserId: storyChapter.updUserId ?? '',
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.updDateTime),
         };
     }
 
@@ -45,9 +45,9 @@ export class StoryResultBuilder {
                 ) ?? undefined,
             delFlag: story.delFlag ?? false,
             insUserId: story.insUserId ?? '',
-            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime) ?? '',
-            updUserId: story.updUserId,
-            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.updDateTime) ?? '',
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime),
+            updUserId: story.updUserId ?? '',
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.updDateTime),
         };
     }
 }
