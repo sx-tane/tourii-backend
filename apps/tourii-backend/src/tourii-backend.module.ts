@@ -9,6 +9,7 @@ import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-rep
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { GroupQuestRepositoryDb } from '@app/core/infrastructure/datasource/group-quest.repository-db';
+import { MomentRepositoryDb } from '@app/core/infrastructure/datasource/moment.repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -102,6 +103,10 @@ import { GroupQuestGateway } from './group-quest/group-quest.gateway';
         {
             provide: TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN,
             useClass: GroupQuestRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN,
+            useClass: MomentRepositoryDb,
         },
         HttpAdapterHost, // HTTP adapter
         CachingService,

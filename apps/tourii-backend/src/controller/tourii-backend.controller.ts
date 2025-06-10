@@ -51,6 +51,7 @@ import {
 } from './model/tourii-request/create/tourist-spot-create-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
+import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
 import {
     ChapterProgressRequestDto,
     ChapterProgressRequestSchema,
@@ -126,6 +127,12 @@ import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
+import {
+    MomentListResponseDto,
+    MomentListResponseSchema,
+    MomentResponseDto,
+    MomentResponseSchema,
+} from './model/tourii-response/moment-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -157,6 +164,8 @@ import {
     StartGroupQuestResponseDto,
     LocationQueryDto,
     LocationInfoResponseDto,
+    MomentListResponseDto,
+    MomentResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -190,6 +199,38 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     checkHealth(): string {
         return 'OK';
+    }
+
+    @Get('/moments')
+    @ApiTags('Moment')
+    @ApiOperation({ summary: 'Get latest moments', description: 'Latest traveler moments' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Fetch moments successfully',
+        type: MomentListResponseDto,
+        schema: zodToOpenAPI(MomentListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
+        const { page, limit } = query;
+        const entities = await this.touriiBackendService.getLatestMoments(
+            Number(page),
+            Number(limit),
+        );
+        const moments = entities.map((m) => ({
+            imageUrl: m.imageUrl,
+            username: m.username,
+            description: m.description,
+            rewardText: m.rewardText,
+            insDateTime: m.insDateTime,
+        }));
+        return { moments } as MomentListResponseDto;
     }
 
     @Post('/stories/create-saga')

@@ -16,6 +16,9 @@ import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.reposit
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
+import { MomentRepository } from '@app/core/domain/feed/moment.repository';
+import { MomentEntity } from '@app/core/domain/feed/moment.entity';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -85,6 +88,8 @@ export class TouriiBackendService {
         private readonly passportRepository: DigitalPassportRepository,
         @Inject(TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN)
         private readonly groupQuestRepository: GroupQuestRepository,
+        @Inject(TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN)
+        private readonly momentRepository: MomentRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -1028,6 +1033,35 @@ export class TouriiBackendService {
         status: StoryStatus,
     ): Promise<void> {
         await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
+    }
+
+    /**
+     * Retrieve a page of the most recent traveler activity moments.
+     * Moments are aggregated from quests, stories, travels, item claims,
+     * and invites using the `moment_view` database view.
+     *
+     * @param page page number (default: 1)
+     * @param limit items per page (default: 10)
+     */
+    async getLatestMoments(page = 1, limit = 10): Promise<MomentEntity[]> {
+        const offset = (page - 1) * limit;
+        const moments = await this.momentRepository.getLatest(limit, offset);
+
+        // Post-processing based on moment type. Some view fields can be null
+        // or need custom text (e.g., invite events have no image). The mapping
+        // here keeps the repository free of presentation logic.
+        return moments.map((m) => {
+            switch (m.momentType) {
+                case MomentType.INVITE:
+                    return new MomentEntity({
+                        ...m,
+                        imageUrl: null,
+                        description: 'Invited a friend',
+                    });
+                default:
+                    return m;
+            }
+        });
     }
 
     /**

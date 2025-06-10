@@ -24,10 +24,12 @@
         "start:dev:tourii-onchain": "nest start --watch tourii-onchain",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/apps/tourii-backend/main",
-        "test": "pnpm run prisma:migrate:test && jest",
+        "test": "pnpm run prisma:migrate:test && dotenv -e .env.test -- pnpm run prisma:db:execute && jest",
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
         "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
+        "prisma:migrate:dev": "cross-env MIGRATION_URL=$npm_package_config_databaseurl npx prisma migrate dev --schema=./prisma/schema.prisma",
+        "prisma:db:execute": "npx prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/moment_view.sql",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -42,15 +44,11 @@
         "seed": "ts-node prisma/seed.ts"
     },
     "lint-staged": {
-        "**/*": [
-            "cspell --config cspell.config.json --no-must-find-files"
-        ],
+        "**/*": ["cspell --config cspell.config.json --no-must-find-files"],
         "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
             "biome check --apply --no-errors-on-unmatched"
         ],
-        "*.{yaml,yml,md,d.ts}": [
-            "prettier --write"
-        ],
+        "*.{yaml,yml,md,d.ts}": ["prettier --write"],
         "project-words.txt": [
             "sed -i '/^$/d' project-words.txt",
             "env LC_ALL=C sort -u -o project-words.txt"
@@ -152,11 +150,7 @@
         "typescript": "^5.1.3"
     },
     "jest": {
-        "moduleFileExtensions": [
-            "js",
-            "json",
-            "ts"
-        ],
+        "moduleFileExtensions": ["js", "json", "ts"],
         "rootDir": ".",
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
@@ -181,14 +175,9 @@
                 }
             ]
         },
-        "collectCoverageFrom": [
-            "**/*.(t|j)s"
-        ],
+        "collectCoverageFrom": ["**/*.(t|j)s"],
         "maxWorkers": 1,
-        "roots": [
-            "<rootDir>/libs/",
-            "<rootDir>/apps/"
-        ],
+        "roots": ["<rootDir>/libs/", "<rootDir>/apps/"],
         "moduleNameMapper": {
             "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
             "^@app/core-test(|/.*)$": "<rootDir>/libs/core/test/$1",
@@ -197,8 +186,6 @@
             "^@app/tourii-onchain(|/.*)$": "<rootDir>/apps/tourii-onchain/src/$1",
             "^@app/tourii-onchain-test(|/.*)$": "<rootDir>/apps/tourii-onchain/test/$1"
         },
-        "setupFiles": [
-            "<rootDir>/apps/tourii-backend/test/dotenv/config.ts"
-        ]
+        "setupFiles": ["<rootDir>/apps/tourii-backend/test/dotenv/config.ts"]
     }
 }
