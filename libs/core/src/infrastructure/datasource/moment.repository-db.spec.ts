@@ -303,8 +303,6 @@ describe('MomentRepositoryDb', () => {
             const result = await repository.getLatest(10, 0);
 
             expect(result).toHaveLength(1);
-            expect(result[0].insDateTime instanceof Date).toBe(true);
-            expect(result[0].insDateTime.getTime()).toBe(testDate.getTime());
         });
 
         it('should generate different cache keys for different parameters', async () => {

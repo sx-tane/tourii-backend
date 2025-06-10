@@ -41,15 +41,18 @@ export class MomentRepositoryDb implements MomentRepository {
 
         // Define the function to fetch data from the database
         const fetchDataFn = async (): Promise<{ data: MomentViewPlain[]; totalItems: number }> => {
+            // Build where clause conditionally - only filter by moment_type if it's defined
+            const whereClause = momentType ? { moment_type: momentType } : {};
+
             const [data, totalItems] = await Promise.all([
                 this.prisma.moment_view.findMany({
                     take: limit,
                     skip: offset,
                     orderBy: { ins_date_time: 'desc' },
-                    where: { moment_type: momentType },
+                    where: whereClause,
                 }),
                 this.prisma.moment_view.count({
-                    where: { moment_type: momentType },
+                    where: whereClause,
                 }),
             ]);
 
