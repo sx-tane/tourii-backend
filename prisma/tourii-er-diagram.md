@@ -605,6 +605,18 @@ EVENT EVENT
     String request_id "❓"
     }
   
+
+  "moment_view" {
+    String id "🗝️"
+    String user_id 
+    String username "❓"
+    String image_url "❓"
+    String description "❓"
+    String reward_text "❓"
+    DateTime ins_date_time 
+    String moment_type 
+    }
+  
     "user" o|--|| "UserRoleType" : "enum:role"
     "user" o{--}o "user_achievement" : "user_achievements"
     "user" o{--}o "user_info" : "user_info"

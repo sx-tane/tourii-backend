@@ -71,145 +71,6 @@
         ]
       }
     },
-    "/location-info": {
-      "get": {
-        "description": "Retrieve basic location details with thumbnail images using Google Places.",
-        "operationId": "TouriiBackendController_getLocationInfo",
-        "parameters": [
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved location info with images",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "description": "Location name from Google Places",
-                  "type": "string"
-                },
-                "formattedAddress": {
-                  "description": "Formatted address from Google Places",
-                  "type": "string"
-                },
-                "phoneNumber": {
-                  "description": "International phone number",
-                  "type": "string"
-                },
-                "website": {
-                  "description": "Website URL",
-                  "type": "string"
-                },
-                "rating": {
-                  "description": "Google Places rating (1-5 scale)",
-                  "type": "number"
-                },
-                "googleMapsUrl": {
-                  "description": "Direct Google Maps URL",
-                  "type": "string"
-                },
-                "openingHours": {
-                  "description": "Opening hours for each day of the week",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "images": {
-                  "description": "Thumbnail images of the location (up to 3 images, 400x400px)",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "url": {
-                        "description": "Direct URL to the image from Google Places Photos API",
-                        "type": "string"
-                      },
-                      "width": {
-                        "description": "Image width in pixels",
-                        "type": "number"
-                      },
-                      "height": {
-                        "description": "Image height in pixels",
-                        "type": "number"
-                      },
-                      "photoReference": {
-                        "description": "Google Places photo reference ID",
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "url",
-                      "width",
-                      "height",
-                      "photoReference"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "name"
-              ]
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LocationInfoResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "Get Location Info",
-        "tags": [
-          "Location"
-        ]
-      }
-    },
     "/user/sensitive-info": {
       "get": {
         "description": "Get user sensitive info",
@@ -1670,6 +1531,30 @@
           },
           "401": {
             "description": ""
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_004"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User is not registered"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Get current user's basic profile",
@@ -8255,7 +8140,7 @@
         },
         "summary": "Get Group Members",
         "tags": [
-          "Group Quest"
+          "Quest"
         ]
       }
     },
@@ -8364,7 +8249,7 @@
         },
         "summary": "Start Group Quest",
         "tags": [
-          "Group Quest"
+          "Quest"
         ]
       }
     },
@@ -8981,6 +8866,299 @@
         "summary": "Get Model Route by ID",
         "tags": [
           "Routes"
+        ]
+      }
+    },
+    "/location-info": {
+      "get": {
+        "description": "Retrieve basic location details with thumbnail images using Google Places.",
+        "operationId": "TouriiBackendController_getLocationInfo",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved location info with images",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Location name from Google Places",
+                  "type": "string"
+                },
+                "formattedAddress": {
+                  "description": "Formatted address from Google Places",
+                  "type": "string"
+                },
+                "phoneNumber": {
+                  "description": "International phone number",
+                  "type": "string"
+                },
+                "website": {
+                  "description": "Website URL",
+                  "type": "string"
+                },
+                "rating": {
+                  "description": "Google Places rating (1-5 scale)",
+                  "type": "number"
+                },
+                "googleMapsUrl": {
+                  "description": "Direct Google Maps URL",
+                  "type": "string"
+                },
+                "openingHours": {
+                  "description": "Opening hours for each day of the week",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "images": {
+                  "description": "Thumbnail images of the location (up to 3 images, 400x400px)",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "description": "Direct URL to the image from Google Places Photos API",
+                        "type": "string"
+                      },
+                      "width": {
+                        "description": "Image width in pixels",
+                        "type": "number"
+                      },
+                      "height": {
+                        "description": "Image height in pixels",
+                        "type": "number"
+                      },
+                      "photoReference": {
+                        "description": "Google Places photo reference ID",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url",
+                      "width",
+                      "height",
+                      "photoReference"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationInfoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get Location Info",
+        "tags": [
+          "Routes"
+        ]
+      }
+    },
+    "/moments": {
+      "get": {
+        "description": "Latest traveler moments",
+        "operationId": "TouriiBackendController_getMoments",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetch moments successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "moments": {
+                  "type": "array",
+                  "items": {
+                    "description": "Traveler moment information",
+                    "type": "object",
+                    "properties": {
+                      "imageUrl": {
+                        "description": "URL of the moment image",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "username": {
+                        "description": "Traveler display name",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "description": {
+                        "description": "Short moment description",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "rewardText": {
+                        "description": "Text describing earned rewards",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp when the moment occurred",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "insDateTime"
+                    ]
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    },
+                    "totalItems": {
+                      "description": "Total number of items",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "currentPage",
+                    "totalPages",
+                    "totalItems"
+                  ]
+                }
+              },
+              "required": [
+                "moments",
+                "pagination"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MomentListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get latest moments",
+        "tags": [
+          "Moment"
         ]
       }
     },
@@ -12332,6 +12510,106 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "MomentListResponseDto": {
+        "type": "object",
+        "properties": {
+          "moments": {
+            "type": "array",
+            "items": {
+              "description": "Traveler moment information",
+              "type": "object",
+              "properties": {
+                "imageUrl": {
+                  "description": "URL of the moment image",
+                  "type": "string",
+                  "nullable": true
+                },
+                "username": {
+                  "description": "Traveler display name",
+                  "type": "string",
+                  "nullable": true
+                },
+                "description": {
+                  "description": "Short moment description",
+                  "type": "string",
+                  "nullable": true
+                },
+                "rewardText": {
+                  "description": "Text describing earned rewards",
+                  "type": "string",
+                  "nullable": true
+                },
+                "insDateTime": {
+                  "description": "Timestamp when the moment occurred",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "insDateTime"
+              ]
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "currentPage": {
+                "description": "Current page number",
+                "type": "number"
+              },
+              "totalPages": {
+                "description": "Total number of pages",
+                "type": "number"
+              },
+              "totalItems": {
+                "description": "Total number of items",
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentPage",
+              "totalPages",
+              "totalItems"
+            ]
+          }
+        },
+        "required": [
+          "moments",
+          "pagination"
+        ]
+      },
+      "MomentResponseDto": {
+        "description": "Traveler moment information",
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "description": "URL of the moment image",
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "description": "Traveler display name",
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "description": "Short moment description",
+            "type": "string",
+            "nullable": true
+          },
+          "rewardText": {
+            "description": "Text describing earned rewards",
+            "type": "string",
+            "nullable": true
+          },
+          "insDateTime": {
+            "description": "Timestamp when the moment occurred",
+            "type": "string"
+          }
+        },
+        "required": [
+          "insDateTime"
         ]
       },
       "UserResponseDto": {

@@ -38,6 +38,9 @@ export * from './domain/passport/digital-passport.repository';
 // Domain - User
 export * from './domain/user/user.entity';
 export * from './domain/user/user.repository';
+export * from './domain/feed/moment.entity';
+export * from './domain/feed/moment-type';
+export * from './domain/feed/moment.repository';
 
 // Infrastructure
 export * from './infrastructure/api/geo-info-repository-api';
@@ -49,6 +52,7 @@ export * from './infrastructure/datasource/quest-repository-db';
 export * from './infrastructure/datasource/story-repository-db';
 export * from './infrastructure/datasource/user-repository-db';
 export * from './infrastructure/datasource/user-story-log.repository-db';
+export * from './infrastructure/datasource/moment.repository-db';
 
 // Support
 export * from './support/context/context-storage';

@@ -1,4 +1,5 @@
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
+import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -65,6 +66,9 @@ import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-r
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
 
+import { TransformDate } from '@app/core';
+import { MomentType } from '@app/core/domain/feed/moment-type';
+import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
 @Injectable()
 export class TouriiBackendService {
     constructor(
@@ -90,6 +94,8 @@ export class TouriiBackendService {
         private readonly passportRepository: DigitalPassportRepository,
         @Inject(TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN)
         private readonly groupQuestRepository: GroupQuestRepository,
+        @Inject(TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN)
+        private readonly momentRepository: MomentRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -1074,6 +1080,56 @@ export class TouriiBackendService {
 
     async deleteQuestTask(taskId: string): Promise<void> {
         await this.questRepository.deleteQuestTask(taskId);
+    }
+
+    // ==========================================
+    // MOMENT METHODS
+    // ==========================================
+
+    /**
+     * Retrieve a page of the most recent traveler activity moments.
+     * Moments are aggregated from quests, stories, travels, item claims,
+     * and invites using the `moment_view` database view.
+     *
+     * @param page page number (default: 1)
+     * @param limit items per page (default: 10)
+     * @param momentType moment type (default: MomentType.STORY)
+     * @returns Moment response DTO
+     */
+    async getLatestMoments(
+        page = 1,
+        limit = 10,
+        momentType?: MomentType,
+    ): Promise<MomentListResponseDto> {
+        const offset = (page - 1) * limit;
+        const moments = await this.momentRepository.getLatest(limit, offset, momentType);
+
+        // Handle empty moments array gracefully
+        if (!moments || moments.length === 0) {
+            return {
+                moments: [],
+                pagination: { currentPage: page, totalPages: 0, totalItems: 0 },
+            };
+        }
+
+        const momentListResponseDto = moments.map((m) => {
+            return {
+                imageUrl: m.imageUrl,
+                username: m.username,
+                description: m.description,
+                rewardText: m.rewardText,
+                insDateTime: TransformDate.transformDateToYYYYMMDDHHmmss(m.insDateTime) ?? '',
+            };
+        });
+
+        // Safely access totalItems with fallback to 0
+        const totalItems = moments[0]?.totalItems ?? 0;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        return {
+            moments: momentListResponseDto,
+            pagination: { currentPage: page, totalPages, totalItems },
+        };
     }
 
     /**

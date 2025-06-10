@@ -1,14 +1,15 @@
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
-import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location-info-repository-api';
+import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { DigitalPassportRepositoryFake } from '@app/core/infrastructure/blockchain/digital-passport.repository.fake';
+import { GroupQuestRepositoryDb } from '@app/core/infrastructure/datasource/group-quest.repository-db';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
+import { MomentRepositoryDb } from '@app/core/infrastructure/datasource/moment.repository-db';
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
-import { GroupQuestRepositoryDb } from '@app/core/infrastructure/datasource/group-quest.repository-db';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -29,12 +30,12 @@ import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
+import { GroupQuestGateway } from './group-quest/group-quest.gateway';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
 import { TouriiBackendApiMiddleware } from './support/tourii-backend-api-middleware';
 import { TouriiBackendConstants } from './tourii-backend.constant';
-import { GroupQuestGateway } from './group-quest/group-quest.gateway';
 
 /**
  * Main module for the Tourii Backend application
@@ -102,6 +103,10 @@ import { GroupQuestGateway } from './group-quest/group-quest.gateway';
         {
             provide: TouriiBackendConstants.GROUP_QUEST_REPOSITORY_TOKEN,
             useClass: GroupQuestRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN,
+            useClass: MomentRepositoryDb,
         },
         HttpAdapterHost, // HTTP adapter
         CachingService,
