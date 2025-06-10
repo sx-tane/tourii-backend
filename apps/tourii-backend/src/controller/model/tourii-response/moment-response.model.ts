@@ -7,7 +7,7 @@ export const MomentResponseSchema = z
         username: z.string().nullable().optional().describe('Traveler display name'),
         description: z.string().nullable().optional().describe('Short moment description'),
         rewardText: z.string().nullable().optional().describe('Text describing earned rewards'),
-        insDateTime: z.date().describe('Timestamp when the moment occurred'),
+        insDateTime: z.string().describe('Timestamp when the moment occurred'),
     })
     .describe('Traveler moment information');
 

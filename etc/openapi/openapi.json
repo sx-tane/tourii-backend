@@ -9083,7 +9083,8 @@
                         "nullable": true
                       },
                       "insDateTime": {
-                        "description": "Timestamp when the moment occurred"
+                        "description": "Timestamp when the moment occurred",
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -12541,7 +12542,8 @@
                   "nullable": true
                 },
                 "insDateTime": {
-                  "description": "Timestamp when the moment occurred"
+                  "description": "Timestamp when the moment occurred",
+                  "type": "string"
                 }
               },
               "required": [
@@ -12602,7 +12604,8 @@
             "nullable": true
           },
           "insDateTime": {
-            "description": "Timestamp when the moment occurred"
+            "description": "Timestamp when the moment occurred",
+            "type": "string"
           }
         },
         "required": [

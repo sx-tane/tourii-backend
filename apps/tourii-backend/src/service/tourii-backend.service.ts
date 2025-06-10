@@ -66,6 +66,7 @@ import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-r
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
 
+import { TransformDate } from '@app/core';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
 @Injectable()
@@ -1102,17 +1103,29 @@ export class TouriiBackendService {
     ): Promise<MomentListResponseDto> {
         const offset = (page - 1) * limit;
         const moments = await this.momentRepository.getLatest(limit, offset, momentType);
+
+        // Handle empty moments array gracefully
+        if (!moments || moments.length === 0) {
+            return {
+                moments: [],
+                pagination: { currentPage: page, totalPages: 0, totalItems: 0 },
+            };
+        }
+
         const momentListResponseDto = moments.map((m) => {
             return {
                 imageUrl: m.imageUrl,
                 username: m.username,
                 description: m.description,
                 rewardText: m.rewardText,
-                insDateTime: m.insDateTime,
+                insDateTime: TransformDate.transformDateToYYYYMMDDHHmmss(m.insDateTime) ?? '',
             };
         });
-        const totalItems = moments[0].totalItems;
+
+        // Safely access totalItems with fallback to 0
+        const totalItems = moments[0]?.totalItems ?? 0;
         const totalPages = Math.ceil(totalItems / limit);
+
         return {
             moments: momentListResponseDto,
             pagination: { currentPage: page, totalPages, totalItems },
