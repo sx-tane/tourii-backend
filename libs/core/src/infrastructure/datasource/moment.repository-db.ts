@@ -20,6 +20,9 @@ export class MomentRepositoryDb implements MomentRepository {
             orderBy: { ins_date_time: 'desc' },
             where: { moment_type: momentType },
         });
-        return data.map(MomentMapper.prismaModelToMomentEntity);
+        const totalItems = await this.prisma.moment_view.count({
+            where: { moment_type: momentType },
+        });
+        return data.map((moment) => MomentMapper.prismaModelToMomentEntity(moment, totalItems));
     }
 }

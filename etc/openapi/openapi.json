@@ -71,6 +71,1498 @@
         ]
       }
     },
+    "/user/sensitive-info": {
+      "get": {
+        "description": "Get user sensitive info",
+        "operationId": "TouriiBackendController_getUserSensitiveInfo",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User sensitive info",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "description": "Password",
+                  "type": "string"
+                },
+                "refreshToken": {
+                  "description": "Refresh token",
+                  "type": "string"
+                },
+                "encryptedPrivateKey": {
+                  "description": "Encrypted private key",
+                  "type": "string"
+                },
+                "passportWalletAddress": {
+                  "description": "Passport wallet address",
+                  "type": "string"
+                },
+                "perksWalletAddress": {
+                  "description": "Perks wallet address",
+                  "type": "string"
+                },
+                "latestIpAddress": {
+                  "description": "Latest IP address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "password"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSensitiveInfoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get user sensitive info",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/user": {
+      "post": {
+        "description": "Create a new user in the system.",
+        "operationId": "TouriiBackendController_createUser",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "User creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEntity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_006"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User already exists"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Create User",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/login": {
+      "post": {
+        "description": "Login using username or other identifiers with optional wallet/social checks.",
+        "operationId": "TouriiBackendController_login",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Login request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_004"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User is not registered"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "User Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "operationId": "TouriiBackendController_signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Signup info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "description": "Email address for signup",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "socialProvider": {
+                    "description": "Social provider for signup",
+                    "type": "string"
+                  },
+                  "socialId": {
+                    "description": "Social ID for signup",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "socialProvider",
+                  "socialId"
+                ],
+                "$ref": "#/components/schemas/AuthSignupRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signup success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "description": "Unique identifier for the user",
+                  "type": "string"
+                },
+                "walletAddress": {
+                  "description": "Wallet address for the user",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userId",
+                "walletAddress"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSignupResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid request body or version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_001"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "User signup with wallet",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/user/me": {
+      "get": {
+        "operationId": "TouriiBackendController_me",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user basic profile",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "Username",
+                  "type": "string"
+                },
+                "discordId": {
+                  "description": "Discord ID",
+                  "type": "string"
+                },
+                "discordUsername": {
+                  "description": "Discord username",
+                  "type": "string"
+                },
+                "twitterId": {
+                  "description": "Twitter ID",
+                  "type": "string"
+                },
+                "twitterUsername": {
+                  "description": "Twitter username",
+                  "type": "string"
+                },
+                "googleEmail": {
+                  "description": "Google email",
+                  "type": "string"
+                },
+                "passportWalletAddress": {
+                  "description": "Passport wallet address",
+                  "type": "string"
+                },
+                "perksWalletAddress": {
+                  "description": "Perks wallet address",
+                  "type": "string"
+                },
+                "email": {
+                  "description": "Email",
+                  "type": "string"
+                },
+                "isPremium": {
+                  "description": "Premium status",
+                  "type": "boolean"
+                },
+                "totalQuestCompleted": {
+                  "description": "Total quests completed",
+                  "type": "number"
+                },
+                "totalTravelDistance": {
+                  "description": "Total travel distance",
+                  "type": "number"
+                },
+                "role": {
+                  "description": "User role",
+                  "type": "string",
+                  "enum": [
+                    "USER",
+                    "MODERATOR",
+                    "ADMIN"
+                  ],
+                  "x-enumNames": [
+                    "USER",
+                    "MODERATOR",
+                    "ADMIN"
+                  ]
+                },
+                "registeredAt": {
+                  "description": "Registration date"
+                },
+                "discordJoinedAt": {
+                  "description": "Discord joined date"
+                },
+                "isBanned": {
+                  "description": "Ban status",
+                  "type": "boolean"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                },
+                "userInfo": {
+                  "description": "User info",
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "description": "User ID",
+                      "type": "string"
+                    },
+                    "digitalPassportAddress": {
+                      "description": "Digital passport NFT address",
+                      "type": "string"
+                    },
+                    "logNftAddress": {
+                      "description": "Log NFT address",
+                      "type": "string"
+                    },
+                    "userDigitalPassportType": {
+                      "description": "Digital passport type",
+                      "type": "string",
+                      "enum": [
+                        "BONJIN",
+                        "AMATSUKAMI",
+                        "KUNITSUKAMI",
+                        "YOKAI"
+                      ],
+                      "x-enumNames": [
+                        "BONJIN",
+                        "AMATSUKAMI",
+                        "KUNITSUKAMI",
+                        "YOKAI"
+                      ]
+                    },
+                    "level": {
+                      "description": "User level",
+                      "type": "string",
+                      "enum": [
+                        "BONJIN",
+                        "E_CLASS_AMATSUKAMI",
+                        "E_CLASS_KUNITSUKAMI",
+                        "E_CLASS_YOKAI",
+                        "D_CLASS_AMATSUKAMI",
+                        "D_CLASS_KUNITSUKAMI",
+                        "D_CLASS_YOKAI",
+                        "C_CLASS_AMATSUKAMI",
+                        "C_CLASS_KUNITSUKAMI",
+                        "C_CLASS_YOKAI",
+                        "B_CLASS_AMATSUKAMI",
+                        "B_CLASS_KUNITSUKAMI",
+                        "B_CLASS_YOKAI",
+                        "A_CLASS_AMATSUKAMI",
+                        "A_CLASS_KUNITSUKAMI",
+                        "A_CLASS_YOKAI",
+                        "S_CLASS_AMATSUKAMI",
+                        "S_CLASS_KUNITSUKAMI",
+                        "S_CLASS_YOKAI"
+                      ],
+                      "x-enumNames": [
+                        "BONJIN",
+                        "E_CLASS_AMATSUKAMI",
+                        "E_CLASS_KUNITSUKAMI",
+                        "E_CLASS_YOKAI",
+                        "D_CLASS_AMATSUKAMI",
+                        "D_CLASS_KUNITSUKAMI",
+                        "D_CLASS_YOKAI",
+                        "C_CLASS_AMATSUKAMI",
+                        "C_CLASS_KUNITSUKAMI",
+                        "C_CLASS_YOKAI",
+                        "B_CLASS_AMATSUKAMI",
+                        "B_CLASS_KUNITSUKAMI",
+                        "B_CLASS_YOKAI",
+                        "A_CLASS_AMATSUKAMI",
+                        "A_CLASS_KUNITSUKAMI",
+                        "A_CLASS_YOKAI",
+                        "S_CLASS_AMATSUKAMI",
+                        "S_CLASS_KUNITSUKAMI",
+                        "S_CLASS_YOKAI"
+                      ]
+                    },
+                    "discountRate": {
+                      "description": "User discount rate",
+                      "type": "number"
+                    },
+                    "magatamaPoints": {
+                      "description": "Magatama points balance",
+                      "type": "number"
+                    },
+                    "magatamaBags": {
+                      "description": "Magatama bags count",
+                      "type": "number"
+                    },
+                    "totalQuestCompleted": {
+                      "description": "Total quests completed",
+                      "type": "number"
+                    },
+                    "totalTravelDistance": {
+                      "description": "Total travel distance",
+                      "type": "number"
+                    },
+                    "isPremium": {
+                      "description": "Premium status",
+                      "type": "boolean"
+                    },
+                    "prayerBead": {
+                      "description": "Prayer bead count",
+                      "type": "number"
+                    },
+                    "sword": {
+                      "description": "Sword count",
+                      "type": "number"
+                    },
+                    "orgeMask": {
+                      "description": "Orge mask count",
+                      "type": "number"
+                    },
+                    "delFlag": {
+                      "description": "Flag to indicate if the record is deleted",
+                      "type": "boolean"
+                    },
+                    "insUserId": {
+                      "description": "ID of user who created this record",
+                      "type": "string"
+                    },
+                    "insDateTime": {
+                      "description": "Timestamp of record creation",
+                      "type": "string"
+                    },
+                    "updUserId": {
+                      "description": "ID of user who last updated this record",
+                      "type": "string"
+                    },
+                    "updDateTime": {
+                      "description": "Timestamp of last record update",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "digitalPassportAddress",
+                    "logNftAddress",
+                    "magatamaPoints",
+                    "totalQuestCompleted",
+                    "totalTravelDistance",
+                    "isPremium"
+                  ]
+                },
+                "userAchievements": {
+                  "description": "User achievements",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userAchievementId": {
+                        "description": "Achievement ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "achievementName": {
+                        "description": "Achievement name",
+                        "type": "string"
+                      },
+                      "achievementDesc": {
+                        "description": "Achievement description",
+                        "type": "string"
+                      },
+                      "iconUrl": {
+                        "description": "Icon URL",
+                        "type": "string"
+                      },
+                      "achievementType": {
+                        "description": "Achievement type",
+                        "type": "string",
+                        "enum": [
+                          "UNKNOWN",
+                          "STORY",
+                          "TRAVEL",
+                          "EXPLORE",
+                          "COMMUNITY",
+                          "MILESTONE"
+                        ],
+                        "x-enumNames": [
+                          "UNKNOWN",
+                          "STORY",
+                          "TRAVEL",
+                          "EXPLORE",
+                          "COMMUNITY",
+                          "MILESTONE"
+                        ]
+                      },
+                      "magatamaPointAwarded": {
+                        "description": "Magatama points awarded",
+                        "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userAchievementId",
+                      "userId",
+                      "achievementName",
+                      "achievementType",
+                      "magatamaPointAwarded"
+                    ]
+                  }
+                },
+                "userOnchainItems": {
+                  "description": "User onchain items",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userOnchainItemId": {
+                        "description": "Onchain item ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "itemType": {
+                        "description": "Item type",
+                        "type": "string",
+                        "enum": [
+                          "UNKNOWN",
+                          "LOG_NFT",
+                          "DIGITAL_PASSPORT",
+                          "PERK"
+                        ],
+                        "x-enumNames": [
+                          "UNKNOWN",
+                          "LOG_NFT",
+                          "DIGITAL_PASSPORT",
+                          "PERK"
+                        ]
+                      },
+                      "itemTxnHash": {
+                        "description": "Transaction hash",
+                        "type": "string"
+                      },
+                      "blockchainType": {
+                        "description": "Blockchain type",
+                        "type": "string",
+                        "enum": [
+                          "UNKNOWN",
+                          "VARA",
+                          "CAMINO"
+                        ],
+                        "x-enumNames": [
+                          "UNKNOWN",
+                          "VARA",
+                          "CAMINO"
+                        ]
+                      },
+                      "mintedAt": {
+                        "description": "Minted date"
+                      },
+                      "onchainItemId": {
+                        "description": "Onchain item ID",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "Item status",
+                        "type": "string",
+                        "enum": [
+                          "ACTIVE",
+                          "USED",
+                          "EXPIRED",
+                          "PENDING"
+                        ],
+                        "x-enumNames": [
+                          "ACTIVE",
+                          "USED",
+                          "EXPIRED",
+                          "PENDING"
+                        ]
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userOnchainItemId",
+                      "itemType",
+                      "itemTxnHash",
+                      "blockchainType",
+                      "status"
+                    ]
+                  }
+                },
+                "userItemClaimLogs": {
+                  "description": "User item claim logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userItemClaimLogId": {
+                        "description": "Item claim log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "onchainItemId": {
+                        "description": "Onchain item ID",
+                        "type": "string"
+                      },
+                      "offchainItemName": {
+                        "description": "Offchain item name",
+                        "type": "string"
+                      },
+                      "itemAmount": {
+                        "description": "Item amount",
+                        "type": "number"
+                      },
+                      "itemDetails": {
+                        "description": "Item details",
+                        "type": "string"
+                      },
+                      "type": {
+                        "description": "Item type",
+                        "type": "string",
+                        "enum": [
+                          "ONCHAIN",
+                          "OFFCHAIN"
+                        ],
+                        "x-enumNames": [
+                          "ONCHAIN",
+                          "OFFCHAIN"
+                        ]
+                      },
+                      "claimedAt": {
+                        "description": "Claimed date"
+                      },
+                      "status": {
+                        "description": "Claim status",
+                        "type": "string",
+                        "enum": [
+                          "SUCCESS",
+                          "FAILED"
+                        ],
+                        "x-enumNames": [
+                          "SUCCESS",
+                          "FAILED"
+                        ]
+                      },
+                      "errorMsg": {
+                        "description": "Error message",
+                        "type": "string"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userItemClaimLogId",
+                      "userId",
+                      "itemAmount",
+                      "type",
+                      "status"
+                    ]
+                  }
+                },
+                "userStoryLogs": {
+                  "description": "User story logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userStoryLogId": {
+                        "description": "Story log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "storyChapterId": {
+                        "description": "Story chapter ID",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "Story status",
+                        "type": "string",
+                        "enum": [
+                          "UNREAD",
+                          "IN_PROGRESS",
+                          "COMPLETED"
+                        ],
+                        "x-enumNames": [
+                          "UNREAD",
+                          "IN_PROGRESS",
+                          "COMPLETED"
+                        ]
+                      },
+                      "unlockedAt": {
+                        "description": "Unlocked date"
+                      },
+                      "finishedAt": {
+                        "description": "Finished date"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userStoryLogId",
+                      "userId",
+                      "storyChapterId",
+                      "status"
+                    ]
+                  }
+                },
+                "userQuestLogs": {
+                  "description": "User quest logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userQuestLogId": {
+                        "description": "Quest log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "Quest status",
+                        "type": "string",
+                        "enum": [
+                          "AVAILABLE",
+                          "ONGOING",
+                          "COMPLETED",
+                          "FAILED"
+                        ],
+                        "x-enumNames": [
+                          "AVAILABLE",
+                          "ONGOING",
+                          "COMPLETED",
+                          "FAILED"
+                        ]
+                      },
+                      "action": {
+                        "description": "Task action type",
+                        "type": "string",
+                        "enum": [
+                          "VISIT_LOCATION",
+                          "PHOTO_UPLOAD",
+                          "ANSWER_TEXT",
+                          "SELECT_OPTION",
+                          "SHARE_SOCIAL",
+                          "CHECK_IN",
+                          "GROUP_ACTIVITY",
+                          "LOCAL_INTERACTION"
+                        ],
+                        "x-enumNames": [
+                          "VISIT_LOCATION",
+                          "PHOTO_UPLOAD",
+                          "ANSWER_TEXT",
+                          "SELECT_OPTION",
+                          "SHARE_SOCIAL",
+                          "CHECK_IN",
+                          "GROUP_ACTIVITY",
+                          "LOCAL_INTERACTION"
+                        ]
+                      },
+                      "userResponse": {
+                        "description": "User response",
+                        "type": "string"
+                      },
+                      "groupActivityMembers": {
+                        "description": "Group activity members",
+                        "type": "array",
+                        "items": {}
+                      },
+                      "submissionData": {
+                        "description": "Submission data"
+                      },
+                      "failedReason": {
+                        "description": "Failed reason",
+                        "type": "string"
+                      },
+                      "completedAt": {
+                        "description": "Completed date"
+                      },
+                      "claimedAt": {
+                        "description": "Claimed date"
+                      },
+                      "totalMagatamaPointAwarded": {
+                        "description": "Total magatama points awarded",
+                        "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userQuestLogId",
+                      "userId",
+                      "questId",
+                      "status",
+                      "action",
+                      "groupActivityMembers",
+                      "totalMagatamaPointAwarded"
+                    ]
+                  }
+                },
+                "userTravelLogs": {
+                  "description": "User travel logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userTravelLogId": {
+                        "description": "Travel log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "taskId": {
+                        "description": "Task ID",
+                        "type": "string"
+                      },
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "userLongitude": {
+                        "description": "User longitude",
+                        "type": "number"
+                      },
+                      "userLatitude": {
+                        "description": "User latitude",
+                        "type": "number"
+                      },
+                      "travelDistanceFromTarget": {
+                        "description": "Distance from target",
+                        "type": "number"
+                      },
+                      "travelDistance": {
+                        "description": "Travel distance",
+                        "type": "number"
+                      },
+                      "qrCodeValue": {
+                        "description": "QR code value",
+                        "type": "string"
+                      },
+                      "checkInMethod": {
+                        "description": "Check-in method",
+                        "type": "string",
+                        "enum": [
+                          "QR_CODE",
+                          "GPS"
+                        ],
+                        "x-enumNames": [
+                          "QR_CODE",
+                          "GPS"
+                        ]
+                      },
+                      "detectedFraud": {
+                        "description": "Fraud detected",
+                        "type": "boolean"
+                      },
+                      "fraudReason": {
+                        "description": "Fraud reason",
+                        "type": "string"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userTravelLogId",
+                      "userId",
+                      "questId",
+                      "taskId",
+                      "touristSpotId",
+                      "userLongitude",
+                      "userLatitude",
+                      "travelDistance"
+                    ]
+                  }
+                },
+                "discordActivityLogs": {
+                  "description": "Discord activity logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "discordActivityLogId": {
+                        "description": "Discord activity log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "activityType": {
+                        "description": "Activity type",
+                        "type": "string"
+                      },
+                      "activityDetails": {
+                        "description": "Activity details",
+                        "type": "string"
+                      },
+                      "magatamaPointAwarded": {
+                        "description": "Magatama points awarded",
+                        "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "discordActivityLogId",
+                      "userId",
+                      "activityType",
+                      "magatamaPointAwarded"
+                    ]
+                  }
+                },
+                "discordUserRoles": {
+                  "description": "Discord user roles",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "discordUserRolesId": {
+                        "description": "Discord user roles ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "roleId": {
+                        "description": "Role ID",
+                        "type": "string"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "discordUserRolesId",
+                      "userId",
+                      "roleId"
+                    ]
+                  }
+                },
+                "discordRewardedRoles": {
+                  "description": "Discord rewarded roles",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "discordRewardedRolesId": {
+                        "description": "Discord rewarded roles ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "roleId": {
+                        "description": "Role ID",
+                        "type": "string"
+                      },
+                      "magatamaPointAwarded": {
+                        "description": "Magatama points awarded",
+                        "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "discordRewardedRolesId",
+                      "userId",
+                      "roleId",
+                      "magatamaPointAwarded"
+                    ]
+                  }
+                },
+                "userInviteLogs": {
+                  "description": "User invite logs",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "inviteLogId": {
+                        "description": "Invite log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "inviteeDiscordId": {
+                        "description": "Invitee Discord ID",
+                        "type": "string"
+                      },
+                      "inviteeUserId": {
+                        "description": "Invitee user ID",
+                        "type": "string"
+                      },
+                      "magatamaPointAwarded": {
+                        "description": "Magatama points awarded",
+                        "type": "number"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "inviteLogId",
+                      "userId",
+                      "magatamaPointAwarded"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "userId",
+                "username",
+                "isPremium",
+                "totalQuestCompleted",
+                "totalTravelDistance",
+                "role",
+                "registeredAt",
+                "discordJoinedAt",
+                "isBanned"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid request body or version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_001"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_004"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User is not registered"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get current user's basic profile",
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/stories/create-saga": {
       "post": {
         "description": "Create a new story saga with optional chapters.",
@@ -3712,381 +5204,6 @@
         "summary": "Get Tourist Spots by Story Chapter",
         "tags": [
           "Routes"
-        ]
-      }
-    },
-    "/user": {
-      "post": {
-        "description": "Create a new user in the system.",
-        "operationId": "TouriiBackendController_createUser",
-        "parameters": [
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "User creation request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserEntity"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - User already exists",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_006"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "User already exists"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "Create User",
-        "tags": [
-          "User"
-        ]
-      }
-    },
-    "/login": {
-      "post": {
-        "description": "Login using username or other identifiers with optional wallet/social checks.",
-        "operationId": "TouriiBackendController_login",
-        "parameters": [
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Login request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_004"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "User is not registered"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "summary": "User Login",
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/auth/signup": {
-      "post": {
-        "operationId": "TouriiBackendController_signup",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "description": "Signup info",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "description": "Email address for signup",
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "socialProvider": {
-                    "description": "Social provider for signup",
-                    "type": "string"
-                  },
-                  "socialId": {
-                    "description": "Social ID for signup",
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "email",
-                  "socialProvider",
-                  "socialId"
-                ],
-                "$ref": "#/components/schemas/AuthSignupRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Signup success",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "userId": {
-                  "description": "Unique identifier for the user",
-                  "type": "string"
-                },
-                "walletAddress": {
-                  "description": "Wallet address for the user",
-                  "type": "string"
-                }
-              },
-              "required": [
-                "userId",
-                "walletAddress"
-              ]
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthSignupResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid request body or version",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_001"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Bad Request"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "User signup with wallet",
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/{userId}/user": {
-      "get": {
-        "description": "Retrieve user information by their user ID.",
-        "operationId": "TouriiBackendController_getUserByUserId",
-        "parameters": [
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User found successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_004"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "User is not registered"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get User by ID",
-        "tags": [
-          "User"
         ]
       }
     },
@@ -11490,6 +12607,1055 @@
         },
         "required": [
           "insDateTime"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "User ID",
+            "type": "string"
+          },
+          "username": {
+            "description": "Username",
+            "type": "string"
+          },
+          "discordId": {
+            "description": "Discord ID",
+            "type": "string"
+          },
+          "discordUsername": {
+            "description": "Discord username",
+            "type": "string"
+          },
+          "twitterId": {
+            "description": "Twitter ID",
+            "type": "string"
+          },
+          "twitterUsername": {
+            "description": "Twitter username",
+            "type": "string"
+          },
+          "googleEmail": {
+            "description": "Google email",
+            "type": "string"
+          },
+          "passportWalletAddress": {
+            "description": "Passport wallet address",
+            "type": "string"
+          },
+          "perksWalletAddress": {
+            "description": "Perks wallet address",
+            "type": "string"
+          },
+          "email": {
+            "description": "Email",
+            "type": "string"
+          },
+          "isPremium": {
+            "description": "Premium status",
+            "type": "boolean"
+          },
+          "totalQuestCompleted": {
+            "description": "Total quests completed",
+            "type": "number"
+          },
+          "totalTravelDistance": {
+            "description": "Total travel distance",
+            "type": "number"
+          },
+          "role": {
+            "description": "User role",
+            "type": "string",
+            "enum": [
+              "USER",
+              "MODERATOR",
+              "ADMIN"
+            ],
+            "x-enumNames": [
+              "USER",
+              "MODERATOR",
+              "ADMIN"
+            ]
+          },
+          "registeredAt": {
+            "description": "Registration date"
+          },
+          "discordJoinedAt": {
+            "description": "Discord joined date"
+          },
+          "isBanned": {
+            "description": "Ban status",
+            "type": "boolean"
+          },
+          "delFlag": {
+            "description": "Flag to indicate if the record is deleted",
+            "type": "boolean"
+          },
+          "insUserId": {
+            "description": "ID of user who created this record",
+            "type": "string"
+          },
+          "insDateTime": {
+            "description": "Timestamp of record creation",
+            "type": "string"
+          },
+          "updUserId": {
+            "description": "ID of user who last updated this record",
+            "type": "string"
+          },
+          "updDateTime": {
+            "description": "Timestamp of last record update",
+            "type": "string"
+          },
+          "userInfo": {
+            "description": "User info",
+            "type": "object",
+            "properties": {
+              "userId": {
+                "description": "User ID",
+                "type": "string"
+              },
+              "digitalPassportAddress": {
+                "description": "Digital passport NFT address",
+                "type": "string"
+              },
+              "logNftAddress": {
+                "description": "Log NFT address",
+                "type": "string"
+              },
+              "userDigitalPassportType": {
+                "description": "Digital passport type",
+                "type": "string",
+                "enum": [
+                  "BONJIN",
+                  "AMATSUKAMI",
+                  "KUNITSUKAMI",
+                  "YOKAI"
+                ],
+                "x-enumNames": [
+                  "BONJIN",
+                  "AMATSUKAMI",
+                  "KUNITSUKAMI",
+                  "YOKAI"
+                ]
+              },
+              "level": {
+                "description": "User level",
+                "type": "string",
+                "enum": [
+                  "BONJIN",
+                  "E_CLASS_AMATSUKAMI",
+                  "E_CLASS_KUNITSUKAMI",
+                  "E_CLASS_YOKAI",
+                  "D_CLASS_AMATSUKAMI",
+                  "D_CLASS_KUNITSUKAMI",
+                  "D_CLASS_YOKAI",
+                  "C_CLASS_AMATSUKAMI",
+                  "C_CLASS_KUNITSUKAMI",
+                  "C_CLASS_YOKAI",
+                  "B_CLASS_AMATSUKAMI",
+                  "B_CLASS_KUNITSUKAMI",
+                  "B_CLASS_YOKAI",
+                  "A_CLASS_AMATSUKAMI",
+                  "A_CLASS_KUNITSUKAMI",
+                  "A_CLASS_YOKAI",
+                  "S_CLASS_AMATSUKAMI",
+                  "S_CLASS_KUNITSUKAMI",
+                  "S_CLASS_YOKAI"
+                ],
+                "x-enumNames": [
+                  "BONJIN",
+                  "E_CLASS_AMATSUKAMI",
+                  "E_CLASS_KUNITSUKAMI",
+                  "E_CLASS_YOKAI",
+                  "D_CLASS_AMATSUKAMI",
+                  "D_CLASS_KUNITSUKAMI",
+                  "D_CLASS_YOKAI",
+                  "C_CLASS_AMATSUKAMI",
+                  "C_CLASS_KUNITSUKAMI",
+                  "C_CLASS_YOKAI",
+                  "B_CLASS_AMATSUKAMI",
+                  "B_CLASS_KUNITSUKAMI",
+                  "B_CLASS_YOKAI",
+                  "A_CLASS_AMATSUKAMI",
+                  "A_CLASS_KUNITSUKAMI",
+                  "A_CLASS_YOKAI",
+                  "S_CLASS_AMATSUKAMI",
+                  "S_CLASS_KUNITSUKAMI",
+                  "S_CLASS_YOKAI"
+                ]
+              },
+              "discountRate": {
+                "description": "User discount rate",
+                "type": "number"
+              },
+              "magatamaPoints": {
+                "description": "Magatama points balance",
+                "type": "number"
+              },
+              "magatamaBags": {
+                "description": "Magatama bags count",
+                "type": "number"
+              },
+              "totalQuestCompleted": {
+                "description": "Total quests completed",
+                "type": "number"
+              },
+              "totalTravelDistance": {
+                "description": "Total travel distance",
+                "type": "number"
+              },
+              "isPremium": {
+                "description": "Premium status",
+                "type": "boolean"
+              },
+              "prayerBead": {
+                "description": "Prayer bead count",
+                "type": "number"
+              },
+              "sword": {
+                "description": "Sword count",
+                "type": "number"
+              },
+              "orgeMask": {
+                "description": "Orge mask count",
+                "type": "number"
+              },
+              "delFlag": {
+                "description": "Flag to indicate if the record is deleted",
+                "type": "boolean"
+              },
+              "insUserId": {
+                "description": "ID of user who created this record",
+                "type": "string"
+              },
+              "insDateTime": {
+                "description": "Timestamp of record creation",
+                "type": "string"
+              },
+              "updUserId": {
+                "description": "ID of user who last updated this record",
+                "type": "string"
+              },
+              "updDateTime": {
+                "description": "Timestamp of last record update",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId",
+              "digitalPassportAddress",
+              "logNftAddress",
+              "magatamaPoints",
+              "totalQuestCompleted",
+              "totalTravelDistance",
+              "isPremium"
+            ]
+          },
+          "userAchievements": {
+            "description": "User achievements",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userAchievementId": {
+                  "description": "Achievement ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "achievementName": {
+                  "description": "Achievement name",
+                  "type": "string"
+                },
+                "achievementDesc": {
+                  "description": "Achievement description",
+                  "type": "string"
+                },
+                "iconUrl": {
+                  "description": "Icon URL",
+                  "type": "string"
+                },
+                "achievementType": {
+                  "description": "Achievement type",
+                  "type": "string",
+                  "enum": [
+                    "UNKNOWN",
+                    "STORY",
+                    "TRAVEL",
+                    "EXPLORE",
+                    "COMMUNITY",
+                    "MILESTONE"
+                  ],
+                  "x-enumNames": [
+                    "UNKNOWN",
+                    "STORY",
+                    "TRAVEL",
+                    "EXPLORE",
+                    "COMMUNITY",
+                    "MILESTONE"
+                  ]
+                },
+                "magatamaPointAwarded": {
+                  "description": "Magatama points awarded",
+                  "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userAchievementId",
+                "userId",
+                "achievementName",
+                "achievementType",
+                "magatamaPointAwarded"
+              ]
+            }
+          },
+          "userOnchainItems": {
+            "description": "User onchain items",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userOnchainItemId": {
+                  "description": "Onchain item ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "itemType": {
+                  "description": "Item type",
+                  "type": "string",
+                  "enum": [
+                    "UNKNOWN",
+                    "LOG_NFT",
+                    "DIGITAL_PASSPORT",
+                    "PERK"
+                  ],
+                  "x-enumNames": [
+                    "UNKNOWN",
+                    "LOG_NFT",
+                    "DIGITAL_PASSPORT",
+                    "PERK"
+                  ]
+                },
+                "itemTxnHash": {
+                  "description": "Transaction hash",
+                  "type": "string"
+                },
+                "blockchainType": {
+                  "description": "Blockchain type",
+                  "type": "string",
+                  "enum": [
+                    "UNKNOWN",
+                    "VARA",
+                    "CAMINO"
+                  ],
+                  "x-enumNames": [
+                    "UNKNOWN",
+                    "VARA",
+                    "CAMINO"
+                  ]
+                },
+                "mintedAt": {
+                  "description": "Minted date"
+                },
+                "onchainItemId": {
+                  "description": "Onchain item ID",
+                  "type": "string"
+                },
+                "status": {
+                  "description": "Item status",
+                  "type": "string",
+                  "enum": [
+                    "ACTIVE",
+                    "USED",
+                    "EXPIRED",
+                    "PENDING"
+                  ],
+                  "x-enumNames": [
+                    "ACTIVE",
+                    "USED",
+                    "EXPIRED",
+                    "PENDING"
+                  ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userOnchainItemId",
+                "itemType",
+                "itemTxnHash",
+                "blockchainType",
+                "status"
+              ]
+            }
+          },
+          "userItemClaimLogs": {
+            "description": "User item claim logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userItemClaimLogId": {
+                  "description": "Item claim log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "onchainItemId": {
+                  "description": "Onchain item ID",
+                  "type": "string"
+                },
+                "offchainItemName": {
+                  "description": "Offchain item name",
+                  "type": "string"
+                },
+                "itemAmount": {
+                  "description": "Item amount",
+                  "type": "number"
+                },
+                "itemDetails": {
+                  "description": "Item details",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "Item type",
+                  "type": "string",
+                  "enum": [
+                    "ONCHAIN",
+                    "OFFCHAIN"
+                  ],
+                  "x-enumNames": [
+                    "ONCHAIN",
+                    "OFFCHAIN"
+                  ]
+                },
+                "claimedAt": {
+                  "description": "Claimed date"
+                },
+                "status": {
+                  "description": "Claim status",
+                  "type": "string",
+                  "enum": [
+                    "SUCCESS",
+                    "FAILED"
+                  ],
+                  "x-enumNames": [
+                    "SUCCESS",
+                    "FAILED"
+                  ]
+                },
+                "errorMsg": {
+                  "description": "Error message",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userItemClaimLogId",
+                "userId",
+                "itemAmount",
+                "type",
+                "status"
+              ]
+            }
+          },
+          "userStoryLogs": {
+            "description": "User story logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userStoryLogId": {
+                  "description": "Story log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "storyChapterId": {
+                  "description": "Story chapter ID",
+                  "type": "string"
+                },
+                "status": {
+                  "description": "Story status",
+                  "type": "string",
+                  "enum": [
+                    "UNREAD",
+                    "IN_PROGRESS",
+                    "COMPLETED"
+                  ],
+                  "x-enumNames": [
+                    "UNREAD",
+                    "IN_PROGRESS",
+                    "COMPLETED"
+                  ]
+                },
+                "unlockedAt": {
+                  "description": "Unlocked date"
+                },
+                "finishedAt": {
+                  "description": "Finished date"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userStoryLogId",
+                "userId",
+                "storyChapterId",
+                "status"
+              ]
+            }
+          },
+          "userQuestLogs": {
+            "description": "User quest logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userQuestLogId": {
+                  "description": "Quest log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "status": {
+                  "description": "Quest status",
+                  "type": "string",
+                  "enum": [
+                    "AVAILABLE",
+                    "ONGOING",
+                    "COMPLETED",
+                    "FAILED"
+                  ],
+                  "x-enumNames": [
+                    "AVAILABLE",
+                    "ONGOING",
+                    "COMPLETED",
+                    "FAILED"
+                  ]
+                },
+                "action": {
+                  "description": "Task action type",
+                  "type": "string",
+                  "enum": [
+                    "VISIT_LOCATION",
+                    "PHOTO_UPLOAD",
+                    "ANSWER_TEXT",
+                    "SELECT_OPTION",
+                    "SHARE_SOCIAL",
+                    "CHECK_IN",
+                    "GROUP_ACTIVITY",
+                    "LOCAL_INTERACTION"
+                  ],
+                  "x-enumNames": [
+                    "VISIT_LOCATION",
+                    "PHOTO_UPLOAD",
+                    "ANSWER_TEXT",
+                    "SELECT_OPTION",
+                    "SHARE_SOCIAL",
+                    "CHECK_IN",
+                    "GROUP_ACTIVITY",
+                    "LOCAL_INTERACTION"
+                  ]
+                },
+                "userResponse": {
+                  "description": "User response",
+                  "type": "string"
+                },
+                "groupActivityMembers": {
+                  "description": "Group activity members",
+                  "type": "array",
+                  "items": {}
+                },
+                "submissionData": {
+                  "description": "Submission data"
+                },
+                "failedReason": {
+                  "description": "Failed reason",
+                  "type": "string"
+                },
+                "completedAt": {
+                  "description": "Completed date"
+                },
+                "claimedAt": {
+                  "description": "Claimed date"
+                },
+                "totalMagatamaPointAwarded": {
+                  "description": "Total magatama points awarded",
+                  "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userQuestLogId",
+                "userId",
+                "questId",
+                "status",
+                "action",
+                "groupActivityMembers",
+                "totalMagatamaPointAwarded"
+              ]
+            }
+          },
+          "userTravelLogs": {
+            "description": "User travel logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userTravelLogId": {
+                  "description": "Travel log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "taskId": {
+                  "description": "Task ID",
+                  "type": "string"
+                },
+                "touristSpotId": {
+                  "description": "Tourist spot ID",
+                  "type": "string"
+                },
+                "userLongitude": {
+                  "description": "User longitude",
+                  "type": "number"
+                },
+                "userLatitude": {
+                  "description": "User latitude",
+                  "type": "number"
+                },
+                "travelDistanceFromTarget": {
+                  "description": "Distance from target",
+                  "type": "number"
+                },
+                "travelDistance": {
+                  "description": "Travel distance",
+                  "type": "number"
+                },
+                "qrCodeValue": {
+                  "description": "QR code value",
+                  "type": "string"
+                },
+                "checkInMethod": {
+                  "description": "Check-in method",
+                  "type": "string",
+                  "enum": [
+                    "QR_CODE",
+                    "GPS"
+                  ],
+                  "x-enumNames": [
+                    "QR_CODE",
+                    "GPS"
+                  ]
+                },
+                "detectedFraud": {
+                  "description": "Fraud detected",
+                  "type": "boolean"
+                },
+                "fraudReason": {
+                  "description": "Fraud reason",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userTravelLogId",
+                "userId",
+                "questId",
+                "taskId",
+                "touristSpotId",
+                "userLongitude",
+                "userLatitude",
+                "travelDistance"
+              ]
+            }
+          },
+          "discordActivityLogs": {
+            "description": "Discord activity logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "discordActivityLogId": {
+                  "description": "Discord activity log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "activityType": {
+                  "description": "Activity type",
+                  "type": "string"
+                },
+                "activityDetails": {
+                  "description": "Activity details",
+                  "type": "string"
+                },
+                "magatamaPointAwarded": {
+                  "description": "Magatama points awarded",
+                  "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "discordActivityLogId",
+                "userId",
+                "activityType",
+                "magatamaPointAwarded"
+              ]
+            }
+          },
+          "discordUserRoles": {
+            "description": "Discord user roles",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "discordUserRolesId": {
+                  "description": "Discord user roles ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "roleId": {
+                  "description": "Role ID",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "discordUserRolesId",
+                "userId",
+                "roleId"
+              ]
+            }
+          },
+          "discordRewardedRoles": {
+            "description": "Discord rewarded roles",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "discordRewardedRolesId": {
+                  "description": "Discord rewarded roles ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "roleId": {
+                  "description": "Role ID",
+                  "type": "string"
+                },
+                "magatamaPointAwarded": {
+                  "description": "Magatama points awarded",
+                  "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "discordRewardedRolesId",
+                "userId",
+                "roleId",
+                "magatamaPointAwarded"
+              ]
+            }
+          },
+          "userInviteLogs": {
+            "description": "User invite logs",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "inviteLogId": {
+                  "description": "Invite log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "inviteeDiscordId": {
+                  "description": "Invitee Discord ID",
+                  "type": "string"
+                },
+                "inviteeUserId": {
+                  "description": "Invitee user ID",
+                  "type": "string"
+                },
+                "magatamaPointAwarded": {
+                  "description": "Magatama points awarded",
+                  "type": "number"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "inviteLogId",
+                "userId",
+                "magatamaPointAwarded"
+              ]
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "username",
+          "isPremium",
+          "totalQuestCompleted",
+          "totalTravelDistance",
+          "role",
+          "registeredAt",
+          "discordJoinedAt",
+          "isBanned"
+        ]
+      },
+      "UserSensitiveInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "description": "Password",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Refresh token",
+            "type": "string"
+          },
+          "encryptedPrivateKey": {
+            "description": "Encrypted private key",
+            "type": "string"
+          },
+          "passportWalletAddress": {
+            "description": "Passport wallet address",
+            "type": "string"
+          },
+          "perksWalletAddress": {
+            "description": "Perks wallet address",
+            "type": "string"
+          },
+          "latestIpAddress": {
+            "description": "Latest IP address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
         ]
       }
     }

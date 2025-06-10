@@ -9,6 +9,7 @@ interface MomentProps {
     rewardText?: string;
     insDateTime: Date;
     momentType: MomentType;
+    totalItems: number;
 }
 
 interface MomentViewData {
@@ -20,6 +21,7 @@ interface MomentViewData {
     rewardText?: string | null;
     insDateTime: Date;
     momentType: string;
+    totalItems: number;
 }
 
 export class MomentEntity {
@@ -49,6 +51,10 @@ export class MomentEntity {
         return this.props.rewardText;
     }
 
+    get totalItems(): number {
+        return this.props.totalItems;
+    }
+
     get insDateTime(): Date {
         return this.props.insDateTime;
     }
@@ -73,6 +79,7 @@ export class MomentEntity {
             rewardText: data.rewardText || undefined,
             insDateTime: data.insDateTime,
             momentType,
+            totalItems: data.totalItems,
         };
 
         // Apply type-specific transformations
