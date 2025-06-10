@@ -59,6 +59,7 @@ import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
+import { UserProfileResultBuilder } from './builder/user-profile-result-builder';
 
 @Injectable()
 export class TouriiBackendService {
@@ -927,6 +928,11 @@ export class TouriiBackendService {
         }
 
         return user;
+    }
+
+    async getUserProfile(userId: string) {
+        const user = await this.userRepository.getUserInfoByUserId(userId);
+        return user ? UserProfileResultBuilder.userToDto(user) : undefined;
     }
 
     /**

@@ -1,0 +1,4 @@
+GET http://localhost:4000/users/me
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202311-XYZ

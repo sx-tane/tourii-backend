@@ -119,6 +119,10 @@ import {
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
 import {
+    UserProfileResponseDto,
+    UserProfileResponseSchema,
+} from './model/tourii-response/user-profile-response.model';
+import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
@@ -157,6 +161,7 @@ import {
     StartGroupQuestResponseDto,
     LocationQueryDto,
     LocationInfoResponseDto,
+    UserProfileResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -687,6 +692,22 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     login(@Body() login: LoginRequestDto): Promise<UserEntity> {
         return this.touriiBackendService.loginUser(login);
+    }
+
+    @Get('/users/me')
+    @ApiTags('User')
+    @ApiOperation({ summary: "Get current user's profile" })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    // TODO: Replace header-based userId retrieval with proper auth guard
+    @ApiResponse({ status: 200, description: 'Current user profile', type: UserProfileResponseDto, schema: zodToOpenAPI(UserProfileResponseSchema) })
+    @ApiDefaultBadRequestResponse()
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiUserExistsResponse()
+    async me(@Req() req: Request): Promise<UserProfileResponseDto | undefined> {
+        const userId = req.headers['x-user-id'] as string; // TODO: extract from auth token
+        return this.touriiBackendService.getUserProfile(userId);
     }
     @Post('/auth/signup')
     @ApiTags('Auth')

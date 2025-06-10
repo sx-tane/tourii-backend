@@ -1,5 +1,7 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import type { Prisma, UserRoleType, user } from '@prisma/client';
+import { UserInfo } from '@app/core/domain/user/user-info';
+import type { Prisma, UserRoleType, user_info } from '@prisma/client';
+import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 
 export class UserMapper {
     static userEntityToPrismaInput(userEntity: UserEntity): Prisma.userUncheckedCreateInput {
@@ -33,7 +35,7 @@ export class UserMapper {
         };
     }
 
-    static prismaModelToUserEntity(prismaModel: user): UserEntity {
+    static prismaModelToUserEntity(prismaModel: UserRelationModel): UserEntity {
         return new UserEntity(
             {
                 username: prismaModel.username,
@@ -61,8 +63,36 @@ export class UserMapper {
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
+                userInfo: prismaModel.user_info
+                    ? UserMapper.prismaModelToUserInfoEntity(prismaModel.user_info)
+                    : undefined,
             },
             prismaModel.user_id,
         );
+    }
+
+    static prismaModelToUserInfoEntity(prismaUserInfo: user_info): UserInfo {
+        return new UserInfo({
+            userId: prismaUserInfo.user_id,
+            digitalPassportAddress: prismaUserInfo.digital_passport_address,
+            logNftAddress: prismaUserInfo.log_nft_address,
+            userDigitalPassportType: prismaUserInfo.user_digital_passport_type ?? undefined,
+            level: prismaUserInfo.level ?? undefined,
+            discountRate: prismaUserInfo.discount_rate ?? undefined,
+            magatamaPoints: prismaUserInfo.magatama_points,
+            magatamaBags: prismaUserInfo.magatama_bags ?? undefined,
+            totalQuestCompleted: prismaUserInfo.total_quest_completed,
+            totalTravelDistance: prismaUserInfo.total_travel_distance,
+            isPremium: prismaUserInfo.is_premium,
+            prayerBead: prismaUserInfo.prayer_bead ?? undefined,
+            sword: prismaUserInfo.sword ?? undefined,
+            orgeMask: prismaUserInfo.orge_mask ?? undefined,
+            delFlag: prismaUserInfo.del_flag,
+            insUserId: prismaUserInfo.ins_user_id,
+            insDateTime: prismaUserInfo.ins_date_time,
+            updUserId: prismaUserInfo.upd_user_id,
+            updDateTime: prismaUserInfo.upd_date_time,
+            requestId: prismaUserInfo.request_id ?? undefined,
+        });
     }
 }

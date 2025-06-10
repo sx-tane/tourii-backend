@@ -1,4 +1,5 @@
 import { Entity } from '../entity';
+import type { UserInfo } from './user-info';
 
 interface UserProps {
     username: string;
@@ -27,6 +28,7 @@ interface UserProps {
     updUserId: string;
     updDateTime: Date;
     requestId?: string;
+    userInfo?: UserInfo;
 }
 
 export class UserEntity extends Entity<UserProps> {
@@ -140,5 +142,9 @@ export class UserEntity extends Entity<UserProps> {
 
     get requestId(): string | undefined {
         return this.props.requestId;
+    }
+
+    get userInfo(): UserInfo | undefined {
+        return this.props.userInfo;
     }
 }
