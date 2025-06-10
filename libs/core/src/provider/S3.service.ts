@@ -26,7 +26,7 @@ export class S3Service implements OnModuleInit, OnApplicationShutdown {
         this.s3Client.destroy();
     }
 
-    get getS3Client() {
+    getS3Client() {
         if (!this.s3Client) {
             Logger.error('S3Clientが初期化されていません');
             throw new Error('S3Clientが初期化されていません');
