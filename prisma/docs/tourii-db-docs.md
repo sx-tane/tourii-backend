@@ -1345,6 +1345,16 @@ erDiagram
   String ts_prefix
   Int counter
 }
+"moment_view" {
+  String id PK
+  String user_id
+  String username "nullable"
+  String image_url "nullable"
+  String description "nullable"
+  String reward_text "nullable"
+  DateTime ins_date_time
+  String moment_type
+}
 ```
 
 ### `id_sequence`
@@ -1355,3 +1365,16 @@ Used for generating sequential IDs with custom prefixes for various entity types
   - `key`: Unique identifier for the sequence type
   - `ts_prefix`: Timestamp prefix format for the ID
   - `counter`: Current counter value for this sequence
+
+### `moment_view`
+Moment feed view aggregating recent user activities
+
+**Properties**
+  - `id`: 
+  - `user_id`: 
+  - `username`: 
+  - `image_url`: 
+  - `description`: 
+  - `reward_text`: 
+  - `ins_date_time`: 
+  - `moment_type`: 
