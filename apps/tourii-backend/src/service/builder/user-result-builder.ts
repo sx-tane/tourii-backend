@@ -46,6 +46,8 @@ export class UserResultBuilder {
             discordId: user.discordId,
             discordUsername: user.discordUsername,
             email: user.email,
+            passportWalletAddress: user.passportWalletAddress,
+            perksWalletAddress: user.perksWalletAddress,
             isPremium: user.isPremium,
             totalQuestCompleted: user.totalQuestCompleted,
             totalTravelDistance: user.totalTravelDistance,

@@ -1,4 +1,6 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import {
     ApiBody,
@@ -357,9 +359,14 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
-    @ApiUserExistsResponse()
-    async me(@Req() req: Request): Promise<UserResponseDto | undefined> {
+    @ApiUserNotFoundResponse()
+    async me(@Req() req: Request): Promise<UserResponseDto> {
         const userId = req.headers['x-user-id'] as string; // TODO: extract from auth token
+
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
         return this.touriiBackendService.getUserProfile(userId);
     }
 
