@@ -48,12 +48,13 @@ describe('MomentRepositoryDb', () => {
             // For now, we'll create mock data in the moment_view if it exists
             // Note: Since moment_view is a view, we need to create the underlying data
 
-            // Create test users
+            // Create test users with unique wallet addresses
             await prisma.user.create({
                 data: {
                     user_id: 'user1',
                     username: 'testuser1',
                     password: 'password',
+                    perks_wallet_address: '0x1234567890abcdef1234567890abcdef12345678',
                     ins_user_id: 'system',
                     upd_user_id: 'system',
                 },
@@ -64,6 +65,7 @@ describe('MomentRepositoryDb', () => {
                     user_id: 'user2',
                     username: 'testuser2',
                     password: 'password',
+                    perks_wallet_address: '0x9876543210fedcba9876543210fedcba98765432',
                     ins_user_id: 'system',
                     upd_user_id: 'system',
                 },
