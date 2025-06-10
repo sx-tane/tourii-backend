@@ -45,6 +45,10 @@ import {
 } from '../controller/model/tourii-response/quest-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
+import {
+    UserResponseDto,
+    UserSensitiveInfoResponseDto,
+} from '../controller/model/tourii-response/user/user-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
@@ -59,7 +63,7 @@ import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
-import { UserProfileResultBuilder } from './builder/user-profile-result-builder';
+import { UserResultBuilder } from './builder/user-result-builder';
 
 @Injectable()
 export class TouriiBackendService {
@@ -88,6 +92,126 @@ export class TouriiBackendService {
         private readonly groupQuestRepository: GroupQuestRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
+
+    // ==========================================
+    // HELPER METHODS
+    // ==========================================
+
+    /**
+     * Get location info
+     * @param query Query string
+     * @returns Location info response DTO
+     */
+    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
+        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
+        return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
+    }
+
+    // ==========================================
+    // USER & AUTH METHODS
+    // ==========================================
+
+    /**
+     * Signup user
+     * @param email Email
+     * @param socialProvider Social provider
+     * @param socialId Social ID
+     * @param ipAddress IP address
+     * @returns Auth signup response DTO
+     */
+    async signupUser(
+        email: string,
+        socialProvider: string,
+        socialId: string,
+        ipAddress: string,
+    ): Promise<AuthSignupResponseDto> {
+        const wallet = ethers.Wallet.createRandom();
+        const encryptedPrivateKey = this.encryptionRepository.encryptString(wallet.privateKey);
+        const userEntity = UserCreateBuilder.fromSignup(
+            email,
+            socialProvider,
+            socialId,
+            wallet.address,
+            encryptedPrivateKey,
+            ipAddress,
+        );
+        try {
+            await this.passportRepository.mint(wallet.address);
+        } catch (error) {
+            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
+        }
+        const created = await this.userRepository.createUser(userEntity);
+        return {
+            userId: created.userId ?? '',
+            walletAddress: wallet.address,
+        };
+    }
+
+    async createUser(user: UserEntity) {
+        // service logic
+        // dto -> entity
+        return this.userRepository.createUser(user);
+    }
+
+    async loginUser(login: LoginRequestDto): Promise<UserEntity> {
+        let user: UserEntity | undefined;
+        if (login.username) {
+            user = await this.userRepository.getUserByUsername(login.username);
+        }
+        if (!user && login.passportWalletAddress) {
+            user = await this.userRepository.getUserByPassportWallet(login.passportWalletAddress);
+        }
+        if (!user && login.discordId) {
+            user = await this.userRepository.getUserByDiscordId(login.discordId);
+        }
+        if (!user && login.googleEmail) {
+            user = await this.userRepository.getUserByGoogleEmail(login.googleEmail);
+        }
+
+        if (!user) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        if (user.password !== login.password) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        if (
+            (login.passportWalletAddress &&
+                user.passportWalletAddress !== login.passportWalletAddress) ||
+            (login.discordId && user.discordId !== login.discordId) ||
+            (login.googleEmail && user.googleEmail !== login.googleEmail)
+        ) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
+        }
+
+        return user;
+    }
+
+    /**
+     * Get user profile
+     * @param userId User ID
+     * @returns User profile response DTO
+     */
+    async getUserProfile(userId: string): Promise<UserResponseDto> {
+        const user = await this.userRepository.getUserInfoByUserId(userId);
+        if (!user) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+        return UserResultBuilder.userToDto(user);
+    }
+
+    async getUserSensitiveInfo(userId: string): Promise<UserSensitiveInfoResponseDto> {
+        const user = await this.userRepository.getUserInfoByUserId(userId);
+        if (!user) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+        return UserResultBuilder.userSensitiveInfoToDto(user);
+    }
+
+    // ==========================================
+    // STORY METHODS
+    // ==========================================
 
     /**
      * Create story
@@ -172,6 +296,33 @@ export class TouriiBackendService {
         );
         return StoryResultBuilder.storyChapterToDto(updated, updated.sagaName ?? '');
     }
+
+    async deleteStory(storyId: string): Promise<void> {
+        await this.storyRepository.deleteStory(storyId);
+    }
+
+    async deleteStoryChapter(chapterId: string): Promise<void> {
+        await this.storyRepository.deleteStoryChapter(chapterId);
+    }
+
+    /**
+     * Track chapter progress
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @param status Story status
+     * @returns void
+     */
+    async trackChapterProgress(
+        userId: string,
+        chapterId: string,
+        status: StoryStatus,
+    ): Promise<void> {
+        await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
+    }
+
+    // ==========================================
+    // MODEL ROUTE METHODS
+    // ==========================================
 
     /**
      * Create model route
@@ -338,82 +489,6 @@ export class TouriiBackendService {
         return touristSpotResponseDto;
     }
 
-    async fetchQuestsWithPagination(
-        page: number,
-        limit: number,
-        isPremium?: boolean,
-        isUnlocked?: boolean,
-        questType?: QuestType,
-    ): Promise<QuestListResponseDto> {
-        const quests = await this.questRepository.fetchQuestsWithPagination(
-            page,
-            limit,
-            isPremium,
-            isUnlocked,
-            questType,
-        );
-
-        return QuestResultBuilder.questWithPaginationToDto(quests);
-    }
-
-    async getQuestById(questId: string): Promise<QuestResponseDto> {
-        const quest = await this.questRepository.fetchQuestById(questId);
-        return QuestResultBuilder.questToDto(quest);
-    }
-
-    async createQuest(dto: QuestCreateRequestDto): Promise<QuestResponseDto> {
-        const questEntity = QuestCreateRequestBuilder.dtoToQuest(dto, 'admin');
-        const created = await this.questRepository.createQuest(questEntity);
-        return QuestResultBuilder.questToDto(created);
-    }
-
-    async createQuestTask(
-        questId: string,
-        dto: QuestTaskCreateRequestDto,
-    ): Promise<TaskResponseDto> {
-        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
-        const created = await this.questRepository.createQuestTask(taskEntity);
-        return QuestResultBuilder.taskToDto(created);
-    }
-
-    /**
-     * Update quest
-     * @param quest Quest update request DTO
-     * @returns Quest response DTO
-     */
-    async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
-        const current = await this.questRepository.fetchQuestById(quest.questId);
-        const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
-        const updated = await this.questRepository.updateQuest(questEntity);
-
-        if (quest.taskList && quest.taskList.length > 0 && current.tasks) {
-            const taskMap = new Map(current.tasks.map((t) => [t.taskId, t]));
-            await Promise.all(
-                quest.taskList.map((taskDto) => {
-                    const baseTask = taskMap.get(taskDto.taskId);
-                    return baseTask
-                        ? this.questRepository.updateQuestTask(
-                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
-                          )
-                        : Promise.resolve();
-                }),
-            );
-        }
-
-        return QuestResultBuilder.questToDto(updated);
-    }
-
-    async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
-        const current = await this.questRepository.fetchQuestById(task.questId);
-        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
-        if (!baseTask) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
-        }
-        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
-        const updated = await this.questRepository.updateQuestTask(taskEntity);
-        return QuestResultBuilder.taskToDto(updated);
-    }
-
     async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
         // 1. Standardize region name using Google Places API (if provided)
         let standardizedRegionName = modelRoute.region;
@@ -555,42 +630,6 @@ export class TouriiBackendService {
         }
 
         return ModelRouteResultBuilder.touristSpotToDto(updated, [weatherInfo]);
-    }
-
-    /**
-     * Signup user
-     * @param email Email
-     * @param socialProvider Social provider
-     * @param socialId Social ID
-     * @param ipAddress IP address
-     * @returns Auth signup response DTO
-     */
-    async signupUser(
-        email: string,
-        socialProvider: string,
-        socialId: string,
-        ipAddress: string,
-    ): Promise<AuthSignupResponseDto> {
-        const wallet = ethers.Wallet.createRandom();
-        const encryptedPrivateKey = this.encryptionRepository.encryptString(wallet.privateKey);
-        const userEntity = UserCreateBuilder.fromSignup(
-            email,
-            socialProvider,
-            socialId,
-            wallet.address,
-            encryptedPrivateKey,
-            ipAddress,
-        );
-        try {
-            await this.passportRepository.mint(wallet.address);
-        } catch (error) {
-            Logger.warn(`Passport mint failed: ${error}`, 'TouriiBackendService');
-        }
-        const created = await this.userRepository.createUser(userEntity);
-        return {
-            userId: created.userId ?? '',
-            walletAddress: wallet.address,
-        };
     }
 
     /**
@@ -889,50 +928,92 @@ export class TouriiBackendService {
         return spots.map((spot) => ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfos));
     }
 
-    async createUser(user: UserEntity) {
-        // service logic
-        // dto -> entity
-        return this.userRepository.createUser(user);
+    async deleteModelRoute(modelRouteId: string): Promise<void> {
+        await this.modelRouteRepository.deleteModelRoute(modelRouteId);
     }
 
-    async loginUser(login: LoginRequestDto): Promise<UserEntity> {
-        let user: UserEntity | undefined;
-        if (login.username) {
-            user = await this.userRepository.getUserByUsername(login.username);
-        }
-        if (!user && login.passportWalletAddress) {
-            user = await this.userRepository.getUserByPassportWallet(login.passportWalletAddress);
-        }
-        if (!user && login.discordId) {
-            user = await this.userRepository.getUserByDiscordId(login.discordId);
-        }
-        if (!user && login.googleEmail) {
-            user = await this.userRepository.getUserByGoogleEmail(login.googleEmail);
-        }
-
-        if (!user) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
-        }
-
-        if (user.password !== login.password) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
-        }
-
-        if (
-            (login.passportWalletAddress &&
-                user.passportWalletAddress !== login.passportWalletAddress) ||
-            (login.discordId && user.discordId !== login.discordId) ||
-            (login.googleEmail && user.googleEmail !== login.googleEmail)
-        ) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_005);
-        }
-
-        return user;
+    async deleteTouristSpot(touristSpotId: string): Promise<void> {
+        await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
     }
 
-    async getUserProfile(userId: string) {
-        const user = await this.userRepository.getUserInfoByUserId(userId);
-        return user ? UserProfileResultBuilder.userToDto(user) : undefined;
+    // ==========================================
+    // QUEST METHODS
+    // ==========================================
+
+    async fetchQuestsWithPagination(
+        page: number,
+        limit: number,
+        isPremium?: boolean,
+        isUnlocked?: boolean,
+        questType?: QuestType,
+    ): Promise<QuestListResponseDto> {
+        const quests = await this.questRepository.fetchQuestsWithPagination(
+            page,
+            limit,
+            isPremium,
+            isUnlocked,
+            questType,
+        );
+
+        return QuestResultBuilder.questWithPaginationToDto(quests);
+    }
+
+    async getQuestById(questId: string): Promise<QuestResponseDto> {
+        const quest = await this.questRepository.fetchQuestById(questId);
+        return QuestResultBuilder.questToDto(quest);
+    }
+
+    async createQuest(dto: QuestCreateRequestDto): Promise<QuestResponseDto> {
+        const questEntity = QuestCreateRequestBuilder.dtoToQuest(dto, 'admin');
+        const created = await this.questRepository.createQuest(questEntity);
+        return QuestResultBuilder.questToDto(created);
+    }
+
+    async createQuestTask(
+        questId: string,
+        dto: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
+        const created = await this.questRepository.createQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(created);
+    }
+
+    /**
+     * Update quest
+     * @param quest Quest update request DTO
+     * @returns Quest response DTO
+     */
+    async updateQuest(quest: QuestUpdateRequestDto): Promise<QuestResponseDto> {
+        const current = await this.questRepository.fetchQuestById(quest.questId);
+        const questEntity = QuestUpdateRequestBuilder.dtoToQuest(quest, current);
+        const updated = await this.questRepository.updateQuest(questEntity);
+
+        if (quest.taskList && quest.taskList.length > 0 && current.tasks) {
+            const taskMap = new Map(current.tasks.map((t) => [t.taskId, t]));
+            await Promise.all(
+                quest.taskList.map((taskDto) => {
+                    const baseTask = taskMap.get(taskDto.taskId);
+                    return baseTask
+                        ? this.questRepository.updateQuestTask(
+                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
+                          )
+                        : Promise.resolve();
+                }),
+            );
+        }
+
+        return QuestResultBuilder.questToDto(updated);
+    }
+
+    async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
+        const current = await this.questRepository.fetchQuestById(task.questId);
+        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
+        if (!baseTask) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
+        const updated = await this.questRepository.updateQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(updated);
     }
 
     /**
@@ -987,53 +1068,12 @@ export class TouriiBackendService {
         return { message: 'Group quest started!' };
     }
 
-    /**
-     * Get location info
-     * @param query Query string
-     * @returns Location info response DTO
-     */
-    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
-        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
-        return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
-    }
-
-    async deleteStory(storyId: string): Promise<void> {
-        await this.storyRepository.deleteStory(storyId);
-    }
-
-    async deleteStoryChapter(chapterId: string): Promise<void> {
-        await this.storyRepository.deleteStoryChapter(chapterId);
-    }
-
-    async deleteModelRoute(modelRouteId: string): Promise<void> {
-        await this.modelRouteRepository.deleteModelRoute(modelRouteId);
-    }
-
-    async deleteTouristSpot(touristSpotId: string): Promise<void> {
-        await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
-    }
-
     async deleteQuest(questId: string): Promise<void> {
         await this.questRepository.deleteQuest(questId);
     }
 
     async deleteQuestTask(taskId: string): Promise<void> {
         await this.questRepository.deleteQuestTask(taskId);
-    }
-
-    /**
-     * Track chapter progress
-     * @param userId User ID
-     * @param chapterId Chapter ID
-     * @param status Story status
-     * @returns void
-     */
-    async trackChapterProgress(
-        userId: string,
-        chapterId: string,
-        status: StoryStatus,
-    ): Promise<void> {
-        await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
     }
 
     /**
@@ -1057,7 +1097,5 @@ export class TouriiBackendService {
                 TouriiBackendAppErrorType.E_TB_024, // Update failed
             );
         }
-
-        // 2. Return void
     }
 }

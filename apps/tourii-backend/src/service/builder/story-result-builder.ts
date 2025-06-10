@@ -22,9 +22,9 @@ export class StoryResultBuilder {
             isUnlocked: storyChapter.isUnlocked ?? false,
             delFlag: storyChapter.delFlag ?? false,
             insUserId: storyChapter.insUserId ?? '',
-            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.insDateTime) ?? '',
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.insDateTime),
             updUserId: storyChapter.updUserId,
-            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.updDateTime) ?? '',
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(storyChapter.updDateTime),
         };
     }
 
@@ -43,11 +43,11 @@ export class StoryResultBuilder {
                 story.chapterList?.map((chapter) =>
                     StoryResultBuilder.storyChapterToDto(chapter, story.storyId ?? ''),
                 ) ?? undefined,
-            delFlag: story.delFlag ?? false,
-            insUserId: story.insUserId ?? '',
-            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime) ?? '',
+            delFlag: story.delFlag,
+            insUserId: story.insUserId,
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.insDateTime),
             updUserId: story.updUserId,
-            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.updDateTime) ?? '',
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(story.updDateTime),
         };
     }
 }

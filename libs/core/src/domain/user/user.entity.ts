@@ -1,5 +1,16 @@
+import { UserRoleType } from '@prisma/client';
 import { Entity } from '../entity';
+import type { DiscordActivityLog } from './discord-activity-log';
+import type { DiscordRewardedRoles } from './discord-rewarded-roles';
+import type { DiscordUserRoles } from './discord-user-roles';
+import type { UserAchievement } from './user-achievement';
 import type { UserInfo } from './user-info';
+import type { UserInviteLog } from './user-invite-log';
+import type { UserItemClaimLog } from './user-item-claim-log';
+import type { UserOnchainItem } from './user-onchain-item';
+import type { UserQuestLog } from './user-quest-log';
+import type { UserStoryLog } from './user-story-log';
+import type { UserTravelLog } from './user-travel-log';
 
 interface UserProps {
     username: string;
@@ -18,7 +29,7 @@ interface UserProps {
     isPremium: boolean;
     totalQuestCompleted: number;
     totalTravelDistance: number;
-    role: string;
+    role: UserRoleType;
     registeredAt: Date;
     discordJoinedAt: Date;
     isBanned: boolean;
@@ -29,6 +40,16 @@ interface UserProps {
     updDateTime: Date;
     requestId?: string;
     userInfo?: UserInfo;
+    userAchievements?: UserAchievement[];
+    userOnchainItems?: UserOnchainItem[];
+    userItemClaimLogs?: UserItemClaimLog[];
+    userStoryLogs?: UserStoryLog[];
+    userQuestLogs?: UserQuestLog[];
+    userTravelLogs?: UserTravelLog[];
+    discordActivityLogs?: DiscordActivityLog[];
+    discordUserRoles?: DiscordUserRoles[];
+    discordRewardedRoles?: DiscordRewardedRoles[];
+    userInviteLogs?: UserInviteLog[];
 }
 
 export class UserEntity extends Entity<UserProps> {
@@ -104,7 +125,7 @@ export class UserEntity extends Entity<UserProps> {
         return this.props.totalTravelDistance;
     }
 
-    get role(): string {
+    get role(): UserRoleType {
         return this.props.role;
     }
 
@@ -146,5 +167,45 @@ export class UserEntity extends Entity<UserProps> {
 
     get userInfo(): UserInfo | undefined {
         return this.props.userInfo;
+    }
+
+    get userAchievements(): UserAchievement[] | undefined {
+        return this.props.userAchievements;
+    }
+
+    get userOnchainItems(): UserOnchainItem[] | undefined {
+        return this.props.userOnchainItems;
+    }
+
+    get userItemClaimLogs(): UserItemClaimLog[] | undefined {
+        return this.props.userItemClaimLogs;
+    }
+
+    get userStoryLogs(): UserStoryLog[] | undefined {
+        return this.props.userStoryLogs;
+    }
+
+    get userQuestLogs(): UserQuestLog[] | undefined {
+        return this.props.userQuestLogs;
+    }
+
+    get userTravelLogs(): UserTravelLog[] | undefined {
+        return this.props.userTravelLogs;
+    }
+
+    get discordActivityLogs(): DiscordActivityLog[] | undefined {
+        return this.props.discordActivityLogs;
+    }
+
+    get discordUserRoles(): DiscordUserRoles[] | undefined {
+        return this.props.discordUserRoles;
+    }
+
+    get discordRewardedRoles(): DiscordRewardedRoles[] | undefined {
+        return this.props.discordRewardedRoles;
+    }
+
+    get userInviteLogs(): UserInviteLog[] | undefined {
+        return this.props.userInviteLogs;
     }
 }

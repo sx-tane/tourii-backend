@@ -1,9 +1,11 @@
+import { LevelType, PassportType } from '@prisma/client';
+
 export interface UserInfoProps {
     userId: string;
     digitalPassportAddress: string;
     logNftAddress: string;
-    userDigitalPassportType?: string;
-    level?: string;
+    userDigitalPassportType?: PassportType;
+    level?: LevelType;
     discountRate?: number;
     magatamaPoints: number;
     magatamaBags?: number;
@@ -33,10 +35,10 @@ export class UserInfo {
     get logNftAddress(): string {
         return this.props.logNftAddress;
     }
-    get userDigitalPassportType(): string | undefined {
+    get userDigitalPassportType(): PassportType | undefined {
         return this.props.userDigitalPassportType;
     }
-    get level(): string | undefined {
+    get level(): LevelType | undefined {
         return this.props.level;
     }
     get discountRate(): number | undefined {

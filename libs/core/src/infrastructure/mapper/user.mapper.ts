@@ -1,6 +1,30 @@
-import { UserEntity } from '@app/core/domain/user/user.entity';
+import { DiscordActivityLog } from '@app/core/domain/user/discord-activity-log';
+import { DiscordRewardedRoles } from '@app/core/domain/user/discord-rewarded-roles';
+import { DiscordUserRoles } from '@app/core/domain/user/discord-user-roles';
+import { UserAchievement } from '@app/core/domain/user/user-achievement';
 import { UserInfo } from '@app/core/domain/user/user-info';
-import type { Prisma, UserRoleType, user_info } from '@prisma/client';
+import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
+import { UserItemClaimLog } from '@app/core/domain/user/user-item-claim-log';
+import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
+import { UserQuestLog } from '@app/core/domain/user/user-quest-log';
+import { UserStoryLog } from '@app/core/domain/user/user-story-log';
+import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
+import { UserEntity } from '@app/core/domain/user/user.entity';
+import type {
+    Prisma,
+    UserRoleType,
+    discord_activity_log,
+    discord_rewarded_roles,
+    discord_user_roles,
+    user_achievement,
+    user_info,
+    user_invite_log,
+    user_item_claim_log,
+    user_onchain_item,
+    user_quest_log,
+    user_story_log,
+    user_travel_log,
+} from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 
 export class UserMapper {
@@ -66,6 +90,56 @@ export class UserMapper {
                 userInfo: prismaModel.user_info
                     ? UserMapper.prismaModelToUserInfoEntity(prismaModel.user_info)
                     : undefined,
+                userAchievements: prismaModel.user_achievements
+                    ? prismaModel.user_achievements.map((achievement) =>
+                          UserMapper.prismaModelToUserAchievementEntity(achievement),
+                      )
+                    : undefined,
+                userOnchainItems: prismaModel.user_onchain_item
+                    ? prismaModel.user_onchain_item.map((item) =>
+                          UserMapper.prismaModelToUserOnchainItemEntity(item),
+                      )
+                    : undefined,
+                userItemClaimLogs: prismaModel.user_item_claim_log
+                    ? prismaModel.user_item_claim_log.map((log) =>
+                          UserMapper.prismaModelToUserItemClaimLogEntity(log),
+                      )
+                    : undefined,
+                userStoryLogs: prismaModel.user_story_log
+                    ? prismaModel.user_story_log.map((log) =>
+                          UserMapper.prismaModelToUserStoryLogEntity(log),
+                      )
+                    : undefined,
+                userQuestLogs: prismaModel.user_quest_log
+                    ? prismaModel.user_quest_log.map((log) =>
+                          UserMapper.prismaModelToUserQuestLogEntity(log),
+                      )
+                    : undefined,
+                userTravelLogs: prismaModel.user_travel_log
+                    ? prismaModel.user_travel_log.map((log) =>
+                          UserMapper.prismaModelToUserTravelLogEntity(log),
+                      )
+                    : undefined,
+                discordActivityLogs: prismaModel.discord_activity_log
+                    ? prismaModel.discord_activity_log.map((log) =>
+                          UserMapper.prismaModelToDiscordActivityLogEntity(log),
+                      )
+                    : undefined,
+                discordUserRoles: prismaModel.discord_user_roles
+                    ? prismaModel.discord_user_roles.map((role) =>
+                          UserMapper.prismaModelToDiscordUserRolesEntity(role),
+                      )
+                    : undefined,
+                discordRewardedRoles: prismaModel.discord_rewarded_roles
+                    ? prismaModel.discord_rewarded_roles.map((role) =>
+                          UserMapper.prismaModelToDiscordRewardedRolesEntity(role),
+                      )
+                    : undefined,
+                userInviteLogs: prismaModel.user_invite_log
+                    ? prismaModel.user_invite_log.map((log) =>
+                          UserMapper.prismaModelToUserInviteLogEntity(log),
+                      )
+                    : undefined,
             },
             prismaModel.user_id,
         );
@@ -93,6 +167,195 @@ export class UserMapper {
             updUserId: prismaUserInfo.upd_user_id,
             updDateTime: prismaUserInfo.upd_date_time,
             requestId: prismaUserInfo.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserAchievementEntity(
+        prismaAchievement: user_achievement,
+    ): UserAchievement {
+        return new UserAchievement({
+            userAchievementId: prismaAchievement.user_achievement_id,
+            userId: prismaAchievement.user_id,
+            achievementName: prismaAchievement.achievement_name,
+            achievementDesc: prismaAchievement.achievement_desc ?? undefined,
+            iconUrl: prismaAchievement.icon_url ?? undefined,
+            achievementType: prismaAchievement.achievement_type,
+            magatamaPointAwarded: prismaAchievement.magatama_point_awarded,
+            delFlag: prismaAchievement.del_flag,
+            insUserId: prismaAchievement.ins_user_id,
+            insDateTime: prismaAchievement.ins_date_time,
+            updUserId: prismaAchievement.upd_user_id,
+            updDateTime: prismaAchievement.upd_date_time,
+            requestId: prismaAchievement.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserOnchainItemEntity(prismaItem: user_onchain_item): UserOnchainItem {
+        return new UserOnchainItem({
+            userOnchainItemId: prismaItem.user_onchain_item_id,
+            userId: prismaItem.user_id ?? undefined,
+            itemType: prismaItem.item_type,
+            itemTxnHash: prismaItem.item_txn_hash,
+            blockchainType: prismaItem.blockchain_type,
+            mintedAt: prismaItem.minted_at ?? undefined,
+            onchainItemId: prismaItem.onchain_item_id ?? undefined,
+            status: prismaItem.status,
+            delFlag: prismaItem.del_flag,
+            insUserId: prismaItem.ins_user_id,
+            insDateTime: prismaItem.ins_date_time,
+            updUserId: prismaItem.upd_user_id,
+            updDateTime: prismaItem.upd_date_time,
+            requestId: prismaItem.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserItemClaimLogEntity(prismaLog: user_item_claim_log): UserItemClaimLog {
+        return new UserItemClaimLog({
+            userItemClaimLogId: prismaLog.user_item_claim_log_id,
+            userId: prismaLog.user_id,
+            onchainItemId: prismaLog.onchain_item_id ?? undefined,
+            offchainItemName: prismaLog.offchain_item_name ?? undefined,
+            itemAmount: prismaLog.item_amount,
+            itemDetails: prismaLog.item_details ?? undefined,
+            type: prismaLog.type,
+            claimedAt: prismaLog.claimed_at ?? undefined,
+            status: prismaLog.status,
+            errorMsg: prismaLog.error_msg ?? undefined,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserStoryLogEntity(prismaLog: user_story_log): UserStoryLog {
+        return new UserStoryLog({
+            userStoryLogId: prismaLog.user_story_log_id,
+            userId: prismaLog.user_id,
+            storyChapterId: prismaLog.story_chapter_id,
+            status: prismaLog.status,
+            unlockedAt: prismaLog.unlocked_at ?? undefined,
+            finishedAt: prismaLog.finished_at ?? undefined,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserQuestLogEntity(prismaLog: user_quest_log): UserQuestLog {
+        return new UserQuestLog({
+            userQuestLogId: prismaLog.user_quest_log_id,
+            userId: prismaLog.user_id,
+            questId: prismaLog.quest_id,
+            status: prismaLog.status,
+            action: prismaLog.action,
+            userResponse: prismaLog.user_response ?? undefined,
+            groupActivityMembers: prismaLog.group_activity_members as any[],
+            submissionData: prismaLog.submission_data ?? undefined,
+            failedReason: prismaLog.failed_reason ?? undefined,
+            completedAt: prismaLog.completed_at ?? undefined,
+            claimedAt: prismaLog.claimed_at ?? undefined,
+            totalMagatamaPointAwarded: prismaLog.total_magatama_point_awarded,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserTravelLogEntity(prismaLog: user_travel_log): UserTravelLog {
+        return new UserTravelLog({
+            userTravelLogId: prismaLog.user_travel_log_id,
+            userId: prismaLog.user_id,
+            questId: prismaLog.quest_id,
+            taskId: prismaLog.task_id,
+            touristSpotId: prismaLog.tourist_spot_id,
+            userLongitude: prismaLog.user_longitude,
+            userLatitude: prismaLog.user_latitude,
+            travelDistanceFromTarget: prismaLog.travel_distance_from_target ?? undefined,
+            travelDistance: prismaLog.travel_distance,
+            qrCodeValue: prismaLog.qr_code_value ?? undefined,
+            checkInMethod: prismaLog.check_in_method ?? undefined,
+            detectedFraud: prismaLog.detected_fraud ?? undefined,
+            fraudReason: prismaLog.fraud_reason ?? undefined,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToDiscordActivityLogEntity(
+        prismaLog: discord_activity_log,
+    ): DiscordActivityLog {
+        return new DiscordActivityLog({
+            discordActivityLogId: prismaLog.discord_activity_log_id,
+            userId: prismaLog.user_id,
+            activityType: prismaLog.activity_type,
+            activityDetails: prismaLog.activity_details ?? undefined,
+            magatamaPointAwarded: prismaLog.magatama_point_awarded,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToDiscordUserRolesEntity(prismaRole: discord_user_roles): DiscordUserRoles {
+        return new DiscordUserRoles({
+            discordUserRolesId: prismaRole.discord_user_roles_id,
+            userId: prismaRole.user_id,
+            roleId: prismaRole.role_id,
+            delFlag: prismaRole.del_flag,
+            insUserId: prismaRole.ins_user_id,
+            insDateTime: prismaRole.ins_date_time,
+            updUserId: prismaRole.upd_user_id,
+            updDateTime: prismaRole.upd_date_time,
+            requestId: prismaRole.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToDiscordRewardedRolesEntity(
+        prismaRole: discord_rewarded_roles,
+    ): DiscordRewardedRoles {
+        return new DiscordRewardedRoles({
+            discordRewardedRolesId: prismaRole.discord_rewarded_roles_id,
+            userId: prismaRole.user_id,
+            roleId: prismaRole.role_id,
+            magatamaPointAwarded: prismaRole.magatama_point_awarded,
+            delFlag: prismaRole.del_flag,
+            insUserId: prismaRole.ins_user_id,
+            insDateTime: prismaRole.ins_date_time,
+            updUserId: prismaRole.upd_user_id,
+            updDateTime: prismaRole.upd_date_time,
+            requestId: prismaRole.request_id ?? undefined,
+        });
+    }
+
+    static prismaModelToUserInviteLogEntity(prismaLog: user_invite_log): UserInviteLog {
+        return new UserInviteLog({
+            inviteLogId: prismaLog.invite_log_id,
+            userId: prismaLog.user_id,
+            inviteeDiscordId: prismaLog.invitee_discord_id ?? undefined,
+            inviteeUserId: prismaLog.invitee_user_id ?? undefined,
+            magatamaPointAwarded: prismaLog.magatama_point_awarded,
+            delFlag: prismaLog.del_flag,
+            insUserId: prismaLog.ins_user_id,
+            insDateTime: prismaLog.ins_date_time,
+            updUserId: prismaLog.upd_user_id,
+            updDateTime: prismaLog.upd_date_time,
+            requestId: prismaLog.request_id ?? undefined,
         });
     }
 }
