@@ -917,6 +917,33 @@ export class TouriiBackendController {
         return await this.touriiBackendService.getQuestById(questId, userId);
     }
 
+    @Get('/quests/tourist-spot/:touristSpotId')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Get Quests by Tourist Spot',
+        description:
+            'Retrieve quests linked to a tourist spot. Provide a userId to include completion status.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'userId', required: false, type: String, description: 'User ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Quests found successfully',
+        type: QuestResponseDto,
+        isArray: true,
+        schema: { type: 'array', items: zodToOpenAPI(QuestResponseSchema) },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getQuestByTouristSpotId(
+        @Param('touristSpotId') touristSpotId: string,
+        @Query('userId') userId: string,
+    ): Promise<QuestResponseDto[]> {
+        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId);
+    }
+
     @Post('/quests/create-quest')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })

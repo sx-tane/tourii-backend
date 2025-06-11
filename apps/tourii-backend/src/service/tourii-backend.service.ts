@@ -1047,6 +1047,14 @@ export class TouriiBackendService {
         return QuestResultBuilder.questToDto(quest);
     }
 
+    async getQuestsByTouristSpotId(
+        touristSpotId: string,
+        userId?: string,
+    ): Promise<QuestResponseDto[]> {
+        const quests = await this.questRepository.fetchQuestsByTouristSpotId(touristSpotId, userId);
+        return quests.map((q) => QuestResultBuilder.questToDto(q));
+    }
+
     /**
      * Create quest
      * @param dto Quest create request DTO

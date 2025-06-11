@@ -10,7 +10,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType } from '@prisma/client';
+import { Prisma, QuestType, QuestStatus } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
@@ -128,6 +128,45 @@ export class QuestRepositoryDb implements QuestRepository {
             : new Array<string>();
 
         return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(questDb, completedTasks);
+    }
+
+    /**
+     * Retrieve quests by tourist spot. Completion data comes from `user_quest_log`.
+     */
+    async fetchQuestsByTouristSpotId(
+        touristSpotId: string,
+        userId?: string,
+    ): Promise<QuestEntity[]> {
+        const questsDb = (await this.prisma.quest.findMany({
+            where: { tourist_spot_id: touristSpotId },
+            include: { quest_task: true, tourist_spot: true },
+            orderBy: { ins_date_time: 'desc' },
+        })) as QuestWithTasks[];
+
+        if (questsDb.length === 0) return [];
+
+        const completedQuestIds = userId
+            ? await this.prisma.user_quest_log
+                  .findMany({
+                      select: { quest_id: true },
+                      where: {
+                          user_id: userId,
+                          quest_id: { in: questsDb.map((q) => q.quest_id) },
+                          status: QuestStatus.COMPLETED,
+                      },
+                  })
+                  .then((logs) => logs.map((log) => log.quest_id))
+            : new Array<string>();
+
+        return questsDb.map((quest) => {
+            const completedTasksForQuest = completedQuestIds.includes(quest.quest_id)
+                ? (quest.quest_task?.map((t) => t.quest_task_id) ?? [])
+                : [];
+            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
+                quest,
+                completedTasksForQuest,
+            );
+        });
     }
 
     async createQuest(quest: QuestEntity): Promise<QuestEntity> {
