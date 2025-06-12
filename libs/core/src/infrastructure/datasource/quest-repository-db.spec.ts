@@ -134,6 +134,18 @@ describe('QuestRepositoryDb', () => {
     });
 
     it('includes completed tasks when userId is provided', async () => {
+        // Create a user first to satisfy foreign key constraint
+        await prisma.user.create({
+            data: {
+                user_id: 'user1',
+                username: 'testuser1',
+                password: 'hashedpassword',
+                perks_wallet_address: 'test-wallet-address',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
         await prisma.quest_task.create({
             data: {
                 quest_task_id: 't1',
