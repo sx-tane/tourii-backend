@@ -124,7 +124,11 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             const modelRoutePrisma = await this.prisma.model_route.findUnique({
                 where: { model_route_id: modelRouteId },
                 include: {
-                    tourist_spot: true,
+                    tourist_spot: {
+                        orderBy: {
+                            ins_date_time: 'asc',
+                        },
+                    },
                 },
             });
             if (!modelRoutePrisma) {
@@ -170,7 +174,11 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             );
             const modelRoutesPrisma = await this.prisma.model_route.findMany({
                 include: {
-                    tourist_spot: true,
+                    tourist_spot: {
+                        orderBy: {
+                            ins_date_time: 'asc',
+                        },
+                    },
                 },
                 orderBy: {
                     ins_date_time: 'asc',

@@ -800,6 +800,91 @@ export class TouriiBackendController {
         return this.touriiBackendService.getTouristSpotsByStoryChapterId(storyChapterId);
     }
 
+    @Get('/routes')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get All Model Routes',
+        description: 'Retrieve a list of all available model routes with their details.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved all model routes',
+        type: [ModelRouteResponseDto],
+        schema: {
+            type: 'array',
+            items: zodToOpenAPI(ModelRouteResponseSchema),
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getRoutes(): Promise<ModelRouteResponseDto[]> {
+        return this.touriiBackendService.getModelRoutes();
+    }
+
+    @Get('/routes/:id')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Model Route by ID',
+        description:
+            'Retrieve a specific model route by its ID, including tourist spots and weather data.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved the model route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
+        return this.touriiBackendService.getModelRouteById(id);
+    }
+
+    @Get('/location-info')
+    @ApiTags('Routes')
+    @ApiOperation({
+        summary: 'Get Location Info',
+        description: 'Retrieve basic location details with thumbnail images using Google Places.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Successfully retrieved location info with images',
+        type: LocationInfoResponseDto,
+        schema: zodToOpenAPI(LocationInfoResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getLocationInfo(
+        @Query() queryParams: LocationQueryDto,
+    ): Promise<LocationInfoResponseDto> {
+        return this.touriiBackendService.getLocationInfo(queryParams.query);
+    }
+
     // ==========================================
     // QUEST ENDPOINTS
     // ==========================================
@@ -915,6 +1000,33 @@ export class TouriiBackendController {
         userId: string,
     ): Promise<QuestResponseDto> {
         return await this.touriiBackendService.getQuestById(questId, userId);
+    }
+
+    @Get('/quests/tourist-spot/:touristSpotId')
+    @ApiTags('Quest')
+    @ApiOperation({
+        summary: 'Get Quests by Tourist Spot',
+        description:
+            'Retrieve quests linked to a tourist spot. Provide a userId to include completion status.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'userId', required: false, type: String, description: 'User ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Quests found successfully',
+        type: QuestResponseDto,
+        isArray: true,
+        schema: { type: 'array', items: zodToOpenAPI(QuestResponseSchema) },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getQuestByTouristSpotId(
+        @Param('touristSpotId') touristSpotId: string,
+        @Query('userId') userId?: string,
+    ): Promise<QuestResponseDto[]> {
+        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId);
     }
 
     @Post('/quests/create-quest')
@@ -1083,90 +1195,9 @@ export class TouriiBackendController {
         return this.touriiBackendService.startGroupQuest(questId, body.userId);
     }
 
-    @Get('/routes')
-    @ApiTags('Routes')
-    @ApiOperation({
-        summary: 'Get All Model Routes',
-        description: 'Retrieve a list of all available model routes with their details.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Successfully retrieved all model routes',
-        type: [ModelRouteResponseDto],
-        schema: {
-            type: 'array',
-            items: zodToOpenAPI(ModelRouteResponseSchema),
-        },
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getRoutes(): Promise<ModelRouteResponseDto[]> {
-        return this.touriiBackendService.getModelRoutes();
-    }
-
-    @Get('/routes/:id')
-    @ApiTags('Routes')
-    @ApiOperation({
-        summary: 'Get Model Route by ID',
-        description:
-            'Retrieve a specific model route by its ID, including tourist spots and weather data.',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Successfully retrieved the model route',
-        type: ModelRouteResponseDto,
-        schema: zodToOpenAPI(ModelRouteResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getRouteById(@Param('id') id: string): Promise<ModelRouteResponseDto> {
-        return this.touriiBackendService.getModelRouteById(id);
-    }
-
-    @Get('/location-info')
-    @ApiTags('Routes')
-    @ApiOperation({
-        summary: 'Get Location Info',
-        description: 'Retrieve basic location details with thumbnail images using Google Places.',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Successfully retrieved location info with images',
-        type: LocationInfoResponseDto,
-        schema: zodToOpenAPI(LocationInfoResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getLocationInfo(
-        @Query() queryParams: LocationQueryDto,
-    ): Promise<LocationInfoResponseDto> {
-        return this.touriiBackendService.getLocationInfo(queryParams.query);
-    }
+    // ==========================================
+    // DASHBOARD ENDPOINTS
+    // ==========================================
 
     @Get('/moments')
     @ApiTags('Moment')

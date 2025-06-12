@@ -23,29 +23,8 @@ export class QuestMapper {
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
                 tasks:
-                    prismaModel.quest_task?.map(
-                        (task) =>
-                            new Task({
-                                taskId: task.quest_task_id,
-                                questId: task.quest_id,
-                                taskTheme: task.task_theme,
-                                taskType: task.task_type,
-                                taskName: task.task_name,
-                                taskDesc: task.task_desc,
-                                isUnlocked: task.is_unlocked,
-                                requiredAction: task.required_action,
-                                groupActivityMembers: task.group_activity_members as any[],
-                                selectOptions: task.select_options as any[],
-                                antiCheatRules: task.anti_cheat_rules as any,
-                                magatamaPointAwarded: task.magatama_point_awarded,
-                                totalMagatamaPointAwarded: task.total_magatama_point_awarded,
-                                delFlag: task.del_flag,
-                                insUserId: task.ins_user_id,
-                                insDateTime: task.ins_date_time,
-                                updUserId: task.upd_user_id,
-                                updDateTime: task.upd_date_time,
-                                requestId: task.request_id ?? undefined,
-                            }),
+                    prismaModel.quest_task?.map((task) =>
+                        QuestMapper.prismaTaskModelToTaskEntity(task),
                     ) ?? [],
                 touristSpot: prismaModel.tourist_spot
                     ? ModelRouteMapper.prismaModelToTouristSpotEntity(prismaModel.tourist_spot)
