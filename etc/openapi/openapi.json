@@ -5213,6 +5213,15 @@
         "operationId": "TouriiBackendController_getQuestList",
         "parameters": [
           {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "questType",
             "required": false,
             "in": "query",
@@ -5433,6 +5442,10 @@
                               "description": "Total Magatama points awarded",
                               "type": "number"
                             },
+                            "isCompleted": {
+                              "description": "Whether task is completed",
+                              "type": "boolean"
+                            },
                             "delFlag": {
                               "description": "Flag to indicate if the record is deleted",
                               "type": "boolean"
@@ -5465,7 +5478,8 @@
                             "requiredAction",
                             "antiCheatRules",
                             "magatamaPointAwarded",
-                            "totalMagatamaPointAwarded"
+                            "totalMagatamaPointAwarded",
+                            "isCompleted"
                           ]
                         }
                       },
@@ -5706,6 +5720,15 @@
             }
           },
           {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
@@ -5869,6 +5892,10 @@
                         "description": "Total Magatama points awarded",
                         "type": "number"
                       },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
+                      },
                       "delFlag": {
                         "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
@@ -5901,7 +5928,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -6453,6 +6481,10 @@
                         "description": "Total Magatama points awarded",
                         "type": "number"
                       },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
+                      },
                       "delFlag": {
                         "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
@@ -6485,7 +6517,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -6919,6 +6952,10 @@
                   "description": "Total Magatama points awarded",
                   "type": "number"
                 },
+                "isCompleted": {
+                  "description": "Whether task is completed",
+                  "type": "boolean"
+                },
                 "delFlag": {
                   "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
@@ -6951,7 +6988,8 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded"
+                "totalMagatamaPointAwarded",
+                "isCompleted"
               ]
             },
             "content": {
@@ -7408,6 +7446,10 @@
                         "description": "Total Magatama points awarded",
                         "type": "number"
                       },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
+                      },
                       "delFlag": {
                         "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
@@ -7440,7 +7482,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -7881,6 +7924,10 @@
                   "description": "Total Magatama points awarded",
                   "type": "number"
                 },
+                "isCompleted": {
+                  "description": "Whether task is completed",
+                  "type": "boolean"
+                },
                 "delFlag": {
                   "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
@@ -7913,7 +7960,8 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded"
+                "totalMagatamaPointAwarded",
+                "isCompleted"
               ]
             },
             "content": {
@@ -11067,6 +11115,10 @@
                         "description": "Total Magatama points awarded",
                         "type": "number"
                       },
+                      "isCompleted": {
+                        "description": "Whether task is completed",
+                        "type": "boolean"
+                      },
                       "delFlag": {
                         "description": "Flag to indicate if the record is deleted",
                         "type": "boolean"
@@ -11099,7 +11151,8 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded"
+                      "totalMagatamaPointAwarded",
+                      "isCompleted"
                     ]
                   }
                 },
@@ -11426,6 +11479,10 @@
                   "description": "Total Magatama points awarded",
                   "type": "number"
                 },
+                "isCompleted": {
+                  "description": "Whether task is completed",
+                  "type": "boolean"
+                },
                 "delFlag": {
                   "description": "Flag to indicate if the record is deleted",
                   "type": "boolean"
@@ -11458,7 +11515,8 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded"
+                "totalMagatamaPointAwarded",
+                "isCompleted"
               ]
             }
           },
@@ -11707,6 +11765,10 @@
             "description": "Total Magatama points awarded",
             "type": "number"
           },
+          "isCompleted": {
+            "description": "Whether task is completed",
+            "type": "boolean"
+          },
           "delFlag": {
             "description": "Flag to indicate if the record is deleted",
             "type": "boolean"
@@ -11739,7 +11801,8 @@
           "requiredAction",
           "antiCheatRules",
           "magatamaPointAwarded",
-          "totalMagatamaPointAwarded"
+          "totalMagatamaPointAwarded",
+          "isCompleted"
         ]
       },
       "QuestCreateRequestDto": {

@@ -13,9 +13,10 @@ export interface QuestRepository {
         isPremium?: boolean,
         isUnlocked?: boolean,
         questType?: QuestType,
+        userId?: string,
     ): Promise<QuestEntityWithPagination>;
 
-    fetchQuestById(questId: string): Promise<QuestEntity>;
+    fetchQuestById(questId: string, userId?: string): Promise<QuestEntity>;
 
     createQuest(quest: QuestEntity): Promise<QuestEntity>;
 

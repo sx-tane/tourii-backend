@@ -1,4 +1,8 @@
-import { QuestEntity, QuestEntityWithPagination } from '@app/core/domain/game/quest/quest.entity';
+import {
+    QuestEntity,
+    QuestEntityWithPagination,
+    QuestWithTasks,
+} from '@app/core/domain/game/quest/quest.entity';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { Task } from '@app/core/domain/game/quest/task';
 import { CachingService } from '@app/core/provider/caching.service';
@@ -6,16 +10,11 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType, quest, quest_task, tourist_spot } from '@prisma/client';
+import { Prisma, QuestType } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
 const CACHE_TTL_SECONDS = 3600;
-
-type QuestWithTasks = quest & {
-    quest_task: quest_task[] | undefined;
-    tourist_spot: tourist_spot | undefined;
-};
 
 @Injectable()
 export class QuestRepositoryDb implements QuestRepository {
@@ -32,10 +31,11 @@ export class QuestRepositoryDb implements QuestRepository {
         isPremium?: boolean,
         isUnlocked?: boolean,
         questType?: QuestType,
+        userId?: string,
     ): Promise<QuestEntityWithPagination> {
-        const cacheKey = `quests:${page}:${limit}:${isPremium ?? 'null'}:${isUnlocked ?? 'null'}:${questType ?? 'null'}`;
+        const questCacheKey = `quests:${page}:${limit}:${isPremium ?? 'null'}:${isUnlocked ?? 'null'}:${questType ?? 'null'}`;
 
-        const fetchDatafn = async (): Promise<{
+        const fetchQuestsDatafn = async (): Promise<{
             quests: QuestWithTasks[];
             total: number;
         } | null> => {
@@ -67,23 +67,42 @@ export class QuestRepositoryDb implements QuestRepository {
         const cachedData = await this.cachingService.getOrSet<{
             quests: QuestWithTasks[];
             total: number;
-        } | null>(cacheKey, fetchDatafn, CACHE_TTL_SECONDS);
+        } | null>(questCacheKey, fetchQuestsDatafn, CACHE_TTL_SECONDS);
 
         if (!cachedData) {
-            this.logger.warn(`No quests found for key: ${cacheKey}`);
+            this.logger.warn(`No quests found for key: ${questCacheKey}`);
             return QuestEntityWithPagination.default();
         }
 
-        // Map raw Prisma data to entities after cache retrieval
+        const userCompletedTasksCacheKey = `user-completed-tasks:${userId}`;
+
+        const fetchUserCompletedTasksDatafn = async (userId: string): Promise<string[]> => {
+            return this.prisma.user_travel_log
+                .findMany({
+                    select: { task_id: true },
+                    where: { user_id: userId },
+                    distinct: ['task_id'],
+                })
+                .then((tasks) => tasks.map((task) => task.task_id));
+        };
+
+        const userCompletedTasks = userId
+            ? ((await this.cachingService.getOrSet<string[]>(
+                  userCompletedTasksCacheKey,
+                  () => fetchUserCompletedTasksDatafn(userId),
+                  CACHE_TTL_SECONDS,
+              )) ?? new Array<string>())
+            : new Array<string>();
+
         const questsEntities = cachedData.quests.map((quest) =>
-            QuestMapper.prismaModelToQuestEntity(quest),
+            QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(quest, userCompletedTasks),
         );
 
         const result = new QuestEntityWithPagination(questsEntities, cachedData.total, page, limit);
         return result;
     }
 
-    async fetchQuestById(questId: string): Promise<QuestEntity> {
+    async fetchQuestById(questId: string, userId?: string): Promise<QuestEntity> {
         const questDb = (await this.prisma.quest.findUnique({
             where: { quest_id: questId },
             include: {
@@ -91,10 +110,24 @@ export class QuestRepositoryDb implements QuestRepository {
                 tourist_spot: true,
             },
         })) as QuestWithTasks | null;
+
         if (!questDb) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
         }
-        return QuestMapper.prismaModelToQuestEntity(questDb);
+
+        const completedTasks = userId
+            ? await this.prisma.user_travel_log
+                  .findMany({
+                      where: {
+                          user_id: userId,
+                          quest_id: questId,
+                      },
+                      select: { task_id: true },
+                  })
+                  .then((tasks) => tasks.map((task) => task.task_id))
+            : new Array<string>();
+
+        return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(questDb, completedTasks);
     }
 
     async createQuest(quest: QuestEntity): Promise<QuestEntity> {

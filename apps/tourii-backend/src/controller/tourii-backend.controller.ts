@@ -850,6 +850,12 @@ export class TouriiBackendController {
         enum: QuestType,
         description: 'Filter by quest type',
     })
+    @ApiQuery({
+        name: 'userId',
+        required: false,
+        type: String,
+        description: 'User ID',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Fetch quests successfully',
@@ -860,13 +866,14 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async getQuestList(@Query() query: QuestListQueryDto): Promise<QuestListResponseDto> {
-        const { page, limit, isPremium, isUnlocked, questType } = query;
+        const { page, limit, isPremium, isUnlocked, questType, userId } = query;
         return await this.touriiBackendService.fetchQuestsWithPagination(
             Number(page),
             Number(limit),
             isPremium === undefined ? undefined : Boolean(isPremium),
             isUnlocked === undefined ? undefined : Boolean(isUnlocked),
             questType,
+            userId,
         );
     }
 
@@ -886,6 +893,12 @@ export class TouriiBackendController {
         description: 'API version (e.g., 1.0.0)',
         required: true,
     })
+    @ApiQuery({
+        name: 'userId',
+        required: false,
+        type: String,
+        description: 'User ID',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Quest found successfully',
@@ -898,8 +911,10 @@ export class TouriiBackendController {
     async getQuestById(
         @Param('questId')
         questId: string,
+        @Query('userId')
+        userId: string,
     ): Promise<QuestResponseDto> {
-        return await this.touriiBackendService.getQuestById(questId);
+        return await this.touriiBackendService.getQuestById(questId, userId);
     }
 
     @Post('/quests/create-quest')

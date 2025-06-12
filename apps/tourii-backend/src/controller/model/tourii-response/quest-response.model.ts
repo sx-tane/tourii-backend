@@ -18,6 +18,7 @@ export const TaskResponseSchema = z.object({
     antiCheatRules: z.any().describe('Rules to prevent cheating'),
     magatamaPointAwarded: z.number().describe('Magatama points awarded for this task'),
     totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
+    isCompleted: z.boolean().describe('Whether task is completed'),
     ...MetadataFieldsSchema,
 });
 

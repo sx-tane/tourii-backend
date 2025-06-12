@@ -81,6 +81,7 @@ export class QuestResultBuilder {
             antiCheatRules: task.antiCheatRules,
             magatamaPointAwarded: task.magatamaPointAwarded,
             totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+            isCompleted: task.isCompleted ?? false,
             delFlag: task.delFlag ?? false,
             insUserId: task.insUserId ?? '',
             insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(task.insDateTime) ?? '',

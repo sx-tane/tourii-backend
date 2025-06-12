@@ -153,12 +153,22 @@ export class TouriiBackendService {
         };
     }
 
+    /**
+     * Create user
+     * @param user User entity
+     * @returns User entity
+     */
     async createUser(user: UserEntity) {
         // service logic
         // dto -> entity
         return this.userRepository.createUser(user);
     }
 
+    /**
+     * Login user
+     * @param login Login request DTO
+     * @returns User entity
+     */
     async loginUser(login: LoginRequestDto): Promise<UserEntity> {
         let user: UserEntity | undefined;
         if (login.username) {
@@ -207,6 +217,11 @@ export class TouriiBackendService {
         return UserResultBuilder.userToDto(user);
     }
 
+    /**
+     * Get user sensitive info
+     * @param userId User ID
+     * @returns User sensitive info response DTO
+     */
     async getUserSensitiveInfo(userId: string): Promise<UserSensitiveInfoResponseDto> {
         const user = await this.userRepository.getUserInfoByUserId(userId);
         if (!user) {
@@ -287,6 +302,11 @@ export class TouriiBackendService {
         );
     }
 
+    /**
+     * Update story
+     * @param saga Story update request DTO
+     * @returns Story response DTO
+     */
     async updateStory(saga: StoryUpdateRequestDto): Promise<StoryResponseDto> {
         const updated = await this.storyRepository.updateStory(
             StoryUpdateRequestBuilder.dtoToStory(saga),
@@ -294,6 +314,11 @@ export class TouriiBackendService {
         return StoryResultBuilder.storyToDto(updated);
     }
 
+    /**
+     * Update story chapter
+     * @param chapter Story chapter update request DTO
+     * @returns Story chapter response DTO
+     */
     async updateStoryChapter(
         chapter: StoryChapterUpdateRequestDto,
     ): Promise<StoryChapterResponseDto> {
@@ -303,10 +328,20 @@ export class TouriiBackendService {
         return StoryResultBuilder.storyChapterToDto(updated, updated.sagaName ?? '');
     }
 
+    /**
+     * Delete story
+     * @param storyId Story ID
+     * @returns void
+     */
     async deleteStory(storyId: string): Promise<void> {
         await this.storyRepository.deleteStory(storyId);
     }
 
+    /**
+     * Delete story chapter
+     * @param chapterId Story chapter ID
+     * @returns void
+     */
     async deleteStoryChapter(chapterId: string): Promise<void> {
         await this.storyRepository.deleteStoryChapter(chapterId);
     }
@@ -495,6 +530,11 @@ export class TouriiBackendService {
         return touristSpotResponseDto;
     }
 
+    /**
+     * Update model route
+     * @param modelRoute Model route update request DTO
+     * @returns Model route response DTO
+     */
     async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
         // 1. Standardize region name using Google Places API (if provided)
         let standardizedRegionName = modelRoute.region;
@@ -558,6 +598,11 @@ export class TouriiBackendService {
         return this.getModelRouteById(updated.modelRouteId);
     }
 
+    /**
+     * Update tourist spot
+     * @param touristSpot Tourist spot update request DTO
+     * @returns Tourist spot response DTO
+     */
     async updateTouristSpot(
         touristSpot: TouristSpotUpdateRequestDto,
     ): Promise<TouristSpotResponseDto> {
@@ -911,6 +956,11 @@ export class TouriiBackendService {
         );
     }
 
+    /**
+     * Get tourist spots by story chapter ID
+     * @param storyChapterId Story chapter ID
+     * @returns Tourist spot response DTOs
+     */
     async getTouristSpotsByStoryChapterId(
         storyChapterId: string,
     ): Promise<TouristSpotResponseDto[]> {
@@ -934,10 +984,20 @@ export class TouriiBackendService {
         return spots.map((spot) => ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfos));
     }
 
+    /**
+     * Delete model route
+     * @param modelRouteId Model route ID
+     * @returns void
+     */
     async deleteModelRoute(modelRouteId: string): Promise<void> {
         await this.modelRouteRepository.deleteModelRoute(modelRouteId);
     }
 
+    /**
+     * Delete tourist spot
+     * @param touristSpotId Tourist spot ID
+     * @returns void
+     */
     async deleteTouristSpot(touristSpotId: string): Promise<void> {
         await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
     }
@@ -946,12 +1006,23 @@ export class TouriiBackendService {
     // QUEST METHODS
     // ==========================================
 
+    /**
+     * Fetch quests with pagination
+     * @param page
+     * @param limit
+     * @param isPremium
+     * @param isUnlocked
+     * @param questType
+     * @param userId
+     * @returns Quest list response DTO
+     */
     async fetchQuestsWithPagination(
         page: number,
         limit: number,
         isPremium?: boolean,
         isUnlocked?: boolean,
         questType?: QuestType,
+        userId?: string,
     ): Promise<QuestListResponseDto> {
         const quests = await this.questRepository.fetchQuestsWithPagination(
             page,
@@ -959,29 +1030,32 @@ export class TouriiBackendService {
             isPremium,
             isUnlocked,
             questType,
+            userId,
         );
 
         return QuestResultBuilder.questWithPaginationToDto(quests);
     }
 
-    async getQuestById(questId: string): Promise<QuestResponseDto> {
-        const quest = await this.questRepository.fetchQuestById(questId);
+    /**
+     * Get quest by ID
+     * @param questId Quest ID
+     * @param userId User ID
+     * @returns Quest response DTO
+     */
+    async getQuestById(questId: string, userId?: string): Promise<QuestResponseDto> {
+        const quest = await this.questRepository.fetchQuestById(questId, userId);
         return QuestResultBuilder.questToDto(quest);
     }
 
+    /**
+     * Create quest
+     * @param dto Quest create request DTO
+     * @returns Quest response DTO
+     */
     async createQuest(dto: QuestCreateRequestDto): Promise<QuestResponseDto> {
         const questEntity = QuestCreateRequestBuilder.dtoToQuest(dto, 'admin');
         const created = await this.questRepository.createQuest(questEntity);
         return QuestResultBuilder.questToDto(created);
-    }
-
-    async createQuestTask(
-        questId: string,
-        dto: QuestTaskCreateRequestDto,
-    ): Promise<TaskResponseDto> {
-        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
-        const created = await this.questRepository.createQuestTask(taskEntity);
-        return QuestResultBuilder.taskToDto(created);
     }
 
     /**
@@ -1011,6 +1085,26 @@ export class TouriiBackendService {
         return QuestResultBuilder.questToDto(updated);
     }
 
+    /**
+     * Create quest task
+     * @param questId Quest ID
+     * @param dto Quest task create request DTO
+     * @returns Task response DTO
+     */
+    async createQuestTask(
+        questId: string,
+        dto: QuestTaskCreateRequestDto,
+    ): Promise<TaskResponseDto> {
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
+        const created = await this.questRepository.createQuestTask(taskEntity);
+        return QuestResultBuilder.taskToDto(created);
+    }
+
+    /**
+     * Update quest task
+     * @param task Quest task update request DTO
+     * @returns Task response DTO
+     */
     async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
         const current = await this.questRepository.fetchQuestById(task.questId);
         const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
@@ -1074,10 +1168,20 @@ export class TouriiBackendService {
         return { message: 'Group quest started!' };
     }
 
+    /**
+     * Delete quest
+     * @param questId Quest ID
+     * @returns void
+     */
     async deleteQuest(questId: string): Promise<void> {
         await this.questRepository.deleteQuest(questId);
     }
 
+    /**
+     * Delete quest task
+     * @param taskId Quest task ID
+     * @returns void
+     */
     async deleteQuestTask(taskId: string): Promise<void> {
         await this.questRepository.deleteQuestTask(taskId);
     }

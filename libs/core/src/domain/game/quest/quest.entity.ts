@@ -1,4 +1,4 @@
-import { QuestType, RewardType } from '@prisma/client';
+import { quest, quest_task, QuestType, RewardType, tourist_spot } from '@prisma/client';
 import { Entity } from '../../entity';
 import { TouristSpot } from '../model-route/tourist-spot';
 import { Task } from './task';
@@ -117,3 +117,8 @@ export class QuestEntityWithPagination {
         return new QuestEntityWithPagination([], 0, 0, 0);
     }
 }
+
+export type QuestWithTasks = quest & {
+    quest_task: quest_task[] | undefined;
+    tourist_spot: tourist_spot | undefined;
+};
