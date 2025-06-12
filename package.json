@@ -11,7 +11,8 @@
     },
     "scripts": {
         "build": "nest build",
-        "build:tourii-backend": "nest build tourii-backend",
+        "build:tourii-backend": "prisma generate && nest build tourii-backend",
+        "build:production:tourii-backend": "prisma generate && pnpm run build:tourii-backend",
         "build:tourii-onchain": "nest build tourii-onchain",
         "format": "pnpm format:prettier && pnpm format:biome",
         "format:prettier": "prettier --write '**/*.{yaml,yml,md}'",
