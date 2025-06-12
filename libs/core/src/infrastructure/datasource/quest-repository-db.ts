@@ -10,7 +10,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, QuestType, QuestStatus } from '@prisma/client';
+import { Prisma, QuestStatus, QuestType } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
@@ -77,13 +77,13 @@ export class QuestRepositoryDb implements QuestRepository {
         const userCompletedTasksCacheKey = `user-completed-tasks:${userId}`;
 
         const fetchUserCompletedTasksDatafn = async (userId: string): Promise<string[]> => {
-            return this.prisma.user_travel_log
+            return this.prisma.user_quest_log
                 .findMany({
-                    select: { task_id: true },
+                    select: { quest_id: true },
                     where: { user_id: userId },
-                    distinct: ['task_id'],
+                    distinct: ['quest_id'],
                 })
-                .then((tasks) => tasks.map((task) => task.task_id));
+                .then((tasks) => tasks.map((task) => task.quest_id));
         };
 
         const userCompletedTasks = userId
@@ -122,9 +122,9 @@ export class QuestRepositoryDb implements QuestRepository {
                           user_id: userId,
                           quest_id: questId,
                       },
-                      select: { task_id: true },
+                      select: { quest_id: true },
                   })
-                  .then((tasks) => tasks.map((task) => task.task_id))
+                  .then((tasks) => tasks.map((task) => task.quest_id))
             : new Array<string>();
 
         return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(questDb, completedTasks);
@@ -137,11 +137,11 @@ export class QuestRepositoryDb implements QuestRepository {
         touristSpotId: string,
         userId?: string,
     ): Promise<QuestEntity[]> {
-        const questsDb = (await this.prisma.quest.findMany({
+        const questsDb = await this.prisma.quest.findMany({
             where: { tourist_spot_id: touristSpotId },
             include: { quest_task: true, tourist_spot: true },
             orderBy: { ins_date_time: 'desc' },
-        })) as QuestWithTasks[];
+        });
 
         if (questsDb.length === 0) return [];
 
