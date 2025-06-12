@@ -1,1 +1,1 @@
-GET https://maps.googleapis.com/maps/api/geocode/json?address={ADDRESS}&key={API_KEY}
+GET https://maps.googleapis.com/maps/api/geocode/json?address=Hyuga日向市&key=AIzaSyBJ18QJcAB-Ppt37Jm7fpQQSP-X42heCUQ

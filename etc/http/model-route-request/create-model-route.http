@@ -15,21 +15,5 @@ accept-version: 1.0.0
         "A good mix of nature and culture",
         "Local Food"
     ],
-    "touristSpotList": [
-        {
-            "storyChapterId": "SCT202506-7053db-071351-6c7986-BAAA",
-            "touristSpotName": "Ninomiya Shrine Bungo Ono",
-            "touristSpotDesc": "Ninomiya Shrine is a shrine in the world of Tourii. It is a shrine that is known for its beautiful nature and culture. It is a shrine that is known for its beautiful nature and culture.",
-            "bestVisitTime": "9:00 am",
-            "touristSpotHashtag": ["#Shrine", "#SpiritualSite"],
-            "imageSet": {
-                "main": "/image/touriiverse/bungo-ono/chapter2.png",
-                "small": [
-                    "/image/model-route/1/ninomiya/1.jpg",
-                    "/image/model-route/1/ninomiya/2.jpg",
-                    "/image/model-route/1/ninomiya/3.jpg"
-                ]
-            }
-        }
-    ]
+    "touristSpotList": []
 }

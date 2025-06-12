@@ -522,24 +522,6 @@ export class TouriiBackendService {
      * @returns Model route response DTO
      */
     async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
-        // 1. Standardize region name using Google Places API (if provided)
-        let standardizedRegionName = modelRoute.region;
-        if (modelRoute.region) {
-            try {
-                const regionLocationInfo = await this.locationInfoRepository.getLocationInfo(
-                    modelRoute.region,
-                );
-                standardizedRegionName = regionLocationInfo.name;
-                Logger.log(
-                    `Using standardized region name: "${standardizedRegionName}" instead of "${modelRoute.region}"`,
-                );
-            } catch (error) {
-                Logger.warn(
-                    `Failed to get standardized region name for "${modelRoute.region}": ${error}`,
-                );
-            }
-        }
-
         // 2. Standardize tourist spot names using Google Places API (if provided)
         let standardizedTouristSpots = modelRoute.touristSpotList;
         if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
@@ -553,6 +535,17 @@ export class TouriiBackendService {
                                     spot.touristSpotName,
                                 );
                             standardizedSpotName = spotLocationInfo.name;
+                            const [touristSpotGeoInfo] =
+                                await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
+                                    [
+                                        standardizedSpotName, // Use standardized name for geo lookup
+                                    ],
+                                ); // Expecting single result
+                            if (!touristSpotGeoInfo) {
+                                throw new TouriiBackendAppException(
+                                    TouriiBackendAppErrorType.E_TB_025,
+                                );
+                            }
                             Logger.log(
                                 `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
                             );
@@ -570,7 +563,7 @@ export class TouriiBackendService {
         // 3. Create modified model route DTO with standardized names
         const modifiedModelRoute = {
             ...modelRoute,
-            region: standardizedRegionName,
+            region: modelRoute.region,
             touristSpotList: standardizedTouristSpots,
         };
 
