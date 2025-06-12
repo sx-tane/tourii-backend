@@ -74,29 +74,35 @@ export class QuestRepositoryDb implements QuestRepository {
             return QuestEntityWithPagination.default();
         }
 
-        const userCompletedTasksCacheKey = `user-completed-tasks:${userId}`;
+        const userCompletedQuestsCacheKey = `user-completed-quests:${userId}`;
 
-        const fetchUserCompletedTasksDatafn = async (userId: string): Promise<string[]> => {
+        const fetchUserCompletedQuestsDatafn = async (userId: string): Promise<string[]> => {
             return this.prisma.user_quest_log
                 .findMany({
                     select: { quest_id: true },
                     where: { user_id: userId, status: QuestStatus.COMPLETED },
                     distinct: ['quest_id'],
                 })
-                .then((tasks) => tasks.map((task) => task.quest_id));
+                .then((quests) => quests.map((quest) => quest.quest_id));
         };
 
-        const userCompletedTasks = userId
+        const userCompletedQuestIds = userId
             ? ((await this.cachingService.getOrSet<string[]>(
-                  userCompletedTasksCacheKey,
-                  () => fetchUserCompletedTasksDatafn(userId),
+                  userCompletedQuestsCacheKey,
+                  () => fetchUserCompletedQuestsDatafn(userId),
                   CACHE_TTL_SECONDS,
               )) ?? new Array<string>())
             : new Array<string>();
 
-        const questsEntities = cachedData.quests.map((quest) =>
-            QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(quest, userCompletedTasks),
-        );
+        const questsEntities = cachedData.quests.map((quest) => {
+            const completedTasksForQuest = userCompletedQuestIds.includes(quest.quest_id)
+                ? (quest.quest_task?.map((t) => t.quest_task_id) ?? [])
+                : [];
+            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
+                quest,
+                completedTasksForQuest,
+            );
+        });
 
         const result = new QuestEntityWithPagination(questsEntities, cachedData.total, page, limit);
         return result;

@@ -22,6 +22,14 @@ describe('QuestRepositoryDb', () => {
                     useValue: {
                         get: jest.fn(),
                         set: jest.fn(),
+                        getOrSet: jest
+                            .fn()
+                            .mockImplementation(
+                                async (_key: string, fetchFn: () => Promise<any>, _ttl: number) => {
+                                    // For testing, just call the fetch function directly
+                                    return await fetchFn();
+                                },
+                            ),
                         invalidate: jest.fn(),
                         clearAll: jest.fn(),
                     },
