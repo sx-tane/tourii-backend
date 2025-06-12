@@ -37,7 +37,6 @@ import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/u
 import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
-import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
@@ -52,7 +51,6 @@ import {
 } from '../controller/model/tourii-response/user/user-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
-import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
@@ -68,7 +66,9 @@ import { UserResultBuilder } from './builder/user-result-builder';
 
 import { TransformDate } from '@app/core';
 import { MomentType } from '@app/core/domain/feed/moment-type';
+import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
+import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 @Injectable()
 export class TouriiBackendService {
     constructor(
@@ -98,20 +98,6 @@ export class TouriiBackendService {
         private readonly momentRepository: MomentRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
-
-    // ==========================================
-    // HELPER METHODS
-    // ==========================================
-
-    /**
-     * Get location info
-     * @param query Query string
-     * @returns Location info response DTO
-     */
-    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
-        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
-        return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
-    }
 
     // ==========================================
     // USER & AUTH METHODS
@@ -985,6 +971,16 @@ export class TouriiBackendService {
     }
 
     /**
+     * Get location info
+     * @param query Query string
+     * @returns Location info response DTO
+     */
+    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
+        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
+        return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
+    }
+
+    /**
      * Delete model route
      * @param modelRouteId Model route ID
      * @returns void
@@ -1195,7 +1191,7 @@ export class TouriiBackendService {
     }
 
     // ==========================================
-    // MOMENT METHODS
+    // DASHBOARD METHODS
     // ==========================================
 
     /**
