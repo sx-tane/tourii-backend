@@ -1024,7 +1024,7 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getQuestByTouristSpotId(
         @Param('touristSpotId') touristSpotId: string,
-        @Query('userId') userId: string,
+        @Query('userId') userId?: string,
     ): Promise<QuestResponseDto[]> {
         return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId);
     }
