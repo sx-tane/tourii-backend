@@ -1,0 +1,4 @@
+GET http://localhost:4000/quests/tourist-spot/{{touristSpotId}}?userId={{userId}}
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+

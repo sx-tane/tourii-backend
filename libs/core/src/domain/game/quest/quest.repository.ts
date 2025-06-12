@@ -18,6 +18,13 @@ export interface QuestRepository {
 
     fetchQuestById(questId: string, userId?: string): Promise<QuestEntity>;
 
+    /**
+     * Get quests by tourist spot ID
+     * @param touristSpotId Tourist spot ID
+     * @param userId User ID (optional)
+     */
+    fetchQuestsByTouristSpotId(touristSpotId: string, userId?: string): Promise<QuestEntity[]>;
+
     createQuest(quest: QuestEntity): Promise<QuestEntity>;
 
     createQuestTask(task: Task): Promise<Task>;

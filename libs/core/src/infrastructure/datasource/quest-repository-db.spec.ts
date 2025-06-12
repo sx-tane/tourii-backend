@@ -22,6 +22,14 @@ describe('QuestRepositoryDb', () => {
                     useValue: {
                         get: jest.fn(),
                         set: jest.fn(),
+                        getOrSet: jest
+                            .fn()
+                            .mockImplementation(
+                                async (_key: string, fetchFn: () => Promise<any>, _ttl: number) => {
+                                    // For testing, just call the fetch function directly
+                                    return await fetchFn();
+                                },
+                            ),
                         invalidate: jest.fn(),
                         clearAll: jest.fn(),
                     },
@@ -110,6 +118,77 @@ describe('QuestRepositoryDb', () => {
         expect(quest).not.toBeNull();
         expect(quest.questId).toEqual('quest1');
         expect(quest.questName).toEqual('Test Quest');
+    });
+
+    it('fetches quests by tourist spot id', async () => {
+        await prisma.quest.create({
+            data: {
+                quest_id: 'quest2',
+                tourist_spot_id: 'spot1',
+                quest_name: 'Second Quest',
+                quest_desc: 'Another quest',
+                quest_type: 'TRAVEL_TO_EARN',
+                reward_type: 'LOCAL_EXPERIENCES',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        const quests = await repository.fetchQuestsByTouristSpotId('spot1');
+        expect(quests.length).toBe(2);
+        const names = quests.map((q) => q.questName);
+        expect(names).toContain('Test Quest');
+        expect(names).toContain('Second Quest');
+    });
+
+    it('includes completed tasks when userId is provided', async () => {
+        // Create a user first to satisfy foreign key constraint
+        await prisma.user.create({
+            data: {
+                user_id: 'user1',
+                username: 'testuser1',
+                password: 'hashedpassword',
+                perks_wallet_address: 'test-wallet-address',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await prisma.quest_task.create({
+            data: {
+                quest_task_id: 't1',
+                quest_id: 'quest1',
+                task_theme: 'STORY',
+                task_type: 'CHECK_IN',
+                task_name: 'Task 1',
+                task_desc: 'desc',
+                is_unlocked: true,
+                required_action: 'A',
+                group_activity_members: [],
+                select_options: [],
+                anti_cheat_rules: {},
+                magatama_point_awarded: 1,
+                total_magatama_point_awarded: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.user_quest_log.create({
+            data: {
+                user_id: 'user1',
+                quest_id: 'quest1',
+                status: 'COMPLETED',
+                action: 'CHECK_IN',
+                group_activity_members: [],
+                total_magatama_point_awarded: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        const quests = await repository.fetchQuestsByTouristSpotId('spot1', 'user1');
+        const quest1 = quests.find((q) => q.questId === 'quest1');
+        expect(quest1?.tasks?.every((t) => t.isCompleted)).toBe(true);
     });
 
     it('creates a quest in the database and invalidates cache', async () => {
