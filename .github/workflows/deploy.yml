@@ -16,7 +16,7 @@ jobs:
           node-version: 20.18.0
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-
+      - run: pnpm prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/drop_view.sql
       - run: npx prisma migrate deploy --schema=./prisma/schema.prisma
         env:
           MIGRATION_URL: ${{ secrets.MIGRATION_URL }}
