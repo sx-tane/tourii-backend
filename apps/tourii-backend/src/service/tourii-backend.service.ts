@@ -564,8 +564,8 @@ export class TouriiBackendService {
                     bestVisitTime: spot.bestVisitTime,
                     touristSpotHashtag: spot.touristSpotHashtag,
                     imageSet: spot.imageSet,
-                    delFlag: false,
-                    updUserId: modelRoute.updUserId,
+                    delFlag: spot.delFlag ?? false,
+                    updUserId: spot.updUserId ?? modelRoute.updUserId,
                 };
             });
         }
@@ -621,8 +621,8 @@ export class TouriiBackendService {
                         return this.updateTouristSpot({
                             ...spot,
                             touristSpotId: existingSpot.touristSpotId,
-                            updUserId: modelRoute.updUserId,
-                            delFlag: false,
+                            updUserId: spot.updUserId ?? modelRoute.updUserId,
+                            delFlag: spot.delFlag ?? false,
                         });
                     }),
             );
