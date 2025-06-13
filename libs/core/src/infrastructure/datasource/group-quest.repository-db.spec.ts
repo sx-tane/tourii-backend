@@ -1,7 +1,7 @@
 import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Test, type TestingModule } from '@nestjs/testing';
-import { QuestStatus } from '@prisma/client';
+import { TaskStatus } from '@prisma/client';
 import { GroupQuestRepositoryDb } from './group-quest.repository-db';
 
 describe('GroupQuestRepositoryDb', () => {
@@ -115,17 +115,19 @@ describe('GroupQuestRepositoryDb', () => {
             { user_id: 'user1', discord_id: 'd1', group_name: 'G', role: 'leader' },
             { user_id: 'user2', discord_id: 'd2', group_name: 'G', role: 'member' },
         ];
-        await prisma.user_quest_log.create({
+        await prisma.user_task_log.create({
             data: {
                 user_id: 'user1',
                 quest_id: 'quest1',
+                task_id: 'task1',
                 group_activity_members: members as unknown as any[],
             },
         });
-        await prisma.user_quest_log.create({
+        await prisma.user_task_log.create({
             data: {
                 user_id: 'user2',
                 quest_id: 'quest1',
+                task_id: 'task1',
                 group_activity_members: members as unknown as any[],
             },
         });
@@ -142,9 +144,9 @@ describe('GroupQuestRepositoryDb', () => {
     });
 
     it("updates members' status", async () => {
-        await repository.updateMembersStatus('quest1', ['user1', 'user2'], QuestStatus.ONGOING);
-        const logs = await prisma.user_quest_log.findMany({ where: { quest_id: 'quest1' } });
+        await repository.updateMembersStatus('quest1', ['user1', 'user2'], TaskStatus.ONGOING);
+        const logs = await prisma.user_task_log.findMany({ where: { quest_id: 'quest1' } });
         expect(logs).toHaveLength(2);
-        expect(logs.every((l) => l.status === QuestStatus.ONGOING)).toBe(true);
+        expect(logs.every((l) => l.status === TaskStatus.ONGOING)).toBe(true);
     });
 });

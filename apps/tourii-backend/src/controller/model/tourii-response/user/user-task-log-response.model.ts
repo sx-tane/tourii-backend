@@ -1,13 +1,14 @@
-import { QuestStatus, TaskType } from '@prisma/client';
+import { TaskStatus, TaskType } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { MetadataFieldsSchema } from '../common/metadata-fields-response.model';
 
-export const UserQuestLogResponseSchema = z.object({
-    userQuestLogId: z.string().describe('Quest log ID'),
+export const UserTaskLogResponseSchema = z.object({
+    userTaskLogId: z.string().describe('Task log ID'),
     userId: z.string().describe('User ID'),
     questId: z.string().describe('Quest ID'),
-    status: z.nativeEnum(QuestStatus).describe('Quest status'),
+    taskId: z.string().describe('Task ID'),
+    status: z.nativeEnum(TaskStatus).describe('Task status'),
     action: z.nativeEnum(TaskType).describe('Task action type'),
     userResponse: z.string().optional().describe('User response'),
     groupActivityMembers: z.array(z.any()).describe('Group activity members'),
@@ -19,4 +20,4 @@ export const UserQuestLogResponseSchema = z.object({
     ...MetadataFieldsSchema,
 });
 
-export class UserQuestLogResponseDto extends createZodDto(UserQuestLogResponseSchema) {}
+export class UserTaskLogResponseDto extends createZodDto(UserTaskLogResponseSchema) {}

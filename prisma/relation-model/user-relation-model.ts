@@ -7,7 +7,7 @@ export type UserRelationModel = Prisma.userGetPayload<{
         user_onchain_item: true;
         user_item_claim_log: true;
         user_story_log: true;
-        user_quest_log: true;
+        user_task_log: true;
         user_travel_log: true;
         discord_activity_log: true;
         discord_user_roles: true;

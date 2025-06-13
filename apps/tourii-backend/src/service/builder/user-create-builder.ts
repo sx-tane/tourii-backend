@@ -40,7 +40,7 @@ export class UserCreateBuilder {
                 userOnchainItems: [],
                 userItemClaimLogs: [],
                 userStoryLogs: [],
-                userQuestLogs: [],
+                userTaskLogs: [],
                 userTravelLogs: [],
                 discordActivityLogs: [],
                 discordUserRoles: [],

@@ -6,7 +6,7 @@ import { UserInfo } from '@app/core/domain/user/user-info';
 import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
 import { UserItemClaimLog } from '@app/core/domain/user/user-item-claim-log';
 import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
-import { UserQuestLog } from '@app/core/domain/user/user-quest-log';
+import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserStoryLog } from '@app/core/domain/user/user-story-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import type { UserEntity } from '@app/core/domain/user/user.entity';
@@ -19,7 +19,7 @@ import { UserInfoResponseDto } from '@app/tourii-backend/controller/model/tourii
 import { UserInviteLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-invite-log-response.model';
 import { UserItemClaimLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-item-claim-log-response.model';
 import { UserOnchainItemResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-onchain-item-response.model';
-import { UserQuestLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-quest-log-response.model';
+import { UserTaskLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-task-log-response.model';
 import {
     UserResponseDto,
     UserSensitiveInfoResponseDto,
@@ -72,8 +72,8 @@ export class UserResultBuilder {
             discordActivityLogs: user.discordActivityLogs
                 ? UserResultBuilder.discordActivityLogsToDto(user.discordActivityLogs)
                 : undefined,
-            userQuestLogs: user.userQuestLogs
-                ? UserResultBuilder.userQuestLogsToDto(user.userQuestLogs)
+            userTaskLogs: user.userTaskLogs
+                ? UserResultBuilder.userTaskLogsToDto(user.userTaskLogs)
                 : undefined,
             userStoryLogs: user.userStoryLogs
                 ? UserResultBuilder.userStoryLogsToDto(user.userStoryLogs)
@@ -198,12 +198,13 @@ export class UserResultBuilder {
         );
     }
 
-    static userQuestLogsToDto(logs: UserQuestLog[]): UserQuestLogResponseDto[] {
+    static userTaskLogsToDto(logs: UserTaskLog[]): UserTaskLogResponseDto[] {
         return (
             logs?.map((log) => ({
-                userQuestLogId: log.userQuestLogId,
+                userTaskLogId: log.userTaskLogId,
                 userId: log.userId,
                 questId: log.questId,
+                taskId: log.taskId,
                 status: log.status,
                 action: log.action,
                 userResponse: log.userResponse,

@@ -1,10 +1,11 @@
-import type { QuestStatus, TaskType } from '@prisma/client';
+import type { TaskStatus, TaskType } from '@prisma/client';
 
-export interface UserQuestLogProps {
-    userQuestLogId: string;
+export interface UserTaskLogProps {
+    userTaskLogId: string;
     userId: string;
     questId: string;
-    status: QuestStatus;
+    taskId: string;
+    status: TaskStatus;
     action: TaskType;
     userResponse?: string;
     groupActivityMembers: any[];
@@ -21,11 +22,11 @@ export interface UserQuestLogProps {
     requestId?: string;
 }
 
-export class UserQuestLog {
-    constructor(private props: UserQuestLogProps) {}
+export class UserTaskLog {
+    constructor(private props: UserTaskLogProps) {}
 
-    get userQuestLogId(): string {
-        return this.props.userQuestLogId;
+    get userTaskLogId(): string {
+        return this.props.userTaskLogId;
     }
 
     get userId(): string {
@@ -36,7 +37,11 @@ export class UserQuestLog {
         return this.props.questId;
     }
 
-    get status(): QuestStatus {
+    get taskId(): string {
+        return this.props.taskId;
+    }
+
+    get status(): TaskStatus {
         return this.props.status;
     }
 

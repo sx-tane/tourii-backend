@@ -1,4 +1,4 @@
-import { QuestStatus } from '@prisma/client';
+import { TaskStatus } from '@prisma/client';
 
 export interface GroupQuestMember {
     userId: string;
@@ -14,5 +14,5 @@ export interface GroupQuestMembers {
 
 export interface GroupQuestRepository {
     getGroupMembers(questId: string): Promise<GroupQuestMembers>;
-    updateMembersStatus(questId: string, memberIds: string[], status: QuestStatus): Promise<void>;
+    updateMembersStatus(questId: string, memberIds: string[], status: TaskStatus): Promise<void>;
 }

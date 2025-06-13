@@ -172,7 +172,7 @@ bash tourii-backend/test/security-test.sh
 
 **🎯 Quest & Tasks**
 
-- `quest`, `quest_task`, `user_quest_log`, `user_travel_log`
+- `quest`, `quest_task`, `user_task_log`, `user_travel_log`
 - Flexible reward types + point system
 
 **🎮 Memory Feed**

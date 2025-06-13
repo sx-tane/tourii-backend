@@ -5,14 +5,14 @@ import {
 } from '@app/core/domain/game/quest/group-quest.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { QuestStatus } from '@prisma/client';
+import { TaskStatus } from '@prisma/client';
 
 @Injectable()
 export class GroupQuestRepositoryDb implements GroupQuestRepository {
     constructor(private readonly prisma: PrismaService) {}
 
     async getGroupMembers(questId: string): Promise<GroupQuestMembers> {
-        const log = await this.prisma.user_quest_log.findFirst({
+        const log = await this.prisma.user_task_log.findFirst({
             where: { quest_id: questId },
             select: { group_activity_members: true },
         });
@@ -49,10 +49,10 @@ export class GroupQuestRepositoryDb implements GroupQuestRepository {
     async updateMembersStatus(
         questId: string,
         memberIds: string[],
-        status: QuestStatus,
+        status: TaskStatus,
     ): Promise<void> {
         if (memberIds.length === 0) return;
-        await this.prisma.user_quest_log.updateMany({
+        await this.prisma.user_task_log.updateMany({
             where: { quest_id: questId, user_id: { in: memberIds } },
             data: { status },
         });
