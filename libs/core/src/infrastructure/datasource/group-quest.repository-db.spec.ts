@@ -143,10 +143,58 @@ describe('GroupQuestRepositoryDb', () => {
         ]);
     });
 
-    it("updates members' status", async () => {
+    it("updates only AVAILABLE tasks' status to preserve individual progress", async () => {
+        // Create multiple tasks with different statuses to test selective updating
+        await prisma.user_task_log.create({
+            data: {
+                user_id: 'user1',
+                quest_id: 'quest1',
+                task_id: 'task2',
+                status: TaskStatus.COMPLETED, // This should NOT be updated
+            },
+        });
+        await prisma.user_task_log.create({
+            data: {
+                user_id: 'user1',
+                quest_id: 'quest1',
+                task_id: 'task3',
+                status: TaskStatus.FAILED, // This should NOT be updated
+            },
+        });
+        await prisma.user_task_log.create({
+            data: {
+                user_id: 'user2',
+                quest_id: 'quest1',
+                task_id: 'task2',
+                status: TaskStatus.AVAILABLE, // This SHOULD be updated
+            },
+        });
+
+        // Update status - should only affect AVAILABLE tasks
         await repository.updateMembersStatus('quest1', ['user1', 'user2'], TaskStatus.ONGOING);
-        const logs = await prisma.user_task_log.findMany({ where: { quest_id: 'quest1' } });
-        expect(logs).toHaveLength(2);
-        expect(logs.every((l) => l.status === TaskStatus.ONGOING)).toBe(true);
+
+        const logs = await prisma.user_task_log.findMany({
+            where: { quest_id: 'quest1' },
+            orderBy: [{ user_id: 'asc' }, { task_id: 'asc' }],
+        });
+
+        // Should have 5 total logs: 2 original + 3 new ones
+        expect(logs).toHaveLength(5);
+
+        // Check that only AVAILABLE tasks were updated to ONGOING
+        const user1Task1 = logs.find((l) => l.user_id === 'user1' && l.task_id === 'task1');
+        const user1Task2 = logs.find((l) => l.user_id === 'user1' && l.task_id === 'task2');
+        const user1Task3 = logs.find((l) => l.user_id === 'user1' && l.task_id === 'task3');
+        const user2Task1 = logs.find((l) => l.user_id === 'user2' && l.task_id === 'task1');
+        const user2Task2 = logs.find((l) => l.user_id === 'user2' && l.task_id === 'task2');
+
+        // Original AVAILABLE tasks should now be ONGOING
+        expect(user1Task1?.status).toEqual(TaskStatus.ONGOING);
+        expect(user2Task1?.status).toEqual(TaskStatus.ONGOING);
+        expect(user2Task2?.status).toEqual(TaskStatus.ONGOING); // Was AVAILABLE, now ONGOING
+
+        // COMPLETED and FAILED tasks should be preserved
+        expect(user1Task2?.status).toEqual(TaskStatus.COMPLETED); // Should remain COMPLETED
+        expect(user1Task3?.status).toEqual(TaskStatus.FAILED); // Should remain FAILED
     });
 });

@@ -1,14 +1,16 @@
 import {
-    GroupQuestRepository,
-    GroupQuestMembers,
     GroupQuestMember,
+    GroupQuestMembers,
+    GroupQuestRepository,
 } from '@app/core/domain/game/quest/group-quest.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TaskStatus } from '@prisma/client';
 
 @Injectable()
 export class GroupQuestRepositoryDb implements GroupQuestRepository {
+    private readonly logger = new Logger(GroupQuestRepositoryDb.name);
+
     constructor(private readonly prisma: PrismaService) {}
 
     async getGroupMembers(questId: string): Promise<GroupQuestMembers> {
@@ -46,15 +48,36 @@ export class GroupQuestRepositoryDb implements GroupQuestRepository {
         };
     }
 
+    /**
+     * Updates member task statuses for a group quest
+     *
+     * @param questId The quest ID
+     * @param memberIds Array of user IDs to update
+     * @param status The target status to set
+     *
+     * Note: This method only updates tasks that are currently AVAILABLE
+     * to preserve individual task progress (COMPLETED/FAILED tasks remain unchanged)
+     */
     async updateMembersStatus(
         questId: string,
         memberIds: string[],
         status: TaskStatus,
     ): Promise<void> {
         if (memberIds.length === 0) return;
-        await this.prisma.user_task_log.updateMany({
-            where: { quest_id: questId, user_id: { in: memberIds } },
+
+        // Only update tasks that are currently AVAILABLE to preserve individual task progress
+        // This prevents overwriting COMPLETED or FAILED task statuses when starting a group quest
+        const result = await this.prisma.user_task_log.updateMany({
+            where: {
+                quest_id: questId,
+                user_id: { in: memberIds },
+                status: TaskStatus.AVAILABLE, // Only update available tasks to preserve progress
+            },
             data: { status },
         });
+
+        this.logger.debug(
+            `Updated ${result.count} task logs for quest ${questId} from AVAILABLE to ${status} for ${memberIds.length} members`,
+        );
     }
 }
