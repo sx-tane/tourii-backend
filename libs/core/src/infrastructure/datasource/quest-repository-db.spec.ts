@@ -156,7 +156,7 @@ describe('QuestRepositoryDb', () => {
 
         await prisma.quest_task.create({
             data: {
-                quest_task_id: 't1',
+                quest_task_id: 'task1',
                 quest_id: 'quest1',
                 task_theme: 'STORY',
                 task_type: 'CHECK_IN',
