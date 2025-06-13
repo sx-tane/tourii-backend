@@ -10,10 +10,10 @@ import {
     OnchainItemType,
     PassportType,
     PrismaClient,
-    QuestStatus,
     QuestType,
     RewardType,
     StoryStatus,
+    TaskStatus,
     TaskTheme,
     TaskType,
     UserRoleType,
@@ -710,11 +710,12 @@ async function main() {
             ins_user_id: 'system-seed',
         },
     });
-    await prisma.user_quest_log.create({
+    await prisma.user_task_log.create({
         data: {
             user_id: userAlice.user_id,
             quest_id: questHarajiriPhoto.quest_id,
-            status: QuestStatus.COMPLETED,
+            task_id: taskHarajiriUpload.quest_task_id, // Link to the specific task
+            status: TaskStatus.COMPLETED,
             action: TaskType.PHOTO_UPLOAD, // Action performed for this log
             submission_data: {
                 image_url: 'https://useruploads.tourii.app/alice_harajiri.jpg',
@@ -725,11 +726,12 @@ async function main() {
             ins_user_id: 'system-seed',
         },
     });
-    await prisma.user_quest_log.create({
+    await prisma.user_task_log.create({
         data: {
             user_id: userAlice.user_id,
             quest_id: questCaveQuiz.quest_id,
-            status: QuestStatus.ONGOING,
+            task_id: _taskCaveQuestion1.quest_task_id, // Link to the specific task
+            status: TaskStatus.ONGOING,
             action: TaskType.SELECT_OPTION, // Started the quiz
             ins_user_id: 'system-seed',
         },

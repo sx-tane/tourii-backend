@@ -51,6 +51,15 @@ FAILED FAILED
     
 
 
+        TaskStatus {
+            AVAILABLE AVAILABLE
+ONGOING ONGOING
+COMPLETED COMPLETED
+FAILED FAILED
+        }
+    
+
+
         ItemStatus {
             SUCCESS SUCCESS
 FAILED FAILED
@@ -310,11 +319,12 @@ EVENT EVENT
     }
   
 
-  "user_quest_log" {
-    String user_quest_log_id "🗝️"
+  "user_task_log" {
+    String user_task_log_id "🗝️"
     String user_id 
     String quest_id 
-    QuestStatus status 
+    String task_id 
+    TaskStatus status 
     TaskType action 
     String user_response "❓"
     Json group_activity_members 
@@ -623,7 +633,7 @@ EVENT EVENT
     "user" o{--}o "user_onchain_item" : "user_onchain_item"
     "user" o{--}o "user_item_claim_log" : "user_item_claim_log"
     "user" o{--}o "user_story_log" : "user_story_log"
-    "user" o{--}o "user_quest_log" : "user_quest_log"
+    "user" o{--}o "user_task_log" : "user_task_log"
     "user" o{--}o "user_travel_log" : "user_travel_log"
     "user" o{--}o "discord_activity_log" : "discord_activity_log"
     "user" o{--}o "discord_user_roles" : "discord_user_roles"
@@ -643,9 +653,9 @@ EVENT EVENT
     "user_item_claim_log" o|--|| "user" : "user"
     "user_story_log" o|--|| "StoryStatus" : "enum:status"
     "user_story_log" o|--|| "user" : "user"
-    "user_quest_log" o|--|| "QuestStatus" : "enum:status"
-    "user_quest_log" o|--|| "TaskType" : "enum:action"
-    "user_quest_log" o|--|| "user" : "user"
+    "user_task_log" o|--|| "TaskStatus" : "enum:status"
+    "user_task_log" o|--|| "TaskType" : "enum:action"
+    "user_task_log" o|--|| "user" : "user"
     "user_travel_log" o|--|o "CheckInMethod" : "enum:check_in_method"
     "user_travel_log" o|--|| "user" : "user"
     "user_invite_log" o|--|| "user" : "user"

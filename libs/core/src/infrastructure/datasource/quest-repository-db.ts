@@ -10,7 +10,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, TaskStatus, QuestType } from '@prisma/client';
+import { Prisma, QuestType, TaskStatus } from '@prisma/client';
 import { QuestMapper } from '../mapper/quest.mapper';
 
 // TTL (Time-To-Live) in seconds
@@ -104,10 +104,7 @@ export class QuestRepositoryDb implements QuestRepository {
         const questsEntities = cachedData.quests.map((quest) => {
             const completedTasksForQuest = completedTaskMap.get(quest.quest_id);
             const completed = completedTasksForQuest ? Array.from(completedTasksForQuest) : [];
-            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
-                quest,
-                completed,
-            );
+            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(quest, completed);
         });
 
         const result = new QuestEntityWithPagination(questsEntities, cachedData.total, page, limit);
@@ -139,9 +136,7 @@ export class QuestRepositoryDb implements QuestRepository {
 
         const userCompletedTasksCacheKey = `user-completed-tasks:${userId}:${questId}`;
 
-        const fetchUserCompletedTasksDataFn = async (
-            userId: string,
-        ): Promise<string[]> => {
+        const fetchUserCompletedTasksDataFn = async (userId: string): Promise<string[]> => {
             return this.prisma.user_task_log
                 .findMany({
                     where: {
@@ -193,33 +188,47 @@ export class QuestRepositoryDb implements QuestRepository {
 
         if (!questsDb || questsDb.length === 0) return [];
 
-        const userCompletedQuestsBySpotCacheKey = `user-completed-quests-by-spot:${userId}:${touristSpotId}`;
+        const userCompletedTasksBySpotCacheKey = `user-completed-tasks-by-spot:${userId}:${touristSpotId}`;
 
-        const fetchUserCompletedQuestsBySpotDataFn = async (userId: string): Promise<string[]> => {
-            return this.prisma.user_task_log
-                .findMany({
-                    select: { quest_id: true },
-                    where: {
-                        user_id: userId,
-                        quest_id: { in: questsDb.map((q) => q.quest_id) },
-                        status: TaskStatus.COMPLETED,
-                    },
-                })
-                .then((logs) => logs.map((log) => log.quest_id));
+        const fetchUserCompletedTasksBySpotDataFn = async (
+            userId: string,
+        ): Promise<{ quest_id: string; task_id: string }[]> => {
+            const logs = await this.prisma.user_task_log.findMany({
+                select: { quest_id: true, task_id: true },
+                where: {
+                    user_id: userId,
+                    quest_id: { in: questsDb.map((q) => q.quest_id) },
+                    status: TaskStatus.COMPLETED,
+                },
+            });
+            return logs.map((log: { quest_id: string; task_id: string }) => ({
+                quest_id: log.quest_id,
+                task_id: log.task_id,
+            }));
         };
 
-        const completedQuestIds = userId
-            ? ((await this.cachingService.getOrSet<string[]>(
-                  userCompletedQuestsBySpotCacheKey,
-                  () => fetchUserCompletedQuestsBySpotDataFn(userId),
+        const completedTasks = userId
+            ? ((await this.cachingService.getOrSet<{ quest_id: string; task_id: string }[]>(
+                  userCompletedTasksBySpotCacheKey,
+                  () => fetchUserCompletedTasksBySpotDataFn(userId),
                   CACHE_TTL_SECONDS,
-              )) ?? new Array<string>())
-            : new Array<string>();
+              )) ?? [])
+            : [];
+
+        // Group completed tasks by quest_id
+        const completedTasksByQuest = completedTasks.reduce(
+            (acc, { quest_id, task_id }) => {
+                if (!acc[quest_id]) {
+                    acc[quest_id] = [];
+                }
+                acc[quest_id].push(task_id);
+                return acc;
+            },
+            {} as Record<string, string[]>,
+        );
 
         return questsDb.map((quest) => {
-            const completedTasksForQuest = completedQuestIds.includes(quest.quest_id)
-                ? (quest.quest_task?.map((t) => t.quest_task_id) ?? [])
-                : [];
+            const completedTasksForQuest = completedTasksByQuest[quest.quest_id] || [];
             return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
                 quest,
                 completedTasksForQuest,
