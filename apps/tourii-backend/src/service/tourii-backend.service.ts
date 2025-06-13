@@ -20,7 +20,7 @@ import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
-import { TaskStatus, QuestType, StoryStatus } from '@prisma/client';
+import { QuestType, StoryStatus, TaskStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
@@ -643,12 +643,12 @@ export class TouriiBackendService {
         let standardizedTouristSpot = touristSpot;
         let geoInfo: GeoInfo | undefined;
         if (touristSpot.touristSpotName) {
-            let standardizedSpotName = touristSpot.touristSpotName;
+            const standardizedSpotName = touristSpot.touristSpotName;
             try {
-                const locationInfo = await this.locationInfoRepository.getLocationInfo(
-                    touristSpot.touristSpotName,
-                );
-                standardizedSpotName = locationInfo.name;
+                // const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                //     touristSpot.touristSpotName,
+                // );
+                // standardizedSpotName = locationInfo.name;
                 Logger.log(
                     `Using standardized name: "${standardizedSpotName}" instead of "${touristSpot.touristSpotName}"`,
                 );
@@ -659,19 +659,19 @@ export class TouriiBackendService {
             }
 
             // Fetch geo information for updated name
-            try {
-                const geoInfoList =
-                    await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
-                        standardizedSpotName,
-                    ]);
-                if (!geoInfoList || geoInfoList.length === 0) {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
-                }
-                geoInfo = geoInfoList[0];
-            } catch (error) {
-                if (error instanceof TouriiBackendAppException) throw error;
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
-            }
+            // try {
+            //     const geoInfoList =
+            //         await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+            //             standardizedSpotName,
+            //         ]);
+            //     if (!geoInfoList || geoInfoList.length === 0) {
+            //         throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+            //     }
+            //     geoInfo = geoInfoList[0];
+            // } catch (error) {
+            //     if (error instanceof TouriiBackendAppException) throw error;
+            //     throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+            // }
 
             standardizedTouristSpot = { ...touristSpot, touristSpotName: standardizedSpotName };
         }

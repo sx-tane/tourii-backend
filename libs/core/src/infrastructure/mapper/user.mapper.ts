@@ -6,8 +6,8 @@ import { UserInfo } from '@app/core/domain/user/user-info';
 import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
 import { UserItemClaimLog } from '@app/core/domain/user/user-item-claim-log';
 import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
-import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserStoryLog } from '@app/core/domain/user/user-story-log';
+import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type {
@@ -21,8 +21,8 @@ import type {
     user_invite_log,
     user_item_claim_log,
     user_onchain_item,
-    user_quest_log,
     user_story_log,
+    user_task_log,
     user_travel_log,
 } from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';

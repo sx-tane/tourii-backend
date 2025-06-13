@@ -1063,14 +1063,14 @@
                     ]
                   }
                 },
-                "userQuestLogs": {
-                  "description": "User quest logs",
+                "userTaskLogs": {
+                  "description": "User task logs",
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "userQuestLogId": {
-                        "description": "Quest log ID",
+                      "userTaskLogId": {
+                        "description": "Task log ID",
                         "type": "string"
                       },
                       "userId": {
@@ -1081,8 +1081,12 @@
                         "description": "Quest ID",
                         "type": "string"
                       },
+                      "taskId": {
+                        "description": "Task ID",
+                        "type": "string"
+                      },
                       "status": {
-                        "description": "Quest status",
+                        "description": "Task status",
                         "type": "string",
                         "enum": [
                           "AVAILABLE",
@@ -1169,9 +1173,10 @@
                       }
                     },
                     "required": [
-                      "userQuestLogId",
+                      "userTaskLogId",
                       "userId",
                       "questId",
+                      "taskId",
                       "status",
                       "action",
                       "groupActivityMembers",
@@ -4273,6 +4278,18 @@
                             "main",
                             "small"
                           ]
+                        },
+                        "touristSpotId": {
+                          "description": "Unique identifier for the tourist spot",
+                          "type": "string"
+                        },
+                        "delFlag": {
+                          "description": "Flag to indicate if the tourist spot is deleted",
+                          "type": "boolean"
+                        },
+                        "updUserId": {
+                          "description": "Unique identifier for the user who updated the tourist spot",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -4280,7 +4297,10 @@
                         "touristSpotName",
                         "touristSpotDesc",
                         "bestVisitTime",
-                        "touristSpotHashtag"
+                        "touristSpotHashtag",
+                        "touristSpotId",
+                        "delFlag",
+                        "updUserId"
                       ]
                     }
                   },
@@ -10655,6 +10675,18 @@
                     "main",
                     "small"
                   ]
+                },
+                "touristSpotId": {
+                  "description": "Unique identifier for the tourist spot",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the tourist spot is deleted",
+                  "type": "boolean"
+                },
+                "updUserId": {
+                  "description": "Unique identifier for the user who updated the tourist spot",
+                  "type": "string"
                 }
               },
               "required": [
@@ -10662,7 +10694,10 @@
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
-                "touristSpotHashtag"
+                "touristSpotHashtag",
+                "touristSpotId",
+                "delFlag",
+                "updUserId"
               ]
             }
           },
@@ -13688,14 +13723,14 @@
               ]
             }
           },
-          "userQuestLogs": {
-            "description": "User quest logs",
+          "userTaskLogs": {
+            "description": "User task logs",
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "userQuestLogId": {
-                  "description": "Quest log ID",
+                "userTaskLogId": {
+                  "description": "Task log ID",
                   "type": "string"
                 },
                 "userId": {
@@ -13706,8 +13741,12 @@
                   "description": "Quest ID",
                   "type": "string"
                 },
+                "taskId": {
+                  "description": "Task ID",
+                  "type": "string"
+                },
                 "status": {
-                  "description": "Quest status",
+                  "description": "Task status",
                   "type": "string",
                   "enum": [
                     "AVAILABLE",
@@ -13794,9 +13833,10 @@
                 }
               },
               "required": [
-                "userQuestLogId",
+                "userTaskLogId",
                 "userId",
                 "questId",
+                "taskId",
                 "status",
                 "action",
                 "groupActivityMembers",
