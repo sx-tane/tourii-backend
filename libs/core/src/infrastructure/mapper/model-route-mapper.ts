@@ -121,18 +121,18 @@ export class ModelRouteMapper {
         modelRouteEntity: ModelRouteEntity,
     ): Prisma.model_routeUncheckedUpdateInput {
         return {
-            story_id: modelRouteEntity.storyId ?? '',
-            route_name: modelRouteEntity.routeName ?? '',
-            region: modelRouteEntity.region ?? '',
-            region_desc: modelRouteEntity.regionDesc ?? null,
-            region_latitude: modelRouteEntity.regionLatitude ?? 0,
-            region_longitude: modelRouteEntity.regionLongitude ?? 0,
-            region_background_media: modelRouteEntity.regionBackgroundMedia ?? null,
-            recommendation: modelRouteEntity.recommendation ?? [],
-            del_flag: modelRouteEntity.delFlag ?? false,
+            story_id: modelRouteEntity.storyId,
+            route_name: modelRouteEntity.routeName,
+            region: modelRouteEntity.region,
+            region_desc: modelRouteEntity.regionDesc,
+            region_latitude: modelRouteEntity.regionLatitude,
+            region_longitude: modelRouteEntity.regionLongitude,
+            region_background_media: modelRouteEntity.regionBackgroundMedia,
+            recommendation: modelRouteEntity.recommendation,
+            del_flag: modelRouteEntity.delFlag,
             upd_user_id: modelRouteEntity.updUserId,
             upd_date_time: modelRouteEntity.updDateTime,
-            request_id: modelRouteEntity.requestId ?? null,
+            request_id: modelRouteEntity.requestId,
         };
     }
 
@@ -140,20 +140,20 @@ export class ModelRouteMapper {
         touristSpotEntity: TouristSpot,
     ): Prisma.tourist_spotUncheckedUpdateInput {
         return {
-            story_chapter_id: touristSpotEntity.storyChapterId ?? '',
-            tourist_spot_name: touristSpotEntity.touristSpotName ?? '',
-            tourist_spot_desc: touristSpotEntity.touristSpotDesc ?? '',
-            // latitude: touristSpotEntity.latitude ?? 0,
-            // longitude: touristSpotEntity.longitude ?? 0,
-            best_visit_time: touristSpotEntity.bestVisitTime ?? null,
-            address: touristSpotEntity.address ?? null,
-            story_chapter_link: touristSpotEntity.storyChapterLink ?? null,
-            tourist_spot_hashtag: touristSpotEntity.touristSpotHashtag ?? [],
-            image_set: touristSpotEntity.imageSet ?? undefined,
-            del_flag: touristSpotEntity.delFlag ?? false,
+            story_chapter_id: touristSpotEntity.storyChapterId,
+            tourist_spot_name: touristSpotEntity.touristSpotName,
+            tourist_spot_desc: touristSpotEntity.touristSpotDesc,
+            latitude: touristSpotEntity.latitude,
+            longitude: touristSpotEntity.longitude,
+            best_visit_time: touristSpotEntity.bestVisitTime,
+            address: touristSpotEntity.address,
+            story_chapter_link: touristSpotEntity.storyChapterLink,
+            tourist_spot_hashtag: touristSpotEntity.touristSpotHashtag,
+            image_set: touristSpotEntity.imageSet,
+            del_flag: touristSpotEntity.delFlag,
             upd_user_id: touristSpotEntity.updUserId,
             upd_date_time: touristSpotEntity.updDateTime,
-            request_id: touristSpotEntity.requestId ?? null,
+            request_id: touristSpotEntity.requestId,
         };
     }
 

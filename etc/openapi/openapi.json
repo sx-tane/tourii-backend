@@ -12964,6 +12964,14 @@
             "description": "Place name or search query",
             "type": "string",
             "minLength": 1
+          },
+          "latitude": {
+            "description": "Latitude for location bias",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "Longitude for location bias",
+            "type": "number"
           }
         },
         "required": [
