@@ -522,7 +522,7 @@ export class TouriiBackendService {
      * @returns Model route response DTO
      */
     async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
-        // 2. Standardize tourist spot names using Google Places API (if provided)
+        // 1. Standardize tourist spot names using Google Places API (if provided)
         let standardizedTouristSpots = modelRoute.touristSpotList;
         if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
             standardizedTouristSpots = await Promise.all(
@@ -530,22 +530,10 @@ export class TouriiBackendService {
                     let standardizedSpotName = spot.touristSpotName;
                     if (spot.touristSpotName) {
                         try {
-                            const spotLocationInfo =
-                                await this.locationInfoRepository.getLocationInfo(
-                                    spot.touristSpotName,
-                                );
+                            const spotLocationInfo = await this.locationInfoRepository.getLocationInfo(
+                                spot.touristSpotName,
+                            );
                             standardizedSpotName = spotLocationInfo.name;
-                            const [touristSpotGeoInfo] =
-                                await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
-                                    [
-                                        standardizedSpotName, // Use standardized name for geo lookup
-                                    ],
-                                ); // Expecting single result
-                            if (!touristSpotGeoInfo) {
-                                throw new TouriiBackendAppException(
-                                    TouriiBackendAppErrorType.E_TB_025,
-                                );
-                            }
                             Logger.log(
                                 `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
                             );
@@ -555,9 +543,34 @@ export class TouriiBackendService {
                             );
                         }
                     }
+                    const spotWithId = spot as Partial<TouristSpotUpdateRequestDto>;
+                    if (spotWithId.touristSpotId) {
+                        // Trigger individual spot update to refresh geoinfo
+                        await this.updateTouristSpot({
+                            ...spotWithId,
+                            touristSpotName: standardizedSpotName,
+                            touristSpotId: spotWithId.touristSpotId,
+                            updUserId: modelRoute.updUserId,
+                            delFlag: spotWithId.delFlag ?? false,
+                        } as TouristSpotUpdateRequestDto);
+                    }
                     return { ...spot, touristSpotName: standardizedSpotName };
                 }),
             );
+        }
+
+        // 2. Fetch region geo information if region name provided
+        let regionGeoInfo: GeoInfo | undefined;
+        if (modelRoute.region) {
+            try {
+                regionGeoInfo = await this.geoInfoRepository.getRegionInfoByRegionName(modelRoute.region);
+                if (!regionGeoInfo) {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                }
+            } catch (error) {
+                if (error instanceof TouriiBackendAppException) throw error;
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+            }
         }
 
         // 3. Create modified model route DTO with standardized names
@@ -567,13 +580,14 @@ export class TouriiBackendService {
             touristSpotList: standardizedTouristSpots,
         };
 
-        // 4. Update model route with standardized names
+        // 4. Update model route with standardized region geo information
         const updated = await this.modelRouteRepository.updateModelRoute(
-            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modifiedModelRoute),
+            ModelRouteUpdateRequestBuilder.dtoToModelRoute(modifiedModelRoute, regionGeoInfo),
         );
         if (!updated.modelRouteId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
         }
+
         return this.getModelRouteById(updated.modelRouteId);
     }
 
@@ -587,6 +601,7 @@ export class TouriiBackendService {
     ): Promise<TouristSpotResponseDto> {
         // 1. Standardize tourist spot name using Google Places API (if provided)
         let standardizedTouristSpot = touristSpot;
+        let geoInfo: GeoInfo | undefined;
         if (touristSpot.touristSpotName) {
             let standardizedSpotName = touristSpot.touristSpotName;
             try {
@@ -602,12 +617,31 @@ export class TouriiBackendService {
                     `Failed to get standardized name for "${touristSpot.touristSpotName}": ${error}`,
                 );
             }
+
+            // Fetch geo information for updated name
+            try {
+                const geoInfoList =
+                    await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+                        standardizedSpotName,
+                    ]);
+                if (!geoInfoList || geoInfoList.length === 0) {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                }
+                geoInfo = geoInfoList[0];
+            } catch (error) {
+                if (error instanceof TouriiBackendAppException) throw error;
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+            }
+
             standardizedTouristSpot = { ...touristSpot, touristSpotName: standardizedSpotName };
         }
 
-        // 2. Update tourist spot with standardized name
+        // 2. Update tourist spot with standardized name and geo information
         const updated = await this.modelRouteRepository.updateTouristSpot(
-            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(standardizedTouristSpot),
+            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(
+                standardizedTouristSpot,
+                geoInfo,
+            ),
         );
 
         if (updated.touristSpotId && updated.storyChapterId) {
@@ -624,22 +658,23 @@ export class TouriiBackendService {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
 
-        // Fetch geo information with proper error handling
-        let geoInfo: GeoInfo;
-        try {
-            const geoInfoList =
-                await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
-                    updated.touristSpotName,
-                ]);
+        // geoInfo should already be fetched above when name is provided
+        if (!geoInfo) {
+            try {
+                const geoInfoList =
+                    await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList([
+                        updated.touristSpotName,
+                    ]);
 
-            if (!geoInfoList || geoInfoList.length === 0) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                if (!geoInfoList || geoInfoList.length === 0) {
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                }
+
+                geoInfo = geoInfoList[0];
+            } catch (error) {
+                if (error instanceof TouriiBackendAppException) throw error;
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
             }
-
-            geoInfo = geoInfoList[0];
-        } catch (error) {
-            if (error instanceof TouriiBackendAppException) throw error;
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
         }
 
         // Fetch weather information with proper error handling
