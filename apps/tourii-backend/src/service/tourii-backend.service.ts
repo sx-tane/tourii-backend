@@ -528,7 +528,7 @@ export class TouriiBackendService {
             // First, collect all spot names that need standardization
             const spotNamesToStandardize = modelRoute.touristSpotList
                 .filter((spot) => spot.touristSpotName)
-                .map((spot) => spot.touristSpotName!);
+                .map((spot) => spot.touristSpotName);
 
             // Batch fetch standardized names
             const standardizedNames = new Map<string, string>();
@@ -556,12 +556,16 @@ export class TouriiBackendService {
 
                 // Only include fields that are part of the create DTO
                 return {
+                    touristSpotId: spot.touristSpotId,
+
                     storyChapterId: spot.storyChapterId,
                     touristSpotName: standardizedName,
                     touristSpotDesc: spot.touristSpotDesc,
                     bestVisitTime: spot.bestVisitTime,
                     touristSpotHashtag: spot.touristSpotHashtag,
                     imageSet: spot.imageSet,
+                    delFlag: false,
+                    updUserId: modelRoute.updUserId,
                 };
             });
         }
@@ -605,13 +609,13 @@ export class TouriiBackendService {
                 updated.modelRouteId,
             );
             const existingSpots = existingModelRoute.touristSpotList ?? [];
-            const spotMap = new Map(existingSpots.map((spot) => [spot.touristSpotName, spot]));
+            const spotMap = new Map(existingSpots.map((spot) => [spot.touristSpotId, spot]));
 
             await Promise.all(
                 standardizedTouristSpots
-                    .filter((spot) => spot.touristSpotName && spotMap.has(spot.touristSpotName))
+                    .filter((spot) => spot.touristSpotId && spotMap.has(spot.touristSpotId))
                     .map((spot) => {
-                        const existingSpot = spotMap.get(spot.touristSpotName!);
+                        const existingSpot = spotMap.get(spot.touristSpotId);
                         if (!existingSpot?.touristSpotId) return Promise.resolve();
 
                         return this.updateTouristSpot({
