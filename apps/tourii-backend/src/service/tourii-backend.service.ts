@@ -525,45 +525,54 @@ export class TouriiBackendService {
         // 1. Standardize tourist spot names using Google Places API (if provided)
         let standardizedTouristSpots = modelRoute.touristSpotList;
         if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
-            standardizedTouristSpots = await Promise.all(
-                modelRoute.touristSpotList.map(async (spot) => {
-                    let standardizedSpotName = spot.touristSpotName;
-                    if (spot.touristSpotName) {
-                        try {
-                            const spotLocationInfo = await this.locationInfoRepository.getLocationInfo(
-                                spot.touristSpotName,
-                            );
-                            standardizedSpotName = spotLocationInfo.name;
-                            Logger.log(
-                                `Using standardized spot name: "${standardizedSpotName}" instead of "${spot.touristSpotName}"`,
-                            );
-                        } catch (error) {
-                            Logger.warn(
-                                `Failed to get standardized name for spot "${spot.touristSpotName}": ${error}`,
-                            );
-                        }
+            // First, collect all spot names that need standardization
+            const spotNamesToStandardize = modelRoute.touristSpotList
+                .filter((spot) => spot.touristSpotName)
+                .map((spot) => spot.touristSpotName!);
+
+            // Batch fetch standardized names
+            const standardizedNames = new Map<string, string>();
+            await Promise.all(
+                spotNamesToStandardize.map(async (name) => {
+                    try {
+                        const locationInfo =
+                            await this.locationInfoRepository.getLocationInfo(name);
+                        standardizedNames.set(name, locationInfo.name);
+                        Logger.log(
+                            `Using standardized spot name: "${locationInfo.name}" instead of "${name}"`,
+                        );
+                    } catch (error) {
+                        Logger.warn(`Failed to get standardized name for spot "${name}": ${error}`);
+                        standardizedNames.set(name, name); // Fallback to original name
                     }
-                    const spotWithId = spot as Partial<TouristSpotUpdateRequestDto>;
-                    if (spotWithId.touristSpotId) {
-                        // Trigger individual spot update to refresh geoinfo
-                        await this.updateTouristSpot({
-                            ...spotWithId,
-                            touristSpotName: standardizedSpotName,
-                            touristSpotId: spotWithId.touristSpotId,
-                            updUserId: modelRoute.updUserId,
-                            delFlag: spotWithId.delFlag ?? false,
-                        } as TouristSpotUpdateRequestDto);
-                    }
-                    return { ...spot, touristSpotName: standardizedSpotName };
                 }),
             );
+
+            // Create standardized spots with proper type safety
+            standardizedTouristSpots = modelRoute.touristSpotList.map((spot) => {
+                const standardizedName = spot.touristSpotName
+                    ? (standardizedNames.get(spot.touristSpotName) ?? spot.touristSpotName)
+                    : spot.touristSpotName;
+
+                // Only include fields that are part of the create DTO
+                return {
+                    storyChapterId: spot.storyChapterId,
+                    touristSpotName: standardizedName,
+                    touristSpotDesc: spot.touristSpotDesc,
+                    bestVisitTime: spot.bestVisitTime,
+                    touristSpotHashtag: spot.touristSpotHashtag,
+                    imageSet: spot.imageSet,
+                };
+            });
         }
 
         // 2. Fetch region geo information if region name provided
         let regionGeoInfo: GeoInfo | undefined;
         if (modelRoute.region) {
             try {
-                regionGeoInfo = await this.geoInfoRepository.getRegionInfoByRegionName(modelRoute.region);
+                regionGeoInfo = await this.geoInfoRepository.getRegionInfoByRegionName(
+                    modelRoute.region,
+                );
                 if (!regionGeoInfo) {
                     throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
                 }
@@ -580,12 +589,39 @@ export class TouriiBackendService {
             touristSpotList: standardizedTouristSpots,
         };
 
-        // 4. Update model route with standardized region geo information
+        // 4. Update model route and tourist spots in a transaction
         const updated = await this.modelRouteRepository.updateModelRoute(
             ModelRouteUpdateRequestBuilder.dtoToModelRoute(modifiedModelRoute, regionGeoInfo),
         );
+
         if (!updated.modelRouteId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+        }
+
+        // 5. Update tourist spots in parallel after model route update succeeds
+        if (standardizedTouristSpots.length > 0) {
+            // Get existing model route to get tourist spots
+            const existingModelRoute = await this.modelRouteRepository.getModelRouteByModelRouteId(
+                updated.modelRouteId,
+            );
+            const existingSpots = existingModelRoute.touristSpotList ?? [];
+            const spotMap = new Map(existingSpots.map((spot) => [spot.touristSpotName, spot]));
+
+            await Promise.all(
+                standardizedTouristSpots
+                    .filter((spot) => spot.touristSpotName && spotMap.has(spot.touristSpotName))
+                    .map((spot) => {
+                        const existingSpot = spotMap.get(spot.touristSpotName!);
+                        if (!existingSpot?.touristSpotId) return Promise.resolve();
+
+                        return this.updateTouristSpot({
+                            ...spot,
+                            touristSpotId: existingSpot.touristSpotId,
+                            updUserId: modelRoute.updUserId,
+                            delFlag: false,
+                        });
+                    }),
+            );
         }
 
         return this.getModelRouteById(updated.modelRouteId);
@@ -638,10 +674,7 @@ export class TouriiBackendService {
 
         // 2. Update tourist spot with standardized name and geo information
         const updated = await this.modelRouteRepository.updateTouristSpot(
-            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(
-                standardizedTouristSpot,
-                geoInfo,
-            ),
+            TouristSpotUpdateRequestBuilder.dtoToTouristSpot(standardizedTouristSpot, geoInfo),
         );
 
         if (updated.touristSpotId && updated.storyChapterId) {
