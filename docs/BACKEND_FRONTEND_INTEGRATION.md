@@ -125,7 +125,7 @@ We now break down **each API** inside its domain with:
 - **API**:
 
   - `GET /memory-wall/feed`: pseudo-feed → `MemoryWallController.getFeed()`
-    - JOIN data from `user_travel_log`, `user_quest_log`, `user_story_log`
+    - JOIN data from `user_travel_log`, `user_task_log`, `user_story_log`
     - Filter by timestamp
     - Map to a common response format
   - 🔍 **Future**: Like, comment, and reply system can extend this structure
@@ -157,7 +157,7 @@ We now break down **each API** inside its domain with:
         uql.completed_at,
         ts.image_set->>'main',
         q.quest_name
-      FROM user_quest_log uql
+      FROM user_task_log uql
       JOIN quest q ON uql.quest_id = q.quest_id
       JOIN tourist_spot ts ON q.tourist_spot_id = ts.tourist_spot_id
       WHERE uql.status = 'COMPLETED'

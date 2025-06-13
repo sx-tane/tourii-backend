@@ -174,14 +174,14 @@ socket.on('questStarted', () => {
 
 | Table             | Purpose                     | Key Fields                               |
 | ----------------- | --------------------------- | ---------------------------------------- |
-| `user_quest_log`  | Group membership & progress | `group_activity_members` (JSON)          |
+| `user_task_log`  | Group membership & progress | `group_activity_members` (JSON)          |
 | `user_travel_log` | Location check-ins          | `user_id`, `quest_id`, `tourist_spot_id` |
 | `quest`           | Quest definitions           | `quest_id`, `quest_name`, `quest_type`   |
 | `quest_task`      | Individual tasks            | `task_id`, `quest_id`, `task_type`       |
 
 ### Group Data Structure (JSON)
 
-Stored in `user_quest_log.group_activity_members`:
+Stored in `user_task_log.group_activity_members`:
 
 ```json
 [

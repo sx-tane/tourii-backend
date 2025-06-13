@@ -103,6 +103,19 @@ enum QuestStatus {
   FAILED
 }
 
+/// Task status types
+/// Represents the current state of a task for a user
+enum TaskStatus {
+  /// Task is available to be started
+  AVAILABLE
+  /// Task is currently in progress
+  ONGOING
+  /// Task has been successfully completed
+  COMPLETED
+  /// Task was not completed successfully
+  FAILED
+}
+
 /// Item claim status types
 /// Indicates whether an item claim was successful or failed
 enum ItemStatus {
@@ -469,8 +482,8 @@ model user {
   /// User's story progress
   user_story_log user_story_log[]
 
-  /// User's quest progress
-  user_quest_log user_quest_log[]
+  /// User's task progress
+  user_task_log user_task_log[]
 
   /// User's travel history
   user_travel_log user_travel_log[]
@@ -950,32 +963,35 @@ model user_story_log {
   user user @relation(fields: [user_id], references: [user_id])
 }
 
-/// User Quest Log entity
+/// User Task Log entity
 ///
-/// Records user engagement with quests in the Tourii application, including
-/// progress status, responses, completion evidence, and rewards.
-/// This model tracks the entire lifecycle of a user's interaction with a quest,
+/// Records user engagement with individual quest tasks in the Tourii application,
+/// including progress status, responses, completion evidence, and rewards.
+/// This model tracks the lifecycle of a user's interaction with each task,
 /// from initial access to reward claiming.
 ///
-/// Used for tracking quest completions, premium quest purchases,
+/// Used for tracking task completions, premium quest purchases,
 /// quest success/failure, and reward distribution.
 ///
 /// @namespace Users
 /// @author Tourii Team
-model user_quest_log {
+model user_task_log {
   //----
   // IDENTIFICATION
   //----
-  /// Unique identifier for the quest log record UQLYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  /// Unique identifier for the task log record UTLYYYYMM-rand1-DDHHMI-rand2-obfCounter
   ///
   /// @format custom
-  user_quest_log_id String @id @default(dbgenerated("generate_user_quest_log_id()")) @db.VarChar(255)
+  user_task_log_id String @id @default(dbgenerated("generate_user_task_log_id()")) @db.VarChar(255)
 
   /// Associated user ID
   user_id String
 
   /// ID of the quest
   quest_id String
+
+  /// ID of the task within the quest
+  task_id String
 
   //----
   // QUEST STATUS
@@ -988,7 +1004,7 @@ model user_quest_log {
   /// | ONGOING      | Quest is currently in progress              |
   /// | COMPLETED    | Quest has been successfully completed       |
   /// | FAILED       | Quest was not completed successfully        |
-  status QuestStatus @default(AVAILABLE)
+  status TaskStatus @default(AVAILABLE)
 
   /// Type of action required for the quest
   /// 
@@ -1065,6 +1081,8 @@ model user_quest_log {
   //----
   /// Relation to the user who is doing the quest
   user user @relation(fields: [user_id], references: [user_id])
+
+  @@unique([user_id, quest_id, task_id])
 }
 
 /// User Travel Log entity

@@ -156,7 +156,7 @@ describe('QuestRepositoryDb', () => {
 
         await prisma.quest_task.create({
             data: {
-                quest_task_id: 't1',
+                quest_task_id: 'task1',
                 quest_id: 'quest1',
                 task_theme: 'STORY',
                 task_type: 'CHECK_IN',
@@ -173,10 +173,11 @@ describe('QuestRepositoryDb', () => {
                 upd_user_id: 'system',
             },
         });
-        await prisma.user_quest_log.create({
+        await prisma.user_task_log.create({
             data: {
                 user_id: 'user1',
                 quest_id: 'quest1',
+                task_id: 'task1',
                 status: 'COMPLETED',
                 action: 'CHECK_IN',
                 group_activity_members: [],
@@ -457,5 +458,22 @@ describe('QuestRepositoryDb', () => {
             where: { quest_task_id: task.quest_task_id },
         });
         expect(found).toBeNull();
+    });
+
+    it('checks quest completion status', async () => {
+        await prisma.user_task_log.createMany({
+            data: [
+                {
+                    user_id: 'user1',
+                    quest_id: 'qtask',
+                    task_id: 'tDel2',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+            ],
+        });
+        const completed = await repository.isQuestCompleted('qtask', 'user1');
+        expect(completed).toBe(true);
     });
 });

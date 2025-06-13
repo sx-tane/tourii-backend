@@ -124,11 +124,12 @@ erDiagram
   DateTime upd_date_time
   String request_id "nullable"
 }
-"user_quest_log" {
-  String(255) user_quest_log_id PK
+"user_task_log" {
+  String(255) user_task_log_id PK
   String user_id FK
   String quest_id
-  QuestStatus status
+  String task_id
+  TaskStatus status
   TaskType action
   String user_response "nullable"
   Json group_activity_members
@@ -219,7 +220,7 @@ erDiagram
 "user_onchain_item" }o--o| "user" : user
 "user_item_claim_log" }o--|| "user" : user
 "user_story_log" }o--|| "user" : user
-"user_quest_log" }o--|| "user" : user
+"user_task_log" }o--|| "user" : user
 "user_travel_log" }o--|| "user" : user
 "user_invite_log" }o--|| "user" : user
 "discord_activity_log" }o--|| "user" : user
@@ -518,21 +519,22 @@ and analytics about user engagement with narrative content.
   - `upd_date_time`: Timestamp of last record update
   - `request_id`: Request ID for tracing
 
-### `user_quest_log`
-User Quest Log entity
+### `user_task_log`
+User Task Log entity
 
-Records user engagement with quests in the Tourii application, including
-progress status, responses, completion evidence, and rewards.
-This model tracks the entire lifecycle of a user's interaction with a quest,
+Records user engagement with individual quest tasks in the Tourii application,
+including progress status, responses, completion evidence, and rewards.
+This model tracks the lifecycle of a user's interaction with each task,
 from initial access to reward claiming.
 
-Used for tracking quest completions, premium quest purchases,
+Used for tracking task completions, premium quest purchases,
 quest success/failure, and reward distribution.
 
 **Properties**
-  - `user_quest_log_id`: Unique identifier for the quest log record UQLYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `user_task_log_id`: Unique identifier for the task log record UTLYYYYMM-rand1-DDHHMI-rand2-obfCounter
   - `user_id`: Associated user ID
   - `quest_id`: ID of the quest
+  - `task_id`: ID of the task within the quest
   - `status`
     > Current status of the quest for this user
     > 

@@ -9,7 +9,7 @@ export const cleanDb = async () => {
         'user_invite_log',
         'user_item_claim_log',
         'user_story_log',
-        'user_quest_log',
+        'user_task_log',
         'user_travel_log',
         'user_onchain_item',
         'discord_activity_log',

@@ -44,4 +44,9 @@ export interface QuestRepository {
      * @param taskId Task ID
      */
     deleteQuestTask(taskId: string): Promise<boolean>;
+
+    /**
+     * Check if all tasks for a quest are completed by user
+     */
+    isQuestCompleted(questId: string, userId: string): Promise<boolean>;
 }

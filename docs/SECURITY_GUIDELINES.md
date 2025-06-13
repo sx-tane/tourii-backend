@@ -234,7 +234,7 @@ Example:
 ## 🔍 Memory Wall & Feed Security Considerations
 
 - `memory_feed` is a SQL VIEW
-- Logs sourced from `user_story_log`, `user_travel_log`, `user_quest_log`
+- Logs sourced from `user_story_log`, `user_travel_log`, `user_task_log`
 - Future: like/comment system should inherit per-row RLS from underlying logs
 - Prevent abuse by rate-limiting feed writes (especially travel)
 
@@ -242,7 +242,7 @@ Example:
 CREATE VIEW memory_feed AS
 SELECT user_id, 'TRAVEL' AS type, tourist_spot_id AS related_id, travel_distance, ins_date_time AS created_at FROM user_travel_log
 UNION
-SELECT user_id, 'QUEST', quest_id, NULL, completed_at FROM user_quest_log WHERE status = 'COMPLETED'
+SELECT user_id, 'QUEST', quest_id, NULL, completed_at FROM user_task_log WHERE status = 'COMPLETED'
 UNION
 SELECT user_id, 'STORY', story_id, NULL, finished_at FROM user_story_log WHERE status = 'COMPLETED';
 ```

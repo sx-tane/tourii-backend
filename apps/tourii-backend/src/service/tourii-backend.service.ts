@@ -20,7 +20,7 @@ import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestStatus, QuestType, StoryStatus } from '@prisma/client';
+import { TaskStatus, QuestType, StoryStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
@@ -1227,7 +1227,7 @@ export class TouriiBackendService {
             await this.groupQuestRepository.updateMembersStatus(
                 questId,
                 group.members.map((m) => m.userId),
-                QuestStatus.ONGOING,
+                TaskStatus.ONGOING,
             );
         }
 

@@ -29,7 +29,7 @@
         "prisma:studio": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma studio",
         "prisma:introspect": "cross-env MIGRATION_URL=$npm_package_config_databaseurl prisma introspect",
         "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate reset --force",
-        "prisma:migrate:dev": "pnpm prisma:db:execute && cross-env MIGRATION_URL=$npm_package_config_databaseurl npx prisma migrate dev --schema=./prisma/schema.prisma",
+        "prisma:migrate:dev": "pnpm prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/drop_view.sql && cross-env MIGRATION_URL=$npm_package_config_databaseurl npx prisma migrate dev --schema=./prisma/schema.prisma && pnpm prisma:db:execute",
         "prisma:db:execute": "npx prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/moment_view.sql",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",

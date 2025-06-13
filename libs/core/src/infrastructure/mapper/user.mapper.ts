@@ -6,7 +6,7 @@ import { UserInfo } from '@app/core/domain/user/user-info';
 import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
 import { UserItemClaimLog } from '@app/core/domain/user/user-item-claim-log';
 import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
-import { UserQuestLog } from '@app/core/domain/user/user-quest-log';
+import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserStoryLog } from '@app/core/domain/user/user-story-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import { UserEntity } from '@app/core/domain/user/user.entity';
@@ -110,9 +110,9 @@ export class UserMapper {
                           UserMapper.prismaModelToUserStoryLogEntity(log),
                       )
                     : undefined,
-                userQuestLogs: prismaModel.user_quest_log
-                    ? prismaModel.user_quest_log.map((log) =>
-                          UserMapper.prismaModelToUserQuestLogEntity(log),
+                userTaskLogs: prismaModel.user_task_log
+                    ? prismaModel.user_task_log.map((log) =>
+                          UserMapper.prismaModelToUserTaskLogEntity(log),
                       )
                     : undefined,
                 userTravelLogs: prismaModel.user_travel_log
@@ -247,11 +247,12 @@ export class UserMapper {
         });
     }
 
-    static prismaModelToUserQuestLogEntity(prismaLog: user_quest_log): UserQuestLog {
-        return new UserQuestLog({
-            userQuestLogId: prismaLog.user_quest_log_id,
+    static prismaModelToUserTaskLogEntity(prismaLog: user_task_log): UserTaskLog {
+        return new UserTaskLog({
+            userTaskLogId: prismaLog.user_task_log_id,
             userId: prismaLog.user_id,
             questId: prismaLog.quest_id,
+            taskId: prismaLog.task_id,
             status: prismaLog.status,
             action: prismaLog.action,
             userResponse: prismaLog.user_response ?? undefined,

@@ -14,19 +14,19 @@ LEFT JOIN tourist_spot ts ON utl.tourist_spot_id = ts.tourist_spot_id
 WHERE utl.ins_date_time IS NOT NULL
 UNION ALL
 SELECT
-    MD5(CONCAT(uql.user_id, uql.completed_at, 'QUEST')) AS id,
-    uql.user_id,
+    MD5(CONCAT(utl.user_id, utl.completed_at, 'QUEST')) AS id,
+    utl.user_id,
     u.username,
     COALESCE(ts.image_set->>'main', NULL) AS image_url,
     COALESCE(q.quest_name, 'Completed a quest') AS description,
-    CONCAT('Earned ', COALESCE(q.total_magatama_point_awarded, 0), ' PTS') AS reward_text,
-    uql.completed_at AS ins_date_time,
+    CONCAT('Earned ', COALESCE(utl.total_magatama_point_awarded, 0), ' PTS') AS reward_text,
+    utl.completed_at AS ins_date_time,
     'QUEST' AS moment_type
-FROM user_quest_log uql
-JOIN "user" u ON u.user_id = uql.user_id
-LEFT JOIN quest q ON uql.quest_id = q.quest_id
+FROM user_task_log utl
+JOIN "user" u ON u.user_id = utl.user_id
+LEFT JOIN quest q ON utl.quest_id = q.quest_id
 LEFT JOIN tourist_spot ts ON q.tourist_spot_id = ts.tourist_spot_id
-WHERE uql.status = 'COMPLETED' AND uql.completed_at IS NOT NULL
+WHERE utl.status = 'COMPLETED' AND utl.completed_at IS NOT NULL
 UNION ALL
 SELECT
     MD5(CONCAT(usl.user_id, usl.finished_at, 'STORY')) AS id,

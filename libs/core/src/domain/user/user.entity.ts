@@ -8,7 +8,7 @@ import type { UserInfo } from './user-info';
 import type { UserInviteLog } from './user-invite-log';
 import type { UserItemClaimLog } from './user-item-claim-log';
 import type { UserOnchainItem } from './user-onchain-item';
-import type { UserQuestLog } from './user-quest-log';
+import type { UserTaskLog } from './user-task-log';
 import type { UserStoryLog } from './user-story-log';
 import type { UserTravelLog } from './user-travel-log';
 
@@ -44,7 +44,7 @@ interface UserProps {
     userOnchainItems?: UserOnchainItem[];
     userItemClaimLogs?: UserItemClaimLog[];
     userStoryLogs?: UserStoryLog[];
-    userQuestLogs?: UserQuestLog[];
+    userTaskLogs?: UserTaskLog[];
     userTravelLogs?: UserTravelLog[];
     discordActivityLogs?: DiscordActivityLog[];
     discordUserRoles?: DiscordUserRoles[];
@@ -185,8 +185,8 @@ export class UserEntity extends Entity<UserProps> {
         return this.props.userStoryLogs;
     }
 
-    get userQuestLogs(): UserQuestLog[] | undefined {
-        return this.props.userQuestLogs;
+    get userTaskLogs(): UserTaskLog[] | undefined {
+        return this.props.userTaskLogs;
     }
 
     get userTravelLogs(): UserTravelLog[] | undefined {
