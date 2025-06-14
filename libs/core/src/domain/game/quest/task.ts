@@ -16,10 +16,10 @@ export interface TaskProps {
     magatamaPointAwarded: number;
     totalMagatamaPointAwarded: number;
     delFlag: boolean;
-    insUserId: string;
-    insDateTime: Date;
-    updUserId: string;
-    updDateTime: Date;
+    insUserId?: string;
+    insDateTime?: Date;
+    updUserId?: string;
+    updDateTime?: Date;
     requestId?: string;
     isCompleted?: boolean;
 }
@@ -87,19 +87,19 @@ export class Task {
         return this.props.delFlag;
     }
 
-    get insUserId(): string {
+    get insUserId(): string | undefined {
         return this.props.insUserId;
     }
 
-    get insDateTime(): Date {
+    get insDateTime(): Date | undefined {
         return this.props.insDateTime;
     }
 
-    get updUserId(): string {
+    get updUserId(): string | undefined {
         return this.props.updUserId;
     }
 
-    get updDateTime(): Date {
+    get updDateTime(): Date | undefined {
         return this.props.updDateTime;
     }
 

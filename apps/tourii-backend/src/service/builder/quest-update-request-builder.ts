@@ -22,16 +22,19 @@ export class QuestUpdateRequestBuilder {
                 updUserId: dto.updUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
-                tasks: dto.taskList?.map((task) => QuestUpdateRequestBuilder.dtoToQuestTask(task)),
+                tasks: dto.taskList?.map((task) =>
+                    QuestUpdateRequestBuilder.dtoToQuestTask(task, dto.questId),
+                ),
                 touristSpot: base.touristSpot,
             },
             dto.questId,
         );
     }
 
-    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto): Task {
+    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto, questId?: string): Task {
         return new Task({
             taskId: dto.taskId,
+            questId: questId,
             taskTheme: dto.taskTheme,
             taskType: dto.taskType,
             taskName: dto.taskName,
@@ -44,8 +47,6 @@ export class QuestUpdateRequestBuilder {
             magatamaPointAwarded: dto.magatamaPointAwarded,
             totalMagatamaPointAwarded: dto.totalMagatamaPointAwarded,
             delFlag: dto.delFlag,
-            insUserId: dto.insUserId,
-            insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             updUserId: dto.updUserId,
             updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             requestId: ContextStorage.getStore()?.getRequestId()?.value,

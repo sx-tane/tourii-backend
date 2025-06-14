@@ -137,7 +137,7 @@ export class QuestMapper {
 
     static taskEntityToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateInput {
         return {
-            quest_id: task.questId,
+            quest_id: task.questId ?? '',
             task_theme: task.taskTheme,
             task_type: task.taskType,
             task_name: task.taskName,

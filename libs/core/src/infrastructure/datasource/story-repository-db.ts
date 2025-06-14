@@ -240,6 +240,7 @@ export class StoryRepositoryDb implements StoryRepository {
 
     async getLatestStoryChapter(): Promise<{ chapter: StoryChapter; storyId: string } | null> {
         const chapterDb = await this.prisma.story_chapter.findFirst({
+            where: { ins_date_time: { not: undefined } },
             orderBy: { ins_date_time: 'desc' },
             include: { story: { select: { saga_name: true, story_id: true } } },
         });
