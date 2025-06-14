@@ -3,7 +3,7 @@ import { JsonValue } from '@prisma/client/runtime/library';
 
 export interface TaskProps {
     taskId: string;
-    questId: string;
+    questId?: string;
     taskTheme: TaskTheme;
     taskType: TaskType;
     taskName: string;
@@ -35,7 +35,7 @@ export class Task {
         return this.props.taskId;
     }
 
-    get questId(): string {
+    get questId(): string | undefined {
         return this.props.questId;
     }
 

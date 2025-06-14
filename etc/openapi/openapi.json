@@ -2252,7 +2252,7 @@
                     "type": "boolean"
                   },
                   "chapterList": {
-                    "description": "List of chapters in the saga",
+                    "description": "List of chapters",
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -2303,6 +2303,18 @@
                         "isUnlocked": {
                           "description": "Whether the chapter is available to users without prerequisites",
                           "type": "boolean"
+                        },
+                        "storyChapterId": {
+                          "description": "Unique identifier for the story chapter",
+                          "type": "string"
+                        },
+                        "delFlag": {
+                          "description": "Flag to indicate if the story chapter is deleted",
+                          "type": "boolean"
+                        },
+                        "updUserId": {
+                          "description": "Unique identifier for the user who updated the story chapter",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2316,7 +2328,10 @@
                         "chapterVideoUrl",
                         "chapterVideoMobileUrl",
                         "chapterPdfUrl",
-                        "isUnlocked"
+                        "isUnlocked",
+                        "storyChapterId",
+                        "delFlag",
+                        "updUserId"
                       ]
                     }
                   },
@@ -2340,6 +2355,7 @@
                   "order",
                   "isPrologue",
                   "isSelected",
+                  "chapterList",
                   "sagaId",
                   "delFlag",
                   "updUserId"
@@ -8046,6 +8062,26 @@
                   "delFlag": {
                     "description": "Flag to indicate if the task is deleted",
                     "type": "boolean"
+                  },
+                  "insUserId": {
+                    "description": "Unique identifier for the user who created the task",
+                    "type": "string"
+                  },
+                  "insDateTime": {
+                    "description": "Date and time the task was created",
+                    "type": "string"
+                  },
+                  "updUserId": {
+                    "description": "Unique identifier for the user who updated the task",
+                    "type": "string"
+                  },
+                  "updDateTime": {
+                    "description": "Date and time the task was updated",
+                    "type": "string"
+                  },
+                  "requestId": {
+                    "description": "Unique identifier for the request",
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -8058,7 +8094,12 @@
                   "antiCheatRules",
                   "magatamaPointAwarded",
                   "totalMagatamaPointAwarded",
-                  "delFlag"
+                  "delFlag",
+                  "insUserId",
+                  "insDateTime",
+                  "updUserId",
+                  "updDateTime",
+                  "requestId"
                 ]
               }
             }
@@ -8271,10 +8312,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "questId": {
-                    "description": "Unique identifier for the quest",
-                    "type": "string"
-                  },
                   "touristSpotId": {
                     "description": "Unique identifier for the tourist spot",
                     "type": "string"
@@ -8365,6 +8402,10 @@
                     "description": "Flag to indicate if the quest is deleted",
                     "type": "boolean"
                   },
+                  "questId": {
+                    "description": "Unique identifier for the quest",
+                    "type": "string"
+                  },
                   "updUserId": {
                     "description": "Unique identifier for the user who updated the quest",
                     "type": "string"
@@ -8375,14 +8416,6 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "taskId": {
-                          "description": "Unique identifier for the task",
-                          "type": "string"
-                        },
-                        "questId": {
-                          "description": "ID of the parent quest",
-                          "type": "string"
-                        },
                         "taskTheme": {
                           "description": "Theme of the task",
                           "type": "string",
@@ -8466,14 +8499,32 @@
                           "description": "Flag to indicate if the task is deleted",
                           "type": "boolean"
                         },
+                        "insUserId": {
+                          "description": "Unique identifier for the user who created the task",
+                          "type": "string"
+                        },
+                        "insDateTime": {
+                          "description": "Date and time the task was created",
+                          "type": "string"
+                        },
                         "updUserId": {
                           "description": "Unique identifier for the user who updated the task",
+                          "type": "string"
+                        },
+                        "updDateTime": {
+                          "description": "Date and time the task was updated",
+                          "type": "string"
+                        },
+                        "requestId": {
+                          "description": "Unique identifier for the request",
+                          "type": "string"
+                        },
+                        "taskId": {
+                          "description": "Unique identifier for the task",
                           "type": "string"
                         }
                       },
                       "required": [
-                        "taskId",
-                        "questId",
                         "taskTheme",
                         "taskType",
                         "taskName",
@@ -8484,13 +8535,17 @@
                         "magatamaPointAwarded",
                         "totalMagatamaPointAwarded",
                         "delFlag",
-                        "updUserId"
+                        "insUserId",
+                        "insDateTime",
+                        "updUserId",
+                        "updDateTime",
+                        "requestId",
+                        "taskId"
                       ]
                     }
                   }
                 },
                 "required": [
-                  "questId",
                   "touristSpotId",
                   "questName",
                   "questDesc",
@@ -8500,6 +8555,7 @@
                   "totalMagatamaPointAwarded",
                   "rewardType",
                   "delFlag",
+                  "questId",
                   "updUserId"
                 ]
               }
@@ -8921,14 +8977,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "taskId": {
-                    "description": "Unique identifier for the task",
-                    "type": "string"
-                  },
-                  "questId": {
-                    "description": "ID of the parent quest",
-                    "type": "string"
-                  },
                   "taskTheme": {
                     "description": "Theme of the task",
                     "type": "string",
@@ -9012,14 +9060,32 @@
                     "description": "Flag to indicate if the task is deleted",
                     "type": "boolean"
                   },
+                  "insUserId": {
+                    "description": "Unique identifier for the user who created the task",
+                    "type": "string"
+                  },
+                  "insDateTime": {
+                    "description": "Date and time the task was created",
+                    "type": "string"
+                  },
                   "updUserId": {
                     "description": "Unique identifier for the user who updated the task",
+                    "type": "string"
+                  },
+                  "updDateTime": {
+                    "description": "Date and time the task was updated",
+                    "type": "string"
+                  },
+                  "requestId": {
+                    "description": "Unique identifier for the request",
+                    "type": "string"
+                  },
+                  "taskId": {
+                    "description": "Unique identifier for the task",
                     "type": "string"
                   }
                 },
                 "required": [
-                  "taskId",
-                  "questId",
                   "taskTheme",
                   "taskType",
                   "taskName",
@@ -9030,7 +9096,12 @@
                   "magatamaPointAwarded",
                   "totalMagatamaPointAwarded",
                   "delFlag",
-                  "updUserId"
+                  "insUserId",
+                  "insDateTime",
+                  "updUserId",
+                  "updDateTime",
+                  "requestId",
+                  "taskId"
                 ]
               }
             }
@@ -9657,6 +9728,149 @@
         "summary": "Get latest moments",
         "tags": [
           "Moment"
+        ]
+      }
+    },
+    "/v2/homepage/highlights": {
+      "get": {
+        "description": "Latest chapter and popular quest",
+        "operationId": "TouriiBackendController_getHomepageHighlights",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Homepage highlights",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "latestChapter": {
+                  "type": "object",
+                  "properties": {
+                    "storyId": {
+                      "description": "Story ID",
+                      "type": "string"
+                    },
+                    "chapterId": {
+                      "description": "Chapter ID",
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "Chapter title",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "description": "Cover image URL",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "link": {
+                      "description": "Deep link to chapter",
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "storyId",
+                    "chapterId",
+                    "title",
+                    "imageUrl",
+                    "link"
+                  ],
+                  "nullable": true
+                },
+                "popularQuest": {
+                  "type": "object",
+                  "properties": {
+                    "questId": {
+                      "description": "Quest ID",
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "Quest title",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "description": "Quest image URL",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "link": {
+                      "description": "Deep link to quest",
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "questId",
+                    "title",
+                    "imageUrl",
+                    "link"
+                  ],
+                  "nullable": true
+                }
+              },
+              "required": [
+                "latestChapter",
+                "popularQuest"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomepageHighlightsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get homepage highlights",
+        "tags": [
+          "Homepage"
         ]
       }
     },
@@ -10423,7 +10637,7 @@
             "type": "boolean"
           },
           "chapterList": {
-            "description": "List of chapters in the saga",
+            "description": "List of chapters",
             "type": "array",
             "items": {
               "type": "object",
@@ -10474,6 +10688,18 @@
                 "isUnlocked": {
                   "description": "Whether the chapter is available to users without prerequisites",
                   "type": "boolean"
+                },
+                "storyChapterId": {
+                  "description": "Unique identifier for the story chapter",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the story chapter is deleted",
+                  "type": "boolean"
+                },
+                "updUserId": {
+                  "description": "Unique identifier for the user who updated the story chapter",
+                  "type": "string"
                 }
               },
               "required": [
@@ -10487,7 +10713,10 @@
                 "chapterVideoUrl",
                 "chapterVideoMobileUrl",
                 "chapterPdfUrl",
-                "isUnlocked"
+                "isUnlocked",
+                "storyChapterId",
+                "delFlag",
+                "updUserId"
               ]
             }
           },
@@ -10511,6 +10740,7 @@
           "order",
           "isPrologue",
           "isSelected",
+          "chapterList",
           "sagaId",
           "delFlag",
           "updUserId"
@@ -12461,6 +12691,26 @@
           "delFlag": {
             "description": "Flag to indicate if the task is deleted",
             "type": "boolean"
+          },
+          "insUserId": {
+            "description": "Unique identifier for the user who created the task",
+            "type": "string"
+          },
+          "insDateTime": {
+            "description": "Date and time the task was created",
+            "type": "string"
+          },
+          "updUserId": {
+            "description": "Unique identifier for the user who updated the task",
+            "type": "string"
+          },
+          "updDateTime": {
+            "description": "Date and time the task was updated",
+            "type": "string"
+          },
+          "requestId": {
+            "description": "Unique identifier for the request",
+            "type": "string"
           }
         },
         "required": [
@@ -12473,16 +12723,17 @@
           "antiCheatRules",
           "magatamaPointAwarded",
           "totalMagatamaPointAwarded",
-          "delFlag"
+          "delFlag",
+          "insUserId",
+          "insDateTime",
+          "updUserId",
+          "updDateTime",
+          "requestId"
         ]
       },
       "QuestUpdateRequestDto": {
         "type": "object",
         "properties": {
-          "questId": {
-            "description": "Unique identifier for the quest",
-            "type": "string"
-          },
           "touristSpotId": {
             "description": "Unique identifier for the tourist spot",
             "type": "string"
@@ -12573,6 +12824,10 @@
             "description": "Flag to indicate if the quest is deleted",
             "type": "boolean"
           },
+          "questId": {
+            "description": "Unique identifier for the quest",
+            "type": "string"
+          },
           "updUserId": {
             "description": "Unique identifier for the user who updated the quest",
             "type": "string"
@@ -12583,14 +12838,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "taskId": {
-                  "description": "Unique identifier for the task",
-                  "type": "string"
-                },
-                "questId": {
-                  "description": "ID of the parent quest",
-                  "type": "string"
-                },
                 "taskTheme": {
                   "description": "Theme of the task",
                   "type": "string",
@@ -12674,14 +12921,32 @@
                   "description": "Flag to indicate if the task is deleted",
                   "type": "boolean"
                 },
+                "insUserId": {
+                  "description": "Unique identifier for the user who created the task",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Date and time the task was created",
+                  "type": "string"
+                },
                 "updUserId": {
                   "description": "Unique identifier for the user who updated the task",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Date and time the task was updated",
+                  "type": "string"
+                },
+                "requestId": {
+                  "description": "Unique identifier for the request",
+                  "type": "string"
+                },
+                "taskId": {
+                  "description": "Unique identifier for the task",
                   "type": "string"
                 }
               },
               "required": [
-                "taskId",
-                "questId",
                 "taskTheme",
                 "taskType",
                 "taskName",
@@ -12692,13 +12957,17 @@
                 "magatamaPointAwarded",
                 "totalMagatamaPointAwarded",
                 "delFlag",
-                "updUserId"
+                "insUserId",
+                "insDateTime",
+                "updUserId",
+                "updDateTime",
+                "requestId",
+                "taskId"
               ]
             }
           }
         },
         "required": [
-          "questId",
           "touristSpotId",
           "questName",
           "questDesc",
@@ -12708,20 +12977,13 @@
           "totalMagatamaPointAwarded",
           "rewardType",
           "delFlag",
+          "questId",
           "updUserId"
         ]
       },
       "QuestTaskUpdateRequestDto": {
         "type": "object",
         "properties": {
-          "taskId": {
-            "description": "Unique identifier for the task",
-            "type": "string"
-          },
-          "questId": {
-            "description": "ID of the parent quest",
-            "type": "string"
-          },
           "taskTheme": {
             "description": "Theme of the task",
             "type": "string",
@@ -12805,14 +13067,32 @@
             "description": "Flag to indicate if the task is deleted",
             "type": "boolean"
           },
+          "insUserId": {
+            "description": "Unique identifier for the user who created the task",
+            "type": "string"
+          },
+          "insDateTime": {
+            "description": "Date and time the task was created",
+            "type": "string"
+          },
           "updUserId": {
             "description": "Unique identifier for the user who updated the task",
+            "type": "string"
+          },
+          "updDateTime": {
+            "description": "Date and time the task was updated",
+            "type": "string"
+          },
+          "requestId": {
+            "description": "Unique identifier for the request",
+            "type": "string"
+          },
+          "taskId": {
+            "description": "Unique identifier for the task",
             "type": "string"
           }
         },
         "required": [
-          "taskId",
-          "questId",
           "taskTheme",
           "taskType",
           "taskName",
@@ -12823,7 +13103,12 @@
           "magatamaPointAwarded",
           "totalMagatamaPointAwarded",
           "delFlag",
-          "updUserId"
+          "insUserId",
+          "insDateTime",
+          "updUserId",
+          "updDateTime",
+          "requestId",
+          "taskId"
         ]
       },
       "LoginRequestDto": {
@@ -14168,6 +14453,80 @@
           "registeredAt",
           "discordJoinedAt",
           "isBanned"
+        ]
+      },
+      "HomepageHighlightsResponseDto": {
+        "type": "object",
+        "properties": {
+          "latestChapter": {
+            "type": "object",
+            "properties": {
+              "storyId": {
+                "description": "Story ID",
+                "type": "string"
+              },
+              "chapterId": {
+                "description": "Chapter ID",
+                "type": "string"
+              },
+              "title": {
+                "description": "Chapter title",
+                "type": "string"
+              },
+              "imageUrl": {
+                "description": "Cover image URL",
+                "type": "string",
+                "nullable": true
+              },
+              "link": {
+                "description": "Deep link to chapter",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "storyId",
+              "chapterId",
+              "title",
+              "imageUrl",
+              "link"
+            ],
+            "nullable": true
+          },
+          "popularQuest": {
+            "type": "object",
+            "properties": {
+              "questId": {
+                "description": "Quest ID",
+                "type": "string"
+              },
+              "title": {
+                "description": "Quest title",
+                "type": "string"
+              },
+              "imageUrl": {
+                "description": "Quest image URL",
+                "type": "string",
+                "nullable": true
+              },
+              "link": {
+                "description": "Deep link to quest",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "questId",
+              "title",
+              "imageUrl",
+              "link"
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "latestChapter",
+          "popularQuest"
         ]
       },
       "UserSensitiveInfoResponseDto": {

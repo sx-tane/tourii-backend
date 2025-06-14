@@ -100,6 +100,10 @@ import {
     GroupMembersResponseSchema,
 } from './model/tourii-response/group-members-response.model';
 import {
+    HomepageHighlightsResponseDto,
+    HomepageHighlightsResponseSchema,
+} from './model/tourii-response/homepage/highlight-response.model';
+import {
     LocationInfoResponseDto,
     LocationInfoResponseSchema,
 } from './model/tourii-response/location-info-response.model';
@@ -122,10 +126,6 @@ import {
     TaskResponseDto,
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
-import {
-    HomepageHighlightsResponseDto,
-    HomepageHighlightsResponseSchema,
-} from './model/tourii-response/homepage/highlight-response.model';
 import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
@@ -1231,6 +1231,10 @@ export class TouriiBackendController {
             query.momentType,
         );
     }
+
+    // ==========================================
+    // HOMEPAGE ENDPOINTS
+    // ==========================================
 
     @Get('/v2/homepage/highlights')
     @ApiTags('Homepage')

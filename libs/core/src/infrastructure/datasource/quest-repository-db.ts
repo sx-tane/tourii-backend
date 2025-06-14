@@ -98,7 +98,7 @@ export class QuestRepositoryDb implements QuestRepository {
             if (!completedTaskMap.has(log.quest_id)) {
                 completedTaskMap.set(log.quest_id, new Set());
             }
-            completedTaskMap.get(log.quest_id)!.add(log.task_id);
+            completedTaskMap.get(log.quest_id)?.add(log.task_id);
         });
 
         const questsEntities = cachedData.quests.map((quest) => {
@@ -325,6 +325,7 @@ export class QuestRepositoryDb implements QuestRepository {
 
         const questDb = await this.prisma.quest.findUnique({
             where: { quest_id: top[0].quest_id },
+            include: { quest_task: true, tourist_spot: true },
         });
 
         return questDb ? QuestMapper.prismaModelToQuestEntity(questDb) : null;

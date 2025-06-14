@@ -69,7 +69,7 @@ export class QuestResultBuilder {
     static taskToDto(task: Task): TaskResponseDto {
         return {
             taskId: task.taskId ?? '',
-            questId: task.questId,
+            questId: task.questId ?? '',
             taskTheme: task.taskTheme,
             taskType: task.taskType,
             taskName: task.taskName,

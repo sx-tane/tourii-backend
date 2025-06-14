@@ -238,7 +238,7 @@ export class StoryRepositoryDb implements StoryRepository {
         return true;
     }
 
-    async getLatestStoryChapter(): Promise<StoryChapter | null> {
+    async getLatestStoryChapter(): Promise<{ chapter: StoryChapter; storyId: string } | null> {
         const chapterDb = await this.prisma.story_chapter.findFirst({
             orderBy: { ins_date_time: 'desc' },
             include: { story: { select: { saga_name: true, story_id: true } } },
@@ -246,6 +246,9 @@ export class StoryRepositoryDb implements StoryRepository {
 
         if (!chapterDb) return null;
 
-        return StoryMapper.storyChapterToEntity([chapterDb], chapterDb.story.saga_name)[0];
+        return {
+            chapter: StoryMapper.storyChapterToEntity([chapterDb], chapterDb.story.saga_name)[0],
+            storyId: chapterDb.story.story_id,
+        };
     }
 }

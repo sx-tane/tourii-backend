@@ -6,14 +6,14 @@ export const ChapterHighlightSchema = z.object({
     chapterId: z.string().describe('Chapter ID'),
     title: z.string().describe('Chapter title'),
     imageUrl: z.string().optional().nullable().describe('Cover image URL'),
-    link: z.string().describe('Deep link to chapter'),
+    link: z.string().nullable().describe('Deep link to chapter'),
 });
 
 export const QuestHighlightSchema = z.object({
     questId: z.string().describe('Quest ID'),
     title: z.string().describe('Quest title'),
     imageUrl: z.string().optional().nullable().describe('Quest image URL'),
-    link: z.string().describe('Deep link to quest'),
+    link: z.string().nullable().describe('Deep link to quest'),
 });
 
 export const HomepageHighlightsResponseSchema = z.object({

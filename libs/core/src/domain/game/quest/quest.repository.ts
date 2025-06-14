@@ -1,4 +1,4 @@
-import { QuestType, RewardType, TaskTheme, TaskType } from '@prisma/client';
+import { QuestType } from '@prisma/client';
 import type { QuestEntity, QuestEntityWithPagination } from './quest.entity';
 import type { Task } from './task';
 
@@ -16,6 +16,12 @@ export interface QuestRepository {
         userId?: string,
     ): Promise<QuestEntityWithPagination>;
 
+    /**
+     * Get quest by ID
+     * @param questId Quest ID
+     * @param userId User ID (optional)
+     * @returns Quest entity
+     */
     fetchQuestById(questId: string, userId?: string): Promise<QuestEntity>;
 
     /**
@@ -25,12 +31,32 @@ export interface QuestRepository {
      */
     fetchQuestsByTouristSpotId(touristSpotId: string, userId?: string): Promise<QuestEntity[]>;
 
+    /**
+     * Create quest
+     * @param quest Quest entity
+     * @returns Quest entity
+     */
     createQuest(quest: QuestEntity): Promise<QuestEntity>;
 
+    /**
+     * Create quest task
+     * @param task Task entity
+     * @returns Task entity
+     */
     createQuestTask(task: Task): Promise<Task>;
 
+    /**
+     * Update quest
+     * @param quest Quest entity
+     * @returns Quest entity
+     */
     updateQuest(quest: QuestEntity): Promise<QuestEntity>;
 
+    /**
+     * Update quest task
+     * @param task Task entity
+     * @returns Task entity
+     */
     updateQuestTask(task: Task): Promise<Task>;
 
     /**

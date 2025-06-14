@@ -66,9 +66,9 @@ import { UserResultBuilder } from './builder/user-result-builder';
 
 import { TransformDate } from '@app/core';
 import { MomentType } from '@app/core/domain/feed/moment-type';
+import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
-import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 @Injectable()
 export class TouriiBackendService {
@@ -1155,7 +1155,7 @@ export class TouriiBackendService {
                     const baseTask = taskMap.get(taskDto.taskId);
                     return baseTask
                         ? this.questRepository.updateQuestTask(
-                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto, baseTask),
+                              QuestUpdateRequestBuilder.dtoToQuestTask(taskDto),
                           )
                         : Promise.resolve();
                 }),
@@ -1186,12 +1186,7 @@ export class TouriiBackendService {
      * @returns Task response DTO
      */
     async updateQuestTask(task: QuestTaskUpdateRequestDto): Promise<TaskResponseDto> {
-        const current = await this.questRepository.fetchQuestById(task.questId);
-        const baseTask = current.tasks?.find((t) => t.taskId === task.taskId);
-        if (!baseTask) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
-        }
-        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task, baseTask);
+        const taskEntity = QuestUpdateRequestBuilder.dtoToQuestTask(task);
         const updated = await this.questRepository.updateQuestTask(taskEntity);
         return QuestResultBuilder.taskToDto(updated);
     }
@@ -1316,30 +1311,40 @@ export class TouriiBackendService {
         };
     }
 
+    // ==========================================
+    // HOMEPAGE METHODS
+    // ==========================================
+
+    /**
+     * Get homepage highlights
+     * @returns Homepage highlights response DTO
+     */
     async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
-        const [latestChapter, popularQuest] = await Promise.all([
+        const [latestChapterResult, popularQuest] = await Promise.all([
             this.storyRepository.getLatestStoryChapter(),
             this.questRepository.getMostPopularQuest(),
         ]);
 
-        const latestChapterDto = latestChapter
+        const latestChapterDto = latestChapterResult
             ? {
-                  storyId: latestChapter.storyId ?? '',
-                  chapterId: latestChapter.storyChapterId ?? '',
-                  title: latestChapter.chapterTitle ?? '',
-                  imageUrl: latestChapter.chapterImage ?? '',
-                  link: `/v2/touriiverse/${latestChapter.storyId}/chapters/${latestChapter.storyChapterId}`,
+                  storyId: latestChapterResult.storyId,
+                  chapterId: latestChapterResult.chapter.storyChapterId ?? '',
+                  title: latestChapterResult.chapter.chapterTitle ?? '',
+                  imageUrl: latestChapterResult.chapter.chapterImage ?? null,
+                  link: `/v2/touriiverse/${latestChapterResult.storyId}/chapters/${latestChapterResult.chapter.storyChapterId}`,
               }
             : null;
 
-        const popularQuestDto = popularQuest
-            ? {
-                  questId: popularQuest.questId ?? '',
-                  title: popularQuest.questName ?? '',
-                  imageUrl: popularQuest.questImage ?? '',
-                  link: `/v2/quest/${popularQuest.questId}`,
-              }
-            : null;
+        const questId = popularQuest?.questId;
+        const popularQuestDto =
+            popularQuest && questId
+                ? {
+                      questId: questId,
+                      title: popularQuest.questName ?? '',
+                      imageUrl: popularQuest.questImage ?? null,
+                      link: `/v2/quest/${questId}`,
+                  }
+                : null;
 
         return { latestChapter: latestChapterDto, popularQuest: popularQuestDto };
     }
