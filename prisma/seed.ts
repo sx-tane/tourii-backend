@@ -722,7 +722,6 @@ async function main() {
             },
             completed_at: new Date('2024-05-02T15:30:00Z'),
             claimed_at: new Date('2024-05-02T15:31:00Z'),
-            reward_earned: 'Featured Photo',
             ins_user_id: 'system-seed',
         },
     });
