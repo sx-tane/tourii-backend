@@ -5,11 +5,11 @@ accept-version: 1.0.0
 
 
 {
-    "storyId": "STO202506-9a8ca7-071351-8f26d9-BAAA",
+    "storyId": "STO202506-ecc7c4-131748-6c64ab-DAAA",
     "routeName": "The Sloth Route",
     "region": "Bungo Ono",
-    "regionDesc": "Bungo Ono is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
-    "regionBackgroundMedia": "/image/world/Bungo Ono.png",
+    "regionDesc": "Aomori is a region in the world of Tourii. It is a region that is known for its beautiful nature and culture. It is a region that is known for its beautiful nature and culture.",
+    "regionBackgroundMedia": "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&h=1080&fit=crop",
     "recommendation": [
         "Ideal for First Time Visitors",
         "A good mix of nature and culture",

@@ -100,6 +100,10 @@ import {
     GroupMembersResponseSchema,
 } from './model/tourii-response/group-members-response.model';
 import {
+    HomepageHighlightsResponseDto,
+    HomepageHighlightsResponseSchema,
+} from './model/tourii-response/homepage/highlight-response.model';
+import {
     LocationInfoResponseDto,
     LocationInfoResponseSchema,
 } from './model/tourii-response/location-info-response.model';
@@ -174,6 +178,7 @@ import {
     MomentListResponseDto,
     MomentResponseDto,
     UserResponseDto,
+    HomepageHighlightsResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -1225,5 +1230,30 @@ export class TouriiBackendController {
             Number(query.limit),
             query.momentType,
         );
+    }
+
+    // ==========================================
+    // HOMEPAGE ENDPOINTS
+    // ==========================================
+
+    @Get('/v2/homepage/highlights')
+    @ApiTags('Homepage')
+    @ApiOperation({
+        summary: 'Get homepage highlights',
+        description: 'Latest chapter and popular quest',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Homepage highlights',
+        type: HomepageHighlightsResponseDto,
+        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
+        return this.touriiBackendService.getHomepageHighlights();
     }
 }

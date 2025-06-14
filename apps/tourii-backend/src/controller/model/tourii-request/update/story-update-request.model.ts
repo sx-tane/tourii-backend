@@ -4,11 +4,13 @@ import {
     StoryCreateOnlyRequestSchema,
     StoryCreateRequestSchema,
 } from '../create/story-create-request.model';
+import { StoryChapterUpdateRequestSchema } from './chapter-story-update-request.model';
 
 export const StoryUpdateRequestSchema = StoryCreateRequestSchema.extend({
     sagaId: z.string().describe('Unique identifier for the story saga'),
     delFlag: z.boolean().describe('Flag to indicate if the story saga is deleted'),
     updUserId: z.string().describe('Unique identifier for the user who updated the story saga'),
+    chapterList: z.array(StoryChapterUpdateRequestSchema).describe('List of chapters'),
 });
 
 export const StoryUpdateOnlyRequestSchema = StoryCreateOnlyRequestSchema.extend({

@@ -13,8 +13,7 @@ export const QuestTaskCreateRequestSchema = z.object({
     selectOptions: z.array(z.any()).optional().describe('Options for selection tasks'),
     antiCheatRules: z.any().describe('Rules to prevent cheating'),
     magatamaPointAwarded: z.number().describe('Magatama points awarded for this task'),
-    totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
-    delFlag: z.boolean().describe('Flag to indicate if the task is deleted'),
+    rewardEarned: z.string().optional().describe('Reward earned for this task'),
 });
 
 export class QuestTaskCreateRequestDto extends createZodDto(QuestTaskCreateRequestSchema) {}

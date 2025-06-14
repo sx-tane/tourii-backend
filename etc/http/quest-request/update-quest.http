@@ -4,8 +4,8 @@ x-api-key: your-api-key-1
 accept-version: 1.0.0
 
 {
-    "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
-    "touristSpotId": "TST_AomoriFurukawaMarket",
+    "questId": "QST202506-f4869c-141501-dbae3f-BAAA",
+    "touristSpotId": "TST202506-ae52f8-140035-746773-BAAA",
     "questName": "Updated Quest Name",
     "questDesc": "Updated quest description",
     "questImage": "/image/quest.png",
@@ -19,7 +19,6 @@ accept-version: 1.0.0
     "taskList": [
         {
             "taskId": "TASK202505-1",
-            "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
             "taskTheme": "STORY",
             "taskType": "ANSWER_TEXT",
             "taskName": "Updated Task",

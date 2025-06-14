@@ -19,6 +19,10 @@ export class StoryUpdateRequestBuilder {
                 delFlag: dto.delFlag,
                 updUserId: dto.updUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+                requestId: ContextStorage.getStore()?.getRequestId()?.value,
+                chapterList: dto.chapterList.map((chapter) =>
+                    StoryUpdateRequestBuilder.dtoToStoryChapter(chapter),
+                ),
             },
             dto.sagaId,
         );
@@ -41,6 +45,7 @@ export class StoryUpdateRequestBuilder {
             delFlag: dto.delFlag,
             updUserId: dto.updUserId,
             updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+            requestId: ContextStorage.getStore()?.getRequestId()?.value,
         });
     }
 }
