@@ -168,7 +168,7 @@ describe('QuestRepositoryDb', () => {
                 select_options: [],
                 anti_cheat_rules: {},
                 magatama_point_awarded: 1,
-                total_magatama_point_awarded: 1,
+                reward_earned: '1',
                 ins_user_id: 'system',
                 upd_user_id: 'system',
             },
@@ -181,7 +181,7 @@ describe('QuestRepositoryDb', () => {
                 status: 'COMPLETED',
                 action: 'CHECK_IN',
                 group_activity_members: [],
-                total_magatama_point_awarded: 0,
+                reward_earned: '1',
                 ins_user_id: 'system',
                 upd_user_id: 'system',
             },
@@ -294,8 +294,7 @@ describe('QuestRepositoryDb', () => {
         });
 
         const task = new Task({
-            taskId: '',
-            questId: 'qtask',
+            taskId: 't1',
             taskTheme: 'LOCAL_CULTURE',
             taskType: 'CHECK_IN',
             taskName: 'T',
@@ -307,7 +306,7 @@ describe('QuestRepositoryDb', () => {
                 cooldown_hours: 24,
             },
             magatamaPointAwarded: 1,
-            totalMagatamaPointAwarded: 1,
+            rewardEarned: '1',
             delFlag: false,
             insUserId: 'system',
             insDateTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -315,7 +314,7 @@ describe('QuestRepositoryDb', () => {
             updDateTime: new Date('2024-01-01T00:00:00.000Z'),
         });
 
-        const created = await repository.createQuestTask(task);
+        const created = await repository.createQuestTask(task, 'qtask');
         expect(created.taskId).toBeDefined();
 
         const found = await prisma.quest_task.findUnique({
@@ -405,7 +404,7 @@ describe('QuestRepositoryDb', () => {
                 select_options: [],
                 anti_cheat_rules: {},
                 magatama_point_awarded: 1,
-                total_magatama_point_awarded: 1,
+                reward_earned: '1',
                 ins_user_id: 'system',
                 upd_user_id: 'system',
             },
@@ -446,7 +445,7 @@ describe('QuestRepositoryDb', () => {
                 select_options: [],
                 anti_cheat_rules: {},
                 magatama_point_awarded: 1,
-                total_magatama_point_awarded: 1,
+                reward_earned: '1',
                 ins_user_id: 'system',
                 upd_user_id: 'system',
             },

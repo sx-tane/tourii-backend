@@ -333,6 +333,7 @@ EVENT EVENT
     DateTime completed_at "❓"
     DateTime claimed_at "❓"
     Int total_magatama_point_awarded 
+    String reward_earned "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -539,7 +540,7 @@ EVENT EVENT
     Json select_options 
     Json anti_cheat_rules 
     Int magatama_point_awarded 
-    Int total_magatama_point_awarded 
+    String reward_earned "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 

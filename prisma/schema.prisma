@@ -1055,6 +1055,8 @@ model user_task_log {
   /// Total magatama points awarded for this quest
   total_magatama_point_awarded Int @default(0)
 
+  reward_earned String?
+
   //----
   // SYSTEM FIELDS
   //----
@@ -2058,8 +2060,8 @@ model quest_task {
   /// Magatama points awarded for completing this task
   magatama_point_awarded Int @default(0)
 
-  /// Total points for compound or repeatable tasks
-  total_magatama_point_awarded Int @default(0)
+  /// Reward earned for completing this task
+  reward_earned String? @db.VarChar(255)
 
   //----
   // SYSTEM FIELDS
