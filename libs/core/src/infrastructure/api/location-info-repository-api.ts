@@ -22,7 +22,11 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
         private readonly cachingService: CachingService,
     ) {}
 
-    async getLocationInfo(query: string): Promise<LocationInfo> {
+    async getLocationInfo(
+        query: string,
+        latitude?: number,
+        longitude?: number,
+    ): Promise<LocationInfo> {
         const apiKey =
             this.configService.get<string>('GOOGLE_PLACES_API_KEY') ??
             this.configService.get<string>('GOOGLE_MAPS_API_KEY');
@@ -31,12 +35,19 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_005);
         }
 
-        const cacheKey = `${LOCATION_CACHE_PREFIX}:${encodeURIComponent(query)}`;
+        const cacheKey = `${LOCATION_CACHE_PREFIX}:${encodeURIComponent(
+            query,
+        )}:${latitude}:${longitude}`;
         const fetchFn = async (): Promise<LocationInfo> => {
             try {
-                const findUrl =
+                let findUrl =
                     `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(query)}` +
                     `&inputtype=textquery&fields=place_id&key=${apiKey}`;
+
+                if (latitude !== undefined && longitude !== undefined) {
+                    findUrl += `&locationbias=point:${latitude},${longitude}`;
+                }
+
                 const findRes = await firstValueFrom(
                     this.httpService.getTouriiBackendHttpService.get(findUrl),
                 );
@@ -123,7 +134,7 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
                     const height = photo.height || DEFAULT_PHOTO_MAX_HEIGHT;
 
                     // Generate photo URL using Google Places Photos API
-                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${DEFAULT_PHOTO_MAX_WIDTH}&maxheight=${DEFAULT_PHOTO_MAX_HEIGHT}&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${DEFAULT_PHOTO_MAX_WIDTH}&maxheight=${DEFAULT_PHOTO_MAX_HEIGHT}&photoreference=${photo.photo_reference}&key=${apiKey}`;
 
                     return {
                         url: photoUrl,
