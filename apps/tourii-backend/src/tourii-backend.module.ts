@@ -10,14 +10,13 @@ import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-rep
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
+import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
+import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
 import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-logging-service';
 import { getEnv } from '@app/core/utils/env-utils';
-import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
-import { S3Service } from '@app/core/provider/S3.service';
-import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -99,6 +98,8 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
         GroupQuestGateway,
+        CachingService,
+        HttpAdapterHost, // HTTP adapter
         {
             provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,
             useClass: UserStoryLogRepositoryDb,
@@ -111,7 +112,6 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
             provide: TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN,
             useClass: MomentRepositoryDb,
         },
-        HttpAdapterHost, // HTTP adapter
         {
             provide: TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN,
             useClass: UserTaskLogRepositoryDb,
@@ -120,8 +120,6 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
             provide: TouriiBackendConstants.R2_STORAGE_REPOSITORY_TOKEN,
             useClass: R2StorageRepositoryS3,
         },
-        S3Service,
-        CachingService,
         {
             provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,
             useClass: TouriiBackendContextProvider,

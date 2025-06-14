@@ -18,7 +18,7 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
             select: { quest_id: true },
         });
         if (!task) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
         }
 
         await this.prisma.user_task_log.upsert({

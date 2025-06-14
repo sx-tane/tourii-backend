@@ -1,4 +1,6 @@
+import { R2StorageRepository, TransformDate, UserTaskLogRepository } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
@@ -22,6 +24,7 @@ import { TouriiBackendAppException } from '@app/core/support/exception/tourii-ba
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType, StoryStatus, TaskStatus } from '@prisma/client';
 import { ethers } from 'ethers';
+import { imageSize } from 'image-size';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
@@ -37,12 +40,16 @@ import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/u
 import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
+import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
+import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
+import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
     QuestResponseDto,
     TaskResponseDto,
 } from '../controller/model/tourii-response/quest-response.model';
+import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import {
@@ -51,6 +58,7 @@ import {
 } from '../controller/model/tourii-response/user/user-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
+import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
@@ -63,17 +71,9 @@ import { StoryUpdateRequestBuilder } from './builder/story-update-request-builde
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
-
-import { TransformDate } from '@app/core';
-import { MomentType } from '@app/core/domain/feed/moment-type';
-import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
-import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
-import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
-import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
-import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
-import imageSize from 'image-size';
 @Injectable()
 export class TouriiBackendService {
+    constructor(
         @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
         @Inject(TouriiBackendConstants.STORY_REPOSITORY_TOKEN)
@@ -98,6 +98,10 @@ export class TouriiBackendService {
         private readonly groupQuestRepository: GroupQuestRepository,
         @Inject(TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN)
         private readonly momentRepository: MomentRepository,
+        @Inject(TouriiBackendConstants.R2_STORAGE_REPOSITORY_TOKEN)
+        private readonly r2StorageRepository: R2StorageRepository,
+        @Inject(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN)
+        private readonly userTaskLogRepository: UserTaskLogRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -1261,23 +1265,35 @@ export class TouriiBackendService {
     async deleteQuestTask(taskId: string): Promise<void> {
         await this.questRepository.deleteQuestTask(taskId);
     }
+
+    /**
+     * Upload quest task photo
+     * @param taskId Quest task ID
+     * @param userId User ID
+     * @param file File buffer and mimetype
+     * @returns Quest task photo upload response DTO
+     */
     async uploadQuestTaskPhoto(
         taskId: string,
         userId: string,
-        file: Express.Multer.File,
+        file: { buffer: Buffer; mimetype: string },
     ): Promise<QuestTaskPhotoUploadResponseDto> {
         if (!file) throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
-        const allowed = ["image/jpeg", "image/png", "image/webp"];
-        if (!allowed.includes(file.mimetype)) throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowed.includes(file.mimetype))
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         const size = imageSize(file.buffer);
         if (!size.width || !size.height || size.width < 1080 || size.height < 720)
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         const key = `quest-tasks/${taskId}/${userId}/proof.jpg`;
-        const proofUrl = await this.r2StorageRepository.uploadProofImage(file.buffer, key, file.mimetype);
+        const proofUrl = await this.r2StorageRepository.uploadProofImage(
+            file.buffer,
+            key,
+            file.mimetype,
+        );
         await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
-        return { message: "Photo submitted successfully", proofUrl };
+        return { message: 'Photo submitted successfully', proofUrl };
     }
-
 
     // ==========================================
     // DASHBOARD METHODS

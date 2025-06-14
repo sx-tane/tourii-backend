@@ -1223,7 +1223,7 @@ export class TouriiBackendController {
         return this.touriiBackendService.startGroupQuest(questId, body.userId);
     }
 
-    @Post('/v2/quest-tasks/:taskId/photo-upload')
+    @Post('/quests/tasks/:taskId/photo-upload')
     @UseInterceptors(FileInterceptor('file'))
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Upload task photo' })
@@ -1245,7 +1245,7 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async uploadTaskPhoto(
         @Param('taskId') taskId: string,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFile() file: { buffer: Buffer; mimetype: string },
         @Req() req: Request,
     ): Promise<QuestTaskPhotoUploadResponseDto> {
         const userId = req.headers['x-user-id'] as string;

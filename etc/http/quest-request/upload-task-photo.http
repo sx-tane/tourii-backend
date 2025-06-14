@@ -1,0 +1,12 @@
+POST http://localhost:4000/quests/tasks/TSK202506-689f0d-141504-c54ed3-BAAA/photo-upload
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-c2a35a-141639-9589c4-BAAA
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< C:/Users/szexi/Downloads/test-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
