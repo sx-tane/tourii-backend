@@ -9462,6 +9462,117 @@
         ]
       }
     },
+    "/quests/tasks/{taskId}/photo-upload": {
+      "post": {
+        "operationId": "TouriiBackendController_uploadTaskPhoto",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Photo upload payload",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Photo submitted successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Result message for photo upload",
+                  "type": "string"
+                },
+                "proofUrl": {
+                  "description": "Public URL for the uploaded proof image",
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "message",
+                "proofUrl"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestTaskPhotoUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Upload task photo",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
     "/moments": {
       "get": {
         "description": "Latest traveler moments",
@@ -14247,6 +14358,24 @@
           "registeredAt",
           "discordJoinedAt",
           "isBanned"
+        ]
+      },
+      "QuestTaskPhotoUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Result message for photo upload",
+            "type": "string"
+          },
+          "proofUrl": {
+            "description": "Public URL for the uploaded proof image",
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "message",
+          "proofUrl"
         ]
       },
       "HomepageHighlightsResponseDto": {

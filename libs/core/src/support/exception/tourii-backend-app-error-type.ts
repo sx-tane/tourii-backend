@@ -110,6 +110,11 @@ export const TouriiBackendAppErrorType = {
         message: 'Model route not found',
         type: ErrorType.NOT_FOUND,
     },
+    E_TB_028: {
+        code: 'E_TB_028',
+        message: 'Quest task not found',
+        type: ErrorType.NOT_FOUND,
+    },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
         code: 'E_GEO_001',

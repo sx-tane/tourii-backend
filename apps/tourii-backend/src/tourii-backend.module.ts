@@ -10,6 +10,8 @@ import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-rep
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
+import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
+import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
@@ -96,6 +98,8 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
         GroupQuestGateway,
+        CachingService,
+        HttpAdapterHost, // HTTP adapter
         {
             provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,
             useClass: UserStoryLogRepositoryDb,
@@ -108,8 +112,14 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
             provide: TouriiBackendConstants.MOMENT_REPOSITORY_TOKEN,
             useClass: MomentRepositoryDb,
         },
-        HttpAdapterHost, // HTTP adapter
-        CachingService,
+        {
+            provide: TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN,
+            useClass: UserTaskLogRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.R2_STORAGE_REPOSITORY_TOKEN,
+            useClass: R2StorageRepositoryS3,
+        },
         {
             provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,
             useClass: TouriiBackendContextProvider,
