@@ -13,6 +13,7 @@ export const TouristSpotCreateRequestSchema = z.object({
     bestVisitTime: z.string().describe('Best visit time of the tourist spot'),
     touristSpotHashtag: z.array(z.string()).describe('Hashtags associated with this location'),
     imageSet: ImageSetSchema.optional().describe('Image set for the tourist spot'),
+    address: z.string().optional().describe('Address for enhanced search accuracy'),
 });
 
 export class TouristSpotCreateRequestDto extends createZodDto(TouristSpotCreateRequestSchema) {}

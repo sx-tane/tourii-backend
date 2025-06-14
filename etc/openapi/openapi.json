@@ -3620,6 +3620,10 @@
                             "main",
                             "small"
                           ]
+                        },
+                        "address": {
+                          "description": "Address for enhanced search accuracy",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -4005,6 +4009,10 @@
                       "main",
                       "small"
                     ]
+                  },
+                  "address": {
+                    "description": "Address for enhanced search accuracy",
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -4294,6 +4302,10 @@
                             "main",
                             "small"
                           ]
+                        },
+                        "address": {
+                          "description": "Address for enhanced search accuracy",
+                          "type": "string"
                         },
                         "touristSpotId": {
                           "description": "Unique identifier for the tourist spot",
@@ -4701,6 +4713,10 @@
                       "main",
                       "small"
                     ]
+                  },
+                  "address": {
+                    "description": "Address for enhanced search accuracy",
+                    "type": "string"
                   },
                   "touristSpotId": {
                     "description": "Unique identifier for the tourist spot",
@@ -10555,6 +10571,10 @@
                     "main",
                     "small"
                   ]
+                },
+                "address": {
+                  "description": "Address for enhanced search accuracy",
+                  "type": "string"
                 }
               },
               "required": [
@@ -10623,6 +10643,10 @@
               "main",
               "small"
             ]
+          },
+          "address": {
+            "description": "Address for enhanced search accuracy",
+            "type": "string"
           }
         },
         "required": [
@@ -10938,6 +10962,10 @@
                     "small"
                   ]
                 },
+                "address": {
+                  "description": "Address for enhanced search accuracy",
+                  "type": "string"
+                },
                 "touristSpotId": {
                   "description": "Unique identifier for the tourist spot",
                   "type": "string"
@@ -11035,6 +11063,10 @@
               "main",
               "small"
             ]
+          },
+          "address": {
+            "description": "Address for enhanced search accuracy",
+            "type": "string"
           },
           "touristSpotId": {
             "description": "Unique identifier for the tourist spot",

@@ -451,6 +451,7 @@ export class TouriiBackendService {
         try {
             const locationInfo = await this.locationInfoRepository.getLocationInfo(
                 touristSpotDto.touristSpotName,
+                touristSpotDto.address,
             );
             standardizedSpotName = locationInfo.name; // Use Google's standardized name
             Logger.log(
