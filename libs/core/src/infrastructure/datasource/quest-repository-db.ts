@@ -98,13 +98,14 @@ export class QuestRepositoryDb implements QuestRepository {
             if (!completedTaskMap.has(log.quest_id)) {
                 completedTaskMap.set(log.quest_id, new Set());
             }
-            completedTaskMap.get(log.quest_id)!.add(log.task_id);
+            completedTaskMap.get(log.quest_id)?.add(log.task_id);
         });
 
         const questsEntities = cachedData.quests.map((quest) => {
-            const completedTasksForQuest = completedTaskMap.get(quest.quest_id);
-            const completed = completedTasksForQuest ? Array.from(completedTasksForQuest) : [];
-            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(quest, completed);
+            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
+                quest,
+                userCompletedTasks.map((log) => log.task_id),
+            );
         });
 
         const result = new QuestEntityWithPagination(questsEntities, cachedData.total, page, limit);
@@ -228,10 +229,9 @@ export class QuestRepositoryDb implements QuestRepository {
         );
 
         return questsDb.map((quest) => {
-            const completedTasksForQuest = completedTasksByQuest[quest.quest_id] || [];
             return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
                 quest,
-                completedTasksForQuest,
+                completedTasksByQuest[quest.quest_id] ?? [],
             );
         });
     }
@@ -247,13 +247,20 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntity(created);
     }
 
-    async createQuestTask(task: Task): Promise<Task> {
+    async createQuestTask(task: Task, questId: string): Promise<Task> {
         const created = await this.prisma.quest_task.create({
-            data: QuestMapper.taskEntityToPrismaInput(task),
+            data: {
+                ...QuestMapper.taskToPrismaInput(task),
+                quest: {
+                    connect: {
+                        quest_id: questId,
+                    },
+                },
+            },
         });
         // Clear all quest-related cache entries
         await this.cachingService.clearAll();
-        return QuestMapper.prismaTaskModelToTaskEntity(created);
+        return QuestMapper.prismaTaskModelToTask(created);
     }
 
     async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
@@ -276,7 +283,7 @@ export class QuestRepositoryDb implements QuestRepository {
 
         // Clear all cache to ensure consistency
         await this.cachingService.clearAll();
-        return QuestMapper.prismaTaskModelToTaskEntity(updated);
+        return QuestMapper.prismaTaskModelToTask(updated);
     }
 
     async deleteQuest(questId: string): Promise<boolean> {
@@ -310,5 +317,46 @@ export class QuestRepositoryDb implements QuestRepository {
 
         const completedSet = new Set(completedLogs.map((l) => l.task_id));
         return tasks.every((t) => completedSet.has(t.quest_task_id));
+    }
+
+    async getMostPopularQuest(): Promise<QuestEntity | null> {
+        const topQuests = await this.prisma.user_task_log.groupBy({
+            by: ['quest_id'],
+            where: {
+                status: TaskStatus.COMPLETED,
+            },
+            _count: {
+                quest_id: true,
+            },
+            orderBy: {
+                _count: {
+                    quest_id: 'desc',
+                },
+            },
+            take: 1,
+        });
+
+        if (topQuests.length === 0) {
+            return null;
+        }
+
+        const mostPopularQuestId = topQuests[0].quest_id;
+
+        const questDb = await this.prisma.quest.findUnique({
+            where: { quest_id: mostPopularQuestId },
+            include: { quest_task: true, tourist_spot: true },
+        });
+
+        const cachedQuest = await this.cachingService.getOrSet<QuestWithTasks | null>(
+            `quest:${mostPopularQuestId}`,
+            () => Promise.resolve(questDb),
+            CACHE_TTL_SECONDS,
+        );
+
+        if (!cachedQuest) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+
+        return QuestMapper.prismaModelToQuestEntity(cachedQuest);
     }
 }

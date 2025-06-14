@@ -4,8 +4,8 @@ x-api-key: your-api-key-1
 accept-version: 1.0.0
 
 {
-    "taskId": "TASK202505-1",
-    "questId": "QST202505-1cfc35-241541-fd2c4d-CAAA",
+    "taskId": "TSK202506-689f0d-141504-c54ed3-BAAA",
+    "questId": "QST202506-f4869c-141501-dbae3f-BAAA",
     "taskTheme": "STORY",
     "taskType": "ANSWER_TEXT",
     "taskName": "Updated Task",

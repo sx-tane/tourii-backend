@@ -1,6 +1,6 @@
+import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
-import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { ContextStorage } from '@app/core/support/context/context-storage';
 import type { QuestCreateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/create/quest-create-request.model';
 import type { QuestTaskCreateRequestDto } from '@app/tourii-backend/controller/model/tourii-request/create/quest-task-create-request.model';
@@ -34,10 +34,9 @@ export class QuestCreateRequestBuilder {
         );
     }
 
-    static dtoToQuestTask(dto: QuestTaskCreateRequestDto, questId: string, insUserId: string): Task {
+    static dtoToQuestTask(dto: QuestTaskCreateRequestDto, insUserId: string): Task {
         return new Task({
             taskId: '',
-            questId: questId,
             taskTheme: dto.taskTheme,
             taskType: dto.taskType,
             taskName: dto.taskName,
@@ -48,8 +47,8 @@ export class QuestCreateRequestBuilder {
             selectOptions: dto.selectOptions,
             antiCheatRules: dto.antiCheatRules,
             magatamaPointAwarded: dto.magatamaPointAwarded,
-            totalMagatamaPointAwarded: dto.totalMagatamaPointAwarded,
-            delFlag: dto.delFlag,
+            rewardEarned: dto.rewardEarned,
+            delFlag: false,
             insUserId: insUserId,
             insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             updUserId: insUserId,

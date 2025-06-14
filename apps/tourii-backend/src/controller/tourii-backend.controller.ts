@@ -1,11 +1,23 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
-import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Param,
+    Post,
+    Query,
+    Req,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBody,
+    ApiConsumes,
     ApiExtraModels,
     ApiHeader,
     ApiOperation,
@@ -14,7 +26,6 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ApiConsumes } from '@nestjs/swagger';
 import { QuestType } from '@prisma/client';
 import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
@@ -103,6 +114,10 @@ import {
     GroupMembersResponseSchema,
 } from './model/tourii-response/group-members-response.model';
 import {
+    HomepageHighlightsResponseDto,
+    HomepageHighlightsResponseSchema,
+} from './model/tourii-response/homepage/highlight-response.model';
+import {
     LocationInfoResponseDto,
     LocationInfoResponseSchema,
 } from './model/tourii-response/location-info-response.model';
@@ -126,6 +141,10 @@ import {
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
+    QuestTaskPhotoUploadResponseDto,
+    QuestTaskPhotoUploadResponseSchema,
+} from './model/tourii-response/quest-task-photo-upload-response.model';
+import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
@@ -143,10 +162,6 @@ import {
     UserSensitiveInfoResponseDto,
     UserSensitiveInfoResponseSchema,
 } from './model/tourii-response/user/user-response.model';
-import {
-    QuestTaskPhotoUploadResponseDto,
-    QuestTaskPhotoUploadResponseSchema,
-} from './model/tourii-response/quest-task-photo-upload-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -182,6 +197,7 @@ import {
     MomentResponseDto,
     UserResponseDto,
     QuestTaskPhotoUploadResponseDto,
+    HomepageHighlightsResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -1265,5 +1281,30 @@ export class TouriiBackendController {
             Number(query.limit),
             query.momentType,
         );
+    }
+
+    // ==========================================
+    // HOMEPAGE ENDPOINTS
+    // ==========================================
+
+    @Get('/v2/homepage/highlights')
+    @ApiTags('Homepage')
+    @ApiOperation({
+        summary: 'Get homepage highlights',
+        description: 'Latest chapter and popular quest',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Homepage highlights',
+        type: HomepageHighlightsResponseDto,
+        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
+        return this.touriiBackendService.getHomepageHighlights();
     }
 }

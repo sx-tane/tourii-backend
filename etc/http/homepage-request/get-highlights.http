@@ -1,0 +1,3 @@
+GET http://localhost:4000/v2/homepage/highlights
+x-api-key: your-api-key-1
+accept-version: 1.0.0

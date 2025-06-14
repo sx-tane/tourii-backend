@@ -237,4 +237,34 @@ export class StoryRepositoryDb implements StoryRepository {
         await this.cachingService.clearAll();
         return true;
     }
+
+    async getLatestStoryChapter(): Promise<{ chapter: StoryChapter; storyId: string } | null> {
+        const chapterDb = await this.prisma.story_chapter.findFirst({
+            where: { ins_date_time: { not: undefined } },
+            orderBy: { ins_date_time: 'desc' },
+            include: { story: { select: { saga_name: true, story_id: true } } },
+        });
+
+        if (!chapterDb) {
+            return null;
+        }
+
+        const cachedChapter = await this.cachingService.getOrSet<story_chapter | null>(
+            `story_chapter:${chapterDb.story_chapter_id}`,
+            () => Promise.resolve(chapterDb),
+            CACHE_TTL_SECONDS,
+        );
+
+        if (!cachedChapter) {
+            return null;
+        }
+
+        return {
+            chapter: StoryMapper.storyChapterToEntity(
+                [cachedChapter],
+                chapterDb.story.saga_name,
+            )[0],
+            storyId: chapterDb.story.story_id,
+        };
+    }
 }
