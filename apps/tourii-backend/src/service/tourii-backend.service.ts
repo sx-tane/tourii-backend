@@ -370,6 +370,9 @@ export class TouriiBackendService {
                 try {
                     const spotLocationInfo = await this.locationInfoRepository.getLocationInfo(
                         spot.touristSpotName,
+                        undefined,
+                        undefined,
+                        spot.address,
                     );
                     standardizedSpotName = spotLocationInfo.name;
                     Logger.log(
@@ -451,6 +454,8 @@ export class TouriiBackendService {
         try {
             const locationInfo = await this.locationInfoRepository.getLocationInfo(
                 touristSpotDto.touristSpotName,
+                undefined,
+                undefined,
                 touristSpotDto.address,
             );
             standardizedSpotName = locationInfo.name; // Use Google's standardized name
@@ -542,8 +547,12 @@ export class TouriiBackendService {
             await Promise.all(
                 spotNamesToStandardize.map(async (name) => {
                     try {
-                        const locationInfo =
-                            await this.locationInfoRepository.getLocationInfo(name);
+                        const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                            name,
+                            undefined,
+                            undefined,
+                            undefined,
+                        );
                         standardizedNames.set(name, locationInfo.name);
                         Logger.log(
                             `Using standardized spot name: "${locationInfo.name}" instead of "${name}"`,
