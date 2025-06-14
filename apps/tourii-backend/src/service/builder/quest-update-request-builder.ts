@@ -21,18 +21,17 @@ export class QuestUpdateRequestBuilder {
                 insDateTime: base.insDateTime,
                 updUserId: dto.updUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
-                requestId: base.requestId,
-                tasks: base.tasks,
+                requestId: ContextStorage.getStore()?.getRequestId()?.value,
+                tasks: dto.taskList?.map((task) => QuestUpdateRequestBuilder.dtoToQuestTask(task)),
                 touristSpot: base.touristSpot,
             },
             dto.questId,
         );
     }
 
-    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto, base: Task): Task {
+    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto): Task {
         return new Task({
             taskId: dto.taskId,
-            questId: dto.questId,
             taskTheme: dto.taskTheme,
             taskType: dto.taskType,
             taskName: dto.taskName,
@@ -43,13 +42,11 @@ export class QuestUpdateRequestBuilder {
             selectOptions: dto.selectOptions,
             antiCheatRules: dto.antiCheatRules,
             magatamaPointAwarded: dto.magatamaPointAwarded,
-            totalMagatamaPointAwarded: dto.totalMagatamaPointAwarded,
+            rewardEarned: dto.rewardEarned,
             delFlag: dto.delFlag,
-            insUserId: base.insUserId,
-            insDateTime: base.insDateTime,
             updUserId: dto.updUserId,
             updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
-            requestId: base.requestId,
+            requestId: ContextStorage.getStore()?.getRequestId()?.value,
         });
     }
 }

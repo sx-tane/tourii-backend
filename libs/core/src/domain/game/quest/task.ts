@@ -3,7 +3,6 @@ import { JsonValue } from '@prisma/client/runtime/library';
 
 export interface TaskProps {
     taskId: string;
-    questId: string;
     taskTheme: TaskTheme;
     taskType: TaskType;
     taskName: string;
@@ -14,12 +13,12 @@ export interface TaskProps {
     selectOptions?: string[];
     antiCheatRules: JsonValue;
     magatamaPointAwarded: number;
-    totalMagatamaPointAwarded: number;
+    rewardEarned?: string;
     delFlag: boolean;
-    insUserId: string;
-    insDateTime: Date;
-    updUserId: string;
-    updDateTime: Date;
+    insUserId?: string;
+    insDateTime?: Date;
+    updUserId?: string;
+    updDateTime?: Date;
     requestId?: string;
     isCompleted?: boolean;
 }
@@ -33,10 +32,6 @@ export class Task {
 
     get taskId(): string | undefined {
         return this.props.taskId;
-    }
-
-    get questId(): string {
-        return this.props.questId;
     }
 
     get taskTheme(): TaskTheme {
@@ -79,27 +74,27 @@ export class Task {
         return this.props.magatamaPointAwarded;
     }
 
-    get totalMagatamaPointAwarded(): number {
-        return this.props.totalMagatamaPointAwarded;
+    get rewardEarned(): string | undefined {
+        return this.props.rewardEarned;
     }
 
     get delFlag(): boolean {
         return this.props.delFlag;
     }
 
-    get insUserId(): string {
+    get insUserId(): string | undefined {
         return this.props.insUserId;
     }
 
-    get insDateTime(): Date {
+    get insDateTime(): Date | undefined {
         return this.props.insDateTime;
     }
 
-    get updUserId(): string {
+    get updUserId(): string | undefined {
         return this.props.updUserId;
     }
 
-    get updDateTime(): Date {
+    get updDateTime(): Date | undefined {
         return this.props.updDateTime;
     }
 

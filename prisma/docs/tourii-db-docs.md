@@ -138,6 +138,7 @@ erDiagram
   DateTime(6) completed_at "nullable"
   DateTime(6) claimed_at "nullable"
   Int total_magatama_point_awarded
+  String reward_earned "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -574,6 +575,7 @@ quest success/failure, and reward distribution.
   - `completed_at`: Timestamp when user completed the quest
   - `claimed_at`: Timestamp when user claimed the quest reward
   - `total_magatama_point_awarded`: Total magatama points awarded for this quest
+  - `reward_earned`: 
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
@@ -826,7 +828,7 @@ erDiagram
   Json select_options
   Json anti_cheat_rules
   Int magatama_point_awarded
-  Int total_magatama_point_awarded
+  String(255) reward_earned "nullable"
   Boolean del_flag
   String ins_user_id
   DateTime ins_date_time
@@ -1143,7 +1145,7 @@ point allocation to ensure fair and engaging gameplay.
     > | QR_SCAN         | { "claim_once": true }                                        |
     > | GROUP_ACTIVITY  | { "verify_team": true }                                       |
   - `magatama_point_awarded`: Magatama points awarded for completing this task
-  - `total_magatama_point_awarded`: Total points for compound or repeatable tasks
+  - `reward_earned`: Reward earned for completing this task
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation
