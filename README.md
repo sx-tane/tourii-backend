@@ -127,6 +127,13 @@ NFT_STORAGE_KEY=...
 
 # Redis
 REDIS_URL=redis://localhost:6379
+# AWS S3 / R2
+AWS_REGION=auto
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_ENDPOINT_DEV=http://localhost:9000
+R2_BUCKET=tourii-dev
+R2_PUBLIC_DOMAIN=https://cdn.tourii.xyz
 ```
 
 ---

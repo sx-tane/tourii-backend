@@ -15,6 +15,9 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
 import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-logging-service';
 import { getEnv } from '@app/core/utils/env-utils';
+import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
+import { S3Service } from '@app/core/provider/S3.service';
+import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -109,6 +112,15 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
             useClass: MomentRepositoryDb,
         },
         HttpAdapterHost, // HTTP adapter
+        {
+            provide: TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN,
+            useClass: UserTaskLogRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.R2_STORAGE_REPOSITORY_TOKEN,
+            useClass: R2StorageRepositoryS3,
+        },
+        S3Service,
         CachingService,
         {
             provide: TouriiBackendConstants.CONTEXT_PROVIDER_TOKEN,

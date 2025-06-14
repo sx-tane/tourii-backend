@@ -69,9 +69,10 @@ import { MomentType } from '@app/core/domain/feed/moment-type';
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
+import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
+import imageSize from 'image-size';
 @Injectable()
 export class TouriiBackendService {
-    constructor(
         @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
         @Inject(TouriiBackendConstants.STORY_REPOSITORY_TOKEN)
@@ -1254,6 +1255,23 @@ export class TouriiBackendService {
     async deleteQuestTask(taskId: string): Promise<void> {
         await this.questRepository.deleteQuestTask(taskId);
     }
+    async uploadQuestTaskPhoto(
+        taskId: string,
+        userId: string,
+        file: Express.Multer.File,
+    ): Promise<QuestTaskPhotoUploadResponseDto> {
+        if (!file) throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        const allowed = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowed.includes(file.mimetype)) throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        const size = imageSize(file.buffer);
+        if (!size.width || !size.height || size.width < 1080 || size.height < 720)
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        const key = `quest-tasks/${taskId}/${userId}/proof.jpg`;
+        const proofUrl = await this.r2StorageRepository.uploadProofImage(file.buffer, key, file.mimetype);
+        await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
+        return { message: "Photo submitted successfully", proofUrl };
+    }
+
 
     // ==========================================
     // DASHBOARD METHODS

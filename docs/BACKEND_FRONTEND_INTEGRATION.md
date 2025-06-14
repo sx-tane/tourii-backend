@@ -90,6 +90,7 @@ We now break down **each API** inside its domain with:
   - `POST /quests/:id/start`: start quest → `QuestController.start()`
   - `GET /quests/:id/tasks`: list tasks → `TaskController.list()`
   - `POST /quests/tasks/:id/submit`: submit task answer → `TaskController.submit()`
+  - `POST /v2/quest-tasks/:taskId/photo-upload`: upload task photo → `TouriiBackendController.uploadTaskPhoto()`
   - `POST /quests/:id/complete`: complete quest → `QuestController.complete()`
 
 ### 6 DIGITAL PASSPORT
