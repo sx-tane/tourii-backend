@@ -10,20 +10,23 @@ import { UserStoryLog } from '@app/core/domain/user/user-story-log';
 import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import type {
-    Prisma,
-    UserRoleType,
-    discord_activity_log,
-    discord_rewarded_roles,
-    discord_user_roles,
-    user_achievement,
-    user_info,
-    user_invite_log,
-    user_item_claim_log,
-    user_onchain_item,
-    user_story_log,
-    user_task_log,
-    user_travel_log,
+import { ContextStorage } from '@app/core/support/context/context-storage';
+import {
+    type Prisma,
+    TaskStatus,
+    TaskType,
+    type UserRoleType,
+    type discord_activity_log,
+    type discord_rewarded_roles,
+    type discord_user_roles,
+    type user_achievement,
+    type user_info,
+    type user_invite_log,
+    type user_item_claim_log,
+    type user_onchain_item,
+    type user_story_log,
+    type user_task_log,
+    type user_travel_log,
 } from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 
@@ -358,5 +361,44 @@ export class UserMapper {
             updDateTime: prismaLog.upd_date_time,
             requestId: prismaLog.request_id ?? undefined,
         });
+    }
+
+    static createUserTaskLogForPhotoUpload(
+        userId: string,
+        questId: string,
+        taskId: string,
+        proofUrl: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.COMPLETED,
+                action: TaskType.PHOTO_UPLOAD,
+                group_activity_members: [],
+                submission_data: { image_url: proofUrl },
+                completed_at: now,
+                claimed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.COMPLETED,
+                submission_data: { image_url: proofUrl },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
     }
 }
