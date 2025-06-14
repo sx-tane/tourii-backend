@@ -13161,8 +13161,7 @@
         "properties": {
           "query": {
             "description": "Place name or search query",
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "latitude": {
             "description": "Latitude for location bias",
@@ -13170,6 +13169,10 @@
           },
           "longitude": {
             "description": "Longitude for location bias",
+            "type": "string"
+          },
+          "address": {
+            "description": "Address for enhanced search accuracy",
             "type": "string"
           }
         },

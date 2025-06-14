@@ -1043,20 +1043,23 @@ export class TouriiBackendService {
 
     /**
      * Get location info
-     * @param query Query string
+     * @param query Query string (place name)
      * @param latitude Latitude for location bias
      * @param longitude Longitude for location bias
+     * @param address Address for enhanced search accuracy
      * @returns Location info response DTO
      */
     async getLocationInfo(
         query: string,
         latitude?: number,
         longitude?: number,
+        address?: string,
     ): Promise<LocationInfoResponseDto> {
         const locationInfo = await this.locationInfoRepository.getLocationInfo(
             query,
             latitude,
             longitude,
+            address,
         );
         return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
     }

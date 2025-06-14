@@ -1,4 +1,4 @@
-GET http://localhost:4000/location-info?query=12345
+GET http://localhost:4000/location-info?query=Eboshi Park&address=Onomachi Fujikita, Bungoono, Oita 879-6442, Japan
 x-api-key: your-api-key-2       
 accept-version: 1.0.0
 Content-Type: application/json 

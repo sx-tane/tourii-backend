@@ -916,6 +916,7 @@ export class TouriiBackendController {
             queryParams.query,
             queryParams.latitude ? Number(queryParams.latitude) : undefined,
             queryParams.longitude ? Number(queryParams.longitude) : undefined,
+            queryParams.address,
         );
     }
 
