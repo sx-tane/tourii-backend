@@ -68,6 +68,7 @@ import { TransformDate } from '@app/core';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
+import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
 @Injectable()
 export class TouriiBackendService {
@@ -1303,6 +1304,34 @@ export class TouriiBackendService {
             moments: momentListResponseDto,
             pagination: { currentPage: page, totalPages, totalItems },
         };
+    }
+
+    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
+        const [latestChapter, popularQuest] = await Promise.all([
+            this.storyRepository.getLatestStoryChapter(),
+            this.questRepository.getMostPopularQuest(),
+        ]);
+
+        const latestChapterDto = latestChapter
+            ? {
+                  storyId: latestChapter.storyId ?? '',
+                  chapterId: latestChapter.storyChapterId ?? '',
+                  title: latestChapter.chapterTitle ?? '',
+                  imageUrl: latestChapter.chapterImage ?? '',
+                  link: `/v2/touriiverse/${latestChapter.storyId}/chapters/${latestChapter.storyChapterId}`,
+              }
+            : null;
+
+        const popularQuestDto = popularQuest
+            ? {
+                  questId: popularQuest.questId ?? '',
+                  title: popularQuest.questName ?? '',
+                  imageUrl: popularQuest.questImage ?? '',
+                  link: `/v2/quest/${popularQuest.questId}`,
+              }
+            : null;
+
+        return { latestChapter: latestChapterDto, popularQuest: popularQuestDto };
     }
 
     /**

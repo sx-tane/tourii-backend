@@ -237,4 +237,15 @@ export class StoryRepositoryDb implements StoryRepository {
         await this.cachingService.clearAll();
         return true;
     }
+
+    async getLatestStoryChapter(): Promise<StoryChapter | null> {
+        const chapterDb = await this.prisma.story_chapter.findFirst({
+            orderBy: { ins_date_time: 'desc' },
+            include: { story: { select: { saga_name: true, story_id: true } } },
+        });
+
+        if (!chapterDb) return null;
+
+        return StoryMapper.storyChapterToEntity([chapterDb], chapterDb.story.saga_name)[0];
+    }
 }

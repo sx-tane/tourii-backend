@@ -75,4 +75,9 @@ export interface StoryRepository {
      * @returns boolean
      */
     deleteStoryChapter(chapterId: string): Promise<boolean>;
+
+    /**
+     * Retrieve the most recently created story chapter.
+     */
+    getLatestStoryChapter(): Promise<StoryChapter | null>;
 }

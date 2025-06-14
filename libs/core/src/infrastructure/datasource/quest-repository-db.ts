@@ -311,4 +311,22 @@ export class QuestRepositoryDb implements QuestRepository {
         const completedSet = new Set(completedLogs.map((l) => l.task_id));
         return tasks.every((t) => completedSet.has(t.quest_task_id));
     }
+
+    async getMostPopularQuest(): Promise<QuestEntity | null> {
+        const top = await this.prisma.user_task_log.groupBy({
+            by: ['quest_id'],
+            where: { status: TaskStatus.COMPLETED },
+            _count: { quest_id: true },
+            orderBy: { _count: { quest_id: 'desc' } },
+            take: 1,
+        });
+
+        if (top.length === 0) return null;
+
+        const questDb = await this.prisma.quest.findUnique({
+            where: { quest_id: top[0].quest_id },
+        });
+
+        return questDb ? QuestMapper.prismaModelToQuestEntity(questDb) : null;
+    }
 }
