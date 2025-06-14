@@ -245,10 +245,25 @@ export class StoryRepositoryDb implements StoryRepository {
             include: { story: { select: { saga_name: true, story_id: true } } },
         });
 
-        if (!chapterDb) return null;
+        if (!chapterDb) {
+            return null;
+        }
+
+        const cachedChapter = await this.cachingService.getOrSet<story_chapter | null>(
+            `story_chapter:${chapterDb.story_chapter_id}`,
+            () => Promise.resolve(chapterDb),
+            CACHE_TTL_SECONDS,
+        );
+
+        if (!cachedChapter) {
+            return null;
+        }
 
         return {
-            chapter: StoryMapper.storyChapterToEntity([chapterDb], chapterDb.story.saga_name)[0],
+            chapter: StoryMapper.storyChapterToEntity(
+                [cachedChapter],
+                chapterDb.story.saga_name,
+            )[0],
             storyId: chapterDb.story.story_id,
         };
     }

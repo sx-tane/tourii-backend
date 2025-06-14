@@ -347,6 +347,16 @@ export class QuestRepositoryDb implements QuestRepository {
             include: { quest_task: true, tourist_spot: true },
         });
 
-        return questDb ? QuestMapper.prismaModelToQuestEntity(questDb) : null;
+        const cachedQuest = await this.cachingService.getOrSet<QuestWithTasks | null>(
+            `quest:${mostPopularQuestId}`,
+            () => Promise.resolve(questDb),
+            CACHE_TTL_SECONDS,
+        );
+
+        if (!cachedQuest) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        }
+
+        return QuestMapper.prismaModelToQuestEntity(cachedQuest);
     }
 }
