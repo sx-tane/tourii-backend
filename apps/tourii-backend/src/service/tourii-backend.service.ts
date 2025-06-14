@@ -1282,10 +1282,36 @@ export class TouriiBackendService {
         const allowed = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowed.includes(file.mimetype))
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+
+        // Get file extension based on mimetype
+        const getFileExtension = (mimetype: string): string => {
+            switch (mimetype) {
+                case 'image/jpeg':
+                    return '.jpg';
+                case 'image/png':
+                    return '.png';
+                case 'image/webp':
+                    return '.webp';
+                default:
+                    return '.jpg'; // fallback
+            }
+        };
+
         const size = imageSize(file.buffer);
-        if (!size.width || !size.height || size.width < 1080 || size.height < 720)
+        if (!size.width || !size.height) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
-        const key = `quest-tasks/${taskId}/${userId}/proof.jpg`;
+        }
+
+        // Check if image meets minimum dimension requirements for either landscape or portrait
+        const isValidLandscape = size.width >= 1080 && size.height >= 720;
+        const isValidPortrait = size.width >= 720 && size.height >= 1080;
+
+        if (!isValidLandscape && !isValidPortrait) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        const fileExtension = getFileExtension(file.mimetype);
+        const key = `quest-tasks/${taskId}/${userId}/proof${fileExtension}`;
         const proofUrl = await this.r2StorageRepository.uploadProofImage(
             file.buffer,
             key,
