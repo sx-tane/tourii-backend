@@ -62,3 +62,7 @@ export * from './support/exception/error-type';
 export * from './support/exception/tourii-backend-app-error-type';
 export * from './support/exception/tourii-backend-app-exception';
 export * from './support/transformer/date-transformer';
+export * from './domain/storage/r2-storage.repository';
+export * from './domain/game/quest/user-task-log.repository';
+export * from './infrastructure/storage/r2-storage.repository-s3';
+export * from './infrastructure/datasource/user-task-log.repository-db';

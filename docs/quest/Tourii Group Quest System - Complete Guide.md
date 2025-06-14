@@ -255,6 +255,20 @@ const checkinResponse = await fetch('/api/quests/tokyo-adventure/check-in', {
     longitude: 139.7006
   })
 });
+// Upload task proof photo
+const form = new FormData();
+form.append("file", selectedFile);
+const uploadResponse = await fetch("/v2/quest-tasks/task123/photo-upload", {
+  method: "POST",
+  headers: {
+    "x-api-key": apiKey,
+    "accept-version": "2.0",
+    "x-user-id": "alice123"
+  },
+  body: form
+});
+const result = await uploadResponse.json();
+console.log(result.proofUrl);
 ```
 
 ---

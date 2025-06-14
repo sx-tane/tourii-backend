@@ -1,9 +1,23 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Param,
+    Post,
+    Query,
+    Req,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBody,
+    ApiConsumes,
     ApiExtraModels,
     ApiHeader,
     ApiOperation,
@@ -127,6 +141,10 @@ import {
     TaskResponseSchema,
 } from './model/tourii-response/quest-response.model';
 import {
+    QuestTaskPhotoUploadResponseDto,
+    QuestTaskPhotoUploadResponseSchema,
+} from './model/tourii-response/quest-task-photo-upload-response.model';
+import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
@@ -178,6 +196,7 @@ import {
     MomentListResponseDto,
     MomentResponseDto,
     UserResponseDto,
+    QuestTaskPhotoUploadResponseDto,
     HomepageHighlightsResponseDto,
 )
 export class TouriiBackendController {
@@ -1202,6 +1221,38 @@ export class TouriiBackendController {
         @Body() body: StartGroupQuestRequestDto,
     ): Promise<StartGroupQuestResponseDto> {
         return this.touriiBackendService.startGroupQuest(questId, body.userId);
+    }
+
+    @Post('/quests/tasks/:taskId/photo-upload')
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Upload task photo' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        description: 'Photo upload payload',
+        schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Photo submitted successfully',
+        type: QuestTaskPhotoUploadResponseDto,
+        schema: zodToOpenAPI(QuestTaskPhotoUploadResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async uploadTaskPhoto(
+        @Param('taskId') taskId: string,
+        @UploadedFile() file: { buffer: Buffer; mimetype: string },
+        @Req() req: Request,
+    ): Promise<QuestTaskPhotoUploadResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, file);
     }
 
     // ==========================================
