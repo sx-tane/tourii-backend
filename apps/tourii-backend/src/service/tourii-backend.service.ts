@@ -1175,8 +1175,8 @@ export class TouriiBackendService {
         questId: string,
         dto: QuestTaskCreateRequestDto,
     ): Promise<TaskResponseDto> {
-        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, questId, 'admin');
-        const created = await this.questRepository.createQuestTask(taskEntity);
+        const taskEntity = QuestCreateRequestBuilder.dtoToQuestTask(dto, 'admin');
+        const created = await this.questRepository.createQuestTask(taskEntity, questId);
         return QuestResultBuilder.taskToDto(created);
     }
 

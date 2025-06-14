@@ -22,10 +22,9 @@ export class QuestMapper {
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
-                tasks:
-                    prismaModel.quest_task?.map((task) =>
-                        QuestMapper.prismaTaskModelToTaskEntity(task),
-                    ) ?? [],
+                tasks: prismaModel.quest_task?.map((task) =>
+                    QuestMapper.prismaTaskModelToTask(task),
+                ),
                 touristSpot: prismaModel.tourist_spot
                     ? ModelRouteMapper.prismaModelToTouristSpotEntity(prismaModel.tourist_spot)
                     : undefined,
@@ -36,7 +35,7 @@ export class QuestMapper {
 
     static prismaModelToQuestEntityWithUserCompletedTasks(
         prismaModel: QuestWithTasks,
-        userCompletedTasks: string[],
+        completedTasks: string[],
     ): QuestEntity {
         return new QuestEntity(
             {
@@ -54,44 +53,21 @@ export class QuestMapper {
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
-                tasks:
-                    prismaModel.quest_task?.map(
-                        (task) =>
-                            new Task({
-                                taskId: task.quest_task_id,
-                                questId: task.quest_id,
-                                taskTheme: task.task_theme,
-                                taskType: task.task_type,
-                                taskName: task.task_name,
-                                taskDesc: task.task_desc,
-                                isUnlocked: task.is_unlocked,
-                                requiredAction: task.required_action,
-                                groupActivityMembers: task.group_activity_members as any[],
-                                selectOptions: task.select_options as any[],
-                                antiCheatRules: task.anti_cheat_rules as any,
-                                magatamaPointAwarded: task.magatama_point_awarded,
-                                totalMagatamaPointAwarded: task.total_magatama_point_awarded,
-                                delFlag: task.del_flag,
-                                insUserId: task.ins_user_id,
-                                insDateTime: task.ins_date_time,
-                                updUserId: task.upd_user_id,
-                                updDateTime: task.upd_date_time,
-                                requestId: task.request_id ?? undefined,
-                                isCompleted: userCompletedTasks.includes(task.quest_task_id),
-                            }),
-                    ) ?? [],
+                tasks: prismaModel.quest_task?.map((task) =>
+                    QuestMapper.prismaTaskModelToTask(task),
+                ),
                 touristSpot: prismaModel.tourist_spot
                     ? ModelRouteMapper.prismaModelToTouristSpotEntity(prismaModel.tourist_spot)
                     : undefined,
+                completedTasks: completedTasks,
             },
             prismaModel.quest_id,
         );
     }
 
-    static prismaTaskModelToTaskEntity(prismaModel: quest_task): Task {
+    static prismaTaskModelToTask(prismaModel: quest_task): Task {
         return new Task({
             taskId: prismaModel.quest_task_id,
-            questId: prismaModel.quest_id,
             taskTheme: prismaModel.task_theme,
             taskType: prismaModel.task_type,
             taskName: prismaModel.task_name,
@@ -130,22 +106,21 @@ export class QuestMapper {
             upd_date_time: questEntity.updDateTime,
             request_id: questEntity.requestId ?? null,
             quest_task: {
-                create: questEntity.tasks?.map((task) => QuestMapper.taskEntityToPrismaInput(task)),
+                create: questEntity.tasks?.map((task) => QuestMapper.taskToPrismaInput(task)),
             },
         };
     }
 
-    static taskEntityToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateInput {
+    static taskToPrismaInput(task: Task): Prisma.quest_taskUncheckedCreateWithoutQuestInput {
         return {
-            quest_id: task.questId ?? '',
             task_theme: task.taskTheme,
             task_type: task.taskType,
             task_name: task.taskName,
             task_desc: task.taskDesc,
             is_unlocked: task.isUnlocked,
             required_action: task.requiredAction,
-            group_activity_members: task.groupActivityMembers ?? [],
-            select_options: task.selectOptions ?? [],
+            group_activity_members: task.groupActivityMembers,
+            select_options: task.selectOptions,
             anti_cheat_rules: task.antiCheatRules as InputJsonValue,
             magatama_point_awarded: task.magatamaPointAwarded,
             total_magatama_point_awarded: task.totalMagatamaPointAwarded,
@@ -179,15 +154,15 @@ export class QuestMapper {
 
     static taskEntityToPrismaUpdateInput(task: Task): Prisma.quest_taskUncheckedUpdateInput {
         return {
-            quest_id: task.questId,
+            quest_task_id: task.taskId,
             task_theme: task.taskTheme,
             task_type: task.taskType,
             task_name: task.taskName,
             task_desc: task.taskDesc,
             is_unlocked: task.isUnlocked,
             required_action: task.requiredAction,
-            group_activity_members: task.groupActivityMembers ?? [],
-            select_options: task.selectOptions ?? [],
+            group_activity_members: task.groupActivityMembers,
+            select_options: task.selectOptions,
             anti_cheat_rules: task.antiCheatRules as InputJsonValue,
             magatama_point_awarded: task.magatamaPointAwarded,
             total_magatama_point_awarded: task.totalMagatamaPointAwarded,

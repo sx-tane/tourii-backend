@@ -43,7 +43,7 @@ export interface QuestRepository {
      * @param task Task entity
      * @returns Task entity
      */
-    createQuestTask(task: Task): Promise<Task>;
+    createQuestTask(task: Task, questId: string): Promise<Task>;
 
     /**
      * Update quest

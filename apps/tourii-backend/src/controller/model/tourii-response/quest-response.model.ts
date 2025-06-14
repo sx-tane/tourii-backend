@@ -6,7 +6,6 @@ import { TouristSpotResponseSchema } from './tourist-spot-response.model';
 
 export const TaskResponseSchema = z.object({
     taskId: z.string().describe('Unique identifier for the task'),
-    questId: z.string().describe('ID of the parent quest'),
     taskTheme: z.nativeEnum(TaskTheme).describe('Theme of the task'),
     taskType: z.nativeEnum(TaskType).describe('Type of the task'),
     taskName: z.string().describe('Name of the task'),

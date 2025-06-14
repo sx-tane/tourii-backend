@@ -294,8 +294,7 @@ describe('QuestRepositoryDb', () => {
         });
 
         const task = new Task({
-            taskId: '',
-            questId: 'qtask',
+            taskId: 't1',
             taskTheme: 'LOCAL_CULTURE',
             taskType: 'CHECK_IN',
             taskName: 'T',
@@ -315,7 +314,7 @@ describe('QuestRepositoryDb', () => {
             updDateTime: new Date('2024-01-01T00:00:00.000Z'),
         });
 
-        const created = await repository.createQuestTask(task);
+        const created = await repository.createQuestTask(task, 'qtask');
         expect(created.taskId).toBeDefined();
 
         const found = await prisma.quest_task.findUnique({

@@ -22,19 +22,16 @@ export class QuestUpdateRequestBuilder {
                 updUserId: dto.updUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
-                tasks: dto.taskList?.map((task) =>
-                    QuestUpdateRequestBuilder.dtoToQuestTask(task, dto.questId),
-                ),
+                tasks: dto.taskList?.map((task) => QuestUpdateRequestBuilder.dtoToQuestTask(task)),
                 touristSpot: base.touristSpot,
             },
             dto.questId,
         );
     }
 
-    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto, questId?: string): Task {
+    static dtoToQuestTask(dto: QuestTaskUpdateRequestDto): Task {
         return new Task({
             taskId: dto.taskId,
-            questId: questId,
             taskTheme: dto.taskTheme,
             taskType: dto.taskType,
             taskName: dto.taskName,

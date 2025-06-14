@@ -102,9 +102,10 @@ export class QuestRepositoryDb implements QuestRepository {
         });
 
         const questsEntities = cachedData.quests.map((quest) => {
-            const completedTasksForQuest = completedTaskMap.get(quest.quest_id);
-            const completed = completedTasksForQuest ? Array.from(completedTasksForQuest) : [];
-            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(quest, completed);
+            return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
+                quest,
+                userCompletedTasks.map((log) => log.task_id),
+            );
         });
 
         const result = new QuestEntityWithPagination(questsEntities, cachedData.total, page, limit);
@@ -228,10 +229,9 @@ export class QuestRepositoryDb implements QuestRepository {
         );
 
         return questsDb.map((quest) => {
-            const completedTasksForQuest = completedTasksByQuest[quest.quest_id] || [];
             return QuestMapper.prismaModelToQuestEntityWithUserCompletedTasks(
                 quest,
-                completedTasksForQuest,
+                completedTasksByQuest[quest.quest_id] ?? [],
             );
         });
     }
@@ -247,13 +247,20 @@ export class QuestRepositoryDb implements QuestRepository {
         return QuestMapper.prismaModelToQuestEntity(created);
     }
 
-    async createQuestTask(task: Task): Promise<Task> {
+    async createQuestTask(task: Task, questId: string): Promise<Task> {
         const created = await this.prisma.quest_task.create({
-            data: QuestMapper.taskEntityToPrismaInput(task),
+            data: {
+                ...QuestMapper.taskToPrismaInput(task),
+                quest: {
+                    connect: {
+                        quest_id: questId,
+                    },
+                },
+            },
         });
         // Clear all quest-related cache entries
         await this.cachingService.clearAll();
-        return QuestMapper.prismaTaskModelToTaskEntity(created);
+        return QuestMapper.prismaTaskModelToTask(created);
     }
 
     async updateQuest(quest: QuestEntity): Promise<QuestEntity> {
@@ -276,7 +283,7 @@ export class QuestRepositoryDb implements QuestRepository {
 
         // Clear all cache to ensure consistency
         await this.cachingService.clearAll();
-        return QuestMapper.prismaTaskModelToTaskEntity(updated);
+        return QuestMapper.prismaTaskModelToTask(updated);
     }
 
     async deleteQuest(questId: string): Promise<boolean> {

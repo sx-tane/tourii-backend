@@ -6150,10 +6150,6 @@
                               "description": "Unique identifier for the task",
                               "type": "string"
                             },
-                            "questId": {
-                              "description": "ID of the parent quest",
-                              "type": "string"
-                            },
                             "taskTheme": {
                               "description": "Theme of the task",
                               "type": "string",
@@ -6260,7 +6256,6 @@
                           },
                           "required": [
                             "taskId",
-                            "questId",
                             "taskTheme",
                             "taskType",
                             "taskName",
@@ -6600,10 +6595,6 @@
                         "description": "Unique identifier for the task",
                         "type": "string"
                       },
-                      "questId": {
-                        "description": "ID of the parent quest",
-                        "type": "string"
-                      },
                       "taskTheme": {
                         "description": "Theme of the task",
                         "type": "string",
@@ -6710,7 +6701,6 @@
                     },
                     "required": [
                       "taskId",
-                      "questId",
                       "taskTheme",
                       "taskType",
                       "taskName",
@@ -7094,10 +7084,6 @@
                           "description": "Unique identifier for the task",
                           "type": "string"
                         },
-                        "questId": {
-                          "description": "ID of the parent quest",
-                          "type": "string"
-                        },
                         "taskTheme": {
                           "description": "Theme of the task",
                           "type": "string",
@@ -7204,7 +7190,6 @@
                       },
                       "required": [
                         "taskId",
-                        "questId",
                         "taskTheme",
                         "taskType",
                         "taskName",
@@ -7619,10 +7604,6 @@
                         "description": "Unique identifier for the task",
                         "type": "string"
                       },
-                      "questId": {
-                        "description": "ID of the parent quest",
-                        "type": "string"
-                      },
                       "taskTheme": {
                         "description": "Theme of the task",
                         "type": "string",
@@ -7729,7 +7710,6 @@
                     },
                     "required": [
                       "taskId",
-                      "questId",
                       "taskTheme",
                       "taskType",
                       "taskName",
@@ -8115,10 +8095,6 @@
                   "description": "Unique identifier for the task",
                   "type": "string"
                 },
-                "questId": {
-                  "description": "ID of the parent quest",
-                  "type": "string"
-                },
                 "taskTheme": {
                   "description": "Theme of the task",
                   "type": "string",
@@ -8225,7 +8201,6 @@
               },
               "required": [
                 "taskId",
-                "questId",
                 "taskTheme",
                 "taskType",
                 "taskName",
@@ -8624,10 +8599,6 @@
                         "description": "Unique identifier for the task",
                         "type": "string"
                       },
-                      "questId": {
-                        "description": "ID of the parent quest",
-                        "type": "string"
-                      },
                       "taskTheme": {
                         "description": "Theme of the task",
                         "type": "string",
@@ -8734,7 +8705,6 @@
                     },
                     "required": [
                       "taskId",
-                      "questId",
                       "taskTheme",
                       "taskType",
                       "taskName",
@@ -9117,10 +9087,6 @@
                   "description": "Unique identifier for the task",
                   "type": "string"
                 },
-                "questId": {
-                  "description": "ID of the parent quest",
-                  "type": "string"
-                },
                 "taskTheme": {
                   "description": "Theme of the task",
                   "type": "string",
@@ -9227,7 +9193,6 @@
               },
               "required": [
                 "taskId",
-                "questId",
                 "taskTheme",
                 "taskType",
                 "taskName",
@@ -11727,10 +11692,6 @@
                         "description": "Unique identifier for the task",
                         "type": "string"
                       },
-                      "questId": {
-                        "description": "ID of the parent quest",
-                        "type": "string"
-                      },
                       "taskTheme": {
                         "description": "Theme of the task",
                         "type": "string",
@@ -11837,7 +11798,6 @@
                     },
                     "required": [
                       "taskId",
-                      "questId",
                       "taskTheme",
                       "taskType",
                       "taskName",
@@ -12091,10 +12051,6 @@
                   "description": "Unique identifier for the task",
                   "type": "string"
                 },
-                "questId": {
-                  "description": "ID of the parent quest",
-                  "type": "string"
-                },
                 "taskTheme": {
                   "description": "Theme of the task",
                   "type": "string",
@@ -12201,7 +12157,6 @@
               },
               "required": [
                 "taskId",
-                "questId",
                 "taskTheme",
                 "taskType",
                 "taskName",
@@ -12377,10 +12332,6 @@
             "description": "Unique identifier for the task",
             "type": "string"
           },
-          "questId": {
-            "description": "ID of the parent quest",
-            "type": "string"
-          },
           "taskTheme": {
             "description": "Theme of the task",
             "type": "string",
@@ -12487,7 +12438,6 @@
         },
         "required": [
           "taskId",
-          "questId",
           "taskTheme",
           "taskType",
           "taskName",
