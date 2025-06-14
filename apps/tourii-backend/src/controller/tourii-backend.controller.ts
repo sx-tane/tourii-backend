@@ -903,8 +903,26 @@ export class TouriiBackendController {
     @ApiQuery({
         name: 'query',
         required: true,
-        type: LocationQueryDto,
-        description: 'Query string for location search',
+        type: String,
+        description: 'Place name or search query',
+    })
+    @ApiQuery({
+        name: 'latitude',
+        required: false,
+        type: String,
+        description: 'Latitude for location bias',
+    })
+    @ApiQuery({
+        name: 'longitude',
+        required: false,
+        type: String,
+        description: 'Longitude for location bias',
+    })
+    @ApiQuery({
+        name: 'address',
+        required: false,
+        type: String,
+        description: 'Address for enhanced search accuracy',
     })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()

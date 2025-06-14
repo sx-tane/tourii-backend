@@ -5865,12 +5865,39 @@
         "operationId": "TouriiBackendController_getLocationInfo",
         "parameters": [
           {
+            "name": "address",
+            "required": false,
+            "in": "query",
+            "description": "Address for enhanced search accuracy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "longitude",
+            "required": false,
+            "in": "query",
+            "description": "Longitude for location bias",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "latitude",
+            "required": false,
+            "in": "query",
+            "description": "Latitude for location bias",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "query",
             "required": true,
             "in": "query",
-            "description": "Query string for location search",
+            "description": "Place name or search query",
             "schema": {
-              "$ref": "#/components/schemas/LocationQueryDto"
+              "type": "string"
             }
           },
           {
