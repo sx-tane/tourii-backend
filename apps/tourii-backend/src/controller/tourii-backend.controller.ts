@@ -900,6 +900,12 @@ export class TouriiBackendController {
         type: LocationInfoResponseDto,
         schema: zodToOpenAPI(LocationInfoResponseSchema),
     })
+    @ApiQuery({
+        name: 'query',
+        required: true,
+        type: LocationQueryDto,
+        description: 'Query string for location search',
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()

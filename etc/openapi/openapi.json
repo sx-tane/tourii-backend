@@ -5865,6 +5865,15 @@
         "operationId": "TouriiBackendController_getLocationInfo",
         "parameters": [
           {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "Query string for location search",
+            "schema": {
+              "$ref": "#/components/schemas/LocationQueryDto"
+            }
+          },
+          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
