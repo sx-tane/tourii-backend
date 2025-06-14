@@ -202,6 +202,7 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
         try {
             // Combine query with address for more precise search
             const enhancedQuery = address ? `${query} ${address}` : query;
+            Logger.log(`Enhanced query: "${enhancedQuery}"`);
 
             let textSearchUrl =
                 `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(enhancedQuery)}` +

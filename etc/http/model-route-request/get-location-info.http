@@ -1,4 +1,4 @@
-GET http://localhost:4000/location-info?query=Jinkaku-ji&latitude=33.0544884&longitude=131.4566312&address=1354+Asajimachi+Torita%2C+Bungoono%2C+Oita+879-6331%2C+Japan
+GET http://localhost:4000/location-info?query=EboshiPark&address=Onomachi Fujikita, Bungoono, Oita 879-6442
 x-api-key: your-api-key-2       
 accept-version: 1.0.0
 Content-Type: application/json 
