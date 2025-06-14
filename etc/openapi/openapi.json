@@ -12967,11 +12967,11 @@
           },
           "latitude": {
             "description": "Latitude for location bias",
-            "type": "number"
+            "type": "string"
           },
           "longitude": {
             "description": "Longitude for location bias",
-            "type": "number"
+            "type": "string"
           }
         },
         "required": [

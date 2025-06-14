@@ -884,8 +884,8 @@ export class TouriiBackendController {
     ): Promise<LocationInfoResponseDto> {
         return this.touriiBackendService.getLocationInfo(
             queryParams.query,
-            queryParams.latitude,
-            queryParams.longitude,
+            queryParams.latitude ? Number(queryParams.latitude) : undefined,
+            queryParams.longitude ? Number(queryParams.longitude) : undefined,
         );
     }
 

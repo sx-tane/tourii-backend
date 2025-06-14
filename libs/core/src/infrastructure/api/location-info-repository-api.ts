@@ -134,7 +134,7 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
                     const height = photo.height || DEFAULT_PHOTO_MAX_HEIGHT;
 
                     // Generate photo URL using Google Places Photos API
-                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${DEFAULT_PHOTO_MAX_WIDTH}&maxheight=${DEFAULT_PHOTO_MAX_HEIGHT}&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+                    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${DEFAULT_PHOTO_MAX_WIDTH}&maxheight=${DEFAULT_PHOTO_MAX_HEIGHT}&photoreference=${photo.photo_reference}&key=${apiKey}`;
 
                     return {
                         url: photoUrl,
