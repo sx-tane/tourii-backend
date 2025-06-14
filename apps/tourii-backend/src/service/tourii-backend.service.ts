@@ -524,7 +524,7 @@ export class TouriiBackendService {
      */
     async updateModelRoute(modelRoute: ModelRouteUpdateRequestDto): Promise<ModelRouteResponseDto> {
         // 1. Standardize tourist spot names using Google Places API (if provided)
-        let standardizedTouristSpots = modelRoute.touristSpotList;
+        // let standardizedTouristSpots = modelRoute.touristSpotList;
         if (modelRoute.touristSpotList && modelRoute.touristSpotList.length > 0) {
             // First, collect all spot names that need standardization
             const spotNamesToStandardize = modelRoute.touristSpotList
@@ -550,25 +550,25 @@ export class TouriiBackendService {
             );
 
             // Create standardized spots with proper type safety
-            standardizedTouristSpots = modelRoute.touristSpotList.map((spot) => {
-                const standardizedName = spot.touristSpotName
-                    ? (standardizedNames.get(spot.touristSpotName) ?? spot.touristSpotName)
-                    : spot.touristSpotName;
+            // standardizedTouristSpots = modelRoute.touristSpotList.map((spot) => {
+            //     const standardizedName = spot.touristSpotName
+            //         ? (standardizedNames.get(spot.touristSpotName) ?? spot.touristSpotName)
+            //         : spot.touristSpotName;
 
-                // Only include fields that are part of the create DTO
-                return {
-                    touristSpotId: spot.touristSpotId,
+            //     // Only include fields that are part of the create DTO
+            //     return {
+            //         touristSpotId: spot.touristSpotId,
 
-                    storyChapterId: spot.storyChapterId,
-                    touristSpotName: standardizedName,
-                    touristSpotDesc: spot.touristSpotDesc,
-                    bestVisitTime: spot.bestVisitTime,
-                    touristSpotHashtag: spot.touristSpotHashtag,
-                    imageSet: spot.imageSet,
-                    delFlag: spot.delFlag ?? false,
-                    updUserId: spot.updUserId ?? modelRoute.updUserId,
-                };
-            });
+            //         storyChapterId: spot.storyChapterId,
+            //         touristSpotName: standardizedName,
+            //         touristSpotDesc: spot.touristSpotDesc,
+            //         bestVisitTime: spot.bestVisitTime,
+            //         touristSpotHashtag: spot.touristSpotHashtag,
+            //         imageSet: spot.imageSet,
+            //         delFlag: spot.delFlag ?? false,
+            //         updUserId: spot.updUserId ?? modelRoute.updUserId,
+            //     };
+            // });
         }
 
         // 2. Fetch region geo information if region name provided
@@ -591,7 +591,7 @@ export class TouriiBackendService {
         const modifiedModelRoute = {
             ...modelRoute,
             region: modelRoute.region,
-            touristSpotList: standardizedTouristSpots,
+            touristSpotList: [],
         };
 
         // 4. Update model route and tourist spots in a transaction
@@ -604,30 +604,30 @@ export class TouriiBackendService {
         }
 
         // 5. Update tourist spots in parallel after model route update succeeds
-        if (standardizedTouristSpots.length > 0) {
-            // Get existing model route to get tourist spots
-            const existingModelRoute = await this.modelRouteRepository.getModelRouteByModelRouteId(
-                updated.modelRouteId,
-            );
-            const existingSpots = existingModelRoute.touristSpotList ?? [];
-            const spotMap = new Map(existingSpots.map((spot) => [spot.touristSpotId, spot]));
+        // if (standardizedTouristSpots.length > 0) {
+        //     // Get existing model route to get tourist spots
+        //     const existingModelRoute = await this.modelRouteRepository.getModelRouteByModelRouteId(
+        //         updated.modelRouteId,
+        //     );
+        //     const existingSpots = existingModelRoute.touristSpotList ?? [];
+        //     const spotMap = new Map(existingSpots.map((spot) => [spot.touristSpotId, spot]));
 
-            await Promise.all(
-                standardizedTouristSpots
-                    .filter((spot) => spot.touristSpotId && spotMap.has(spot.touristSpotId))
-                    .map((spot) => {
-                        const existingSpot = spotMap.get(spot.touristSpotId);
-                        if (!existingSpot?.touristSpotId) return Promise.resolve();
+        //     await Promise.all(
+        //         standardizedTouristSpots
+        //             .filter((spot) => spot.touristSpotId && spotMap.has(spot.touristSpotId))
+        //             .map((spot) => {
+        //                 const existingSpot = spotMap.get(spot.touristSpotId);
+        //                 if (!existingSpot?.touristSpotId) return Promise.resolve();
 
-                        return this.updateTouristSpot({
-                            ...spot,
-                            touristSpotId: existingSpot.touristSpotId,
-                            updUserId: spot.updUserId ?? modelRoute.updUserId,
-                            delFlag: spot.delFlag ?? false,
-                        });
-                    }),
-            );
-        }
+        //                 return this.updateTouristSpot({
+        //                     ...spot,
+        //                     touristSpotId: existingSpot.touristSpotId,
+        //                     updUserId: spot.updUserId ?? modelRoute.updUserId,
+        //                     delFlag: spot.delFlag ?? false,
+        //                 });
+        //             }),
+        //     );
+        // }
 
         return this.getModelRouteById(updated.modelRouteId);
     }
@@ -719,7 +719,7 @@ export class TouriiBackendService {
         let weatherInfo: WeatherInfo;
         try {
             const weatherInfoList = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
-                [geoInfo],
+                [geoInfo!],
             );
 
             if (!weatherInfoList || weatherInfoList.length === 0) {
@@ -1039,10 +1039,20 @@ export class TouriiBackendService {
     /**
      * Get location info
      * @param query Query string
+     * @param latitude Latitude for location bias
+     * @param longitude Longitude for location bias
      * @returns Location info response DTO
      */
-    async getLocationInfo(query: string): Promise<LocationInfoResponseDto> {
-        const locationInfo = await this.locationInfoRepository.getLocationInfo(query);
+    async getLocationInfo(
+        query: string,
+        latitude?: number,
+        longitude?: number,
+    ): Promise<LocationInfoResponseDto> {
+        const locationInfo = await this.locationInfoRepository.getLocationInfo(
+            query,
+            latitude,
+            longitude,
+        );
         return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
     }
 
