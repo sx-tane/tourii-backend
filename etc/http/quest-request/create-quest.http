@@ -4,7 +4,7 @@ x-api-key: your-api-key-1
 accept-version: 1.0.0
 
 {
-    "touristSpotId": "TST202506-2db90c-071420-3f0397-EAAA",
+    "touristSpotId": "TST202506-ae52f8-140035-746773-BAAA",
     "questName": "Discover the Secrets of Harajiri Falls",
     "questDesc": "Experience the majestic beauty of Harajiri Falls, known as the 'Niagara of Kyushu'. Complete various challenges to learn about the geological formation, local legends, and cultural significance of this natural wonder. Earn magatama points by exploring different viewpoints and interacting with local culture.",
     "questImage": "/image/quests/harajiri-falls-quest.png",

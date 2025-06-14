@@ -14,12 +14,6 @@ export const QuestTaskCreateRequestSchema = z.object({
     antiCheatRules: z.any().describe('Rules to prevent cheating'),
     magatamaPointAwarded: z.number().describe('Magatama points awarded for this task'),
     totalMagatamaPointAwarded: z.number().describe('Total Magatama points awarded'),
-    delFlag: z.boolean().describe('Flag to indicate if the task is deleted'),
-    insUserId: z.string().describe('Unique identifier for the user who created the task'),
-    insDateTime: z.string().describe('Date and time the task was created'),
-    updUserId: z.string().describe('Unique identifier for the user who updated the task'),
-    updDateTime: z.string().describe('Date and time the task was updated'),
-    requestId: z.string().describe('Unique identifier for the request'),
 });
 
 export class QuestTaskCreateRequestDto extends createZodDto(QuestTaskCreateRequestSchema) {}

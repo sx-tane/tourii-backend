@@ -48,7 +48,7 @@ export class QuestCreateRequestBuilder {
             antiCheatRules: dto.antiCheatRules,
             magatamaPointAwarded: dto.magatamaPointAwarded,
             totalMagatamaPointAwarded: dto.totalMagatamaPointAwarded,
-            delFlag: dto.delFlag,
+            delFlag: false,
             insUserId: insUserId,
             insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
             updUserId: insUserId,

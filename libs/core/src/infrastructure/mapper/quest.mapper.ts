@@ -37,6 +37,7 @@ export class QuestMapper {
         prismaModel: QuestWithTasks,
         completedTasks: string[],
     ): QuestEntity {
+        const completedTaskIdSet = new Set(completedTasks);
         return new QuestEntity(
             {
                 questName: prismaModel.quest_name,
@@ -54,7 +55,10 @@ export class QuestMapper {
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
                 tasks: prismaModel.quest_task?.map((task) =>
-                    QuestMapper.prismaTaskModelToTask(task),
+                    QuestMapper.prismaTaskModelToTask(
+                        task,
+                        completedTaskIdSet.has(task.quest_task_id),
+                    ),
                 ),
                 touristSpot: prismaModel.tourist_spot
                     ? ModelRouteMapper.prismaModelToTouristSpotEntity(prismaModel.tourist_spot)
@@ -65,7 +69,7 @@ export class QuestMapper {
         );
     }
 
-    static prismaTaskModelToTask(prismaModel: quest_task): Task {
+    static prismaTaskModelToTask(prismaModel: quest_task, isCompleted = false): Task {
         return new Task({
             taskId: prismaModel.quest_task_id,
             taskTheme: prismaModel.task_theme,
@@ -85,6 +89,7 @@ export class QuestMapper {
             updUserId: prismaModel.upd_user_id,
             updDateTime: prismaModel.upd_date_time,
             requestId: prismaModel.request_id ?? undefined,
+            isCompleted,
         });
     }
 
