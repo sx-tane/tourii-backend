@@ -13,7 +13,7 @@ export interface TaskProps {
     selectOptions?: string[];
     antiCheatRules: JsonValue;
     magatamaPointAwarded: number;
-    totalMagatamaPointAwarded: number;
+    rewardEarned?: string;
     delFlag: boolean;
     insUserId?: string;
     insDateTime?: Date;
@@ -74,8 +74,8 @@ export class Task {
         return this.props.magatamaPointAwarded;
     }
 
-    get totalMagatamaPointAwarded(): number {
-        return this.props.totalMagatamaPointAwarded;
+    get rewardEarned(): string | undefined {
+        return this.props.rewardEarned;
     }
 
     get delFlag(): boolean {

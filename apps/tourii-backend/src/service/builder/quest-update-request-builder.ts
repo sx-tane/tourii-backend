@@ -42,7 +42,7 @@ export class QuestUpdateRequestBuilder {
             selectOptions: dto.selectOptions,
             antiCheatRules: dto.antiCheatRules,
             magatamaPointAwarded: dto.magatamaPointAwarded,
-            totalMagatamaPointAwarded: dto.totalMagatamaPointAwarded,
+            rewardEarned: dto.rewardEarned,
             delFlag: dto.delFlag,
             updUserId: dto.updUserId,
             updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),

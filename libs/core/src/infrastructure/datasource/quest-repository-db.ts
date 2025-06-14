@@ -320,18 +320,30 @@ export class QuestRepositoryDb implements QuestRepository {
     }
 
     async getMostPopularQuest(): Promise<QuestEntity | null> {
-        const top = await this.prisma.user_task_log.groupBy({
+        const topQuests = await this.prisma.user_task_log.groupBy({
             by: ['quest_id'],
-            where: { status: TaskStatus.COMPLETED },
-            _count: { quest_id: true },
-            orderBy: { _count: { quest_id: 'desc' } },
+            where: {
+                status: TaskStatus.COMPLETED,
+            },
+            _count: {
+                quest_id: true,
+            },
+            orderBy: {
+                _count: {
+                    quest_id: 'desc',
+                },
+            },
             take: 1,
         });
 
-        if (top.length === 0) return null;
+        if (topQuests.length === 0) {
+            return null;
+        }
+
+        const mostPopularQuestId = topQuests[0].quest_id;
 
         const questDb = await this.prisma.quest.findUnique({
-            where: { quest_id: top[0].quest_id },
+            where: { quest_id: mostPopularQuestId },
             include: { quest_task: true, tourist_spot: true },
         });
 

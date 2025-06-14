@@ -79,7 +79,7 @@ export class QuestResultBuilder {
             selectOptions: task.selectOptions,
             antiCheatRules: task.antiCheatRules,
             magatamaPointAwarded: task.magatamaPointAwarded,
-            totalMagatamaPointAwarded: task.totalMagatamaPointAwarded,
+            rewardEarned: task.rewardEarned,
             isCompleted: task.isCompleted ?? false,
             delFlag: task.delFlag ?? false,
             insUserId: task.insUserId ?? '',

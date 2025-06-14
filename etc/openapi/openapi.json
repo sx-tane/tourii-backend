@@ -6225,9 +6225,9 @@
                               "description": "Magatama points awarded for this task",
                               "type": "number"
                             },
-                            "totalMagatamaPointAwarded": {
-                              "description": "Total Magatama points awarded",
-                              "type": "number"
+                            "rewardEarned": {
+                              "description": "Reward earned for this task",
+                              "type": "string"
                             },
                             "isCompleted": {
                               "description": "Whether task is completed",
@@ -6264,7 +6264,6 @@
                             "requiredAction",
                             "antiCheatRules",
                             "magatamaPointAwarded",
-                            "totalMagatamaPointAwarded",
                             "isCompleted"
                           ]
                         }
@@ -6670,9 +6669,9 @@
                         "description": "Magatama points awarded for this task",
                         "type": "number"
                       },
-                      "totalMagatamaPointAwarded": {
-                        "description": "Total Magatama points awarded",
-                        "type": "number"
+                      "rewardEarned": {
+                        "description": "Reward earned for this task",
+                        "type": "string"
                       },
                       "isCompleted": {
                         "description": "Whether task is completed",
@@ -6709,7 +6708,6 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded",
                       "isCompleted"
                     ]
                   }
@@ -7159,9 +7157,9 @@
                           "description": "Magatama points awarded for this task",
                           "type": "number"
                         },
-                        "totalMagatamaPointAwarded": {
-                          "description": "Total Magatama points awarded",
-                          "type": "number"
+                        "rewardEarned": {
+                          "description": "Reward earned for this task",
+                          "type": "string"
                         },
                         "isCompleted": {
                           "description": "Whether task is completed",
@@ -7198,7 +7196,6 @@
                         "requiredAction",
                         "antiCheatRules",
                         "magatamaPointAwarded",
-                        "totalMagatamaPointAwarded",
                         "isCompleted"
                       ]
                     }
@@ -7679,9 +7676,9 @@
                         "description": "Magatama points awarded for this task",
                         "type": "number"
                       },
-                      "totalMagatamaPointAwarded": {
-                        "description": "Total Magatama points awarded",
-                        "type": "number"
+                      "rewardEarned": {
+                        "description": "Reward earned for this task",
+                        "type": "string"
                       },
                       "isCompleted": {
                         "description": "Whether task is completed",
@@ -7718,7 +7715,6 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded",
                       "isCompleted"
                     ]
                   }
@@ -8035,32 +8031,8 @@
                     "description": "Magatama points awarded for this task",
                     "type": "number"
                   },
-                  "totalMagatamaPointAwarded": {
-                    "description": "Total Magatama points awarded",
-                    "type": "number"
-                  },
-                  "delFlag": {
-                    "description": "Flag to indicate if the task is deleted",
-                    "type": "boolean"
-                  },
-                  "insUserId": {
-                    "description": "Unique identifier for the user who created the task",
-                    "type": "string"
-                  },
-                  "insDateTime": {
-                    "description": "Date and time the task was created",
-                    "type": "string"
-                  },
-                  "updUserId": {
-                    "description": "Unique identifier for the user who updated the task",
-                    "type": "string"
-                  },
-                  "updDateTime": {
-                    "description": "Date and time the task was updated",
-                    "type": "string"
-                  },
-                  "requestId": {
-                    "description": "Unique identifier for the request",
+                  "rewardEarned": {
+                    "description": "Reward earned for this task",
                     "type": "string"
                   }
                 },
@@ -8072,14 +8044,7 @@
                   "isUnlocked",
                   "requiredAction",
                   "antiCheatRules",
-                  "magatamaPointAwarded",
-                  "totalMagatamaPointAwarded",
-                  "delFlag",
-                  "insUserId",
-                  "insDateTime",
-                  "updUserId",
-                  "updDateTime",
-                  "requestId"
+                  "magatamaPointAwarded"
                 ]
               }
             }
@@ -8170,9 +8135,9 @@
                   "description": "Magatama points awarded for this task",
                   "type": "number"
                 },
-                "totalMagatamaPointAwarded": {
-                  "description": "Total Magatama points awarded",
-                  "type": "number"
+                "rewardEarned": {
+                  "description": "Reward earned for this task",
+                  "type": "string"
                 },
                 "isCompleted": {
                   "description": "Whether task is completed",
@@ -8209,7 +8174,6 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded",
                 "isCompleted"
               ]
             },
@@ -8466,36 +8430,20 @@
                           "description": "Magatama points awarded for this task",
                           "type": "number"
                         },
-                        "totalMagatamaPointAwarded": {
-                          "description": "Total Magatama points awarded",
-                          "type": "number"
+                        "rewardEarned": {
+                          "description": "Reward earned for this task",
+                          "type": "string"
+                        },
+                        "taskId": {
+                          "description": "Unique identifier for the task",
+                          "type": "string"
                         },
                         "delFlag": {
                           "description": "Flag to indicate if the task is deleted",
                           "type": "boolean"
                         },
-                        "insUserId": {
-                          "description": "Unique identifier for the user who created the task",
-                          "type": "string"
-                        },
-                        "insDateTime": {
-                          "description": "Date and time the task was created",
-                          "type": "string"
-                        },
                         "updUserId": {
                           "description": "Unique identifier for the user who updated the task",
-                          "type": "string"
-                        },
-                        "updDateTime": {
-                          "description": "Date and time the task was updated",
-                          "type": "string"
-                        },
-                        "requestId": {
-                          "description": "Unique identifier for the request",
-                          "type": "string"
-                        },
-                        "taskId": {
-                          "description": "Unique identifier for the task",
                           "type": "string"
                         }
                       },
@@ -8508,14 +8456,9 @@
                         "requiredAction",
                         "antiCheatRules",
                         "magatamaPointAwarded",
-                        "totalMagatamaPointAwarded",
+                        "taskId",
                         "delFlag",
-                        "insUserId",
-                        "insDateTime",
-                        "updUserId",
-                        "updDateTime",
-                        "requestId",
-                        "taskId"
+                        "updUserId"
                       ]
                     }
                   }
@@ -8674,9 +8617,9 @@
                         "description": "Magatama points awarded for this task",
                         "type": "number"
                       },
-                      "totalMagatamaPointAwarded": {
-                        "description": "Total Magatama points awarded",
-                        "type": "number"
+                      "rewardEarned": {
+                        "description": "Reward earned for this task",
+                        "type": "string"
                       },
                       "isCompleted": {
                         "description": "Whether task is completed",
@@ -8713,7 +8656,6 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded",
                       "isCompleted"
                     ]
                   }
@@ -9022,36 +8964,20 @@
                     "description": "Magatama points awarded for this task",
                     "type": "number"
                   },
-                  "totalMagatamaPointAwarded": {
-                    "description": "Total Magatama points awarded",
-                    "type": "number"
+                  "rewardEarned": {
+                    "description": "Reward earned for this task",
+                    "type": "string"
+                  },
+                  "taskId": {
+                    "description": "Unique identifier for the task",
+                    "type": "string"
                   },
                   "delFlag": {
                     "description": "Flag to indicate if the task is deleted",
                     "type": "boolean"
                   },
-                  "insUserId": {
-                    "description": "Unique identifier for the user who created the task",
-                    "type": "string"
-                  },
-                  "insDateTime": {
-                    "description": "Date and time the task was created",
-                    "type": "string"
-                  },
                   "updUserId": {
                     "description": "Unique identifier for the user who updated the task",
-                    "type": "string"
-                  },
-                  "updDateTime": {
-                    "description": "Date and time the task was updated",
-                    "type": "string"
-                  },
-                  "requestId": {
-                    "description": "Unique identifier for the request",
-                    "type": "string"
-                  },
-                  "taskId": {
-                    "description": "Unique identifier for the task",
                     "type": "string"
                   }
                 },
@@ -9064,14 +8990,9 @@
                   "requiredAction",
                   "antiCheatRules",
                   "magatamaPointAwarded",
-                  "totalMagatamaPointAwarded",
+                  "taskId",
                   "delFlag",
-                  "insUserId",
-                  "insDateTime",
-                  "updUserId",
-                  "updDateTime",
-                  "requestId",
-                  "taskId"
+                  "updUserId"
                 ]
               }
             }
@@ -9162,9 +9083,9 @@
                   "description": "Magatama points awarded for this task",
                   "type": "number"
                 },
-                "totalMagatamaPointAwarded": {
-                  "description": "Total Magatama points awarded",
-                  "type": "number"
+                "rewardEarned": {
+                  "description": "Reward earned for this task",
+                  "type": "string"
                 },
                 "isCompleted": {
                   "description": "Whether task is completed",
@@ -9201,7 +9122,6 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded",
                 "isCompleted"
               ]
             },
@@ -11767,9 +11687,9 @@
                         "description": "Magatama points awarded for this task",
                         "type": "number"
                       },
-                      "totalMagatamaPointAwarded": {
-                        "description": "Total Magatama points awarded",
-                        "type": "number"
+                      "rewardEarned": {
+                        "description": "Reward earned for this task",
+                        "type": "string"
                       },
                       "isCompleted": {
                         "description": "Whether task is completed",
@@ -11806,7 +11726,6 @@
                       "requiredAction",
                       "antiCheatRules",
                       "magatamaPointAwarded",
-                      "totalMagatamaPointAwarded",
                       "isCompleted"
                     ]
                   }
@@ -12126,9 +12045,9 @@
                   "description": "Magatama points awarded for this task",
                   "type": "number"
                 },
-                "totalMagatamaPointAwarded": {
-                  "description": "Total Magatama points awarded",
-                  "type": "number"
+                "rewardEarned": {
+                  "description": "Reward earned for this task",
+                  "type": "string"
                 },
                 "isCompleted": {
                   "description": "Whether task is completed",
@@ -12165,7 +12084,6 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded",
                 "isCompleted"
               ]
             }
@@ -12407,9 +12325,9 @@
             "description": "Magatama points awarded for this task",
             "type": "number"
           },
-          "totalMagatamaPointAwarded": {
-            "description": "Total Magatama points awarded",
-            "type": "number"
+          "rewardEarned": {
+            "description": "Reward earned for this task",
+            "type": "string"
           },
           "isCompleted": {
             "description": "Whether task is completed",
@@ -12446,7 +12364,6 @@
           "requiredAction",
           "antiCheatRules",
           "magatamaPointAwarded",
-          "totalMagatamaPointAwarded",
           "isCompleted"
         ]
       },
@@ -12634,32 +12551,8 @@
             "description": "Magatama points awarded for this task",
             "type": "number"
           },
-          "totalMagatamaPointAwarded": {
-            "description": "Total Magatama points awarded",
-            "type": "number"
-          },
-          "delFlag": {
-            "description": "Flag to indicate if the task is deleted",
-            "type": "boolean"
-          },
-          "insUserId": {
-            "description": "Unique identifier for the user who created the task",
-            "type": "string"
-          },
-          "insDateTime": {
-            "description": "Date and time the task was created",
-            "type": "string"
-          },
-          "updUserId": {
-            "description": "Unique identifier for the user who updated the task",
-            "type": "string"
-          },
-          "updDateTime": {
-            "description": "Date and time the task was updated",
-            "type": "string"
-          },
-          "requestId": {
-            "description": "Unique identifier for the request",
+          "rewardEarned": {
+            "description": "Reward earned for this task",
             "type": "string"
           }
         },
@@ -12671,14 +12564,7 @@
           "isUnlocked",
           "requiredAction",
           "antiCheatRules",
-          "magatamaPointAwarded",
-          "totalMagatamaPointAwarded",
-          "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime",
-          "requestId"
+          "magatamaPointAwarded"
         ]
       },
       "QuestUpdateRequestDto": {
@@ -12863,36 +12749,20 @@
                   "description": "Magatama points awarded for this task",
                   "type": "number"
                 },
-                "totalMagatamaPointAwarded": {
-                  "description": "Total Magatama points awarded",
-                  "type": "number"
+                "rewardEarned": {
+                  "description": "Reward earned for this task",
+                  "type": "string"
+                },
+                "taskId": {
+                  "description": "Unique identifier for the task",
+                  "type": "string"
                 },
                 "delFlag": {
                   "description": "Flag to indicate if the task is deleted",
                   "type": "boolean"
                 },
-                "insUserId": {
-                  "description": "Unique identifier for the user who created the task",
-                  "type": "string"
-                },
-                "insDateTime": {
-                  "description": "Date and time the task was created",
-                  "type": "string"
-                },
                 "updUserId": {
                   "description": "Unique identifier for the user who updated the task",
-                  "type": "string"
-                },
-                "updDateTime": {
-                  "description": "Date and time the task was updated",
-                  "type": "string"
-                },
-                "requestId": {
-                  "description": "Unique identifier for the request",
-                  "type": "string"
-                },
-                "taskId": {
-                  "description": "Unique identifier for the task",
                   "type": "string"
                 }
               },
@@ -12905,14 +12775,9 @@
                 "requiredAction",
                 "antiCheatRules",
                 "magatamaPointAwarded",
-                "totalMagatamaPointAwarded",
+                "taskId",
                 "delFlag",
-                "insUserId",
-                "insDateTime",
-                "updUserId",
-                "updDateTime",
-                "requestId",
-                "taskId"
+                "updUserId"
               ]
             }
           }
@@ -13009,36 +12874,20 @@
             "description": "Magatama points awarded for this task",
             "type": "number"
           },
-          "totalMagatamaPointAwarded": {
-            "description": "Total Magatama points awarded",
-            "type": "number"
+          "rewardEarned": {
+            "description": "Reward earned for this task",
+            "type": "string"
+          },
+          "taskId": {
+            "description": "Unique identifier for the task",
+            "type": "string"
           },
           "delFlag": {
             "description": "Flag to indicate if the task is deleted",
             "type": "boolean"
           },
-          "insUserId": {
-            "description": "Unique identifier for the user who created the task",
-            "type": "string"
-          },
-          "insDateTime": {
-            "description": "Date and time the task was created",
-            "type": "string"
-          },
           "updUserId": {
             "description": "Unique identifier for the user who updated the task",
-            "type": "string"
-          },
-          "updDateTime": {
-            "description": "Date and time the task was updated",
-            "type": "string"
-          },
-          "requestId": {
-            "description": "Unique identifier for the request",
-            "type": "string"
-          },
-          "taskId": {
-            "description": "Unique identifier for the task",
             "type": "string"
           }
         },
@@ -13051,14 +12900,9 @@
           "requiredAction",
           "antiCheatRules",
           "magatamaPointAwarded",
-          "totalMagatamaPointAwarded",
+          "taskId",
           "delFlag",
-          "insUserId",
-          "insDateTime",
-          "updUserId",
-          "updDateTime",
-          "requestId",
-          "taskId"
+          "updUserId"
         ]
       },
       "LoginRequestDto": {
