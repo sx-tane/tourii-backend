@@ -9922,6 +9922,362 @@
         ]
       }
     },
+    "/tasks/answer-text": {
+      "post": {
+        "operationId": "TouriiBackendController_submitAnswerTextTask",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit answer text task request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "description": "ID of the task",
+                    "type": "string"
+                  },
+                  "answer": {
+                    "description": "Answer to the task",
+                    "type": "string"
+                  },
+                  "userId": {
+                    "description": "ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "answer",
+                  "userId"
+                ],
+                "$ref": "#/components/schemas/SubmitAnswerTextRequestTaskDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submit answer text task successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "description": "Whether the answer is correct",
+                  "type": "boolean"
+                },
+                "message": {
+                  "description": "Message to the user",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "success",
+                "message"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTaskResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Submit answer text task",
+        "tags": [
+          "Task"
+        ]
+      }
+    },
+    "/tasks/select-option": {
+      "post": {
+        "operationId": "TouriiBackendController_submitSelectOptionTask",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit select option task request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "description": "ID of the task",
+                    "type": "string"
+                  },
+                  "selectedOptionIds": {
+                    "description": "IDs of the selected options",
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "userId": {
+                    "description": "ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "selectedOptionIds",
+                  "userId"
+                ],
+                "$ref": "#/components/schemas/SubmitSelectOptionsTaskRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submit select option task successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "description": "Whether the answer is correct",
+                  "type": "boolean"
+                },
+                "message": {
+                  "description": "Message to the user",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "success",
+                "message"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTaskResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Submit select option task",
+        "tags": [
+          "Task"
+        ]
+      }
+    },
+    "/tasks/checkin": {
+      "post": {
+        "operationId": "TouriiBackendController_submitCheckInTask",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit checkin task request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "description": "ID of the task",
+                    "type": "string"
+                  },
+                  "longitude": {
+                    "description": "Longitude of the user",
+                    "type": "number"
+                  },
+                  "latitude": {
+                    "description": "Latitude of the user",
+                    "type": "number"
+                  },
+                  "userId": {
+                    "description": "ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "longitude",
+                  "latitude",
+                  "userId"
+                ],
+                "$ref": "#/components/schemas/SubmitCheckInTaskRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submit checkin task successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "description": "Whether the answer is correct",
+                  "type": "boolean"
+                },
+                "message": {
+                  "description": "Message to the user",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "success",
+                "message"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTaskResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Submit checkin task",
+        "tags": [
+          "Task"
+        ]
+      }
+    },
     "/test/headers": {
       "get": {
         "description": "Tests the security headers set by SecurityMiddleware. Returns all configured security headers in the response.",
@@ -14553,6 +14909,97 @@
         },
         "required": [
           "password"
+        ]
+      },
+      "SubmitAnswerTextRequestTaskDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "description": "ID of the task",
+            "type": "string"
+          },
+          "answer": {
+            "description": "Answer to the task",
+            "type": "string"
+          },
+          "userId": {
+            "description": "ID of the user",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "answer",
+          "userId"
+        ]
+      },
+      "SubmitTaskResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "description": "Whether the answer is correct",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Message to the user",
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "SubmitSelectOptionsTaskRequestDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "description": "ID of the task",
+            "type": "string"
+          },
+          "selectedOptionIds": {
+            "description": "IDs of the selected options",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "userId": {
+            "description": "ID of the user",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "selectedOptionIds",
+          "userId"
+        ]
+      },
+      "SubmitCheckInTaskRequestDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "description": "ID of the task",
+            "type": "string"
+          },
+          "longitude": {
+            "description": "Longitude of the user",
+            "type": "number"
+          },
+          "latitude": {
+            "description": "Latitude of the user",
+            "type": "number"
+          },
+          "userId": {
+            "description": "ID of the user",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "longitude",
+          "latitude",
+          "userId"
         ]
       }
     }

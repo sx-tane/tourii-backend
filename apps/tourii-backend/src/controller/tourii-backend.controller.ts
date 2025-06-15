@@ -102,6 +102,14 @@ import {
     StartGroupQuestRequestSchema,
 } from './model/tourii-request/update/start-group-quest-request.model';
 import {
+    SubmitAnswerTextRequestTaskDto,
+    SubmitAnswerTextTaskRequestSchema,
+    SubmitCheckInTaskRequestDto,
+    SubmitCheckInTaskRequestSchema,
+    SubmitSelectOptionsTaskRequestDto,
+    SubmitSelectOptionTaskRequestSchema,
+} from './model/tourii-request/update/submit-tasks-request.model';
+import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
 } from './model/tourii-response/auth-signup-response.model';
@@ -152,6 +160,10 @@ import {
     StoryResponseDto,
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
+import {
+    SubmitTaskResponseDto,
+    SubmitTaskResponseSchema,
+} from './model/tourii-response/submit-tasks-response.model';
 import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
@@ -1311,7 +1323,6 @@ export class TouriiBackendController {
     // ==========================================
     // HOMEPAGE ENDPOINTS
     // ==========================================
-
     @Get('/v2/homepage/highlights')
     @ApiTags('Homepage')
     @ApiOperation({
@@ -1331,5 +1342,92 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
         return this.touriiBackendService.getHomepageHighlights();
+    }
+
+    @Post('/tasks/answer-text')
+    @ApiTags('Task')
+    @ApiOperation({ summary: 'Submit answer text task' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Submit answer text task request',
+        type: SubmitAnswerTextRequestTaskDto,
+        schema: zodToOpenAPI(SubmitAnswerTextTaskRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Submit answer text task successfully',
+        type: SubmitTaskResponseDto,
+        schema: zodToOpenAPI(SubmitTaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async submitAnswerTextTask(
+        @Body() payload: SubmitAnswerTextRequestTaskDto,
+    ): Promise<SubmitTaskResponseDto> {
+        const { taskId, answer, userId } = payload;
+        return await this.touriiBackendService.submitAnswerTextTask(taskId, answer, userId);
+    }
+
+    @Post('/tasks/select-option')
+    @ApiTags('Task')
+    @ApiOperation({ summary: 'Submit select option task' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Submit select option task request',
+        type: SubmitSelectOptionsTaskRequestDto,
+        schema: zodToOpenAPI(SubmitSelectOptionTaskRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Submit select option task successfully',
+        type: SubmitTaskResponseDto,
+        schema: zodToOpenAPI(SubmitTaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async submitSelectOptionTask(
+        @Body() payload: SubmitSelectOptionsTaskRequestDto,
+    ): Promise<SubmitTaskResponseDto> {
+        const { taskId, selectedOptionIds, userId } = payload;
+        return await this.touriiBackendService.submitSelectOptionTask(
+            taskId,
+            selectedOptionIds,
+            userId,
+        );
+    }
+
+    @Post('/tasks/checkin')
+    @ApiTags('Task')
+    @ApiOperation({ summary: 'Submit checkin task' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Submit checkin task request',
+        type: SubmitCheckInTaskRequestDto,
+        schema: zodToOpenAPI(SubmitCheckInTaskRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Submit checkin task successfully',
+        type: SubmitTaskResponseDto,
+        schema: zodToOpenAPI(SubmitTaskResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async submitCheckInTask(
+        @Body() payload: SubmitCheckInTaskRequestDto,
+    ): Promise<SubmitTaskResponseDto> {
+        const { taskId, longitude, latitude, userId } = payload;
+        return await this.touriiBackendService.submitCheckInTask(
+            taskId,
+            longitude,
+            latitude,
+            userId,
+        );
     }
 }

@@ -8,83 +8,85 @@ import { LocationInfo } from '@app/core/domain/geo/location-info';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 
 describe('LocationInfoRepositoryApi', () => {
-  let repository: LocationInfoRepositoryApi;
-  let httpService: { getTouriiBackendHttpService: { get: jest.Mock } };
-  let configService: { get: jest.Mock };
-  let cachingService: { getOrSet: jest.Mock };
+    let repository: LocationInfoRepositoryApi;
+    let httpService: { getTouriiBackendHttpService: { get: jest.Mock } };
+    let configService: { get: jest.Mock };
+    let cachingService: { getOrSet: jest.Mock };
 
-  beforeEach(async () => {
-    httpService = { getTouriiBackendHttpService: { get: jest.fn() } };
-    configService = { get: jest.fn() };
-    cachingService = { getOrSet: jest.fn() };
+    beforeEach(async () => {
+        httpService = { getTouriiBackendHttpService: { get: jest.fn() } };
+        configService = { get: jest.fn() };
+        cachingService = { getOrSet: jest.fn() };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        LocationInfoRepositoryApi,
-        { provide: TouriiBackendHttpService, useValue: httpService },
-        { provide: ConfigService, useValue: configService },
-        { provide: CachingService, useValue: cachingService },
-      ],
-    }).compile();
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                LocationInfoRepositoryApi,
+                { provide: TouriiBackendHttpService, useValue: httpService },
+                { provide: ConfigService, useValue: configService },
+                { provide: CachingService, useValue: cachingService },
+            ],
+        }).compile();
 
-    repository = module.get(LocationInfoRepositoryApi);
-  });
-
-  it('throws E_GEO_005 when API key is missing', async () => {
-    configService.get.mockReturnValue(undefined);
-    await expect(repository.getLocationInfo('Tokyo')).rejects.toEqual(
-      expect.objectContaining({
-        response: expect.objectContaining({ code: TouriiBackendAppErrorType.E_GEO_005.code }),
-      }),
-    );
-  });
-
-  it('fetches location info from Google Places and caches it', async () => {
-    configService.get.mockImplementation((key: string) => {
-      if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
-      return undefined;
+        repository = module.get(LocationInfoRepositoryApi);
     });
 
-    const findResponse = {
-      data: { candidates: [{ place_id: 'abc123' }] },
-      status: 200,
-    };
-    const detailResponse = {
-      data: {
-        result: {
-          name: 'Sakura-tei',
-          formatted_address: 'Tokyo, Japan',
-          international_phone_number: '+81 3-3479-0039',
-          website: 'https://www.sakuratei.co.jp',
-          rating: 4,
-          url: 'https://maps.google.com/?cid=12345',
-          opening_hours: { weekday_text: ['Mon: 11AM-11PM'] },
-        },
-      },
-      status: 200,
-    };
-
-    httpService.getTouriiBackendHttpService.get
-      .mockReturnValueOnce(of(findResponse))
-      .mockReturnValueOnce(of(detailResponse));
-
-    cachingService.getOrSet.mockImplementation(
-      async (_key: string, fn: () => Promise<LocationInfo>) => fn(),
-    );
-
-    const result = await repository.getLocationInfo('Sakura-tei');
-
-    expect(result).toEqual({
-      name: 'Sakura-tei',
-      formattedAddress: 'Tokyo, Japan',
-      phoneNumber: '+81 3-3479-0039',
-      website: 'https://www.sakuratei.co.jp',
-      rating: 4,
-      googleMapsUrl: 'https://maps.google.com/?cid=12345',
-      openingHours: ['Mon: 11AM-11PM'],
+    it('throws E_GEO_005 when API key is missing', async () => {
+        configService.get.mockReturnValue(undefined);
+        await expect(repository.getLocationInfo('Tokyo')).rejects.toEqual(
+            expect.objectContaining({
+                response: expect.objectContaining({
+                    code: TouriiBackendAppErrorType.E_GEO_005.code,
+                }),
+            }),
+        );
     });
 
-    expect(cachingService.getOrSet).toHaveBeenCalled();
-    expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(2);
-  });
+    it('fetches location info from Google Places and caches it', async () => {
+        configService.get.mockImplementation((key: string) => {
+            if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
+            return undefined;
+        });
+
+        const findResponse = {
+            data: { candidates: [{ place_id: 'abc123' }] },
+            status: 200,
+        };
+        const detailResponse = {
+            data: {
+                result: {
+                    name: 'Sakura-tei',
+                    formatted_address: 'Tokyo, Japan',
+                    international_phone_number: '+81 3-3479-0039',
+                    website: 'https://www.sakuratei.co.jp',
+                    rating: 4,
+                    url: 'https://maps.google.com/?cid=12345',
+                    opening_hours: { weekday_text: ['Mon: 11AM-11PM'] },
+                },
+            },
+            status: 200,
+        };
+
+        httpService.getTouriiBackendHttpService.get
+            .mockReturnValueOnce(of(findResponse))
+            .mockReturnValueOnce(of(detailResponse));
+
+        cachingService.getOrSet.mockImplementation(
+            async (_key: string, fn: () => Promise<LocationInfo>) => fn(),
+        );
+
+        const result = await repository.getLocationInfo('Sakura-tei');
+
+        expect(result).toEqual({
+            name: 'Sakura-tei',
+            formattedAddress: 'Tokyo, Japan',
+            phoneNumber: '+81 3-3479-0039',
+            website: 'https://www.sakuratei.co.jp',
+            rating: 4,
+            googleMapsUrl: 'https://maps.google.com/?cid=12345',
+            openingHours: ['Mon: 11AM-11PM'],
+        });
+
+        expect(cachingService.getOrSet).toHaveBeenCalled();
+        expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(2);
+    });
 });
