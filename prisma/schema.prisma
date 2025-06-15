@@ -287,6 +287,14 @@ enum BlockchainType {
   CAMINO
 }
 
+/// Child item types linked to a digital passport
+enum PassportChildType {
+  /// Travel log NFT
+  TRAVEL_LOG
+  /// Travel perk NFT
+  PERK
+}
+
 ///-----------------------------------------------------------
 /// USER AND SYSTEM ENUMS
 ///-----------------------------------------------------------
@@ -2392,6 +2400,27 @@ model kendama_random_range {
 
   /// Request ID for tracing
   request_id String?
+}
+
+/// Links a digital passport token to its minted child items
+model passport_child_link {
+  /// Unique identifier for this link record
+  passport_child_link_id String @id @default(uuid()) @db.Uuid
+
+  /// Token ID of the parent digital passport
+  passport_token_id String
+
+  /// Token ID of the child NFT
+  child_token_id String
+
+  /// Type of the child NFT
+  child_type PassportChildType
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
 }
 
 /// Memory Wall View combining travel, quest, and story logs.
