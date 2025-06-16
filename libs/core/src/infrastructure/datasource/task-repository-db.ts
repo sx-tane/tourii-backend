@@ -20,7 +20,7 @@ export class TaskRepositoryDb implements TaskRepository {
         }
 
         const normalizedAnswer = answer.trim().toLowerCase();
-        const correctAnswer = 'Answer'.trim().toLowerCase(); // Temp
+        const correctAnswer = task.accepted_answer?.trim().toLowerCase();
         this.logger.log(`Normalized user answer: ${normalizedAnswer}`);
 
         if (normalizedAnswer === correctAnswer) {
@@ -62,10 +62,9 @@ export class TaskRepositoryDb implements TaskRepository {
             return { success: false, message: 'Task not found' };
         }
 
-        const correctOptionIds = [1, 2]; // Temp
-        const selectedOptionIdsSorted = JSON.stringify(selectedOptionIds.sort());
-        const correctOptionIdsSorted = JSON.stringify(correctOptionIds.sort());
-        const isCorrect = selectedOptionIdsSorted === correctOptionIdsSorted;
+        const correctOptionIds = task.accepted_answer?.split(',').map(Number);
+        const isCorrect =
+            JSON.stringify(selectedOptionIds.sort()) === JSON.stringify(correctOptionIds?.sort());
 
         if (isCorrect) {
             await this.prisma.user_task_log.create({
@@ -89,7 +88,7 @@ export class TaskRepositoryDb implements TaskRepository {
                 task_id: taskId,
                 status: TaskStatus.FAILED,
                 action: TaskType.SELECT_OPTION,
-                user_response: selectedOptionIdsSorted,
+                user_response: selectedOptionIds.join(','),
                 completed_at: new Date(),
             },
         });
@@ -107,9 +106,28 @@ export class TaskRepositoryDb implements TaskRepository {
             return { success: false, message: 'Task not found' };
         }
 
-        const distance =
-            Math.abs(longitude - 0 /*task.longitude*/) + Math.abs(latitude - 0 /*task.latitude*/);
-        if (distance <= 100) {
+        const touristSpot = await this.prisma.quest
+            .findUnique({
+                where: { quest_id: task.quest_id },
+                include: {
+                    tourist_spot: true,
+                },
+            })
+            .then((quest) => quest?.tourist_spot);
+        const { spotLongitude, spotLatitude } = {
+            spotLongitude: touristSpot?.longitude ?? 0,
+            spotLatitude: touristSpot?.latitude ?? 0,
+        };
+
+        const distance = this.calculateHaversineDistance(
+            latitude,
+            longitude,
+            spotLatitude,
+            spotLongitude,
+        );
+        const acceptedRadius = Number(task.accepted_answer?.split(',')[0]);
+
+        if (distance <= acceptedRadius) {
             await this.prisma.user_task_log.create({
                 data: {
                     user_id: userId,
@@ -141,5 +159,25 @@ export class TaskRepositoryDb implements TaskRepository {
         return this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
         });
+    }
+
+    private calculateHaversineDistance(
+        lat1: number,
+        lon1: number,
+        lat2: number,
+        lon2: number,
+    ): number {
+        const R = 6371e3; // Earth's radius in meters
+        const φ1 = (lat1 * Math.PI) / 180;
+        const φ2 = (lat2 * Math.PI) / 180;
+        const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+        const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+        const a =
+            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // Distance in meters
     }
 }

@@ -1018,7 +1018,7 @@ model user_task_log {
   /// | CHECK_IN          | Requires checking in at a location           |
   /// | GROUP_ACTIVITY    | Requires participation in a group activity   |
   /// | LOCAL_INTERACTION | Requires interaction with locals             |
-  action TaskType @default(VISIT_LOCATION)
+  action TaskType @default(SELECT_OPTION)
 
   //----
   // USER RESPONSE
@@ -2002,6 +2002,9 @@ model quest_task {
   /// | QR_SCAN         | Find and scan the hidden QR code near the waterfall.         |
   /// | GROUP_ACTIVITY  | Join a team and complete a scavenger hunt together!          |
   task_desc String
+
+  /// The correct answer for ANSWER_TEXT or SELECT_OPTION tasks and VISIT_LOCATION radius
+  accepted_answer String? @db.VarChar(255)
 
   /// Whether the task is available without prerequisites
   is_unlocked Boolean @default(false)
