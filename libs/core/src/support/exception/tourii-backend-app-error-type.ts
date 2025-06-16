@@ -115,6 +115,11 @@ export const TouriiBackendAppErrorType = {
         message: 'Quest task not found',
         type: ErrorType.NOT_FOUND,
     },
+    E_TB_029: {
+        code: 'E_TB_029',
+        message: 'Story chapter already completed',
+        type: ErrorType.BAD_REQUEST,
+    },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
         code: 'E_GEO_001',

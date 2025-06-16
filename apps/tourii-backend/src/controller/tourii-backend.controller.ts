@@ -66,6 +66,14 @@ import {
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
 import {
+    StoryReadingStartRequestDto,
+    StoryReadingStartRequestSchema,
+} from './model/tourii-request/create/story-reading-start-request.model';
+import {
+    StoryReadingCompleteRequestDto,
+    StoryReadingCompleteRequestSchema,
+} from './model/tourii-request/create/story-reading-complete-request.model';
+import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
@@ -161,6 +169,14 @@ import {
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
 import {
+    StoryCompletionResponseDto,
+    StoryCompletionResponseSchema,
+} from './model/tourii-response/story-completion-response.model';
+import {
+    StoryProgressResponseDto,
+    StoryProgressResponseSchema,
+} from './model/tourii-response/story-progress-response.model';
+import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
@@ -181,8 +197,12 @@ import {
     StoryChapterUpdateRequestDto,
     ModelRouteUpdateRequestDto,
     TouristSpotUpdateRequestDto,
+    StoryReadingStartRequestDto,
+    StoryReadingCompleteRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
+    StoryCompletionResponseDto,
+    StoryProgressResponseDto,
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
@@ -651,6 +671,143 @@ export class TouriiBackendController {
     ): Promise<{ success: boolean }> {
         await this.touriiBackendService.trackChapterProgress(body.userId, chapterId, body.status);
         return { success: true };
+    }
+
+    @Post('/stories/chapters/:chapterId/start-reading')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Start story reading',
+        description: 'Mark a story chapter as started (IN_PROGRESS status)',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({
+        description: 'Story reading start request',
+        schema: zodToOpenAPI(StoryReadingStartRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Story reading started successfully',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean' },
+                message: { type: 'string' },
+            },
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async startStoryReading(
+        @Param('chapterId') chapterId: string,
+        @Body() body: StoryReadingStartRequestDto,
+    ): Promise<{ success: boolean; message: string }> {
+        await this.touriiBackendService.startStoryReading(body.userId, chapterId);
+        return { success: true, message: 'Story reading started successfully' };
+    }
+
+    @Post('/stories/chapters/:chapterId/complete-reading')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Complete story reading with quest unlocking',
+        description: 'Mark a story chapter as completed and unlock related quests at the tourist spot',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({
+        description: 'Story reading completion request',
+        schema: zodToOpenAPI(StoryReadingCompleteRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Story completed successfully with quest unlocking results',
+        type: StoryCompletionResponseDto,
+        schema: zodToOpenAPI(StoryCompletionResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async completeStoryReading(
+        @Param('chapterId') chapterId: string,
+        @Body() body: StoryReadingCompleteRequestDto,
+    ): Promise<StoryCompletionResponseDto> {
+        const result = await this.touriiBackendService.completeStoryWithQuestUnlocking(
+            body.userId,
+            chapterId,
+        );
+
+        return {
+            success: true,
+            message: 'Story completed successfully',
+            storyProgress: result.chapter,
+            unlockedQuests: result.unlockedQuests,
+            rewards: result.rewards,
+        };
+    }
+
+    @Get('/stories/chapters/:chapterId/progress/:userId')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Get story reading progress',
+        description: 'Get the current reading progress for a user and story chapter',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Story progress retrieved successfully',
+        type: StoryProgressResponseDto,
+        schema: zodToOpenAPI(StoryProgressResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getStoryProgress(
+        @Param('chapterId') chapterId: string,
+        @Param('userId') userId: string,
+    ): Promise<StoryProgressResponseDto> {
+        const progress = await this.touriiBackendService.getStoryProgress(userId, chapterId);
+        
+        if (!progress) {
+            return {
+                storyChapterId: chapterId,
+                status: StoryStatus.UNREAD,
+                unlockedAt: null,
+                finishedAt: null,
+                canStart: true,
+                canComplete: false,
+            };
+        }
+
+        return {
+            storyChapterId: chapterId,
+            ...progress,
+        };
     }
 
     // ==========================================
