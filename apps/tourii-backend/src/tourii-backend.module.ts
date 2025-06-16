@@ -11,6 +11,7 @@ import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-rep
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
+import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/user-travel-log.repository-db';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
@@ -115,6 +116,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN,
             useClass: UserTaskLogRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.USER_TRAVEL_LOG_REPOSITORY_TOKEN,
+            useClass: UserTravelLogRepositoryDb,
         },
         {
             provide: TouriiBackendConstants.R2_STORAGE_REPOSITORY_TOKEN,

@@ -100,6 +100,7 @@ import {
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
 
+import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
 import {
     StartGroupQuestRequestDto,
@@ -170,6 +171,10 @@ import {
     UserSensitiveInfoResponseDto,
     UserSensitiveInfoResponseSchema,
 } from './model/tourii-response/user/user-response.model';
+import {
+    UserTravelLogListResponseDto,
+    UserTravelLogListResponseSchema,
+} from './model/tourii-response/user/user-travel-log-list-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -204,6 +209,8 @@ import {
     MomentListResponseDto,
     MomentResponseDto,
     UserResponseDto,
+    UserTravelLogListResponseDto,
+    CheckinsFetchRequestDto,
     QuestTaskPhotoUploadResponseDto,
     HomepageHighlightsResponseDto,
 )
@@ -385,6 +392,41 @@ export class TouriiBackendController {
         }
 
         return this.touriiBackendService.getUserProfile(userId);
+    }
+
+    @Get('/checkins')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Get User Travel Checkins',
+        description: 'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 20, max: 100)' })
+    @ApiQuery({ name: 'userId', required: false, type: String, description: 'Filter by specific user ID (admin only)' })
+    @ApiQuery({ name: 'questId', required: false, type: String, description: 'Filter by specific quest ID' })
+    @ApiQuery({ name: 'touristSpotId', required: false, type: String, description: 'Filter by specific tourist spot ID' })
+    @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Filter from date (ISO format)' })
+    @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Filter to date (ISO format)' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'User travel checkins retrieved successfully',
+        type: UserTravelLogListResponseDto,
+        schema: zodToOpenAPI(UserTravelLogListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getCheckins(
+        @Query() query: CheckinsFetchRequestDto,
+        @Req() req: Request,
+    ): Promise<UserTravelLogListResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.getUserCheckins(query, userId);
     }
 
     // ==========================================

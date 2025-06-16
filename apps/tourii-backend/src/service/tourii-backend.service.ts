@@ -1,4 +1,4 @@
-import { R2StorageRepository, TransformDate, UserTaskLogRepository } from '@app/core';
+import { R2StorageRepository, TransformDate, UserTaskLogRepository, UserTravelLogRepository } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
@@ -25,6 +25,7 @@ import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { QuestType, StoryStatus, TaskStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import { imageSize } from 'image-size';
+import type { CheckinsFetchRequestDto } from '../controller/model/tourii-request/fetch/checkins-fetch-request.model';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
@@ -58,6 +59,7 @@ import {
     UserResponseDto,
     UserSensitiveInfoResponseDto,
 } from '../controller/model/tourii-response/user/user-response.model';
+import type { UserTravelLogListResponseDto } from '../controller/model/tourii-response/user/user-travel-log-list-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
@@ -73,6 +75,7 @@ import { StoryUpdateRequestBuilder } from './builder/story-update-request-builde
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
+import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-builder';
 @Injectable()
 export class TouriiBackendService {
     constructor(
@@ -104,6 +107,8 @@ export class TouriiBackendService {
         private readonly r2StorageRepository: R2StorageRepository,
         @Inject(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN)
         private readonly userTaskLogRepository: UserTaskLogRepository,
+        @Inject(TouriiBackendConstants.USER_TRAVEL_LOG_REPOSITORY_TOKEN)
+        private readonly userTravelLogRepository: UserTravelLogRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -222,6 +227,47 @@ export class TouriiBackendService {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
         }
         return UserResultBuilder.userSensitiveInfoToDto(user);
+    }
+
+    /**
+     * Get user travel checkins with pagination and optional filters
+     * @param query Checkins fetch request with filters and pagination params
+     * @param requestingUserId User ID making the request
+     * @returns Paginated user travel log checkins response DTO
+     */
+    async getUserCheckins(
+        query: CheckinsFetchRequestDto,
+        requestingUserId: string
+    ): Promise<UserTravelLogListResponseDto> {
+        // Determine target user ID - use query.userId if provided, otherwise use requesting user
+        const targetUserId = query.userId || requestingUserId;
+        
+        // Users can only see their own check-ins unless they're admin
+        if (targetUserId !== requestingUserId) {
+            const user = await this.userRepository.getUserById(requestingUserId);
+            if (user?.role !== 'ADMIN') {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+            }
+        }
+
+        // Build filter object
+        const filter = {
+            userId: targetUserId,
+            questId: query.questId,
+            touristSpotId: query.touristSpotId,
+            startDate: query.startDate,
+            endDate: query.endDate,
+        };
+
+        // Get paginated results from repository
+        const checkins = await this.userTravelLogRepository.getUserTravelLogsWithPagination(
+            filter,
+            query.page,
+            query.limit
+        );
+
+        // Transform to response DTO
+        return UserTravelLogResultBuilder.userTravelLogsToListDto(checkins);
     }
 
     // ==========================================
