@@ -36,4 +36,32 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
             ...taskLogData,
         });
     }
+
+    async completeSocialShareTask(userId: string, taskId: string, proofUrl: string): Promise<void> {
+        const task = await this.prisma.quest_task.findUnique({
+            where: { quest_task_id: taskId },
+            select: { quest_id: true },
+        });
+        if (!task) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
+        }
+
+        const taskLogData = UserMapper.createUserTaskLogForSocialShare(
+            userId,
+            task.quest_id,
+            taskId,
+            proofUrl,
+        );
+
+        await this.prisma.user_task_log.upsert({
+            where: {
+                user_id_quest_id_task_id: {
+                    user_id: userId,
+                    quest_id: task.quest_id,
+                    task_id: taskId,
+                },
+            },
+            ...taskLogData,
+        });
+    }
 }
