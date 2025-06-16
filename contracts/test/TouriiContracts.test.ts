@@ -9,7 +9,8 @@ describe("Tourii Smart Contracts", function () {
 
     // Deploy TouriiDigitalPassport
     const TouriiDigitalPassport = await ethers.getContractFactory("TouriiDigitalPassport");
-    const digitalPassport = await TouriiDigitalPassport.deploy();
+    const baseURI = "https://api.tourii.com/api/passport/metadata/";
+    const digitalPassport = await TouriiDigitalPassport.deploy(baseURI);
     
     // Deploy TouriiPerk
     const TouriiPerk = await ethers.getContractFactory("TouriiPerk");
@@ -32,32 +33,33 @@ describe("Tourii Smart Contracts", function () {
     it("Should mint passport to user", async function () {
       const { digitalPassport, owner, addr1 } = await loadFixture(deployContractsFixture);
       
-      const tokenURI = "https://metadata.tourii.com/passport/1.json";
-      await digitalPassport.mint(addr1.address, tokenURI);
+      await digitalPassport.mint(addr1.address);
       
       expect(await digitalPassport.ownerOf(0)).to.equal(addr1.address);
-      expect(await digitalPassport.tokenURI(0)).to.equal(tokenURI);
+      expect(await digitalPassport.tokenURI(0)).to.equal("https://api.tourii.com/api/passport/metadata/0.json");
       expect(await digitalPassport.hasPassport(addr1.address)).to.be.true;
+      expect(await digitalPassport.userPassportId(addr1.address)).to.equal(0);
     });
 
     it("Should prevent minting multiple passports to same address", async function () {
       const { digitalPassport, addr1 } = await loadFixture(deployContractsFixture);
       
-      await digitalPassport.mint(addr1.address, "uri1");
+      await digitalPassport.mint(addr1.address);
       
       await expect(
-        digitalPassport.mint(addr1.address, "uri2")
+        digitalPassport.mint(addr1.address)
       ).to.be.revertedWith("Address already has a passport");
     });
 
-    it("Should update metadata URI", async function () {
+    it("Should update base URI", async function () {
       const { digitalPassport, addr1 } = await loadFixture(deployContractsFixture);
       
-      await digitalPassport.mint(addr1.address, "uri1");
-      const newURI = "https://metadata.tourii.com/passport/1-updated.json";
+      await digitalPassport.mint(addr1.address);
+      const newBaseURI = "https://newapi.tourii.com/api/passport/metadata/";
       
-      await digitalPassport.updateMetadataURI(0, newURI);
-      expect(await digitalPassport.tokenURI(0)).to.equal(newURI);
+      await digitalPassport.updateBaseURI(newBaseURI);
+      expect(await digitalPassport.tokenURI(0)).to.equal("https://newapi.tourii.com/api/passport/metadata/0.json");
+      expect(await digitalPassport.baseURI()).to.equal(newBaseURI);
     });
   });
 

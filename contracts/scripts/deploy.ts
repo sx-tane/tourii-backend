@@ -13,7 +13,12 @@ async function main() {
   // Deploy TouriiDigitalPassport
   console.log("\n🚀 Deploying TouriiDigitalPassport...");
   const TouriiDigitalPassport = await ethers.getContractFactory("TouriiDigitalPassport");
-  const digitalPassport = await TouriiDigitalPassport.deploy();
+  
+  // Configure base URI for metadata (should point to your backend API)
+  const baseURI = process.env.PASSPORT_METADATA_BASE_URI || "https://api.tourii.com/api/passport/metadata/";
+  console.log(`Using base URI: ${baseURI}`);
+  
+  const digitalPassport = await TouriiDigitalPassport.deploy(baseURI);
   await digitalPassport.waitForDeployment();
   console.log(`✅ TouriiDigitalPassport deployed to: ${await digitalPassport.getAddress()}`);
 
@@ -43,6 +48,7 @@ async function main() {
     },
     deploymentTimestamp: new Date().toISOString(),
     blockNumber: await ethers.provider.getBlockNumber(),
+    passportBaseURI: baseURI,
   };
 
   // Save deployment info
@@ -60,7 +66,7 @@ async function main() {
   // Verify contracts on supported networks
   if (network.chainId !== 31337n) { // Not hardhat local
     console.log("\n🔍 Verification commands:");
-    console.log(`npx hardhat verify --network ${network.name} ${deploymentInfo.contracts.TouriiDigitalPassport}`);
+    console.log(`npx hardhat verify --network ${network.name} ${deploymentInfo.contracts.TouriiDigitalPassport} "${baseURI}"`);
     console.log(`npx hardhat verify --network ${network.name} ${deploymentInfo.contracts.TouriiPerk} "Tourii Goshuin Collection" "GOSHUIN"`);
     console.log(`npx hardhat verify --network ${network.name} ${deploymentInfo.contracts.TouriiLog}`);
   }
