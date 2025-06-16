@@ -1,0 +1,32 @@
+### Complete social sharing task
+POST http://localhost:3000/tasks/{{taskId}}/share-social
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://twitter.com/user/status/1234567890"
+}
+
+### Complete social sharing task - Instagram
+POST http://localhost:3000/tasks/{{taskId}}/share-social
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://instagram.com/p/abcd123/"
+}
+
+### Complete social sharing task - Invalid URL (should fail)
+POST http://localhost:3000/tasks/{{taskId}}/share-social
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "not-a-valid-url"
+}
