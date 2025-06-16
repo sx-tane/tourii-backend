@@ -1,9 +1,12 @@
+import type { CheckInMethod } from '@prisma/client';
 import type { UserTravelLog } from './user-travel-log';
 
 export interface UserTravelLogFilter {
     userId: string;
     questId?: string;
     touristSpotId?: string;
+    checkInMethod?: CheckInMethod;
+    checkInMethods?: CheckInMethod[]; // For filtering by multiple methods
     startDate?: Date;
     endDate?: Date;
 }
@@ -13,6 +16,20 @@ export interface UserTravelLogWithPagination {
     total: number;
     page: number;
     limit: number;
+}
+
+export interface CreateUserTravelLogRequest {
+    userId: string;
+    questId: string;
+    taskId: string;
+    touristSpotId: string;
+    userLongitude: number;
+    userLatitude: number;
+    travelDistance?: number;
+    checkInMethod?: CheckInMethod;
+    qrCodeValue?: string;
+    detectedFraud?: boolean;
+    fraudReason?: string;
 }
 
 export interface UserTravelLogRepository {
@@ -35,4 +52,11 @@ export interface UserTravelLogRepository {
      * @returns Travel log or undefined if not found
      */
     getUserTravelLogById(logId: string): Promise<UserTravelLog | undefined>;
+
+    /**
+     * Create a new user travel log
+     * @param request Travel log creation data
+     * @returns Created travel log ID
+     */
+    createUserTravelLog(request: CreateUserTravelLogRequest): Promise<string>;
 }

@@ -12,6 +12,7 @@ import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repos
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/user-travel-log.repository-db';
+import { LocationTrackingServiceImpl } from '@app/core/infrastructure/location/location-tracking.service-impl';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
@@ -164,6 +165,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.ENCRYPTION_REPOSITORY_TOKEN,
             useClass: EncryptionRepositoryAuth,
+        },
+        {
+            provide: TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN,
+            useClass: LocationTrackingServiceImpl,
         },
         {
             provide: APP_PIPE,

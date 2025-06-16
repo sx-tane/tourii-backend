@@ -30,6 +30,14 @@ export const CheckinsFetchRequestSchema = z.object({
         .string()
         .optional()
         .describe('Filter by specific tourist spot ID'),
+    checkInMethod: z
+        .enum(['QR_CODE', 'GPS', 'AUTO_DETECTED', 'BACKGROUND_GPS'])
+        .optional()
+        .describe('Filter by check-in method'),
+    source: z
+        .enum(['manual', 'auto'])
+        .optional()
+        .describe('Filter by source type (manual=QR_CODE|GPS, auto=AUTO_DETECTED|BACKGROUND_GPS)'),
     startDate: z
         .string()
         .optional()

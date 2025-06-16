@@ -14,6 +14,7 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBody,
@@ -974,17 +975,27 @@ export class TouriiBackendController {
         type: String,
         description: 'Address for enhanced search accuracy',
     })
+    @ApiHeader({
+        name: 'x-user-id',
+        description: 'User ID for auto-detection (optional)',
+        required: false,
+    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async getLocationInfo(
         @Query() queryParams: LocationQueryDto,
+        @Req() req: Request,
     ): Promise<LocationInfoResponseDto> {
+        // Extract user ID if provided (for auto-detection)
+        const userId = req.headers['x-user-id'] as string | undefined;
+        
         return this.touriiBackendService.getLocationInfo(
             queryParams.query,
             queryParams.latitude ? Number(queryParams.latitude) : undefined,
             queryParams.longitude ? Number(queryParams.longitude) : undefined,
             queryParams.address,
+            userId,
         );
     }
 

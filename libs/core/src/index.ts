@@ -32,6 +32,9 @@ export * from './domain/geo/geo-info.repository';
 export * from './domain/geo/weather-info';
 export * from './domain/geo/weather-info.repository';
 
+// Domain - Location
+export * from './domain/location/location-tracking.service';
+
 // Domain - Passport
 export * from './domain/passport/digital-passport.repository';
 
@@ -68,3 +71,6 @@ export * from './domain/storage/r2-storage.repository';
 export * from './domain/game/quest/user-task-log.repository';
 export * from './infrastructure/storage/r2-storage.repository-s3';
 export * from './infrastructure/datasource/user-task-log.repository-db';
+
+// Infrastructure - Location
+export * from './infrastructure/location/location-tracking.service-impl';

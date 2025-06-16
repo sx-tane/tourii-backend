@@ -228,6 +228,10 @@ enum CheckInMethod {
   QR_CODE
   /// Verification via GPS location
   GPS
+  /// System auto-detects via API calls
+  AUTO_DETECTED
+  /// Background location tracking
+  BACKGROUND_GPS
 }
 
 ///-----------------------------------------------------------

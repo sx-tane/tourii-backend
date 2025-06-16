@@ -14,6 +14,7 @@ import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-l
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
+import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
@@ -78,6 +79,7 @@ import { UserResultBuilder } from './builder/user-result-builder';
 import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-builder';
 @Injectable()
 export class TouriiBackendService {
+    private readonly logger = new Logger(TouriiBackendService.name);
     constructor(
         @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
@@ -109,6 +111,8 @@ export class TouriiBackendService {
         private readonly userTaskLogRepository: UserTaskLogRepository,
         @Inject(TouriiBackendConstants.USER_TRAVEL_LOG_REPOSITORY_TOKEN)
         private readonly userTravelLogRepository: UserTravelLogRepository,
+        @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
+        private readonly locationTrackingService: LocationTrackingService,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -257,6 +261,10 @@ export class TouriiBackendService {
             touristSpotId: query.touristSpotId,
             startDate: query.startDate,
             endDate: query.endDate,
+            checkInMethod: query.checkInMethod,
+            checkInMethods: query.source ? 
+                (query.source === 'manual' ? ['QR_CODE', 'GPS'] : ['AUTO_DETECTED', 'BACKGROUND_GPS']) :
+                undefined,
         };
 
         // Get paginated results from repository
@@ -1124,6 +1132,7 @@ export class TouriiBackendService {
         latitude?: number,
         longitude?: number,
         address?: string,
+        userId?: string,
     ): Promise<LocationInfoResponseDto> {
         const locationInfo = await this.locationInfoRepository.getLocationInfo(
             query,
@@ -1131,6 +1140,35 @@ export class TouriiBackendService {
             longitude,
             address,
         );
+
+        // If user provided coordinates and userId, try auto-detection
+        if (latitude && longitude && userId) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'google_places',
+                    confidence: 0.7,
+                    metadata: {
+                        query,
+                        address,
+                    },
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    this.logger.log(`Auto-detected ${locationDetection.nearbyTouristSpots.length} nearby tourist spots for user ${userId}`);
+                    
+                    // Note: For now we just log the detection. 
+                    // Future enhancement could include nearby spots in the response
+                    // or automatically suggest quests/tasks based on detected location
+                }
+            } catch (error) {
+                this.logger.warn('Failed to auto-detect location for getLocationInfo', error);
+                // Continue with normal location info response
+            }
+        }
+
         return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
     }
 
@@ -1385,13 +1423,71 @@ export class TouriiBackendService {
 
         const fileExtension = getFileExtension(file.mimetype);
         const key = `quest-tasks/${taskId}/${userId}/proof${fileExtension}`;
+        
+        // Try to extract location from photo EXIF data
+        let detectedLocation: { latitude: number; longitude: number } | null = null;
+        try {
+            detectedLocation = await this.locationTrackingService.extractLocationFromPhoto(file.buffer);
+            
+            if (detectedLocation) {
+                // Check if location matches any nearby tourist spots
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude: detectedLocation.latitude,
+                    longitude: detectedLocation.longitude,
+                    apiSource: 'photo_upload',
+                    confidence: 0.9,
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    // Find the matching tourist spot for this task
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
+                        spot.taskId === taskId
+                    );
+
+                    if (matchingSpot) {
+                        // Auto-create travel log for detected location
+                        try {
+                            await this.locationTrackingService.createAutoDetectedTravelLog({
+                                userId,
+                                questId: matchingSpot.questId || '',
+                                taskId,
+                                touristSpotId: matchingSpot.touristSpotId,
+                                detectedLocation,
+                                checkInMethod: 'AUTO_DETECTED',
+                                apiSource: 'photo_upload',
+                                confidence: locationDetection.confidence,
+                                metadata: {
+                                    photoUpload: true,
+                                    detectedDistance: matchingSpot.distance,
+                                },
+                            });
+                            
+                            this.logger.log(`Auto-detected location for photo upload: ${detectedLocation.latitude}, ${detectedLocation.longitude}`);
+                        } catch (error) {
+                            this.logger.warn('Failed to create auto-detected travel log', error);
+                            // Don't fail the photo upload if travel log creation fails
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            this.logger.warn('Failed to extract location from photo EXIF data', error);
+            // Continue with photo upload even if location detection fails
+        }
+
         const proofUrl = await this.r2StorageRepository.uploadProofImage(
             file.buffer,
             key,
             file.mimetype,
         );
         await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
-        return { message: 'Photo submitted successfully', proofUrl };
+        
+        const responseMessage = detectedLocation 
+            ? 'Photo submitted successfully with location detected'
+            : 'Photo submitted successfully';
+            
+        return { message: responseMessage, proofUrl };
     }
 
     /**
