@@ -6,6 +6,7 @@ import {
     Controller,
     Delete,
     Get,
+    Headers,
     HttpStatus,
     Param,
     Post,
@@ -26,7 +27,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { QuestType } from '@prisma/client';
+import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
@@ -73,6 +74,10 @@ import {
     StoryReadingCompleteRequestDto,
     StoryReadingCompleteRequestSchema,
 } from './model/tourii-request/create/story-reading-complete-request.model';
+import {
+    StoryActionRequestDto,
+    StoryActionRequestSchema,
+} from './model/tourii-request/create/story-action-request.model';
 import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
@@ -673,11 +678,12 @@ export class TouriiBackendController {
         return { success: true };
     }
 
-    @Post('/stories/chapters/:chapterId/start-reading')
+    @Post('/stories/chapters/:chapterId/action')
+    @Get('/stories/chapters/:chapterId/action')
     @ApiTags('Stories')
     @ApiOperation({
-        summary: 'Start story reading',
-        description: 'Mark a story chapter as started (IN_PROGRESS status)',
+        summary: 'Consolidated story action endpoint',
+        description: 'Handles story start, complete, and progress actions based on X-Story-Action header',
     })
     @ApiHeader({
         name: 'x-api-key',
@@ -689,125 +695,106 @@ export class TouriiBackendController {
         description: 'API version (e.g., 1.0.0)',
         required: true,
     })
+    @ApiHeader({
+        name: 'X-Story-Action',
+        description: 'Story action to perform: start, complete, or progress',
+        required: true,
+        enum: ['start', 'complete', 'progress'],
+    })
     @ApiBody({
-        description: 'Story reading start request',
-        schema: zodToOpenAPI(StoryReadingStartRequestSchema),
+        description: 'Story action request (required for start/complete, optional for progress)',
+        schema: zodToOpenAPI(StoryActionRequestSchema),
+        required: false,
+    })
+    @ApiQuery({
+        name: 'userId',
+        description: 'User ID (used for progress action when body is not provided)',
+        required: false,
+        type: String,
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Story reading started successfully',
+        description: 'Story action completed successfully',
         schema: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean' },
-                message: { type: 'string' },
-            },
+            oneOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        success: { type: 'boolean' },
+                        message: { type: 'string' },
+                    },
+                },
+                zodToOpenAPI(StoryCompletionResponseSchema),
+                zodToOpenAPI(StoryProgressResponseSchema),
+            ],
         },
     })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async startStoryReading(
+    async handleStoryAction(
         @Param('chapterId') chapterId: string,
-        @Body() body: StoryReadingStartRequestDto,
-    ): Promise<{ success: boolean; message: string }> {
-        await this.touriiBackendService.startStoryReading(body.userId, chapterId);
-        return { success: true, message: 'Story reading started successfully' };
-    }
-
-    @Post('/stories/chapters/:chapterId/complete-reading')
-    @ApiTags('Stories')
-    @ApiOperation({
-        summary: 'Complete story reading with quest unlocking',
-        description: 'Mark a story chapter as completed and unlock related quests at the tourist spot',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiBody({
-        description: 'Story reading completion request',
-        schema: zodToOpenAPI(StoryReadingCompleteRequestSchema),
-    })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Story completed successfully with quest unlocking results',
-        type: StoryCompletionResponseDto,
-        schema: zodToOpenAPI(StoryCompletionResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async completeStoryReading(
-        @Param('chapterId') chapterId: string,
-        @Body() body: StoryReadingCompleteRequestDto,
-    ): Promise<StoryCompletionResponseDto> {
-        const result = await this.touriiBackendService.completeStoryWithQuestUnlocking(
-            body.userId,
-            chapterId,
-        );
-
-        return {
-            success: true,
-            message: 'Story completed successfully',
-            storyProgress: result.chapter,
-            unlockedQuests: result.unlockedQuests,
-            rewards: result.rewards,
-        };
-    }
-
-    @Get('/stories/chapters/:chapterId/progress/:userId')
-    @ApiTags('Stories')
-    @ApiOperation({
-        summary: 'Get story reading progress',
-        description: 'Get the current reading progress for a user and story chapter',
-    })
-    @ApiHeader({
-        name: 'x-api-key',
-        description: 'API key for authentication',
-        required: true,
-    })
-    @ApiHeader({
-        name: 'accept-version',
-        description: 'API version (e.g., 1.0.0)',
-        required: true,
-    })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Story progress retrieved successfully',
-        type: StoryProgressResponseDto,
-        schema: zodToOpenAPI(StoryProgressResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getStoryProgress(
-        @Param('chapterId') chapterId: string,
-        @Param('userId') userId: string,
-    ): Promise<StoryProgressResponseDto> {
-        const progress = await this.touriiBackendService.getStoryProgress(userId, chapterId);
-        
-        if (!progress) {
-            return {
-                storyChapterId: chapterId,
-                status: StoryStatus.UNREAD,
-                unlockedAt: null,
-                finishedAt: null,
-                canStart: true,
-                canComplete: false,
-            };
+        @Headers('X-Story-Action') action: string,
+        @Body() body?: StoryActionRequestDto,
+        @Query('userId') queryUserId?: string,
+    ): Promise<
+        | { success: boolean; message: string }
+        | StoryCompletionResponseDto
+        | StoryProgressResponseDto
+    > {
+        // Validate action header
+        if (!action || !['start', 'complete', 'progress'].includes(action)) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
 
-        return {
-            storyChapterId: chapterId,
-            ...progress,
-        };
+        // Determine userId from body or query parameter
+        const userId = body?.userId || queryUserId;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        switch (action) {
+            case 'start':
+                await this.touriiBackendService.startStoryReading(userId, chapterId);
+                return { success: true, message: 'Story reading started successfully' };
+
+            case 'complete': {
+                const result = await this.touriiBackendService.completeStoryWithQuestUnlocking(
+                    userId,
+                    chapterId,
+                );
+                return {
+                    success: true,
+                    message: 'Story completed successfully',
+                    storyProgress: result.chapter,
+                    unlockedQuests: result.unlockedQuests,
+                    rewards: result.rewards,
+                };
+            }
+
+            case 'progress': {
+                const progress = await this.touriiBackendService.getStoryProgress(userId, chapterId);
+                
+                if (!progress) {
+                    return {
+                        storyChapterId: chapterId,
+                        status: StoryStatus.UNREAD,
+                        unlockedAt: null,
+                        finishedAt: null,
+                        canStart: true,
+                        canComplete: false,
+                    };
+                }
+
+                return {
+                    storyChapterId: chapterId,
+                    ...progress,
+                };
+            }
+
+            default:
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
     }
 
     // ==========================================

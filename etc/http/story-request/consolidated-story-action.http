@@ -1,0 +1,77 @@
+### ========================================
+### Consolidated Story Action API Examples
+### Single endpoint with header-based routing
+### ========================================
+
+### 1. Start Story Reading
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: start
+Content-Type: application/json
+
+{
+    "userId": "USER202403271445-1710-1530-1-001"
+}
+
+### 2. Complete Story Reading (with Quest Unlocking)
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: complete
+Content-Type: application/json
+
+{
+    "userId": "USER202403271445-1710-1530-1-001"
+}
+
+### 3. Get Story Progress (using POST with body)
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: progress
+Content-Type: application/json
+
+{
+    "userId": "USER202403271445-1710-1530-1-001"
+}
+
+### 4. Get Story Progress (using GET with query parameter)
+GET {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action?userId=USER202403271445-1710-1530-1-001
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: progress
+
+### ========================================
+### Error Cases
+### ========================================
+
+### Missing X-Story-Action header
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+Content-Type: application/json
+
+{
+    "userId": "USER202403271445-1710-1530-1-001"
+}
+
+### Invalid X-Story-Action value
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: invalid-action
+Content-Type: application/json
+
+{
+    "userId": "USER202403271445-1710-1530-1-001"
+}
+
+### Missing userId
+POST {{host}}/stories/chapters/SCH202403271445-1710-1530-2-001/action
+X-API-Key: {{api_key}}
+Accept-Version: {{api_version}}
+X-Story-Action: start
+Content-Type: application/json
+
+{}

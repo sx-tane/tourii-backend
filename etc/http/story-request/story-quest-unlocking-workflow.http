@@ -2,9 +2,10 @@
 ### This demonstrates the complete flow from starting to read a story to unlocking quests
 
 ### 1. Check story progress (should be UNREAD initially)
-GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/progress/TSU202506-1bda5f-071407-504e5c-BAAA
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: progress
 
 ### Expected Response:
 # {
@@ -19,10 +20,11 @@ accept-version: 1.0.0
 ###
 
 ### 2. Start reading the story
-POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/start-reading
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: start
 
 {
   "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"
@@ -37,9 +39,10 @@ accept-version: 1.0.0
 ###
 
 ### 3. Check progress again (should be IN_PROGRESS now)
-GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/progress/TSU202506-1bda5f-071407-504e5c-BAAA
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: progress
 
 ### Expected Response:
 # {
@@ -54,10 +57,11 @@ accept-version: 1.0.0
 ###
 
 ### 4. Complete reading the story (main feature - unlocks quests!)
-POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/complete-reading
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: complete
 
 {
   "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"
@@ -102,9 +106,10 @@ accept-version: 1.0.0
 ###
 
 ### 5. Check final progress (should be COMPLETED)
-GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/progress/TSU202506-1bda5f-071407-504e5c-BAAA
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: progress
 
 ### Expected Response:
 # {
@@ -128,10 +133,11 @@ accept-version: 1.0.0
 ###
 
 ### Error Case: Try to complete story again (should fail)
-POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/complete-reading
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0
+X-Story-Action: complete
 
 {
   "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"

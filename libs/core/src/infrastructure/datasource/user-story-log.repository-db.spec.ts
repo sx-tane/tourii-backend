@@ -3,7 +3,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Test, type TestingModule } from '@nestjs/testing';
-import { StoryStatus } from '@prisma/client';
+import { StoryStatus, LevelType } from '@prisma/client';
 import { UserStoryLogRepositoryDb } from './user-story-log.repository-db';
 
 describe('UserStoryLogRepositoryDb', () => {
@@ -207,7 +207,7 @@ describe('UserStoryLogRepositoryDb', () => {
             await prisma.user_info.create({
                 data: {
                     user_id: userId,
-                    level: 1,
+                    level: LevelType.BONJIN,
                     magatama_points: 100,
                     ins_user_id: 'system',
                     upd_user_id: 'system',
