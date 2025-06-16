@@ -45,10 +45,19 @@ describe('LocationInfoRepositoryApi', () => {
       return undefined;
     });
 
+    // Mock the enhanced text search response (Strategy 2 - textsearch API) - return empty to force fallback
+    const enhancedTextSearchResponse = {
+      data: { results: [] },
+      status: 200,
+    };
+    
+    // Mock the basic text search response (Strategy 3 - findplacefromtext API)
     const findResponse = {
       data: { candidates: [{ place_id: 'abc123' }] },
       status: 200,
     };
+    
+    // Mock the place details response
     const detailResponse = {
       data: {
         result: {
@@ -64,7 +73,9 @@ describe('LocationInfoRepositoryApi', () => {
       status: 200,
     };
 
+    // Mock the HTTP calls in order: enhanced text search (fails), basic text search (succeeds), place details
     httpService.getTouriiBackendHttpService.get
+      .mockReturnValueOnce(of(enhancedTextSearchResponse))
       .mockReturnValueOnce(of(findResponse))
       .mockReturnValueOnce(of(detailResponse));
 
@@ -85,6 +96,6 @@ describe('LocationInfoRepositoryApi', () => {
     });
 
     expect(cachingService.getOrSet).toHaveBeenCalled();
-    expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(2);
+    expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(3);
   });
 });
