@@ -51,6 +51,15 @@ FAILED FAILED
     
 
 
+        TaskStatus {
+            AVAILABLE AVAILABLE
+ONGOING ONGOING
+COMPLETED COMPLETED
+FAILED FAILED
+        }
+    
+
+
         ItemStatus {
             SUCCESS SUCCESS
 FAILED FAILED
@@ -196,6 +205,7 @@ EVENT EVENT
     String refresh_token "❓"
     String passport_wallet_address "❓"
     String perks_wallet_address 
+    String encrypted_private_key "❓"
     String latest_ip_address "❓"
     Boolean is_premium 
     Int total_quest_completed 
@@ -309,11 +319,12 @@ EVENT EVENT
     }
   
 
-  "user_quest_log" {
-    String user_quest_log_id "🗝️"
+  "user_task_log" {
+    String user_task_log_id "🗝️"
     String user_id 
     String quest_id 
-    QuestStatus status 
+    String task_id 
+    TaskStatus status 
     TaskType action 
     String user_response "❓"
     Json group_activity_members 
@@ -322,6 +333,7 @@ EVENT EVENT
     DateTime completed_at "❓"
     DateTime claimed_at "❓"
     Int total_magatama_point_awarded 
+    String reward_earned "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -528,7 +540,7 @@ EVENT EVENT
     Json select_options 
     Json anti_cheat_rules 
     Int magatama_point_awarded 
-    Int total_magatama_point_awarded 
+    String reward_earned "❓"
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -604,13 +616,25 @@ EVENT EVENT
     String request_id "❓"
     }
   
+
+  "moment_view" {
+    String id "🗝️"
+    String user_id 
+    String username "❓"
+    String image_url "❓"
+    String description "❓"
+    String reward_text "❓"
+    DateTime ins_date_time 
+    String moment_type 
+    }
+  
     "user" o|--|| "UserRoleType" : "enum:role"
     "user" o{--}o "user_achievement" : "user_achievements"
     "user" o{--}o "user_info" : "user_info"
     "user" o{--}o "user_onchain_item" : "user_onchain_item"
     "user" o{--}o "user_item_claim_log" : "user_item_claim_log"
     "user" o{--}o "user_story_log" : "user_story_log"
-    "user" o{--}o "user_quest_log" : "user_quest_log"
+    "user" o{--}o "user_task_log" : "user_task_log"
     "user" o{--}o "user_travel_log" : "user_travel_log"
     "user" o{--}o "discord_activity_log" : "discord_activity_log"
     "user" o{--}o "discord_user_roles" : "discord_user_roles"
@@ -630,9 +654,9 @@ EVENT EVENT
     "user_item_claim_log" o|--|| "user" : "user"
     "user_story_log" o|--|| "StoryStatus" : "enum:status"
     "user_story_log" o|--|| "user" : "user"
-    "user_quest_log" o|--|| "QuestStatus" : "enum:status"
-    "user_quest_log" o|--|| "TaskType" : "enum:action"
-    "user_quest_log" o|--|| "user" : "user"
+    "user_task_log" o|--|| "TaskStatus" : "enum:status"
+    "user_task_log" o|--|| "TaskType" : "enum:action"
+    "user_task_log" o|--|| "user" : "user"
     "user_travel_log" o|--|o "CheckInMethod" : "enum:check_in_method"
     "user_travel_log" o|--|| "user" : "user"
     "user_invite_log" o|--|| "user" : "user"

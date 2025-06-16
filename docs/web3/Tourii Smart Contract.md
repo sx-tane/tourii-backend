@@ -1,6 +1,8 @@
-# Tourii Smart Contracts
+# 🔗 Tourii Smart Contracts
 
-This document provides an overview of the core smart contracts used in the Tourii ecosystem.
+This document provides a comprehensive overview of the core smart contracts used in the Tourii ecosystem, including their functionality, deployment patterns, and integration with the backend system.
+
+---
 
 ## Contracts
 
@@ -45,6 +47,93 @@ This document provides an overview of the core smart contracts used in the Touri
   - `burn(uint256 tokenId)`: Allows the owner of the NFT to destroy it.
   - `tokenURI(uint256 tokenId)`: Returns the metadata URI (set at minting).
 
-## Access Control
+## 🔐 Access Control
 
-All contracts utilize OpenZeppelin's `Ownable` pattern. Minting (`mint`) and specific administrative functions (like `updateMetadataURI` in `TouriiDigitalPassport`) are restricted to the contract owner address set during deployment.
+All contracts utilize OpenZeppelin's `Ownable` pattern for secure administrative control:
+
+### Owner Privileges
+- **Minting Rights**: Only the contract owner can mint new tokens
+- **Metadata Updates**: Digital Passport metadata can be updated by owner only
+- **Administrative Functions**: Pausing, upgrading, and other critical operations
+
+### Security Features
+- **Multi-signature wallets** recommended for production owner accounts
+- **Timelock contracts** for delayed execution of critical operations
+- **Role-based access** for different operational functions
+
+## 🚀 Deployment & Integration
+
+### Backend Integration Points
+
+| Contract                | Backend Service   | Integration Method       |
+| ----------------------- | ----------------- | ------------------------ |
+| `TouriiDigitalPassport` | User Registration | Auto-mint on signup      |
+| `TouriiLog`             | Quest Completion  | Event-triggered minting  |
+| `TouriiPerk`            | Reward System     | Point redemption minting |
+
+### Contract Addresses
+
+**Testnet (Sepolia)**:
+- TouriiDigitalPassport: `0x...` (to be deployed)
+- TouriiLog: `0x...` (to be deployed)  
+- TouriiPerk: `0x...` (to be deployed)
+
+**Mainnet**:
+- TouriiDigitalPassport: `0x...` (to be deployed)
+- TouriiLog: `0x...` (to be deployed)
+- TouriiPerk: `0x...` (to be deployed)
+
+## 📊 Gas Optimization
+
+| Operation                | Estimated Gas | Notes             |
+| ------------------------ | ------------- | ----------------- |
+| Mint Digital Passport    | ~80,000       | One-time per user |
+| Mint Travel Log          | ~70,000       | Per achievement   |
+| Mint Perk                | ~75,000       | Per reward        |
+| Burn Perk                | ~30,000       | Redemption action |
+| Update Passport Metadata | ~45,000       | User progression  |
+
+## 🔄 Metadata Standards
+
+All contracts follow ERC721 metadata standards with Tourii-specific extensions:
+
+### Digital Passport Metadata
+```json
+{
+  "name": "Tourii Passport #123",
+  "description": "Digital identity for Tourii traveler",
+  "image": "https://cdn.tourii.xyz/passport/123.png",
+  "attributes": [
+    {"trait_type": "Level", "value": "E_CLASS_AMATSUKAMI"},
+    {"trait_type": "Total Distance", "value": 1250.5},
+    {"trait_type": "Quests Completed", "value": 15},
+    {"trait_type": "Region", "value": "Kanto"}
+  ]
+}
+```
+
+### Travel Log Metadata
+```json
+{
+  "name": "Tokyo Adventure Complete",
+  "description": "Completed the Tokyo city quest",
+  "image": "https://cdn.tourii.xyz/logs/tokyo-123.png",
+  "attributes": [
+    {"trait_type": "Quest Type", "value": "SOLO"},
+    {"trait_type": "Location", "value": "Tokyo, Japan"},
+    {"trait_type": "Completion Date", "value": "2024-03-20"},
+    {"trait_type": "Points Earned", "value": 500}
+  ]
+}
+```
+
+## 📚 Related Documentation
+
+- [Contract Development Setup](../../contracts/README.md)
+- [NFT Metadata Delivery Guide](../user/Tourii%20Passport%20NFT%20metadata%20delivery.md)
+- [Backend Integration Guide](../BACKEND_FRONTEND_INTEGRATION.md)
+- [Security Guidelines](../SECURITY_GUIDELINES.md)
+
+---
+
+*Last Updated: June 16, 2025*

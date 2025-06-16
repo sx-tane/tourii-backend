@@ -209,4 +209,6 @@ GEO_API_TIMEOUT=5000          # API timeout in milliseconds (default: 5 seconds)
 
 ---
 
-_Last Updated: May 8, 2025_
+---
+
+*Last Updated: June 16, 2025*
