@@ -58,6 +58,10 @@ import {
     QuestTaskCreateRequestSchema,
 } from './model/tourii-request/create/quest-task-create-request.model';
 import {
+    QuestTaskSocialShareRequestDto,
+    questTaskSocialShareRequestSchema,
+} from './model/tourii-request/create/quest-task-social-share-request.model';
+import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
@@ -144,6 +148,10 @@ import {
     QuestTaskPhotoUploadResponseDto,
     QuestTaskPhotoUploadResponseSchema,
 } from './model/tourii-response/quest-task-photo-upload-response.model';
+import {
+    QuestTaskSocialShareResponseDto,
+    QuestTaskSocialShareResponseSchema,
+} from './model/tourii-response/quest-task-social-share-response.model';
 import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
@@ -1278,6 +1286,37 @@ export class TouriiBackendController {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
         return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, file);
+    }
+
+    @Post('/tasks/:taskId/share-social')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Complete social sharing task' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiBody({
+        description: 'Social share proof URL',
+        schema: zodToOpenAPI(questTaskSocialShareRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Social share recorded successfully',
+        type: QuestTaskSocialShareResponseDto,
+        schema: zodToOpenAPI(QuestTaskSocialShareResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async completeSocialShareTask(
+        @Param('taskId') taskId: string,
+        @Body() body: QuestTaskSocialShareRequestDto,
+        @Req() req: Request,
+    ): Promise<QuestTaskSocialShareResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.completeSocialShareTask(taskId, userId, body.proofUrl);
     }
 
     // ==========================================

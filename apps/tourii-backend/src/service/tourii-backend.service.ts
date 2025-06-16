@@ -30,6 +30,7 @@ import type { LoginRequestDto } from '../controller/model/tourii-request/create/
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
 import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-request/create/quest-task-create-request.model';
+import type { QuestTaskSocialShareRequestDto } from '../controller/model/tourii-request/create/quest-task-social-share-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
@@ -50,6 +51,7 @@ import {
     TaskResponseDto,
 } from '../controller/model/tourii-response/quest-response.model';
 import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
+import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-response/quest-task-social-share-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import {
@@ -1344,6 +1346,59 @@ export class TouriiBackendService {
         );
         await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
         return { message: 'Photo submitted successfully', proofUrl };
+    }
+
+    /**
+     * Complete social sharing task
+     * @param taskId Quest task ID
+     * @param userId User ID
+     * @param proofUrl Social media post URL
+     * @returns Social share completion response
+     */
+    async completeSocialShareTask(
+        taskId: string,
+        userId: string,
+        proofUrl: string,
+    ): Promise<QuestTaskSocialShareResponseDto> {
+        // Optional URL format validation
+        this.validateSocialUrl(proofUrl);
+        
+        await this.userTaskLogRepository.completeSocialTask(userId, taskId, proofUrl);
+        return { message: 'Social share recorded.' };
+    }
+
+    /**
+     * Validate social media URL format (optional validation)
+     * @param url Social media URL to validate
+     */
+    private validateSocialUrl(url: string): void {
+        try {
+            const parsedUrl = new URL(url);
+            const domain = parsedUrl.hostname.toLowerCase();
+            
+            // List of supported social media platforms
+            const supportedPlatforms = [
+                'twitter.com',
+                'x.com',
+                'instagram.com',
+                'facebook.com',
+                'linkedin.com',
+                'tiktok.com',
+                'youtube.com',
+                'reddit.com'
+            ];
+            
+            const isSupported = supportedPlatforms.some(platform => 
+                domain === platform || domain === `www.${platform}`
+            );
+            
+            if (!isSupported) {
+                Logger.warn(`Unsupported social platform: ${domain}`, 'TouriiBackendService');
+                // Note: We don't throw an error here to be flexible with new platforms
+            }
+        } catch (error) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
     }
 
     // ==========================================
