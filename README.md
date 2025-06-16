@@ -165,6 +165,167 @@ bash tourii-backend/test/security-test.sh
 
 ---
 
+## 📋 API Reference
+
+The Tourii Backend provides two main API services:
+
+### 🎯 Main API Service (`/`)
+**Base URL**: `http://localhost:3000`
+
+All endpoints require these headers:
+- `x-api-key`: API key for authentication
+- `accept-version`: API version (e.g., 1.0.0)
+
+#### 🔧 Health & System
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health-check` | API health status |
+
+#### 👤 User & Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/signup` | User signup with social/wallet auth |
+| `POST` | `/login` | User login |
+| `POST` | `/user` | Create new user |
+| `GET` | `/user/me` | Get current user profile |
+| `GET` | `/user/sensitive-info` | Get user sensitive information |
+
+#### 📚 Stories & Chapters
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/stories/create-saga` | Create story saga |
+| `POST` | `/stories/create-chapter/:storyId` | Create story chapter |
+| `POST` | `/stories/update-saga` | Update story saga |
+| `POST` | `/stories/update-chapter` | Update story chapter |
+| `GET` | `/stories/sagas` | Get all story sagas |
+| `GET` | `/stories/sagas/:storyId/chapters` | Get chapters by story ID |
+| `POST` | `/stories/chapters/:chapterId/progress` | Track chapter reading progress |
+| `DELETE` | `/stories/:storyId` | Delete story saga |
+| `DELETE` | `/stories/chapters/:chapterId` | Delete story chapter |
+
+#### 🗺️ Routes & Tourist Spots
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/routes/create-model-route` | Create model route |
+| `POST` | `/routes/create-tourist-spot/:modelRouteId` | Create tourist spot |
+| `POST` | `/routes/update-model-route` | Update model route |
+| `POST` | `/routes/update-tourist-spot` | Update tourist spot |
+| `GET` | `/routes` | Get all model routes |
+| `GET` | `/routes/:id` | Get model route by ID |
+| `GET` | `/routes/tourist-spots/:storyChapterId` | Get tourist spots by chapter |
+| `GET` | `/location-info` | Get location info with Google Places |
+| `DELETE` | `/routes/:modelRouteId` | Delete model route |
+| `DELETE` | `/routes/tourist-spot/:touristSpotId` | Delete tourist spot |
+
+#### 🎯 Quests & Tasks
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/quests` | Get quests with pagination & filters |
+| `GET` | `/quests/:questId` | Get quest by ID |
+| `GET` | `/quests/tourist-spot/:touristSpotId` | Get quests by tourist spot |
+| `POST` | `/quests/create-quest` | Create new quest |
+| `POST` | `/quests/create-task/:questId` | Create quest task |
+| `POST` | `/quests/update-quest` | Update quest |
+| `POST` | `/quests/update-task` | Update quest task |
+| `POST` | `/quests/tasks/:taskId/photo-upload` | Upload task photo |
+| `DELETE` | `/quests/:questId` | Delete quest |
+| `DELETE` | `/quests/tasks/:taskId` | Delete quest task |
+
+#### 👥 Group Quests
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/quests/:questId/group/members` | Get group members |
+| `POST` | `/quests/:questId/group/start` | Start group quest |
+
+#### 📱 Moments & Dashboard
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/moments` | Get latest traveler moments |
+
+#### 🏠 Homepage
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/v2/homepage/highlights` | Get homepage highlights |
+
+### ⛓️ Blockchain API Service (`/`) 
+**Base URL**: `http://localhost:3001` (tourii-onchain service)
+
+#### 🔧 Health & System
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health-check` | API health status |
+
+#### 🔐 Keyring Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/keyring/address` | Get user keyring address |
+| `POST` | `/keyring/login` | Login user with keyring |
+| `POST` | `/keyring/register` | Register new user |
+| `POST` | `/keyring/logout` | Logout user |
+
+#### ⛓️ Blockchain Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/send-green` | Send green transaction |
+| `POST` | `/send-yellow` | Send yellow transaction |
+| `POST` | `/send-red` | Send red transaction |
+| `GET` | `/read-state` | Read blockchain state |
+
+### 📊 Query Parameters
+
+#### Quest Filtering (`/quests`)
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+- `isPremium`: Filter by premium status
+- `isUnlocked`: Filter by unlocked status
+- `questType`: Filter by quest type (SOLO, GROUP, etc.)
+- `userId`: User ID for personalized results
+
+#### Location Search (`/location-info`)
+- `query`: Place name or search query (required)
+- `latitude`: Latitude for location bias
+- `longitude`: Longitude for location bias
+- `address`: Address for enhanced search accuracy
+
+#### Moments (`/moments`)
+- `page`: Page number
+- `limit`: Items per page
+- `momentType`: Filter by moment type
+
+### 🔒 Authentication
+
+Most endpoints require authentication via:
+1. **API Key**: `x-api-key` header
+2. **Version**: `accept-version` header
+3. **User Context**: `x-user-id` header (temporary, will be replaced with JWT)
+
+### 📝 Response Formats
+
+All API responses follow consistent formatting:
+- **Success**: JSON objects/arrays with relevant data
+- **Error**: Standardized error objects with `code`, `message`, and `type` fields
+- **Pagination**: Includes `total`, `page`, `limit`, and `data` arrays
+
+### 🔍 API Documentation
+
+Interactive API documentation is available at:
+- **Swagger UI**: `http://localhost:3000/api`
+- **OpenAPI Spec**: `etc/openapi/openapi.json`
+- **Generated Types**: `etc/openapi/openapi.d.ts`
+
+---
+
 ## 🧬 Database Schema Highlights
 
 **🔐 User & Auth**
