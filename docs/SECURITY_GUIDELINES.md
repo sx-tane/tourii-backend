@@ -260,4 +260,6 @@ If you find a security issue:
 
 ---
 
-_Last Updated: May 8, 2025_
+---
+
+*Last Updated: June 16, 2025*

@@ -1,11 +1,11 @@
-import { LocationInfoRepositoryApi } from './location-info-repository-api';
-import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
-import { ConfigService } from '@nestjs/config';
+import { LocationInfo } from '@app/core/domain/geo/location-info';
 import { CachingService } from '@app/core/provider/caching.service';
+import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
-import { LocationInfo } from '@app/core/domain/geo/location-info';
-import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { LocationInfoRepositoryApi } from './location-info-repository-api';
 
 describe('LocationInfoRepositoryApi', () => {
     let repository: LocationInfoRepositoryApi;
@@ -41,7 +41,7 @@ describe('LocationInfoRepositoryApi', () => {
         );
     });
 
-    it('fetches location info from Google Places and caches it', async () => {
+    it('fails to fetch location info from Google Places when PLACE ZERO_RESULTS', async () => {
         configService.get.mockImplementation((key: string) => {
             if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
             return undefined;
@@ -51,6 +51,7 @@ describe('LocationInfoRepositoryApi', () => {
             data: { candidates: [{ place_id: 'abc123' }] },
             status: 200,
         };
+
         const detailResponse = {
             data: {
                 result: {
@@ -74,6 +75,59 @@ describe('LocationInfoRepositoryApi', () => {
             async (_key: string, fn: () => Promise<LocationInfo>) => fn(),
         );
 
+        await expect(repository.getLocationInfo('Sakura-tei')).rejects.toEqual(
+            expect.objectContaining({
+                response: expect.objectContaining({
+                    code: TouriiBackendAppErrorType.E_GEO_001.code,
+                }),
+            }),
+        );
+    });
+
+    it('fetches location info from Google Places and caches it', async () => {
+        configService.get.mockImplementation((key: string) => {
+            if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
+            return undefined;
+        });
+
+        // Mock the enhanced text search response (Strategy 2 - textsearch API) - return empty to force fallback
+        const enhancedTextSearchResponse = {
+            data: { results: [] },
+            status: 200,
+        };
+
+        // Mock the basic text search response (Strategy 3 - findplacefromtext API)
+        const findResponse = {
+            data: { candidates: [{ place_id: 'abc123' }] },
+            status: 200,
+        };
+
+        // Mock the place details response
+        const detailResponse = {
+            data: {
+                result: {
+                    name: 'Sakura-tei',
+                    formatted_address: 'Tokyo, Japan',
+                    international_phone_number: '+81 3-3479-0039',
+                    website: 'https://www.sakuratei.co.jp',
+                    rating: 4,
+                    url: 'https://maps.google.com/?cid=12345',
+                    opening_hours: { weekday_text: ['Mon: 11AM-11PM'] },
+                },
+            },
+            status: 200,
+        };
+
+        // Mock the HTTP calls in order: enhanced text search (fails), basic text search (succeeds), place details
+        httpService.getTouriiBackendHttpService.get
+            .mockReturnValueOnce(of(enhancedTextSearchResponse))
+            .mockReturnValueOnce(of(findResponse))
+            .mockReturnValueOnce(of(detailResponse));
+
+        cachingService.getOrSet.mockImplementation(
+            async (_key: string, fn: () => Promise<LocationInfo>) => fn(),
+        );
+
         const result = await repository.getLocationInfo('Sakura-tei');
 
         expect(result).toEqual({
@@ -87,6 +141,6 @@ describe('LocationInfoRepositoryApi', () => {
         });
 
         expect(cachingService.getOrSet).toHaveBeenCalled();
-        expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(2);
+        expect(httpService.getTouriiBackendHttpService.get).toHaveBeenCalledTimes(3);
     });
 });
