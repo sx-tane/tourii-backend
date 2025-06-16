@@ -19,6 +19,18 @@ describe('UserTravelLogRepositoryDb', () => {
 
     beforeEach(async () => {
         await cleanDb();
+        
+        // Create prerequisite user record for foreign key constraint
+        await prismaService.user.create({
+            data: {
+                user_id: 'test-user-id',
+                username: 'test-user',
+                password: 'password',
+                perks_wallet_address: 'test-wallet-address',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
     });
 
     afterAll(async () => {
