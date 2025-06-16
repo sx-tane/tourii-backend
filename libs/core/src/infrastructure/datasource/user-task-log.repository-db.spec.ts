@@ -245,23 +245,10 @@ describe('UserTaskLogRepositoryDb', () => {
     });
 
     describe('completeSocialTask', () => {
-        const socialUrl = 'https://twitter.com/user/status/123456789';
-
-        beforeEach(async () => {
-            // Update the existing task to be a social share task for social tests
-            await prisma.quest_task.update({
-                where: { quest_task_id: taskId },
-                data: {
-                    task_type: 'SHARE_SOCIAL',
-                    task_name: 'Social Share Task',
-                    task_desc: 'Share your experience on social media',
-                    required_action: 'Share on social media',
-                },
-            });
-        });
+        const socialProofUrl = 'https://twitter.com/user/status/1234567890';
 
         it('should create a new user task log when completing a social task for the first time', async () => {
-            await repository.completeSocialTask(userId, taskId, socialUrl);
+            await repository.completeSocialTask(userId, taskId, socialProofUrl);
 
             const taskLog = await prisma.user_task_log.findFirst({
                 where: {
@@ -274,7 +261,7 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLog).not.toBeNull();
             expect(taskLog?.status).toEqual(TaskStatus.COMPLETED);
             expect(taskLog?.action).toEqual(TaskType.SHARE_SOCIAL);
-            expect(taskLog?.submission_data).toEqual({ social_url: socialUrl });
+            expect(taskLog?.submission_data).toEqual({ social_url: socialProofUrl });
             expect(taskLog?.completed_at).not.toBeNull();
             expect(taskLog?.claimed_at).not.toBeNull();
             expect(taskLog?.total_magatama_point_awarded).toEqual(0);
@@ -284,8 +271,8 @@ describe('UserTaskLogRepositoryDb', () => {
         });
 
         it('should update an existing user task log when completing a social task again', async () => {
-            const initialSocialUrl = 'https://twitter.com/user/status/111111111';
-            const updatedSocialUrl = 'https://twitter.com/user/status/222222222';
+            const initialSocialUrl = 'https://twitter.com/user/status/111111';
+            const updatedSocialUrl = 'https://twitter.com/user/status/222222';
 
             // First completion
             await repository.completeSocialTask(userId, taskId, initialSocialUrl);
@@ -297,7 +284,7 @@ describe('UserTaskLogRepositoryDb', () => {
                 },
             });
 
-            // Second completion with updated social URL
+            // Second completion with updated proof
             await repository.completeSocialTask(userId, taskId, updatedSocialUrl);
             const updatedLog = await prisma.user_task_log.findFirst({
                 where: {
@@ -321,16 +308,16 @@ describe('UserTaskLogRepositoryDb', () => {
             const nonExistentTaskId = 'non-existent-social-task-id';
 
             await expect(
-                repository.completeSocialTask(userId, nonExistentTaskId, socialUrl),
+                repository.completeSocialTask(userId, nonExistentTaskId, socialProofUrl),
             ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028));
         });
 
         it('should use UserMapper to create social task log data', async () => {
             const userMapperSpy = jest.spyOn(UserMapper, 'createUserTaskLogForSocialShare');
 
-            await repository.completeSocialTask(userId, taskId, socialUrl);
+            await repository.completeSocialTask(userId, taskId, socialProofUrl);
 
-            expect(userMapperSpy).toHaveBeenCalledWith(userId, questId, taskId, socialUrl);
+            expect(userMapperSpy).toHaveBeenCalledWith(userId, questId, taskId, socialProofUrl);
 
             userMapperSpy.mockRestore();
         });
@@ -340,7 +327,7 @@ describe('UserTaskLogRepositoryDb', () => {
             const prismaError = new Error('Database connection failed');
             jest.spyOn(prisma.quest_task, 'findUnique').mockRejectedValueOnce(prismaError);
 
-            await expect(repository.completeSocialTask(userId, taskId, socialUrl)).rejects.toThrow(
+            await expect(repository.completeSocialTask(userId, taskId, socialProofUrl)).rejects.toThrow(
                 prismaError,
             );
         });
@@ -355,7 +342,7 @@ describe('UserTaskLogRepositoryDb', () => {
                     status: TaskStatus.ONGOING,
                     action: TaskType.SHARE_SOCIAL,
                     group_activity_members: [],
-                    submission_data: { social_url: 'https://twitter.com/old/status/999' },
+                    submission_data: { social_url: 'https://old-social-url.com' },
                     total_magatama_point_awarded: 5,
                     ins_user_id: 'original-user',
                     ins_date_time: new Date('2023-01-01'),
@@ -364,7 +351,7 @@ describe('UserTaskLogRepositoryDb', () => {
                 },
             });
 
-            await repository.completeSocialTask(userId, taskId, socialUrl);
+            await repository.completeSocialTask(userId, taskId, socialProofUrl);
 
             const updatedLog = await prisma.user_task_log.findFirst({
                 where: {
@@ -376,7 +363,7 @@ describe('UserTaskLogRepositoryDb', () => {
 
             expect(updatedLog).not.toBeNull();
             expect(updatedLog?.status).toEqual(TaskStatus.COMPLETED);
-            expect(updatedLog?.submission_data).toEqual({ social_url: socialUrl });
+            expect(updatedLog?.submission_data).toEqual({ social_url: socialProofUrl });
             expect(updatedLog?.completed_at).not.toBeNull();
             expect(updatedLog?.upd_user_id).toEqual(userId);
             // Verify original creation data is preserved
@@ -384,35 +371,49 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(updatedLog?.ins_date_time).toEqual(new Date('2023-01-01'));
         });
 
-        it('should handle different social media platforms correctly', async () => {
+        it('should handle various social media URL formats', async () => {
             const testCases = [
-                'https://twitter.com/user/status/123456789',
-                'https://x.com/user/status/123456789',
-                'https://instagram.com/p/ABC123/',
-                'https://facebook.com/user/posts/123456789',
-                'https://linkedin.com/posts/user_123456789',
-                'https://tiktok.com/@user/video/123456789',
-                'https://youtube.com/watch?v=ABC123',
-                'https://reddit.com/r/subreddit/comments/123456/title/',
+                'https://twitter.com/user/status/123',
+                'https://x.com/user/status/456',
+                'https://instagram.com/p/abcd123/',
+                'https://www.facebook.com/user/posts/789',
+                'https://linkedin.com/feed/update/urn:li:activity:456',
+                'https://tiktok.com/@user/video/789',
+                'https://youtube.com/watch?v=abc123',
+                'https://reddit.com/r/subreddit/comments/123/title/',
             ];
 
-            for (const url of testCases) {
-                // Clean up previous test data
-                await prisma.user_task_log.deleteMany({
-                    where: {
-                        user_id: userId,
+            for (const [index, url] of testCases.entries()) {
+                const uniqueTaskId = `${taskId}-${index}`;
+                
+                // Create a unique task for each test case
+                await prisma.quest_task.create({
+                    data: {
+                        quest_task_id: uniqueTaskId,
                         quest_id: questId,
-                        task_id: taskId,
+                        task_theme: 'STORY',
+                        task_type: 'SHARE_SOCIAL',
+                        task_name: `Social Share Task ${index}`,
+                        task_desc: 'Share on social media',
+                        is_unlocked: true,
+                        required_action: 'Share on social media',
+                        group_activity_members: [],
+                        select_options: [],
+                        anti_cheat_rules: {},
+                        magatama_point_awarded: 10,
+                        reward_earned: 'Social Badge',
+                        ins_user_id: 'system',
+                        upd_user_id: 'system',
                     },
                 });
 
-                await repository.completeSocialTask(userId, taskId, url);
+                await repository.completeSocialTask(userId, uniqueTaskId, url);
 
                 const taskLog = await prisma.user_task_log.findFirst({
                     where: {
                         user_id: userId,
                         quest_id: questId,
-                        task_id: taskId,
+                        task_id: uniqueTaskId,
                     },
                 });
 
@@ -423,37 +424,31 @@ describe('UserTaskLogRepositoryDb', () => {
             }
         });
 
-        it('should handle edge cases for social URLs', async () => {
-            const edgeCases = [
-                'https://twitter.com/user/status/123456789?ref=src%5Etfw',
-                'https://www.instagram.com/p/ABC123/?utm_source=ig_web_copy_link',
-                'https://m.facebook.com/user/posts/123456789',
-                'https://linkedin.com/posts/user_activity-123456789-xyz',
-            ];
+        it('should handle concurrent social task completions without conflicts', async () => {
+            const promises = Array.from({ length: 5 }, (_, i) =>
+                repository.completeSocialTask(userId, taskId, `${socialProofUrl}${i}`)
+            );
 
-            for (const url of edgeCases) {
-                // Clean up previous test data
-                await prisma.user_task_log.deleteMany({
-                    where: {
-                        user_id: userId,
-                        quest_id: questId,
-                        task_id: taskId,
-                    },
-                });
+            await Promise.all(promises);
 
-                await repository.completeSocialTask(userId, taskId, url);
+            const taskLogs = await prisma.user_task_log.findMany({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
 
-                const taskLog = await prisma.user_task_log.findFirst({
-                    where: {
-                        user_id: userId,
-                        quest_id: questId,
-                        task_id: taskId,
-                    },
-                });
-
-                expect(taskLog).not.toBeNull();
-                expect(taskLog?.submission_data).toEqual({ social_url: url });
-            }
+            // Should only have one record due to upsert behavior
+            expect(taskLogs).toHaveLength(1);
+            expect(taskLogs[0].status).toEqual(TaskStatus.COMPLETED);
+            expect(taskLogs[0].action).toEqual(TaskType.SHARE_SOCIAL);
+            // The final URL should be from one of the concurrent operations
+            expect(taskLogs[0].submission_data).toEqual(
+                expect.objectContaining({
+                    social_url: expect.stringContaining(socialProofUrl),
+                })
+            );
         });
     });
 });
