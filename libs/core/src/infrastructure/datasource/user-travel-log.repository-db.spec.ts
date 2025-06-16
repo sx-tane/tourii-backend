@@ -1,4 +1,4 @@
-import { cleanDatabase } from '@app/core/test/prisma/clean-db';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { UserTravelLogRepositoryDb } from './user-travel-log.repository-db';
@@ -18,7 +18,7 @@ describe('UserTravelLogRepositoryDb', () => {
     });
 
     beforeEach(async () => {
-        await cleanDatabase(prismaService);
+        await cleanDb();
     });
 
     afterAll(async () => {
