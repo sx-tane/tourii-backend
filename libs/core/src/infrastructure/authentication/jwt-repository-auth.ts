@@ -10,7 +10,11 @@ import { TouriiBackendAppException } from '../../support/exception/tourii-backen
 export class JwtRepositoryAuth implements JwtRepository {
     private readonly secretKey: string;
     constructor(protected readonly configService: ConfigService) {
-        this.secretKey = this.configService.get<string>('JWT_SECRET') || 'defaultSecretKey';
+        const secret = this.configService.get<string>('JWT_SECRET');
+        if (!secret) {
+            throw new Error('JWT_SECRET environment variable is required for security');
+        }
+        this.secretKey = secret;
     }
 
     generateJwtToken(payload: JWTData, options?: jwt.SignOptions): string {

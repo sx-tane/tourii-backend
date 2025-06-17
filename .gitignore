@@ -1,5 +1,6 @@
 # compiled output
 dist/apps/tourii-backend/
+dist/apps/tourii-onchain/
 /node_modules
 
 # Logs

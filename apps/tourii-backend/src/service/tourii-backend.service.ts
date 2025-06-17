@@ -10,7 +10,10 @@ import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
-import { UserStoryLogRepository, StoryCompletionResult } from '@app/core/domain/game/story/user-story-log.repository';
+import {
+    UserStoryLogRepository,
+    StoryCompletionResult,
+} from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
@@ -395,7 +398,7 @@ export class TouriiBackendService {
         canComplete: boolean;
     } | null> {
         const progress = await this.userStoryLogRepository.getStoryProgress(userId, chapterId);
-        
+
         if (!progress) {
             return {
                 status: StoryStatus.UNREAD,
@@ -1420,7 +1423,7 @@ export class TouriiBackendService {
     ): Promise<QuestTaskSocialShareResponseDto> {
         // Optional URL format validation
         this.validateSocialUrl(proofUrl);
-        
+
         await this.userTaskLogRepository.completeSocialTask(userId, taskId, proofUrl);
         return { message: 'Social share recorded.' };
     }
@@ -1433,7 +1436,7 @@ export class TouriiBackendService {
         try {
             const parsedUrl = new URL(url);
             const domain = parsedUrl.hostname.toLowerCase();
-            
+
             // List of supported social media platforms
             const supportedPlatforms = [
                 'twitter.com',
@@ -1443,18 +1446,18 @@ export class TouriiBackendService {
                 'linkedin.com',
                 'tiktok.com',
                 'youtube.com',
-                'reddit.com'
+                'reddit.com',
             ];
-            
-            const isSupported = supportedPlatforms.some(platform => 
-                domain === platform || domain === `www.${platform}`
+
+            const isSupported = supportedPlatforms.some(
+                (platform) => domain === platform || domain === `www.${platform}`,
             );
-            
+
             if (!isSupported) {
                 Logger.warn(`Unsupported social platform: ${domain}`, 'TouriiBackendService');
                 // Note: We don't throw an error here to be flexible with new platforms
             }
-        } catch (error) {
+        } catch (_error) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
     }

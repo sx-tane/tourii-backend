@@ -1,4 +1,7 @@
-import { UserStoryLogRepository, StoryCompletionResult } from '@app/core/domain/game/story/user-story-log.repository';
+import {
+    StoryCompletionResult,
+    UserStoryLogRepository,
+} from '@app/core/domain/game/story/user-story-log.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -55,7 +58,10 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
         }
     }
 
-    async completeStoryWithQuestUnlocking(userId: string, chapterId: string): Promise<StoryCompletionResult> {
+    async completeStoryWithQuestUnlocking(
+        userId: string,
+        chapterId: string,
+    ): Promise<StoryCompletionResult> {
         const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
 
         return await this.prisma.$transaction(async (prisma) => {
@@ -82,6 +88,15 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             if (existing?.status === StoryStatus.COMPLETED) {
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_029);
             }
+
+            // Check for achievements (simple implementation)
+            const achievementsUnlocked: string[] = [];
+            const userStoryCount = await prisma.user_story_log.count({
+                where: {
+                    user_id: userId,
+                    status: StoryStatus.COMPLETED,
+                },
+            });
 
             // Update or create story progress
             if (existing) {
@@ -126,7 +141,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
 
             // Find and unlock related quests
             const unlockedQuests: StoryCompletionResult['unlockedQuests'] = [];
-            
+
             if (chapter.tourist_spot_id) {
                 // Get tourist spot details
                 const touristSpot = await prisma.tourist_spot.findUnique({
@@ -154,7 +169,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
 
                 // Unlock the quests
                 if (questsToUnlock.length > 0) {
-                    const questIds = questsToUnlock.map(q => q.quest_id);
+                    const questIds = questsToUnlock.map((q) => q.quest_id);
                     await prisma.quest.updateMany({
                         where: {
                             quest_id: { in: questIds },
@@ -167,36 +182,29 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
                     });
 
                     // Build the unlocked quests response
-                    unlockedQuests.push(...questsToUnlock.map(quest => ({
-                        questId: quest.quest_id,
-                        questName: quest.quest_name,
-                        questDesc: quest.quest_desc,
-                        questImage: quest.quest_image,
-                        touristSpotName: touristSpot?.tourist_spot_name || 'Unknown Location',
-                        totalMagatamaPointAwarded: quest.total_magatama_point_awarded,
-                        isPremium: quest.is_premium,
-                    })));
+                    unlockedQuests.push(
+                        ...questsToUnlock.map((quest) => ({
+                            questId: quest.quest_id,
+                            questName: quest.quest_name,
+                            questDesc: quest.quest_desc,
+                            questImage: quest.quest_image,
+                            touristSpotName: touristSpot?.tourist_spot_name || 'Unknown Location',
+                            totalMagatamaPointAwarded: quest.total_magatama_point_awarded,
+                            isPremium: quest.is_premium,
+                        })),
+                    );
                 }
             }
 
-            // Check for achievements (simple implementation)
-            const achievementsUnlocked: string[] = [];
-            const userStoryCount = await prisma.user_story_log.count({
-                where: {
-                    user_id: userId,
-                    status: StoryStatus.COMPLETED,
-                },
-            });
-
             // Award achievements based on story completion milestones
             let additionalRewards = 0;
-            if (userStoryCount === 1) {
+            if (userStoryCount === 0) {
                 achievementsUnlocked.push('First Story Completed');
                 additionalRewards += 25;
-            } else if (userStoryCount === 5) {
+            } else if (userStoryCount === 4) {
                 achievementsUnlocked.push('Story Explorer');
                 additionalRewards += 50;
-            } else if (userStoryCount === 10) {
+            } else if (userStoryCount === 9) {
                 achievementsUnlocked.push('Story Master');
                 additionalRewards += 100;
             }
@@ -277,7 +285,10 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
         }
     }
 
-    async getStoryProgress(userId: string, chapterId: string): Promise<{
+    async getStoryProgress(
+        userId: string,
+        chapterId: string,
+    ): Promise<{
         status: StoryStatus;
         unlockedAt: Date | null;
         finishedAt: Date | null;

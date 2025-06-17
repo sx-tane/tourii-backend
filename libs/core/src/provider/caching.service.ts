@@ -45,7 +45,12 @@ export class CachingService {
             this.logger.log(`Cache miss for key: ${key}. Checking for ongoing fetches.`);
             if (this.ongoingFetches.has(key)) {
                 this.logger.log(`Ongoing fetch for key: ${key}. Awaiting existing promise.`);
-                return this.ongoingFetches.get(key);
+                const promise = this.ongoingFetches.get(key);
+                if (promise) {
+                    return promise;
+                }
+                // If promise is null/undefined, remove the entry and continue to fetch
+                this.ongoingFetches.delete(key);
             }
 
             // 3. If no ongoing fetch, initiate new fetch

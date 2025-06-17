@@ -1,18 +1,25 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+    DigitalPassportMetadata,
+    DigitalPassportMetadataBuilder,
+    PassportMetadataInput,
+} from '@app/core/domain/passport/digital-passport-metadata';
 import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
-import { DigitalPassportMetadata, DigitalPassportMetadataBuilder, PassportMetadataInput } from '@app/core/domain/passport/digital-passport-metadata';
 import { R2StorageRepository } from '@app/core/domain/storage/r2-storage.repository';
 import { UserRepository } from '@app/core/domain/user/user.repository';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { TouriiOnchainConstants } from 'apps/tourii-onchain/src/tourii-onchain.constant';
 
 @Injectable()
 export class PassportMetadataRepositoryImpl implements PassportMetadataRepository {
     private readonly logger = new Logger(PassportMetadataRepositoryImpl.name);
 
     constructor(
+        @Inject(TouriiOnchainConstants.R2_STORAGE_REPOSITORY_TOKEN)
         private readonly r2Storage: R2StorageRepository,
+        @Inject(TouriiOnchainConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
         private readonly config: ConfigService,
     ) {}
@@ -21,16 +28,13 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
         try {
             // Find user by passport token ID
             const user = await this.userRepository.findByPassportTokenId(tokenId);
-            
+
             if (!user || !user.userInfo) {
-                throw new TouriiBackendAppException(
-                    TouriiBackendAppErrorType.RESOURCE_NOT_FOUND,
-                    `User with passport token ID ${tokenId} not found`
-                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
             }
 
             const userInfo = user.userInfo;
-            
+
             // Build metadata input
             const metadataInput: PassportMetadataInput = {
                 tokenId,
@@ -50,7 +54,7 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
 
             // Generate metadata
             const metadata = DigitalPassportMetadataBuilder.build(metadataInput);
-            
+
             this.logger.log(`Generated metadata for passport token ID ${tokenId}`);
             return metadata;
         } catch (error) {
@@ -63,11 +67,11 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
         try {
             // Generate fresh metadata
             const metadata = await this.generateMetadata(tokenId);
-            
+
             // Upload to R2 storage
             const key = `metadata/${tokenId}.json`;
             const metadataUrl = await this.r2Storage.uploadMetadata(metadata, key);
-            
+
             this.logger.log(`Updated metadata for passport token ID ${tokenId}: ${metadataUrl}`);
             return metadataUrl;
         } catch (error) {

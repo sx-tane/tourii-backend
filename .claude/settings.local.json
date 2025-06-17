@@ -3,7 +3,9 @@
     "allow": [
       "Bash(rm:*)",
       "Bash(npx jest:*)",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

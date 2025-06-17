@@ -32,8 +32,7 @@ async function createApp(): Promise<NestExpressApplication> {
         }),
     );
 
-    // Enable CORS for Vercel
-    app.enableCors();
+    // CORS is handled by SecurityMiddleware - do not enable here to avoid security bypass
 
     if (
         getEnv({
