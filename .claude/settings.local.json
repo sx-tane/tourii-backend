@@ -1,6 +1,15 @@
 {
-    "permissions": {
-        "allow": ["Bash(rm:*)", "Bash(npx jest:*)", "Bash(pnpm test:*)"],
-        "deny": []
-    }
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(npx jest:*)",
+      "Bash(pnpm test:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(npx jest:*)",
+      "Bash(pnpm test:*)"
+    ],
+    "deny": []
+  }
 }

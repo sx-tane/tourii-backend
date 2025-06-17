@@ -6,6 +6,7 @@ import {
     Controller,
     Delete,
     Get,
+    Headers,
     HttpStatus,
     Param,
     ParseFloatPipe,
@@ -28,7 +29,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { QuestType } from '@prisma/client';
+import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
@@ -67,6 +68,18 @@ import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
+import {
+    StoryReadingStartRequestDto,
+    StoryReadingStartRequestSchema,
+} from './model/tourii-request/create/story-reading-start-request.model';
+import {
+    StoryReadingCompleteRequestDto,
+    StoryReadingCompleteRequestSchema,
+} from './model/tourii-request/create/story-reading-complete-request.model';
+import {
+    StoryActionRequestDto,
+    StoryActionRequestSchema,
+} from './model/tourii-request/create/story-action-request.model';
 import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
@@ -164,6 +177,14 @@ import {
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
 import {
+    StoryCompletionResponseDto,
+    StoryCompletionResponseSchema,
+} from './model/tourii-response/story-completion-response.model';
+import {
+    StoryProgressResponseDto,
+    StoryProgressResponseSchema,
+} from './model/tourii-response/story-progress-response.model';
+import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
@@ -188,8 +209,12 @@ import {
     StoryChapterUpdateRequestDto,
     ModelRouteUpdateRequestDto,
     TouristSpotUpdateRequestDto,
+    StoryReadingStartRequestDto,
+    StoryReadingCompleteRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
+    StoryCompletionResponseDto,
+    StoryProgressResponseDto,
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
@@ -701,6 +726,125 @@ export class TouriiBackendController {
             body.longitude
         );
         return { success: true };
+    }
+
+    @Post('/stories/chapters/:chapterId/action')
+    @Get('/stories/chapters/:chapterId/action')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Consolidated story action endpoint',
+        description: 'Handles story start, complete, and progress actions based on X-Story-Action header',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'X-Story-Action',
+        description: 'Story action to perform: start, complete, or progress',
+        required: true,
+        enum: ['start', 'complete', 'progress'],
+    })
+    @ApiBody({
+        description: 'Story action request (required for start/complete, optional for progress)',
+        schema: zodToOpenAPI(StoryActionRequestSchema),
+        required: false,
+    })
+    @ApiQuery({
+        name: 'userId',
+        description: 'User ID (used for progress action when body is not provided)',
+        required: false,
+        type: String,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Story action completed successfully',
+        schema: {
+            oneOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        success: { type: 'boolean' },
+                        message: { type: 'string' },
+                    },
+                },
+                zodToOpenAPI(StoryCompletionResponseSchema),
+                zodToOpenAPI(StoryProgressResponseSchema),
+            ],
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async handleStoryAction(
+        @Param('chapterId') chapterId: string,
+        @Headers('X-Story-Action') action: string,
+        @Body() body?: StoryActionRequestDto,
+        @Query('userId') queryUserId?: string,
+    ): Promise<
+        | { success: boolean; message: string }
+        | StoryCompletionResponseDto
+        | StoryProgressResponseDto
+    > {
+        // Validate action header
+        if (!action || !['start', 'complete', 'progress'].includes(action)) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Determine userId from body or query parameter
+        const userId = body?.userId || queryUserId;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        switch (action) {
+            case 'start':
+                await this.touriiBackendService.startStoryReading(userId, chapterId);
+                return { success: true, message: 'Story reading started successfully' };
+
+            case 'complete': {
+                const result = await this.touriiBackendService.completeStoryWithQuestUnlocking(
+                    userId,
+                    chapterId,
+                );
+                return {
+                    success: true,
+                    message: 'Story completed successfully',
+                    storyProgress: result.chapter,
+                    unlockedQuests: result.unlockedQuests,
+                    rewards: result.rewards,
+                };
+            }
+
+            case 'progress': {
+                const progress = await this.touriiBackendService.getStoryProgress(userId, chapterId);
+                
+                if (!progress) {
+                    return {
+                        storyChapterId: chapterId,
+                        status: StoryStatus.UNREAD,
+                        unlockedAt: null,
+                        finishedAt: null,
+                        canStart: true,
+                        canComplete: false,
+                    };
+                }
+
+                return {
+                    storyChapterId: chapterId,
+                    ...progress,
+                };
+            }
+
+            default:
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
     }
 
     // ==========================================

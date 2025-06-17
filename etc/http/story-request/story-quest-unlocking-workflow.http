@@ -1,0 +1,151 @@
+### Story Reading -> Quest Unlocking Workflow Example
+### This demonstrates the complete flow from starting to read a story to unlocking quests
+
+### 1. Check story progress (should be UNREAD initially)
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: progress
+
+### Expected Response:
+# {
+#   "storyChapterId": "SCT202506-1a5af7-071350-84c9ac-EAAA",
+#   "status": "UNREAD",
+#   "unlockedAt": null,
+#   "finishedAt": null,
+#   "canStart": true,
+#   "canComplete": false
+# }
+
+###
+
+### 2. Start reading the story
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: start
+
+{
+  "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"
+}
+
+### Expected Response:
+# {
+#   "success": true,
+#   "message": "Story reading started successfully"
+# }
+
+###
+
+### 3. Check progress again (should be IN_PROGRESS now)
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: progress
+
+### Expected Response:
+# {
+#   "storyChapterId": "SCT202506-1a5af7-071350-84c9ac-EAAA",
+#   "status": "IN_PROGRESS",
+#   "unlockedAt": "2023-06-16T18:27:00.000Z",
+#   "finishedAt": null,
+#   "canStart": false,
+#   "canComplete": true
+# }
+
+###
+
+### 4. Complete reading the story (main feature - unlocks quests!)
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: complete
+
+{
+  "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"
+}
+
+### Expected Response:
+# {
+#   "success": true,
+#   "message": "Story completed successfully",
+#   "storyProgress": {
+#     "storyChapterId": "SCT202506-1a5af7-071350-84c9ac-EAAA",
+#     "chapterTitle": "The Beginning of Adventure",
+#     "status": "COMPLETED",
+#     "completedAt": "2023-06-16T18:30:00.000Z"
+#   },
+#   "unlockedQuests": [
+#     {
+#       "questId": "QST202506-1c3ef9-071405-92a1bd-FAAA",
+#       "questName": "Explore the Historic Temple",
+#       "questDesc": "Visit the ancient temple and learn about its history",
+#       "questImage": "https://example.com/quest-images/temple.jpg",
+#       "touristSpotName": "Senso-ji Temple",
+#       "totalMagatamaPointAwarded": 50,
+#       "isPremium": false
+#     },
+#     {
+#       "questId": "QST202506-1c3ef9-071405-92a1bd-FBAA",
+#       "questName": "Photography Challenge",
+#       "questDesc": "Take a photo at the temple's main gate",
+#       "questImage": "https://example.com/quest-images/photo.jpg",
+#       "touristSpotName": "Senso-ji Temple",
+#       "totalMagatamaPointAwarded": 30,
+#       "isPremium": false
+#     }
+#   ],
+#   "rewards": {
+#     "magatamaPointsEarned": 35,
+#     "achievementsUnlocked": ["First Story Completed"]
+#   }
+# }
+
+###
+
+### 5. Check final progress (should be COMPLETED)
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action?userId=TSU202506-1bda5f-071407-504e5c-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: progress
+
+### Expected Response:
+# {
+#   "storyChapterId": "SCT202506-1a5af7-071350-84c9ac-EAAA",
+#   "status": "COMPLETED",
+#   "unlockedAt": "2023-06-16T18:27:00.000Z",
+#   "finishedAt": "2023-06-16T18:30:00.000Z",
+#   "canStart": false,
+#   "canComplete": false
+# }
+
+###
+
+### 6. Verify quests are now unlocked at the tourist spot
+GET http://localhost:4000/quests/tourist-spot/TSP202506-1d4fa8-071402-83b2cd-GAAA?userId=TSU202506-1bda5f-071407-504e5c-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+### Expected Response: The previously locked quests should now show is_unlocked: true
+
+###
+
+### Error Case: Try to complete story again (should fail)
+POST http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/action
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+X-Story-Action: complete
+
+{
+  "userId": "TSU202506-1bda5f-071407-504e5c-BAAA"
+}
+
+### Expected Response: Error 400 - Story chapter already completed
+# {
+#   "statusCode": 400,
+#   "message": "Story chapter already completed",
+#   "error": "Bad Request"
+# }

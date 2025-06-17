@@ -21,10 +21,15 @@ export class SecurityMiddleware implements NestMiddleware {
         try {
             // 1. API Key Validation
             const apiKey = req.header('x-api-key');
-            const validApiKeys = this.configService.get<string>('API_KEYS')?.split(',') || [];
+            const apiKeysConfig = this.configService.get<string>('API_KEYS');
+            const validApiKeys = apiKeysConfig?.split(',') || [];
 
             if (!apiKey) {
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_010);
+            }
+
+            if (validApiKeys.length === 0) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_011);
             }
 
             if (!validApiKeys.includes(apiKey)) {

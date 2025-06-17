@@ -135,14 +135,14 @@ Redis-based caching for:
 ## Important Guidelines from Cursor Rules
 
 1. **Always consult documentation**: Before implementing, read:
-   - `docs/BACKEND_GUIDELINES.md`: Core features and architecture
-   - `docs/BACKEND_FRONTEND_INTEGRATION.md`: API integration patterns
-   - `docs/SECURITY_GUIDELINES.md`: Security best practices
+   - `docs/SYSTEM_ARCHITECTURE.md`: Complete architecture and core features
+   - `docs/SECURITY.md`: Security best practices and critical fixes
+   - `docs/API_EXAMPLES.md`: Real-world API usage and integration patterns
    - `docs/DATABASE.md`: Database setup and operations guide
    - `docs/SEEDING_GUIDE.md`: New modular database seeding system
-   - `docs/API_EXAMPLES.md`: Real-world API usage examples
    - `docs/ERROR_CODES.md`: Complete error code reference
    - `docs/DEVELOPMENT_SETUP.md`: Quick 5-minute onboarding guide
+   - `docs/TESTING_STRATEGY.md`: Testing philosophy and implementation
 
 2. **Four-step development process**:
    - System Design Mode: Plan architecture before coding
@@ -189,6 +189,22 @@ For new team members, the documentation provides fast-track onboarding:
 3. **Error Debugging**: `docs/ERROR_CODES.md` (all 28+ error codes with solutions)
 4. **Database Operations**: `docs/DATABASE.md` (migrations, seeding, troubleshooting)
 
+## 💰 Recent Cost Optimization Achievements
+
+### Google Places API Cost Reduction (June 2025)
+Successfully implemented **hybrid cost-optimization strategy** for Google Places API:
+- **85-90% cost reduction**: From $2.80-$3.50 to $0.12-$0.28 per 4 locations
+- **API call reduction**: From 56 Places + 15 Geocoding to ~4 Text Search calls
+- **Hybrid reliability**: New Places API with automatic fallback to legacy API
+- **Implementation files**: `geo-info-repository-api.ts` and `location-info-repository-api.ts`
+
+### Security & Architecture Improvements
+- **Fixed 5 critical security vulnerabilities** and consolidated documentation in `docs/SECURITY.md`
+- **Streamlined documentation structure** from 11 to 8 main docs (36% reduction)
+- Created comprehensive **system architecture documentation** in `docs/SYSTEM_ARCHITECTURE.md`
+- Established **testing strategy guidelines** in `docs/TESTING_STRATEGY.md`
+- **Consolidated overlapping content** and improved documentation navigation
+
 ---
 
-*Last Updated: June 16, 2025*
+*Last Updated: June 17, 2025*

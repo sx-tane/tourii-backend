@@ -1,16 +1,118 @@
-# 📦 Tourii Backend
+# 🌸 Tourii Backend
 
-<p align="center">
-  <img src="../public/logo.png" width="200" alt="Tourii Logo" />
-</p>
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)](https://www.prisma.io/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 
-<p align="center">Backend Services for the Tourii Tourism Platform</p>
+> A sophisticated tourism platform backend combining traditional travel experiences with Web3 technology and NFT digital passports.
 
----
+## 🚀 **Quick Start**
 
-## 📘 Overview
+```bash
+# 1. Install dependencies
+pnpm install
 
-The **Tourii Backend** powers the core APIs, blockchain integration, gamified logic, and user management features of the Tourii tourism ecosystem. Built on NestJS and Prisma, it supports Web2 and Web3 authentication, location-based quests, NFT interactions, and rich narrative storytelling.
+# 2. Setup environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# 3. Setup database
+pnpm prisma:migrate:dev
+
+# 4. Seed database (new modular system)
+npx tsx prisma/seed-new.ts
+
+# 5. Start development server
+pnpm start:dev
+```
+
+**🎯 Ready to go! API available at `http://localhost:4000`**
+
+## 📖 **Documentation Quick Links**
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [**🔧 Development Setup**](./docs/DEVELOPMENT_SETUP.md) | 5-minute onboarding guide | New developers |
+| [**🏗️ System Architecture**](./docs/SYSTEM_ARCHITECTURE.md) | Complete architecture & patterns | All developers |
+| [**🔒 Security Guide**](./docs/SECURITY.md) | Security best practices & fixes | All developers |
+| [**🗃️ Database Guide**](./docs/DATABASE.md) | Database operations | Backend developers |
+| [**🌱 Seeding Guide**](./docs/SEEDING_GUIDE.md) | Data seeding system | Backend developers |
+| [**🔗 API Examples**](./docs/API_EXAMPLES.md) | Real-world API usage & integration | Frontend developers |
+| [**⚠️ Error Codes**](./docs/ERROR_CODES.md) | Complete error reference | All developers |
+| [**🧪 Testing Strategy**](./docs/TESTING_STRATEGY.md) | Testing philosophy & implementation | All developers |
+
+## 🏗️ **Architecture Overview**
+
+```mermaid
+graph TB
+    subgraph "Client Applications"
+        FE[Frontend App]
+        MOBILE[Mobile App]
+    end
+    
+    subgraph "API Gateway"
+        SECURITY[Security Middleware]
+        CORS[CORS Handler]
+        RATE[Rate Limiting]
+        AUTH[Authentication]
+    end
+    
+    subgraph "Applications"
+        BACKEND[tourii-backend<br/>Main API Server]
+        ONCHAIN[tourii-onchain<br/>Web3 Service]
+    end
+    
+    subgraph "Core Library"
+        DOMAIN[Domain Layer<br/>Business Logic]
+        INFRA[Infrastructure Layer<br/>Data Access]
+        PROVIDER[Providers<br/>External Services]
+    end
+    
+    subgraph "Data Layer"
+        PG[(PostgreSQL<br/>Primary Database)]
+        REDIS[(Redis<br/>Cache & Sessions)]
+        S3[Cloudflare R2<br/>File Storage]
+    end
+    
+    subgraph "External APIs"
+        GOOGLE[Google Maps API]
+        WEATHER[Weather API]
+        BLOCKCHAIN[Vara Network<br/>Blockchain]
+    end
+    
+    FE --> SECURITY
+    MOBILE --> SECURITY
+    SECURITY --> CORS
+    CORS --> RATE
+    RATE --> AUTH
+    AUTH --> BACKEND
+    AUTH --> ONCHAIN
+    
+    BACKEND --> DOMAIN
+    ONCHAIN --> DOMAIN
+    DOMAIN --> INFRA
+    INFRA --> PROVIDER
+    
+    PROVIDER --> PG
+    PROVIDER --> REDIS
+    PROVIDER --> S3
+    PROVIDER --> GOOGLE
+    PROVIDER --> WEATHER
+    PROVIDER --> BLOCKCHAIN
+```
+
+### **🎯 Core Features**
+
+- **🔐 Multi-Provider Authentication**: Discord, Google, Twitter, Web3 wallets
+- **📚 Interactive Storytelling**: Chapter-based narratives with progress tracking
+- **🗺️ Smart Route Planning**: AI-powered tourist route optimization with cost-optimized Google Places API
+- **🎮 Gamified Quests**: Location-based challenges with rewards
+- **🎫 Digital Passport NFTs**: Blockchain-verified travel credentials
+- **⚡ Real-time Features**: WebSocket-based live interactions
+- **🌍 Weather Integration**: Location-aware weather data
+- **📊 Advanced Analytics**: User behavior and content performance metrics
 
 ---
 

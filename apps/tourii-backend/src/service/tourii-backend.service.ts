@@ -15,7 +15,10 @@ import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
-import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-log.repository';
+import {
+    UserStoryLogRepository,
+    StoryCompletionResult,
+} from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
@@ -475,6 +478,64 @@ export class TouriiBackendService {
         }
 
         await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
+    }
+
+    /**
+     * Start story reading
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @returns void
+     */
+    async startStoryReading(userId: string, chapterId: string): Promise<void> {
+        await this.userStoryLogRepository.startStoryReading(userId, chapterId);
+    }
+
+    /**
+     * Complete story reading with quest unlocking and rewards
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @returns Story completion result with unlocked quests and rewards
+     */
+    async completeStoryWithQuestUnlocking(
+        userId: string,
+        chapterId: string,
+    ): Promise<StoryCompletionResult> {
+        return await this.userStoryLogRepository.completeStoryWithQuestUnlocking(userId, chapterId);
+    }
+
+    /**
+     * Get story progress for a user and chapter
+     * @param userId User ID
+     * @param chapterId Chapter ID
+     * @returns Story progress information
+     */
+    async getStoryProgress(
+        userId: string,
+        chapterId: string,
+    ): Promise<{
+        status: StoryStatus;
+        unlockedAt: Date | null;
+        finishedAt: Date | null;
+        canStart: boolean;
+        canComplete: boolean;
+    } | null> {
+        const progress = await this.userStoryLogRepository.getStoryProgress(userId, chapterId);
+
+        if (!progress) {
+            return {
+                status: StoryStatus.UNREAD,
+                unlockedAt: null,
+                finishedAt: null,
+                canStart: true,
+                canComplete: false,
+            };
+        }
+
+        return {
+            ...progress,
+            canStart: progress.status === StoryStatus.UNREAD,
+            canComplete: progress.status === StoryStatus.IN_PROGRESS,
+        };
     }
 
     // ==========================================

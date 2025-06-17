@@ -1,29 +1,25 @@
-import fs from 'node:fs';
-import { TouriiCoreLoggingService } from '@app/core/provider/tourii-core-logging-service';
-import { getEnv } from '@app/core/utils/env-utils';
-import { Logger } from '@nestjs/common';
+import { TouriiCoreLoggingService, getEnv } from '@app/core';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import bodyParser from 'body-parser';
+import * as bodyParser from 'body-parser';
 import compression from 'compression';
+import { patchNestJsSwagger } from 'nestjs-zod';
+import fs from 'node:fs';
+import { ValidationPipe } from './support/pipe/validation.pipe';
 import { TouriiOnchainModule } from './tourii-onchain.module';
 
 async function bootstrap() {
-    const app = await NestFactory.create(TouriiOnchainModule, {
+    const app = await NestFactory.create<NestExpressApplication>(TouriiOnchainModule, {
         logger: new TouriiCoreLoggingService('debug'),
     });
+
     app.use(compression());
-    app.use(
-        bodyParser.json({
-            limit: '1mb',
-        }),
-    );
-    app.use(
-        bodyParser.urlencoded({
-            limit: '1mb',
-            extended: true,
-        }),
-    );
+    app.use(bodyParser.json({ limit: '1mb' }));
+    app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
+
+    app.enableCors();
+    app.useGlobalPipes(new ValidationPipe());
 
     if (
         getEnv({
@@ -37,29 +33,27 @@ async function bootstrap() {
             .setVersion('1.0.0')
             .addTag('v1.0.0')
             .build();
-        const documentFactory = () =>
-            SwaggerModule.createDocument(app, config, {
-                autoTagControllers: false,
-            });
 
-        fs.writeFileSync(
-            './etc/openapi/openapi-onchain.json',
-            JSON.stringify(documentFactory(), null, 2),
-        );
-        SwaggerModule.setup('api/docs', app, documentFactory);
+        patchNestJsSwagger();
+        const document = SwaggerModule.createDocument(app, config);
+
+        // Ensure directory exists
+        const dir = './etc/openapi/onchain';
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        fs.writeFileSync(`${dir}/openapi.json`, JSON.stringify(document, null, 2));
+
+        SwaggerModule.setup('api/docs', app, document);
     }
-    await app.listen(
-        getEnv({
-            key: 'TOURII_ONCHAIN_PORT',
-        }) || 3001,
-    );
 
-    process.on('SIGINT', async () => {
-        Logger.log('Closing server...');
-        // Disconnect from vara network
-        await app.get('sailscalls').disconnectGearApi();
-        // Close the server
-        await app.close();
+    const port = getEnv({
+        key: 'TOURII_ONCHAIN_PORT',
+        defaultValue: '3001',
     });
+    await app.listen(port);
+    const logger = new TouriiCoreLoggingService('bootstrap');
+    logger.log(`🚀 Tourii Onchain running on port ${port}`);
 }
 bootstrap();

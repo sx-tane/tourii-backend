@@ -3512,6 +3512,311 @@
         ]
       }
     },
+    "/stories/chapters/{chapterId}/action": {
+      "post": {
+        "description": "Handles story start, complete, and progress actions based on X-Story-Action header",
+        "operationId": "TouriiBackendController_handleStoryAction",
+        "parameters": [
+          {
+            "name": "chapterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Story-Action",
+            "required": true,
+            "in": "header",
+            "description": "Story action to perform: start, complete, or progress",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start",
+                "complete",
+                "progress"
+              ]
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID (used for progress action when body is not provided)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "Story action request (required for start/complete, optional for progress)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "description": "ID of the user performing the story action",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Story action completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "description": "Whether the story completion was successful",
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "description": "Success or error message",
+                          "type": "string"
+                        },
+                        "storyProgress": {
+                          "description": "Story progress information",
+                          "type": "object",
+                          "properties": {
+                            "storyChapterId": {
+                              "description": "ID of the completed story chapter",
+                              "type": "string"
+                            },
+                            "chapterTitle": {
+                              "description": "Title of the completed chapter",
+                              "type": "string"
+                            },
+                            "status": {
+                              "description": "Current story status",
+                              "type": "string",
+                              "enum": [
+                                "UNREAD",
+                                "IN_PROGRESS",
+                                "COMPLETED"
+                              ],
+                              "x-enumNames": [
+                                "UNREAD",
+                                "IN_PROGRESS",
+                                "COMPLETED"
+                              ]
+                            },
+                            "completedAt": {
+                              "description": "Timestamp when the story was completed",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "storyChapterId",
+                            "chapterTitle",
+                            "status",
+                            "completedAt"
+                          ]
+                        },
+                        "unlockedQuests": {
+                          "description": "List of quests unlocked by completing this story",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "questId": {
+                                "description": "ID of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questName": {
+                                "description": "Name of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questDesc": {
+                                "description": "Description of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questImage": {
+                                "description": "Image URL for the quest",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "touristSpotName": {
+                                "description": "Name of the tourist spot where the quest is located",
+                                "type": "string"
+                              },
+                              "totalMagatamaPointAwarded": {
+                                "description": "Total magatama points awarded for completing this quest",
+                                "type": "number"
+                              },
+                              "isPremium": {
+                                "description": "Whether this is a premium quest",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "questId",
+                              "questName",
+                              "questDesc",
+                              "questImage",
+                              "touristSpotName",
+                              "totalMagatamaPointAwarded",
+                              "isPremium"
+                            ]
+                          }
+                        },
+                        "rewards": {
+                          "description": "Rewards earned from story completion",
+                          "type": "object",
+                          "properties": {
+                            "magatamaPointsEarned": {
+                              "description": "Total magatama points earned from story completion and achievements",
+                              "type": "number"
+                            },
+                            "achievementsUnlocked": {
+                              "description": "List of achievement names unlocked",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "magatamaPointsEarned",
+                            "achievementsUnlocked"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "success",
+                        "message",
+                        "storyProgress",
+                        "unlockedQuests",
+                        "rewards"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "storyChapterId": {
+                          "description": "ID of the story chapter",
+                          "type": "string"
+                        },
+                        "status": {
+                          "description": "Current reading status",
+                          "type": "string",
+                          "enum": [
+                            "UNREAD",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                          ],
+                          "x-enumNames": [
+                            "UNREAD",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                          ]
+                        },
+                        "unlockedAt": {
+                          "description": "Timestamp when the user started reading",
+                          "nullable": true
+                        },
+                        "finishedAt": {
+                          "description": "Timestamp when the user finished reading",
+                          "nullable": true
+                        },
+                        "canStart": {
+                          "description": "Whether the user can start reading this chapter",
+                          "type": "boolean"
+                        },
+                        "canComplete": {
+                          "description": "Whether the user can complete this chapter",
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "storyChapterId",
+                        "status",
+                        "unlockedAt",
+                        "finishedAt",
+                        "canStart",
+                        "canComplete"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Consolidated story action endpoint",
+        "tags": [
+          "Stories"
+        ]
+      }
+    },
     "/routes/create-model-route": {
       "post": {
         "description": "Create a new model route.",
@@ -11210,6 +11515,30 @@
           "updUserId"
         ]
       },
+      "StoryReadingStartRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "ID of the user starting to read the story chapter",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "StoryReadingCompleteRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "ID of the user completing the story chapter",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
       "StoryResponseDto": {
         "type": "object",
         "properties": {
@@ -11484,6 +11813,179 @@
           "chapterVideoMobileUrl",
           "chapterPdfUrl",
           "isUnlocked"
+        ]
+      },
+      "StoryCompletionResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "description": "Whether the story completion was successful",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Success or error message",
+            "type": "string"
+          },
+          "storyProgress": {
+            "description": "Story progress information",
+            "type": "object",
+            "properties": {
+              "storyChapterId": {
+                "description": "ID of the completed story chapter",
+                "type": "string"
+              },
+              "chapterTitle": {
+                "description": "Title of the completed chapter",
+                "type": "string"
+              },
+              "status": {
+                "description": "Current story status",
+                "type": "string",
+                "enum": [
+                  "UNREAD",
+                  "IN_PROGRESS",
+                  "COMPLETED"
+                ],
+                "x-enumNames": [
+                  "UNREAD",
+                  "IN_PROGRESS",
+                  "COMPLETED"
+                ]
+              },
+              "completedAt": {
+                "description": "Timestamp when the story was completed",
+                "nullable": true
+              }
+            },
+            "required": [
+              "storyChapterId",
+              "chapterTitle",
+              "status",
+              "completedAt"
+            ]
+          },
+          "unlockedQuests": {
+            "description": "List of quests unlocked by completing this story",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questId": {
+                  "description": "ID of the unlocked quest",
+                  "type": "string"
+                },
+                "questName": {
+                  "description": "Name of the unlocked quest",
+                  "type": "string"
+                },
+                "questDesc": {
+                  "description": "Description of the unlocked quest",
+                  "type": "string"
+                },
+                "questImage": {
+                  "description": "Image URL for the quest",
+                  "type": "string",
+                  "nullable": true
+                },
+                "touristSpotName": {
+                  "description": "Name of the tourist spot where the quest is located",
+                  "type": "string"
+                },
+                "totalMagatamaPointAwarded": {
+                  "description": "Total magatama points awarded for completing this quest",
+                  "type": "number"
+                },
+                "isPremium": {
+                  "description": "Whether this is a premium quest",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "questId",
+                "questName",
+                "questDesc",
+                "questImage",
+                "touristSpotName",
+                "totalMagatamaPointAwarded",
+                "isPremium"
+              ]
+            }
+          },
+          "rewards": {
+            "description": "Rewards earned from story completion",
+            "type": "object",
+            "properties": {
+              "magatamaPointsEarned": {
+                "description": "Total magatama points earned from story completion and achievements",
+                "type": "number"
+              },
+              "achievementsUnlocked": {
+                "description": "List of achievement names unlocked",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "magatamaPointsEarned",
+              "achievementsUnlocked"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "storyProgress",
+          "unlockedQuests",
+          "rewards"
+        ]
+      },
+      "StoryProgressResponseDto": {
+        "type": "object",
+        "properties": {
+          "storyChapterId": {
+            "description": "ID of the story chapter",
+            "type": "string"
+          },
+          "status": {
+            "description": "Current reading status",
+            "type": "string",
+            "enum": [
+              "UNREAD",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ],
+            "x-enumNames": [
+              "UNREAD",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ]
+          },
+          "unlockedAt": {
+            "description": "Timestamp when the user started reading",
+            "nullable": true
+          },
+          "finishedAt": {
+            "description": "Timestamp when the user finished reading",
+            "nullable": true
+          },
+          "canStart": {
+            "description": "Whether the user can start reading this chapter",
+            "type": "boolean"
+          },
+          "canComplete": {
+            "description": "Whether the user can complete this chapter",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storyChapterId",
+          "status",
+          "unlockedAt",
+          "finishedAt",
+          "canStart",
+          "canComplete"
         ]
       },
       "ModelRouteResponseDto": {
