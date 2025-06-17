@@ -29,6 +29,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+      id-token: write
     
     steps:
       - name: 🔄 Checkout Repository
@@ -59,7 +61,7 @@ jobs:
           claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
-          prompt: |
+          direct_prompt: |
             I need you to update the documentation files in this repository to reflect the latest changes in the codebase. 
 
             **Changed files in this commit:**
