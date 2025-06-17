@@ -1,8 +1,9 @@
 name: Tourii Backend CI/CD Pipeline
 
 on:
-  push:  # Run tests on ALL branches
-  pull_request:
+  push:
+    branches: ['main']  # Only run on main branch pushes
+  pull_request:  # Run on all PR events (covers feature branch testing)
 
 jobs:
   test:
