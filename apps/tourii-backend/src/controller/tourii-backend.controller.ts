@@ -16,7 +16,6 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBody,
@@ -65,21 +64,15 @@ import {
     questTaskSocialShareRequestSchema,
 } from './model/tourii-request/create/quest-task-social-share-request.model';
 import {
-    StoryCreateRequestDto,
-    StoryCreateRequestSchema,
-} from './model/tourii-request/create/story-create-request.model';
-import {
-    StoryReadingStartRequestDto,
-    StoryReadingStartRequestSchema,
-} from './model/tourii-request/create/story-reading-start-request.model';
-import {
-    StoryReadingCompleteRequestDto,
-    StoryReadingCompleteRequestSchema,
-} from './model/tourii-request/create/story-reading-complete-request.model';
-import {
     StoryActionRequestDto,
     StoryActionRequestSchema,
 } from './model/tourii-request/create/story-action-request.model';
+import {
+    StoryCreateRequestDto,
+    StoryCreateRequestSchema,
+} from './model/tourii-request/create/story-create-request.model';
+import { StoryReadingCompleteRequestDto } from './model/tourii-request/create/story-reading-complete-request.model';
+import { StoryReadingStartRequestDto } from './model/tourii-request/create/story-reading-start-request.model';
 import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
@@ -173,10 +166,6 @@ import {
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
 import {
-    StoryResponseDto,
-    StoryResponseSchema,
-} from './model/tourii-response/story-response.model';
-import {
     StoryCompletionResponseDto,
     StoryCompletionResponseSchema,
 } from './model/tourii-response/story-completion-response.model';
@@ -184,6 +173,10 @@ import {
     StoryProgressResponseDto,
     StoryProgressResponseSchema,
 } from './model/tourii-response/story-progress-response.model';
+import {
+    StoryResponseDto,
+    StoryResponseSchema,
+} from './model/tourii-response/story-response.model';
 import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
@@ -425,17 +418,53 @@ export class TouriiBackendController {
     @ApiTags('User')
     @ApiOperation({
         summary: 'Get User Travel Checkins',
-        description: 'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
+        description:
+            'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 20, max: 100)' })
-    @ApiQuery({ name: 'userId', required: false, type: String, description: 'Filter by specific user ID (admin only)' })
-    @ApiQuery({ name: 'questId', required: false, type: String, description: 'Filter by specific quest ID' })
-    @ApiQuery({ name: 'touristSpotId', required: false, type: String, description: 'Filter by specific tourist spot ID' })
-    @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Filter from date (ISO format)' })
-    @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Filter to date (ISO format)' })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Items per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'userId',
+        required: false,
+        type: String,
+        description: 'Filter by specific user ID (admin only)',
+    })
+    @ApiQuery({
+        name: 'questId',
+        required: false,
+        type: String,
+        description: 'Filter by specific quest ID',
+    })
+    @ApiQuery({
+        name: 'touristSpotId',
+        required: false,
+        type: String,
+        description: 'Filter by specific tourist spot ID',
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        type: String,
+        description: 'Filter from date (ISO format)',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        type: String,
+        description: 'Filter to date (ISO format)',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'User travel checkins retrieved successfully',
@@ -719,11 +748,11 @@ export class TouriiBackendController {
         @Body() body: ChapterProgressRequestDto,
     ): Promise<{ success: boolean }> {
         await this.touriiBackendService.trackChapterProgress(
-            body.userId, 
-            chapterId, 
+            body.userId,
+            chapterId,
             body.status,
             body.latitude,
-            body.longitude
+            body.longitude,
         );
         return { success: true };
     }
@@ -733,7 +762,8 @@ export class TouriiBackendController {
     @ApiTags('Stories')
     @ApiOperation({
         summary: 'Consolidated story action endpoint',
-        description: 'Handles story start, complete, and progress actions based on X-Story-Action header',
+        description:
+            'Handles story start, complete, and progress actions based on X-Story-Action header',
     })
     @ApiHeader({
         name: 'x-api-key',
@@ -823,8 +853,11 @@ export class TouriiBackendController {
             }
 
             case 'progress': {
-                const progress = await this.touriiBackendService.getStoryProgress(userId, chapterId);
-                
+                const progress = await this.touriiBackendService.getStoryProgress(
+                    userId,
+                    chapterId,
+                );
+
                 if (!progress) {
                     return {
                         storyChapterId: chapterId,
@@ -1126,27 +1159,17 @@ export class TouriiBackendController {
         type: String,
         description: 'Address for enhanced search accuracy',
     })
-    @ApiHeader({
-        name: 'x-user-id',
-        description: 'User ID for auto-detection (optional)',
-        required: false,
-    })
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async getLocationInfo(
         @Query() queryParams: LocationQueryDto,
-        @Req() req: Request,
     ): Promise<LocationInfoResponseDto> {
-        // Extract user ID if provided (for auto-detection)
-        const userId = req.headers['x-user-id'] as string | undefined;
-        
         return this.touriiBackendService.getLocationInfo(
             queryParams.query,
             queryParams.latitude ? Number(queryParams.latitude) : undefined,
             queryParams.longitude ? Number(queryParams.longitude) : undefined,
             queryParams.address,
-            userId,
         );
     }
 
@@ -1277,8 +1300,18 @@ export class TouriiBackendController {
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({ name: 'userId', required: false, type: String, description: 'User ID' })
-    @ApiQuery({ name: 'latitude', required: false, type: Number, description: 'Latitude for location tracking' })
-    @ApiQuery({ name: 'longitude', required: false, type: Number, description: 'Longitude for location tracking' })
+    @ApiQuery({
+        name: 'latitude',
+        required: false,
+        type: Number,
+        description: 'Latitude for location tracking',
+    })
+    @ApiQuery({
+        name: 'longitude',
+        required: false,
+        type: Number,
+        description: 'Longitude for location tracking',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Quests found successfully',
@@ -1295,7 +1328,12 @@ export class TouriiBackendController {
         @Query('latitude', new ParseFloatPipe({ optional: true })) latitude?: number,
         @Query('longitude', new ParseFloatPipe({ optional: true })) longitude?: number,
     ): Promise<QuestResponseDto[]> {
-        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId, latitude, longitude);
+        return this.touriiBackendService.getQuestsByTouristSpotId(
+            touristSpotId,
+            userId,
+            latitude,
+            longitude,
+        );
     }
 
     @Post('/quests/create-quest')
@@ -1461,7 +1499,12 @@ export class TouriiBackendController {
         @Param('questId') questId: string,
         @Body() body: StartGroupQuestRequestDto,
     ): Promise<StartGroupQuestResponseDto> {
-        return this.touriiBackendService.startGroupQuest(questId, body.userId, body.latitude, body.longitude);
+        return this.touriiBackendService.startGroupQuest(
+            questId,
+            body.userId,
+            body.latitude,
+            body.longitude,
+        );
     }
 
     @Post('/quests/tasks/:taskId/photo-upload')
@@ -1525,11 +1568,11 @@ export class TouriiBackendController {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
         return this.touriiBackendService.completeSocialShareTask(
-            taskId, 
-            userId, 
-            body.proofUrl, 
-            body.latitude, 
-            body.longitude
+            taskId,
+            userId,
+            body.proofUrl,
+            body.latitude,
+            body.longitude,
         );
     }
 

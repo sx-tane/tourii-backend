@@ -1,16 +1,19 @@
+import { TransformDate } from '@app/core';
 import type { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import type { UserTravelLogWithPagination } from '@app/core/domain/user/user-travel-log.repository';
-import type { UserTravelLogResponseDto } from '../../controller/model/tourii-response/user/user-travel-log-response.model';
 import type { UserTravelLogListResponseDto } from '../../controller/model/tourii-response/user/user-travel-log-list-response.model';
+import type { UserTravelLogResponseDto } from '../../controller/model/tourii-response/user/user-travel-log-response.model';
 
 export class UserTravelLogResultBuilder {
     /**
      * Convert paginated travel logs to list response DTO
      */
-    static userTravelLogsToListDto(data: UserTravelLogWithPagination): UserTravelLogListResponseDto {
-        const checkins = data.logs.map(log => this.userTravelLogToDto(log));
+    static userTravelLogsToListDto(
+        data: UserTravelLogWithPagination,
+    ): UserTravelLogListResponseDto {
+        const checkins = data.logs.map((log) => this.userTravelLogToDto(log));
         const totalPages = Math.ceil(data.total / data.limit);
-        
+
         return {
             checkins,
             pagination: {
@@ -41,9 +44,9 @@ export class UserTravelLogResultBuilder {
             fraudReason: log.fraudReason,
             delFlag: log.delFlag,
             insUserId: log.insUserId,
-            insDateTime: log.insDateTime,
+            insDateTime: TransformDate.transformDateToYYYYMMDDHHmm(log.insDateTime),
             updUserId: log.updUserId,
-            updDateTime: log.updDateTime,
+            updDateTime: TransformDate.transformDateToYYYYMMDDHHmm(log.updDateTime),
         };
     }
 }

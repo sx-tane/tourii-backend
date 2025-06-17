@@ -1235,11 +1235,15 @@
                         "type": "string",
                         "enum": [
                           "QR_CODE",
-                          "GPS"
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
                         ],
                         "x-enumNames": [
                           "QR_CODE",
-                          "GPS"
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
                         ]
                       },
                       "detectedFraud": {
@@ -1563,6 +1567,273 @@
           }
         },
         "summary": "Get current user's basic profile",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/checkins": {
+      "get": {
+        "description": "Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.",
+        "operationId": "TouriiBackendController_getCheckins",
+        "parameters": [
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter to date (ISO format)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter from date (ISO format)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "touristSpotId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific tourist spot ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific quest ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific user ID (admin only)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page (default: 20, max: 100)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User travel checkins retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "checkins": {
+                  "description": "List of user travel log checkins",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userTravelLogId": {
+                        "description": "Travel log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "taskId": {
+                        "description": "Task ID",
+                        "type": "string"
+                      },
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "userLongitude": {
+                        "description": "User longitude",
+                        "type": "number"
+                      },
+                      "userLatitude": {
+                        "description": "User latitude",
+                        "type": "number"
+                      },
+                      "travelDistanceFromTarget": {
+                        "description": "Distance from target",
+                        "type": "number"
+                      },
+                      "travelDistance": {
+                        "description": "Travel distance",
+                        "type": "number"
+                      },
+                      "qrCodeValue": {
+                        "description": "QR code value",
+                        "type": "string"
+                      },
+                      "checkInMethod": {
+                        "description": "Check-in method",
+                        "type": "string",
+                        "enum": [
+                          "QR_CODE",
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
+                        ],
+                        "x-enumNames": [
+                          "QR_CODE",
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
+                        ]
+                      },
+                      "detectedFraud": {
+                        "description": "Fraud detected",
+                        "type": "boolean"
+                      },
+                      "fraudReason": {
+                        "description": "Fraud reason",
+                        "type": "string"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userTravelLogId",
+                      "userId",
+                      "questId",
+                      "taskId",
+                      "touristSpotId",
+                      "userLongitude",
+                      "userLatitude",
+                      "travelDistance"
+                    ]
+                  }
+                },
+                "pagination": {
+                  "description": "Pagination information",
+                  "type": "object",
+                  "properties": {
+                    "currentPage": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    },
+                    "totalItems": {
+                      "description": "Total number of items",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "currentPage",
+                    "totalPages",
+                    "totalItems"
+                  ]
+                }
+              },
+              "required": [
+                "checkins",
+                "pagination"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTravelLogListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get User Travel Checkins",
         "tags": [
           "User"
         ]
@@ -3464,6 +3735,14 @@
                       "IN_PROGRESS",
                       "COMPLETED"
                     ]
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -7357,6 +7636,24 @@
             }
           },
           {
+            "name": "latitude",
+            "required": false,
+            "in": "query",
+            "description": "Latitude for location tracking",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "required": false,
+            "in": "query",
+            "description": "Longitude for location tracking",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
@@ -9753,6 +10050,14 @@
                   "userId": {
                     "description": "User ID of the quest leader starting the quest",
                     "type": "string"
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -9982,6 +10287,14 @@
                     "type": "string",
                     "format": "uri",
                     "minLength": 1
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -13817,6 +14130,14 @@
           "userId": {
             "description": "User ID of the quest leader starting the quest",
             "type": "string"
+          },
+          "latitude": {
+            "description": "Optional latitude for location tracking",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "Optional longitude for location tracking",
+            "type": "number"
           }
         },
         "required": [
@@ -14784,11 +15105,15 @@
                   "type": "string",
                   "enum": [
                     "QR_CODE",
-                    "GPS"
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
                   ],
                   "x-enumNames": [
                     "QR_CODE",
-                    "GPS"
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
                   ]
                 },
                 "detectedFraud": {
@@ -15049,6 +15374,200 @@
           "registeredAt",
           "discordJoinedAt",
           "isBanned"
+        ]
+      },
+      "UserTravelLogListResponseDto": {
+        "type": "object",
+        "properties": {
+          "checkins": {
+            "description": "List of user travel log checkins",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userTravelLogId": {
+                  "description": "Travel log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "taskId": {
+                  "description": "Task ID",
+                  "type": "string"
+                },
+                "touristSpotId": {
+                  "description": "Tourist spot ID",
+                  "type": "string"
+                },
+                "userLongitude": {
+                  "description": "User longitude",
+                  "type": "number"
+                },
+                "userLatitude": {
+                  "description": "User latitude",
+                  "type": "number"
+                },
+                "travelDistanceFromTarget": {
+                  "description": "Distance from target",
+                  "type": "number"
+                },
+                "travelDistance": {
+                  "description": "Travel distance",
+                  "type": "number"
+                },
+                "qrCodeValue": {
+                  "description": "QR code value",
+                  "type": "string"
+                },
+                "checkInMethod": {
+                  "description": "Check-in method",
+                  "type": "string",
+                  "enum": [
+                    "QR_CODE",
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
+                  ],
+                  "x-enumNames": [
+                    "QR_CODE",
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
+                  ]
+                },
+                "detectedFraud": {
+                  "description": "Fraud detected",
+                  "type": "boolean"
+                },
+                "fraudReason": {
+                  "description": "Fraud reason",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userTravelLogId",
+                "userId",
+                "questId",
+                "taskId",
+                "touristSpotId",
+                "userLongitude",
+                "userLatitude",
+                "travelDistance"
+              ]
+            }
+          },
+          "pagination": {
+            "description": "Pagination information",
+            "type": "object",
+            "properties": {
+              "currentPage": {
+                "description": "Current page number",
+                "type": "number"
+              },
+              "totalPages": {
+                "description": "Total number of pages",
+                "type": "number"
+              },
+              "totalItems": {
+                "description": "Total number of items",
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentPage",
+              "totalPages",
+              "totalItems"
+            ]
+          }
+        },
+        "required": [
+          "checkins",
+          "pagination"
+        ]
+      },
+      "CheckinsFetchRequestDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "Page number (default: 1)",
+            "type": "string",
+            "default": "1"
+          },
+          "limit": {
+            "description": "Items per page (default: 20, max: 100)",
+            "type": "string",
+            "default": "20"
+          },
+          "userId": {
+            "description": "Filter by specific user ID (admin only)",
+            "type": "string"
+          },
+          "questId": {
+            "description": "Filter by specific quest ID",
+            "type": "string"
+          },
+          "touristSpotId": {
+            "description": "Filter by specific tourist spot ID",
+            "type": "string"
+          },
+          "checkInMethod": {
+            "description": "Filter by check-in method",
+            "type": "string",
+            "enum": [
+              "QR_CODE",
+              "GPS",
+              "AUTO_DETECTED",
+              "BACKGROUND_GPS"
+            ]
+          },
+          "source": {
+            "description": "Filter by source type (manual=QR_CODE|GPS, auto=AUTO_DETECTED|BACKGROUND_GPS)",
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ]
+          },
+          "startDate": {
+            "description": "Filter from date (ISO format)",
+            "type": "string"
+          },
+          "endDate": {
+            "description": "Filter to date (ISO format)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "startDate",
+          "endDate"
         ]
       },
       "QuestTaskPhotoUploadResponseDto": {
