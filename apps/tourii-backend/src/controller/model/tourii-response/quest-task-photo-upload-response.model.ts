@@ -6,4 +6,6 @@ export const QuestTaskPhotoUploadResponseSchema = z.object({
     proofUrl: z.string().url().describe('Public URL for the uploaded proof image'),
 });
 
-export class QuestTaskPhotoUploadResponseDto extends createZodDto(QuestTaskPhotoUploadResponseSchema) {}
+export class QuestTaskPhotoUploadResponseDto extends createZodDto(
+    QuestTaskPhotoUploadResponseSchema,
+) {}
