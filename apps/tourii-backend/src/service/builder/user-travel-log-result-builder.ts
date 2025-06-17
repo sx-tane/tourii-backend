@@ -11,7 +11,7 @@ export class UserTravelLogResultBuilder {
     static userTravelLogsToListDto(
         data: UserTravelLogWithPagination,
     ): UserTravelLogListResponseDto {
-        const checkins = data.logs.map((log) => this.userTravelLogToDto(log));
+        const checkins = data.logs.map((log) => UserTravelLogResultBuilder.userTravelLogToDto(log));
         const totalPages = Math.ceil(data.total / data.limit);
 
         return {
