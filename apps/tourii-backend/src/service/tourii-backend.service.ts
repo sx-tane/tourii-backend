@@ -1132,7 +1132,6 @@ export class TouriiBackendService {
         latitude?: number,
         longitude?: number,
         address?: string,
-        userId?: string,
     ): Promise<LocationInfoResponseDto> {
         const locationInfo = await this.locationInfoRepository.getLocationInfo(
             query,
@@ -1140,34 +1139,6 @@ export class TouriiBackendService {
             longitude,
             address,
         );
-
-        // If user provided coordinates and userId, try auto-detection
-        if (latitude && longitude && userId) {
-            try {
-                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
-                    userId,
-                    latitude,
-                    longitude,
-                    apiSource: 'google_places',
-                    confidence: 0.7,
-                    metadata: {
-                        query,
-                        address,
-                    },
-                });
-
-                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
-                    this.logger.log(`Auto-detected ${locationDetection.nearbyTouristSpots.length} nearby tourist spots for user ${userId}`);
-                    
-                    // Note: For now we just log the detection. 
-                    // Future enhancement could include nearby spots in the response
-                    // or automatically suggest quests/tasks based on detected location
-                }
-            } catch (error) {
-                this.logger.warn('Failed to auto-detect location for getLocationInfo', error);
-                // Continue with normal location info response
-            }
-        }
 
         return LocationInfoResultBuilder.locationInfoToDto(locationInfo);
     }
@@ -1483,11 +1454,7 @@ export class TouriiBackendService {
         );
         await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
         
-        const responseMessage = detectedLocation 
-            ? 'Photo submitted successfully with location detected'
-            : 'Photo submitted successfully';
-            
-        return { message: responseMessage, proofUrl };
+        return { message: 'Photo submitted successfully', proofUrl };
     }
 
     /**
@@ -1495,15 +1462,73 @@ export class TouriiBackendService {
      * @param taskId Quest task ID
      * @param userId User ID
      * @param proofUrl Social media post URL
+     * @param latitude Optional latitude for location tracking
+     * @param longitude Optional longitude for location tracking
      * @returns Social share completion response
      */
     async completeSocialShareTask(
         taskId: string,
         userId: string,
         proofUrl: string,
+        latitude?: number,
+        longitude?: number,
     ): Promise<QuestTaskSocialShareResponseDto> {
         // Optional URL format validation
         this.validateSocialUrl(proofUrl);
+        
+        // If location coordinates provided, try auto-detection
+        if (latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'social_share',
+                    confidence: 0.8,
+                    metadata: {
+                        taskId,
+                        proofUrl,
+                        action: 'social_share_completion',
+                    },
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    // Find the matching tourist spot for this task
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
+                        spot.taskId === taskId
+                    );
+
+                    if (matchingSpot) {
+                        // Auto-create travel log for detected location
+                        try {
+                            await this.locationTrackingService.createAutoDetectedTravelLog({
+                                userId,
+                                questId: matchingSpot.questId || '',
+                                taskId,
+                                touristSpotId: matchingSpot.touristSpotId,
+                                detectedLocation: { latitude, longitude },
+                                checkInMethod: 'AUTO_DETECTED',
+                                apiSource: 'social_share',
+                                confidence: locationDetection.confidence,
+                                metadata: {
+                                    socialShare: true,
+                                    proofUrl,
+                                    detectedDistance: matchingSpot.distance,
+                                },
+                            });
+                            
+                            this.logger.log(`Auto-detected location for social share: ${latitude}, ${longitude}`);
+                        } catch (error) {
+                            this.logger.warn('Failed to create auto-detected travel log for social share', error);
+                            // Don't fail the social share if travel log creation fails
+                        }
+                    }
+                }
+            } catch (error) {
+                this.logger.warn('Failed to auto-detect location for social share task', error);
+                // Continue with social share completion even if location detection fails
+            }
+        }
         
         await this.userTaskLogRepository.completeSocialTask(userId, taskId, proofUrl);
         return { message: 'Social share recorded.' };

@@ -1369,7 +1369,13 @@ export class TouriiBackendController {
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        return this.touriiBackendService.completeSocialShareTask(taskId, userId, body.proofUrl);
+        return this.touriiBackendService.completeSocialShareTask(
+            taskId, 
+            userId, 
+            body.proofUrl, 
+            body.latitude, 
+            body.longitude
+        );
     }
 
     // ==========================================
