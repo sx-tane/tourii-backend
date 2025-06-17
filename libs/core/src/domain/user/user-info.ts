@@ -4,6 +4,7 @@ export interface UserInfoProps {
     userId: string;
     digitalPassportAddress: string;
     logNftAddress: string;
+    passportTokenId?: string;
     userDigitalPassportType?: PassportType;
     level?: LevelType;
     discountRate?: number;
@@ -34,6 +35,9 @@ export class UserInfo {
     }
     get logNftAddress(): string {
         return this.props.logNftAddress;
+    }
+    get passportTokenId(): string | undefined {
+        return this.props.passportTokenId;
     }
     get userDigitalPassportType(): PassportType | undefined {
         return this.props.userDigitalPassportType;
