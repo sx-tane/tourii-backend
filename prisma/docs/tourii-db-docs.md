@@ -58,6 +58,7 @@ erDiagram
   String user_id FK,UK
   String digital_passport_address UK
   String log_nft_address
+  String(255) passport_token_id "nullable"
   PassportType user_digital_passport_type "nullable"
   LevelType level "nullable"
   Float discount_rate "nullable"
@@ -356,6 +357,7 @@ and collectible items that unlock additional features.
   - `user_id`: Associated user ID (one-to-one relationship)
   - `digital_passport_address`: Blockchain address for the user's digital passport
   - `log_nft_address`: Blockchain address for the user's log NFT
+  - `passport_token_id`: Token ID for the user's digital passport NFT
   - `user_digital_passport_type`
     > Type of digital passport assigned to the user
     > 

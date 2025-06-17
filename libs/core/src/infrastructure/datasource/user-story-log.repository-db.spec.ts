@@ -3,7 +3,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Test, type TestingModule } from '@nestjs/testing';
-import { StoryStatus, LevelType } from '@prisma/client';
+import { LevelType, StoryStatus } from '@prisma/client';
 import { UserStoryLogRepositoryDb } from './user-story-log.repository-db';
 
 describe('UserStoryLogRepositoryDb', () => {
@@ -280,11 +280,23 @@ describe('UserStoryLogRepositoryDb', () => {
         it('should handle chapter with no tourist spot', async () => {
             // Create a chapter without tourist spot
             const chapterIdNoSpot = 'chapter-no-spot';
+            await prisma.tourist_spot.create({
+                data: {
+                    tourist_spot_id: 'spot-for-no-spot-chapter',
+                    model_route_id: 'route1',
+                    story_chapter_id: chapterIdNoSpot,
+                    tourist_spot_name: 'Dummy Spot',
+                    tourist_spot_desc: 'A spot for testing chapters without real spots',
+                    latitude: 0,
+                    longitude: 0,
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+            });
             await prisma.story_chapter.create({
                 data: {
                     story_chapter_id: chapterIdNoSpot,
-                    story_id: storyId,
-                    tourist_spot_id: null,
+                    tourist_spot_id: 'spot-for-no-spot-chapter',
                     chapter_title: 'Chapter Without Spot',
                     chapter_number: '2',
                     chapter_desc: 'A chapter for testing',
@@ -296,10 +308,16 @@ describe('UserStoryLogRepositoryDb', () => {
                     chapter_video_mobile_url: 'http://example.com/a_mobile.mp4',
                     ins_user_id: 'system',
                     upd_user_id: 'system',
+                    story: {
+                        connect: { story_id: storyId },
+                    },
                 },
             });
 
-            const result = await repository.completeStoryWithQuestUnlocking(userId, chapterIdNoSpot);
+            const result = await repository.completeStoryWithQuestUnlocking(
+                userId,
+                chapterIdNoSpot,
+            );
 
             expect(result.unlockedQuests).toHaveLength(0);
             expect(result.rewards.magatamaPointsEarned).toBe(10); // Only base reward
@@ -356,19 +374,32 @@ describe('UserStoryLogRepositoryDb', () => {
             const result = await repository.completeStoryWithQuestUnlocking(userId, chapterId);
 
             expect(result.unlockedQuests).toHaveLength(2);
-            expect(result.unlockedQuests.map(q => q.questId)).toContain('quest1');
-            expect(result.unlockedQuests.map(q => q.questId)).toContain('quest2');
+            expect(result.unlockedQuests.map((q) => q.questId)).toContain('quest1');
+            expect(result.unlockedQuests.map((q) => q.questId)).toContain('quest2');
         });
 
         it('should award 5 stories achievement correctly', async () => {
             // Complete 4 other stories first
             for (let i = 1; i <= 4; i++) {
                 const otherId = `other-chapter-${i}`;
+                const otherSpotId = `other-spot-${i}`;
+                await prisma.tourist_spot.create({
+                    data: {
+                        tourist_spot_id: otherSpotId,
+                        model_route_id: 'route1',
+                        story_chapter_id: otherId,
+                        tourist_spot_name: 'Dummy Spot',
+                        tourist_spot_desc: 'A spot for testing chapters without real spots',
+                        latitude: 0,
+                        longitude: 0,
+                        ins_user_id: 'system',
+                        upd_user_id: 'system',
+                    },
+                });
                 await prisma.story_chapter.create({
                     data: {
                         story_chapter_id: otherId,
-                        story_id: storyId,
-                        tourist_spot_id: null,
+                        tourist_spot_id: otherSpotId,
                         chapter_title: `Other Chapter ${i}`,
                         chapter_number: `${i + 1}`,
                         chapter_desc: 'A chapter for testing',
@@ -380,6 +411,9 @@ describe('UserStoryLogRepositoryDb', () => {
                         chapter_video_mobile_url: 'http://example.com/a_mobile.mp4',
                         ins_user_id: 'system',
                         upd_user_id: 'system',
+                        story: {
+                            connect: { story_id: storyId },
+                        },
                     },
                 });
 
