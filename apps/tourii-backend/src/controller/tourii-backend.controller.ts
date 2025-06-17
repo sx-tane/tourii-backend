@@ -8,6 +8,7 @@ import {
     Get,
     HttpStatus,
     Param,
+    ParseFloatPipe,
     Post,
     Query,
     Req,
@@ -692,7 +693,13 @@ export class TouriiBackendController {
         @Param('chapterId') chapterId: string,
         @Body() body: ChapterProgressRequestDto,
     ): Promise<{ success: boolean }> {
-        await this.touriiBackendService.trackChapterProgress(body.userId, chapterId, body.status);
+        await this.touriiBackendService.trackChapterProgress(
+            body.userId, 
+            chapterId, 
+            body.status,
+            body.latitude,
+            body.longitude
+        );
         return { success: true };
     }
 
@@ -1126,6 +1133,8 @@ export class TouriiBackendController {
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({ name: 'userId', required: false, type: String, description: 'User ID' })
+    @ApiQuery({ name: 'latitude', required: false, type: Number, description: 'Latitude for location tracking' })
+    @ApiQuery({ name: 'longitude', required: false, type: Number, description: 'Longitude for location tracking' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Quests found successfully',
@@ -1139,8 +1148,10 @@ export class TouriiBackendController {
     async getQuestByTouristSpotId(
         @Param('touristSpotId') touristSpotId: string,
         @Query('userId') userId?: string,
+        @Query('latitude', new ParseFloatPipe({ optional: true })) latitude?: number,
+        @Query('longitude', new ParseFloatPipe({ optional: true })) longitude?: number,
     ): Promise<QuestResponseDto[]> {
-        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId);
+        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId, latitude, longitude);
     }
 
     @Post('/quests/create-quest')
@@ -1306,7 +1317,7 @@ export class TouriiBackendController {
         @Param('questId') questId: string,
         @Body() body: StartGroupQuestRequestDto,
     ): Promise<StartGroupQuestResponseDto> {
-        return this.touriiBackendService.startGroupQuest(questId, body.userId);
+        return this.touriiBackendService.startGroupQuest(questId, body.userId, body.latitude, body.longitude);
     }
 
     @Post('/quests/tasks/:taskId/photo-upload')

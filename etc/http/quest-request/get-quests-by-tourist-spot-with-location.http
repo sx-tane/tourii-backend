@@ -1,0 +1,14 @@
+### Get Quests by Tourist Spot ID with Location Tracking
+GET {{host}}/quests/tourist-spot/spot-001?userId=user-001&latitude=35.6762&longitude=139.6503
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+
+### Get Quests by Tourist Spot ID with Location Tracking (Different coordinates)
+GET {{host}}/quests/tourist-spot/spot-002?userId=user-002&latitude=34.0522&longitude=-118.2437
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+
+### Get Quests by Tourist Spot ID without Location (Original functionality)
+GET {{host}}/quests/tourist-spot/spot-001?userId=user-001
+x-api-key: {{apiKey}}
+accept-version: 1.0.0

@@ -405,7 +405,65 @@ export class TouriiBackendService {
         userId: string,
         chapterId: string,
         status: StoryStatus,
+        latitude?: number,
+        longitude?: number,
     ): Promise<void> {
+        // If location coordinates provided, try auto-detection for location validation
+        if (latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'story_progress',
+                    confidence: 0.8,
+                    metadata: {
+                        chapterId,
+                        status,
+                        action: 'chapter_progress_tracking',
+                    },
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    // Find tourist spots associated with this story chapter
+                    const relevantSpots = locationDetection.nearbyTouristSpots.filter(spot => {
+                        // Check if any spot is related to the story/chapter
+                        return spot.touristSpotId; // Basic filter - can be enhanced with chapter-spot mapping
+                    });
+
+                    if (relevantSpots.length > 0) {
+                        // Create travel logs for relevant story locations
+                        for (const spot of relevantSpots) {
+                            try {
+                                await this.locationTrackingService.createAutoDetectedTravelLog({
+                                    userId,
+                                    questId: spot.questId || '',
+                                    taskId: '', // No specific task for story progress
+                                    touristSpotId: spot.touristSpotId,
+                                    detectedLocation: { latitude, longitude },
+                                    checkInMethod: 'AUTO_DETECTED',
+                                    apiSource: 'story_progress',
+                                    confidence: locationDetection.confidence,
+                                    metadata: {
+                                        storyProgress: true,
+                                        chapterId,
+                                        status,
+                                        detectedDistance: spot.distance,
+                                        locationValidated: true,
+                                    },
+                                });
+                            } catch (error) {
+                                this.logger.warn(`Failed to create story progress travel log: ${error}`);
+                            }
+                        }
+                        this.logger.log(`Auto-detected story progress location for chapter: ${chapterId}`);
+                    }
+                }
+            } catch (error) {
+                this.logger.warn(`Location detection failed for story progress: ${error}`);
+            }
+        }
+
         await this.userStoryLogRepository.trackProgress(userId, chapterId, status);
     }
 
@@ -1209,7 +1267,59 @@ export class TouriiBackendService {
     async getQuestsByTouristSpotId(
         touristSpotId: string,
         userId?: string,
+        latitude?: number,
+        longitude?: number,
     ): Promise<QuestResponseDto[]> {
+        // If location coordinates and userId provided, try auto-detection for presence verification
+        if (userId && latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'quest_spot_query',
+                    confidence: 0.7,
+                    metadata: {
+                        touristSpotId,
+                        action: 'quest_discovery',
+                    },
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    // Check if the queried tourist spot is among the detected ones
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
+                        spot.touristSpotId === touristSpotId
+                    );
+
+                    if (matchingSpot) {
+                        // User is actually at the tourist spot - create travel log
+                        try {
+                            await this.locationTrackingService.createAutoDetectedTravelLog({
+                                userId,
+                                questId: matchingSpot.questId || '',
+                                taskId: '', // No specific task for spot discovery
+                                touristSpotId,
+                                detectedLocation: { latitude, longitude },
+                                checkInMethod: 'AUTO_DETECTED',
+                                apiSource: 'quest_spot_query',
+                                confidence: locationDetection.confidence,
+                                metadata: {
+                                    questDiscovery: true,
+                                    detectedDistance: matchingSpot.distance,
+                                    presenceVerified: true,
+                                },
+                            });
+                            this.logger.log(`Auto-detected user presence at tourist spot: ${touristSpotId}`);
+                        } catch (error) {
+                            this.logger.warn(`Failed to create auto-detected travel log: ${error}`);
+                        }
+                    }
+                }
+            } catch (error) {
+                this.logger.warn(`Location detection failed for quest spot query: ${error}`);
+            }
+        }
+
         const quests = await this.questRepository.fetchQuestsByTouristSpotId(touristSpotId, userId);
         return quests.map((q) => QuestResultBuilder.questToDto(q));
     }
@@ -1293,7 +1403,12 @@ export class TouriiBackendService {
      * @param leaderId Leader ID
      * @returns void
      */
-    async startGroupQuest(questId: string, leaderId: string) {
+    async startGroupQuest(
+        questId: string, 
+        leaderId: string,
+        latitude?: number,
+        longitude?: number,
+    ) {
         // Validate input parameters
         if (!leaderId || typeof leaderId !== 'string' || leaderId.trim() === '') {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
@@ -1313,6 +1428,62 @@ export class TouriiBackendService {
                 'TouriiBackendService',
             );
             throw new ForbiddenException('Only leader can start the quest');
+        }
+
+        // If location coordinates provided, try auto-detection for co-location verification
+        if (latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId: leaderId,
+                    latitude,
+                    longitude,
+                    apiSource: 'group_quest_start',
+                    confidence: 0.9,
+                    metadata: {
+                        questId,
+                        action: 'group_quest_initiation',
+                        leaderUserId: leaderId,
+                        memberCount: group.members.length,
+                    },
+                });
+
+                if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    // Find quest-related tourist spots
+                    const questSpots = locationDetection.nearbyTouristSpots.filter(spot => 
+                        spot.questId === questId || spot.touristSpotId
+                    );
+
+                    if (questSpots.length > 0) {
+                        // Create travel log for quest leader's location verification
+                        for (const spot of questSpots) {
+                            try {
+                                await this.locationTrackingService.createAutoDetectedTravelLog({
+                                    userId: leaderId,
+                                    questId,
+                                    taskId: '', // No specific task for group quest start
+                                    touristSpotId: spot.touristSpotId,
+                                    detectedLocation: { latitude, longitude },
+                                    checkInMethod: 'AUTO_DETECTED',
+                                    apiSource: 'group_quest_start',
+                                    confidence: locationDetection.confidence,
+                                    metadata: {
+                                        groupQuestStart: true,
+                                        isLeader: true,
+                                        detectedDistance: spot.distance,
+                                        coLocationVerified: true,
+                                        memberCount: group.members.length,
+                                    },
+                                });
+                            } catch (error) {
+                                this.logger.warn(`Failed to create group quest start travel log: ${error}`);
+                            }
+                        }
+                        this.logger.log(`Auto-detected group quest leader location for quest: ${questId}`);
+                    }
+                }
+            } catch (error) {
+                this.logger.warn(`Location detection failed for group quest start: ${error}`);
+            }
         }
 
         // Update member statuses if there are members
