@@ -4,11 +4,26 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "compile": "hardhat compile",
+        "test": "hardhat test",
+        "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+        "deploy:soneium-testnet": "hardhat run scripts/deploy.ts --network soneiumTestnet",
+        "deploy:soneium-mainnet": "hardhat run scripts/deploy.ts --network soneiumMainnet",
+        "deploy:skale-testnet": "hardhat run scripts/deploy.ts --network skaleTestnet",
+        "deploy:skale-mainnet": "hardhat run scripts/deploy.ts --network skaleMainnet",
+        "verify:soneium-testnet": "hardhat verify --network soneiumTestnet",
+        "verify:soneium-mainnet": "hardhat verify --network soneiumMainnet",
+        "verify:skale-testnet": "hardhat verify --network skaleTestnet",
+        "verify:skale-mainnet": "hardhat verify --network skaleMainnet",
+        "clean": "hardhat clean",
+        "size": "hardhat size-contracts"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "dependencies": {
+        "dotenv": "^16.0.3"
+    },
     "devDependencies": {
         "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
         "@nomicfoundation/hardhat-ethers": "^3.0.0",
@@ -27,6 +42,7 @@
         "ethers": "^6.4.0",
         "hardhat": "^2.23.0",
         "hardhat-gas-reporter": "^1.0.8",
+        "hardhat-contract-sizer": "^2.10.0",
         "solidity-coverage": "^0.8.0",
         "ts-node": ">=8.0.0",
         "typechain": "^8.3.0",

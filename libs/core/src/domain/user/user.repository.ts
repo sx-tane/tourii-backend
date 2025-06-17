@@ -42,4 +42,11 @@ export interface UserRepository {
      * @returns UserEntity
      */
     getUserByGoogleEmail(googleEmail: string): Promise<UserEntity | undefined>;
+
+    /**
+     * Get user by passport token ID
+     * @param tokenId
+     * @returns UserEntity
+     */
+    findByPassportTokenId(tokenId: string): Promise<UserEntity | undefined>;
 }

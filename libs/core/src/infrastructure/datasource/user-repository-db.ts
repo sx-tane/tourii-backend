@@ -87,4 +87,17 @@ export class UserRepositoryDb implements UserRepository {
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
     }
+
+    async findByPassportTokenId(tokenId: string): Promise<UserEntity | undefined> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                user_info: {
+                    passport_token_id: tokenId,
+                },
+            },
+            include: this.userInclude,
+        });
+
+        return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
+    }
 }
