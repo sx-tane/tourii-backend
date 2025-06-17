@@ -1,14 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TouriiBackendController } from './tourii-backend.controller';
-import { TouriiBackendService } from '../service/tourii-backend.service';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TouriiBackendService } from '../service/tourii-backend.service';
 import { QrScanRequestDto } from './model/tourii-request/create/qr-scan-request.model';
 import { QrScanResponseDto } from './model/tourii-response/qr-scan-response.model';
+import { TouriiBackendController } from './tourii-backend.controller';
 
 describe('TouriiBackendController - QR Scan', () => {
     let controller: TouriiBackendController;
-    let service: TouriiBackendService;
+    let _service: TouriiBackendService;
 
     const mockTouriiBackendService = {
         completeQrScanTask: jest.fn(),
@@ -26,7 +26,7 @@ describe('TouriiBackendController - QR Scan', () => {
         }).compile();
 
         controller = module.get<TouriiBackendController>(TouriiBackendController);
-        service = module.get<TouriiBackendService>(TouriiBackendService);
+        _service = module.get<TouriiBackendService>(TouriiBackendService);
     });
 
     afterEach(() => {
@@ -118,11 +118,7 @@ describe('TouriiBackendController - QR Scan', () => {
             mockTouriiBackendService.completeQrScanTask.mockRejectedValue(serviceError);
 
             await expect(
-                controller.completeQrScanTask(
-                    'test-task-id',
-                    validQrScanRequest,
-                    mockRequest,
-                ),
+                controller.completeQrScanTask('test-task-id', validQrScanRequest, mockRequest),
             ).rejects.toThrow(serviceError);
         });
     });
