@@ -77,7 +77,7 @@ export interface QuestRepository {
     isQuestCompleted(questId: string, userId: string): Promise<boolean>;
 
     /**
-     * Retrieve the quest with the highest number of completed tasks.
+     * Retrieve the top 3 quests with the highest number of completed tasks.
      */
-    getMostPopularQuest(): Promise<QuestEntity | null>;
+    getMostPopularQuest(): Promise<QuestEntity[]>;
 }

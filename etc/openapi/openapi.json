@@ -10724,40 +10724,43 @@
                   ],
                   "nullable": true
                 },
-                "popularQuest": {
-                  "type": "object",
-                  "properties": {
-                    "questId": {
-                      "description": "Quest ID",
-                      "type": "string"
+                "popularQuests": {
+                  "description": "Top 3 popular quests",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "title": {
+                        "description": "Quest title",
+                        "type": "string"
+                      },
+                      "imageUrl": {
+                        "description": "Quest image URL",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "link": {
+                        "description": "Deep link to quest",
+                        "type": "string",
+                        "nullable": true
+                      }
                     },
-                    "title": {
-                      "description": "Quest title",
-                      "type": "string"
-                    },
-                    "imageUrl": {
-                      "description": "Quest image URL",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "link": {
-                      "description": "Deep link to quest",
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "questId",
-                    "title",
-                    "imageUrl",
-                    "link"
-                  ],
-                  "nullable": true
+                    "required": [
+                      "questId",
+                      "title",
+                      "imageUrl",
+                      "link"
+                    ]
+                  }
                 }
               },
               "required": [
                 "latestChapter",
-                "popularQuest"
+                "popularQuests"
               ]
             },
             "content": {
@@ -15820,40 +15823,43 @@
             ],
             "nullable": true
           },
-          "popularQuest": {
-            "type": "object",
-            "properties": {
-              "questId": {
-                "description": "Quest ID",
-                "type": "string"
+          "popularQuests": {
+            "description": "Top 3 popular quests",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "title": {
+                  "description": "Quest title",
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "description": "Quest image URL",
+                  "type": "string",
+                  "nullable": true
+                },
+                "link": {
+                  "description": "Deep link to quest",
+                  "type": "string",
+                  "nullable": true
+                }
               },
-              "title": {
-                "description": "Quest title",
-                "type": "string"
-              },
-              "imageUrl": {
-                "description": "Quest image URL",
-                "type": "string",
-                "nullable": true
-              },
-              "link": {
-                "description": "Deep link to quest",
-                "type": "string",
-                "nullable": true
-              }
-            },
-            "required": [
-              "questId",
-              "title",
-              "imageUrl",
-              "link"
-            ],
-            "nullable": true
+              "required": [
+                "questId",
+                "title",
+                "imageUrl",
+                "link"
+              ]
+            }
           }
         },
         "required": [
           "latestChapter",
-          "popularQuest"
+          "popularQuests"
         ]
       },
       "UserSensitiveInfoResponseDto": {

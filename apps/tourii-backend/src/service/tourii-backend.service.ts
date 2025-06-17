@@ -1885,7 +1885,7 @@ export class TouriiBackendService {
      * @returns Homepage highlights response DTO
      */
     async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
-        const [latestChapterResult, popularQuest] = await Promise.all([
+        const [latestChapterResult, popularQuests] = await Promise.all([
             this.storyRepository.getLatestStoryChapter(),
             this.questRepository.getMostPopularQuest(),
         ]);
@@ -1900,18 +1900,14 @@ export class TouriiBackendService {
               }
             : null;
 
-        const questId = popularQuest?.questId;
-        const popularQuestDto =
-            popularQuest && questId
-                ? {
-                      questId: questId,
-                      title: popularQuest.questName ?? '',
-                      imageUrl: popularQuest.questImage ?? null,
-                      link: `/v2/quest/${questId}`,
-                  }
-                : null;
+        const popularQuestsDto = popularQuests.map(quest => ({
+            questId: quest.questId ?? '',
+            title: quest.questName ?? '',
+            imageUrl: quest.questImage ?? null,
+            link: `/v2/quest/${quest.questId}`,
+        }));
 
-        return { latestChapter: latestChapterDto, popularQuest: popularQuestDto };
+        return { latestChapter: latestChapterDto, popularQuests: popularQuestsDto };
     }
 
     /**
