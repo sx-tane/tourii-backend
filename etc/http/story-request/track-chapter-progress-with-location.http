@@ -1,0 +1,36 @@
+### Track Chapter Progress with Location Validation
+POST {{host}}/stories/chapters/chapter-001/progress
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "user-001",
+  "status": "COMPLETED",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Track Chapter Progress with Different Location
+POST {{host}}/stories/chapters/chapter-002/progress
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "user-002",
+  "status": "IN_PROGRESS",
+  "latitude": 34.0522,
+  "longitude": -118.2437
+}
+
+### Track Chapter Progress without Location (Original functionality)
+POST {{host}}/stories/chapters/chapter-001/progress
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "user-001",
+  "status": "COMPLETED"
+}
