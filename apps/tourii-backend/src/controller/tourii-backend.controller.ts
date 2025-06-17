@@ -64,6 +64,10 @@ import {
     questTaskSocialShareRequestSchema,
 } from './model/tourii-request/create/quest-task-social-share-request.model';
 import {
+    QrScanRequestDto,
+    QrScanRequestSchema,
+} from './model/tourii-request/create/qr-scan-request.model';
+import {
     StoryActionRequestDto,
     StoryActionRequestSchema,
 } from './model/tourii-request/create/story-action-request.model';
@@ -162,6 +166,10 @@ import {
     QuestTaskSocialShareResponseSchema,
 } from './model/tourii-response/quest-task-social-share-response.model';
 import {
+    QrScanResponseDto,
+    QrScanResponseSchema,
+} from './model/tourii-response/qr-scan-response.model';
+import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
@@ -232,6 +240,8 @@ import {
     UserTravelLogListResponseDto,
     CheckinsFetchRequestDto,
     QuestTaskPhotoUploadResponseDto,
+    QrScanRequestDto,
+    QrScanResponseDto,
     HomepageHighlightsResponseDto,
 )
 export class TouriiBackendController {
@@ -1583,6 +1593,47 @@ export class TouriiBackendController {
             taskId,
             userId,
             body.proofUrl,
+            body.latitude,
+            body.longitude,
+        );
+    }
+
+    @Post('/tasks/:taskId/qr-scan')
+    @ApiTags('Quest')
+    @ApiOperation({ 
+        summary: 'Complete QR scan task', 
+        description: 'Validate scanned QR code and complete the task if correct' 
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiBody({
+        description: 'QR scan request',
+        schema: zodToOpenAPI(QrScanRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'QR code validated and task completed',
+        type: QrScanResponseDto,
+        schema: zodToOpenAPI(QrScanResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async completeQrScanTask(
+        @Param('taskId') taskId: string,
+        @Body() body: QrScanRequestDto,
+        @Req() req: Request,
+    ): Promise<QrScanResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
+        return this.touriiBackendService.completeQrScanTask(
+            taskId,
+            userId,
+            body.code,
             body.latitude,
             body.longitude,
         );

@@ -12,7 +12,8 @@ export interface LocationDetectionRequest {
         | 'group_quest_start'
         | 'social_share'
         | 'quest_spot_query'
-        | 'story_progress';
+        | 'story_progress'
+        | 'qr_scan';
     confidence?: number;
     metadata?: Record<string, any>;
 }

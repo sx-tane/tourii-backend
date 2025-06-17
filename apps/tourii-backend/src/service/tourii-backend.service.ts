@@ -16,8 +16,8 @@ import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
 import {
-    UserStoryLogRepository,
     StoryCompletionResult,
+    UserStoryLogRepository,
 } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
@@ -54,6 +54,7 @@ import { HomepageHighlightsResponseDto } from '../controller/model/tourii-respon
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
+import { QrScanResponseDto } from '../controller/model/tourii-response/qr-scan-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
     QuestResponseDto,
@@ -1930,5 +1931,63 @@ export class TouriiBackendService {
                 TouriiBackendAppErrorType.E_TB_024, // Update failed
             );
         }
+    }
+
+    async completeQrScanTask(
+        taskId: string,
+        userId: string,
+        scannedCode: string,
+        latitude?: number,
+        longitude?: number,
+    ): Promise<QrScanResponseDto> {
+        // Optional location tracking for anti-cheat
+        if (latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'qr_scan',
+                    confidence: 0.8,
+                    metadata: { taskId, scannedCode, action: 'qr_scan_completion' },
+                });
+
+                // Create travel log for matching tourist spots
+                await this.locationTrackingService.createAutoDetectedTravelLog({
+                    userId,
+                    questId: '', // Will be filled after task completion
+                    taskId,
+                    touristSpotId: '', // Auto-detected by location tracking
+                    detectedLocation: { latitude, longitude },
+                    checkInMethod: CheckInMethod.QR_CODE,
+                    apiSource: 'qr_scan',
+                    confidence: locationDetection?.confidence ?? 0,
+                    metadata: {
+                        qrCodeScanned: true,
+                        qrCodeValue: scannedCode,
+                        action: 'qr_scan_completion',
+                    },
+                });
+            } catch (error) {
+                this.logger.warn('Failed to auto-detect location for QR scan task', error);
+                // Continue with task completion even if location tracking fails
+            }
+        }
+
+        // Complete QR scan task via repository
+        const result = await this.userTaskLogRepository.completeQrScanTask(
+            userId,
+            taskId,
+            scannedCode,
+        );
+
+        return {
+            success: true,
+            message: 'QR code accepted and task completed successfully',
+            taskId,
+            questId: result.questId,
+            magatama_point_awarded: result.magatama_point_awarded,
+            completed_at: new Date().toISOString(),
+        };
     }
 }

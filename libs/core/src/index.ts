@@ -10,6 +10,7 @@ export * from './provider/tourii-core-logging-service';
 // Utils
 export * from './utils/date-utils';
 export * from './utils/env-utils';
+export * from './utils/security-utils';
 
 // Domain - Auth
 export * from './domain/auth/encryption.repository';

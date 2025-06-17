@@ -9,6 +9,8 @@
       "Bash(rm:*)",
       "Bash(npx jest:*)",
       "Bash(pnpm test:*)",
+      "Bash(jq:*)",
+      "Bash(grep:*)",
       "Bash(pnpm test:*)",
       "Bash(jq:*)",
       "Bash(grep:*)",
