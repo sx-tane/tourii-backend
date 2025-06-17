@@ -10,8 +10,8 @@ import { UserInfoResponseSchema } from './user-info-response.model';
 import { UserInviteLogResponseSchema } from './user-invite-log-response.model';
 import { UserItemClaimLogResponseSchema } from './user-item-claim-log-response.model';
 import { UserOnchainItemResponseSchema } from './user-onchain-item-response.model';
-import { UserTaskLogResponseSchema } from './user-task-log-response.model';
 import { UserStoryLogResponseSchema } from './user-story-log-response.model';
+import { UserTaskLogResponseSchema } from './user-task-log-response.model';
 import { UserTravelLogResponseSchema } from './user-travel-log-response.model';
 
 export const UserSensitiveInfoResponseSchema = z.object({

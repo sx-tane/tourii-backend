@@ -6,8 +6,8 @@ import { UserInfo } from '@app/core/domain/user/user-info';
 import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
 import { UserItemClaimLog } from '@app/core/domain/user/user-item-claim-log';
 import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
-import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserStoryLog } from '@app/core/domain/user/user-story-log';
+import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
 import type { UserEntity } from '@app/core/domain/user/user.entity';
 import { TransformDate } from '@app/core/support/transformer/date-transformer';
@@ -19,12 +19,12 @@ import { UserInfoResponseDto } from '@app/tourii-backend/controller/model/tourii
 import { UserInviteLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-invite-log-response.model';
 import { UserItemClaimLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-item-claim-log-response.model';
 import { UserOnchainItemResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-onchain-item-response.model';
-import { UserTaskLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-task-log-response.model';
 import {
     UserResponseDto,
     UserSensitiveInfoResponseDto,
 } from '@app/tourii-backend/controller/model/tourii-response/user/user-response.model';
 import { UserStoryLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-story-log-response.model';
+import { UserTaskLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-task-log-response.model';
 import { UserTravelLogResponseDto } from '@app/tourii-backend/controller/model/tourii-response/user/user-travel-log-response.model';
 
 export class UserResultBuilder {

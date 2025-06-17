@@ -40,87 +40,24 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
             query,
         )}:${latitude}:${longitude}:${address || ''}`;
         const fetchFn = async (): Promise<LocationInfo> => {
+            // Try the new cost-optimized Places API first
             try {
-                // Strategy 1: If we have lat/lng, use Nearby Search for high accuracy
-                let placeId: string | undefined;
-
-                if (latitude !== undefined && longitude !== undefined) {
-                    placeId = await this.findPlaceByNearbySearch(
-                        query,
-                        latitude,
-                        longitude,
-                        apiKey,
-                    );
-                }
-
-                // Strategy 2: If nearby search failed or no coordinates, try enhanced text search
-                if (!placeId) {
-                    placeId = await this.findPlaceByEnhancedTextSearch(
-                        query,
-                        address,
-                        latitude,
-                        longitude,
-                        apiKey,
-                    );
-                }
-
-                // Strategy 3: Fallback to basic text search
-                if (!placeId) {
-                    placeId = await this.findPlaceByBasicTextSearch(
-                        query,
-                        latitude,
-                        longitude,
-                        apiKey,
-                    );
-                }
-
-                if (!placeId) {
-                    Logger.warn(
-                        `No place found for query: "${query}", address: "${address}", lat: ${latitude}, lng: ${longitude}`,
-                    );
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
-                }
-
-                const fields = [
-                    'name',
-                    'formatted_address',
-                    'international_phone_number',
-                    'website',
-                    'rating',
-                    'url',
-                    'opening_hours',
-                    'photos',
-                ].join(',');
-                const detailUrl =
-                    `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}` +
-                    `&fields=${fields}&key=${apiKey}`;
-                const detailRes = await firstValueFrom(
-                    this.httpService.getTouriiBackendHttpService.get(detailUrl),
+                Logger.debug(`🚀 Trying cost-optimized Places API for: ${query}`);
+                return await this.fetchWithNewPlacesApi(
+                    query,
+                    latitude,
+                    longitude,
+                    address,
+                    apiKey,
                 );
-                const result = detailRes.data?.result;
-                if (!result) {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
-                }
+            } catch (newApiError: unknown) {
+                const errorMessage =
+                    newApiError instanceof Error ? newApiError.message : 'Unknown error';
+                Logger.warn(`⚠️ New Places API failed for "${query}": ${errorMessage}`);
+                Logger.warn('🔄 Falling back to legacy API approach');
 
-                // Process photos if available
-                const images = this.processPhotos(result.photos, apiKey);
-
-                return {
-                    name: result.name ?? query,
-                    formattedAddress: result.formatted_address,
-                    phoneNumber: result.international_phone_number,
-                    website: result.website,
-                    rating: result.rating,
-                    googleMapsUrl: result.url,
-                    openingHours: result.opening_hours?.weekday_text,
-                    images,
-                };
-            } catch (error) {
-                if (error instanceof TouriiBackendAppException) {
-                    throw error;
-                }
-                Logger.error(`Failed to fetch location info for ${query}`, error);
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
+                // Fallback to the original working implementation
+                return await this.fetchWithLegacyApi(query, latitude, longitude, address, apiKey);
             }
         };
 
@@ -133,6 +70,188 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004);
         }
         return data;
+    }
+
+    /**
+     * 🚀 NEW: Cost-optimized Places API implementation with field masks
+     * Uses single Text Search call instead of multiple API calls
+     */
+    private async fetchWithNewPlacesApi(
+        query: string,
+        latitude: number | undefined,
+        longitude: number | undefined,
+        address: string | undefined,
+        apiKey: string,
+    ): Promise<LocationInfo> {
+        const searchQuery = address ? `${query} ${address}` : query;
+
+        // Only request fields we actually need - saves money!
+        const fieldMask =
+            'places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.rating,places.googleMapsUri,places.regularOpeningHours,places.photos';
+
+        const requestBody: any = {
+            textQuery: searchQuery,
+        };
+
+        // Add location bias if coordinates provided
+        if (latitude !== undefined && longitude !== undefined) {
+            requestBody.locationBias = {
+                circle: {
+                    center: { latitude, longitude },
+                    radius: 5000, // 5km radius
+                },
+            };
+        }
+
+        const textSearchUrl = 'https://places.googleapis.com/v1/places:searchText';
+
+        const response = await firstValueFrom(
+            this.httpService.getTouriiBackendHttpService.post(textSearchUrl, requestBody, {
+                headers: {
+                    'X-Goog-Api-Key': apiKey,
+                    'X-Goog-FieldMask': fieldMask,
+                    'Content-Type': 'application/json',
+                },
+            }),
+        );
+
+        const places = response.data?.places;
+        if (!places || places.length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
+        }
+
+        const place = places[0];
+
+        // Process photos if available (generate direct URLs without additional API calls)
+        const images = this.processNewApiPhotos(place.photos, apiKey);
+
+        // Ensure backward compatibility with exact same format as legacy API
+        return {
+            name: place.displayName?.text ?? query,
+            formattedAddress: place.formattedAddress ?? '',
+            phoneNumber: place.internationalPhoneNumber ?? null,
+            website: place.websiteUri ?? null,
+            rating: place.rating ?? null,
+            googleMapsUrl: place.googleMapsUri ?? null,
+            // Convert new API format to legacy format for frontend compatibility
+            openingHours: place.regularOpeningHours?.weekdayDescriptions ?? null,
+            images: images ?? undefined,
+        };
+    }
+
+    /**
+     * 🔄 LEGACY: Original working implementation as fallback
+     */
+    private async fetchWithLegacyApi(
+        query: string,
+        latitude: number | undefined,
+        longitude: number | undefined,
+        address: string | undefined,
+        apiKey: string,
+    ): Promise<LocationInfo> {
+        // Strategy 1: If we have lat/lng, use Nearby Search for high accuracy
+        let placeId: string | undefined;
+
+        if (latitude !== undefined && longitude !== undefined) {
+            placeId = await this.findPlaceByNearbySearch(query, latitude, longitude, apiKey);
+        }
+
+        // Strategy 2: If nearby search failed or no coordinates, try enhanced text search
+        if (!placeId) {
+            placeId = await this.findPlaceByEnhancedTextSearch(
+                query,
+                address,
+                latitude,
+                longitude,
+                apiKey,
+            );
+        }
+
+        // Strategy 3: Fallback to basic text search
+        if (!placeId) {
+            placeId = await this.findPlaceByBasicTextSearch(query, latitude, longitude, apiKey);
+        }
+
+        if (!placeId) {
+            Logger.warn(
+                `No place found for query: "${query}", address: "${address}", lat: ${latitude}, lng: ${longitude}`,
+            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
+        }
+
+        const fields = [
+            'name',
+            'formatted_address',
+            'international_phone_number',
+            'website',
+            'rating',
+            'url',
+            'opening_hours',
+            'photos',
+        ].join(',');
+        const detailUrl =
+            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}` +
+            `&fields=${fields}&key=${apiKey}`;
+        const detailRes = await firstValueFrom(
+            this.httpService.getTouriiBackendHttpService.get(detailUrl),
+        );
+        const result = detailRes.data?.result;
+        if (!result) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_001);
+        }
+
+        // Process photos if available
+        const images = this.processPhotos(result.photos, apiKey);
+
+        return {
+            name: result.name ?? query,
+            formattedAddress: result.formatted_address ?? '',
+            phoneNumber: result.international_phone_number ?? null,
+            website: result.website ?? null,
+            rating: result.rating ?? null,
+            googleMapsUrl: result.url ?? null,
+            openingHours: result.opening_hours?.weekday_text ?? null,
+            images: images ?? undefined,
+        };
+    }
+
+    /**
+     * Process photos from new Places API response (generates direct URLs)
+     */
+    private processNewApiPhotos(photos: any[], apiKey: string): LocationImage[] | undefined {
+        if (!photos || !Array.isArray(photos) || photos.length === 0) {
+            return undefined;
+        }
+
+        try {
+            const processedImages: LocationImage[] = photos
+                .slice(0, MAX_PHOTOS) // Limit number of photos
+                .map((photo) => {
+                    if (!photo.name) {
+                        return null;
+                    }
+
+                    // Use photo dimensions if available, otherwise use defaults
+                    const width = photo.widthPx || DEFAULT_PHOTO_MAX_WIDTH;
+                    const height = photo.heightPx || DEFAULT_PHOTO_MAX_HEIGHT;
+
+                    // Generate direct photo URL using new Places API format (no additional API calls needed!)
+                    const photoUrl = `https://places.googleapis.com/v1/${photo.name}/media?key=${apiKey}&maxHeightPx=${DEFAULT_PHOTO_MAX_HEIGHT}&maxWidthPx=${DEFAULT_PHOTO_MAX_WIDTH}`;
+
+                    return {
+                        url: photoUrl,
+                        width: Math.min(width, DEFAULT_PHOTO_MAX_WIDTH),
+                        height: Math.min(height, DEFAULT_PHOTO_MAX_HEIGHT),
+                        photoReference: photo.name,
+                    };
+                })
+                .filter((image): image is LocationImage => image !== null);
+
+            return processedImages.length > 0 ? processedImages : undefined;
+        } catch (error) {
+            Logger.warn(`Failed to process photos for location: ${error}`);
+            return undefined;
+        }
     }
 
     /**

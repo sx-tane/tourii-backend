@@ -5,7 +5,10 @@
       "Bash(npx jest:*)",
       "Bash(pnpm test:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(npx jest:*)",
+      "Bash(pnpm test:*)"
     ],
     "deny": []
   }
