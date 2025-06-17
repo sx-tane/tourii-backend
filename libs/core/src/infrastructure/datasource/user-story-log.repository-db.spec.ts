@@ -320,7 +320,7 @@ describe('UserStoryLogRepositoryDb', () => {
             );
 
             expect(result.unlockedQuests).toHaveLength(0);
-            expect(result.rewards.magatamaPointsEarned).toBe(10); // Only base reward
+            expect(result.rewards.magatamaPointsEarned).toBe(35); // Only base reward+first story achievement
         });
 
         it('should not unlock premium quests for regular users', async () => {
