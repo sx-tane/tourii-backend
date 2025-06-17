@@ -16,8 +16,8 @@ import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
 import {
-    UserStoryLogRepository,
     StoryCompletionResult,
+    UserStoryLogRepository,
 } from '@app/core/domain/game/story/user-story-log.repository';
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
@@ -54,6 +54,7 @@ import { HomepageHighlightsResponseDto } from '../controller/model/tourii-respon
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
+import { QrScanResponseDto } from '../controller/model/tourii-response/qr-scan-response.model';
 import { QuestListResponseDto } from '../controller/model/tourii-response/quest-list-response.model';
 import {
     QuestResponseDto,
@@ -61,7 +62,6 @@ import {
 } from '../controller/model/tourii-response/quest-response.model';
 import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
 import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-response/quest-task-social-share-response.model';
-import { QrScanResponseDto } from '../controller/model/tourii-response/qr-scan-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import {
@@ -1965,7 +1965,7 @@ export class TouriiBackendService {
                     detectedLocation: { latitude, longitude },
                     checkInMethod: CheckInMethod.QR_CODE,
                     apiSource: 'qr_scan',
-                    confidence: locationDetection.confidence,
+                    confidence: locationDetection?.confidence ?? 0,
                     metadata: {
                         qrCodeScanned: true,
                         qrCodeValue: scannedCode,
@@ -1979,7 +1979,11 @@ export class TouriiBackendService {
         }
 
         // Complete QR scan task via repository
-        const result = await this.userTaskLogRepository.completeQrScanTask(userId, taskId, scannedCode);
+        const result = await this.userTaskLogRepository.completeQrScanTask(
+            userId,
+            taskId,
+            scannedCode,
+        );
 
         return {
             success: true,
