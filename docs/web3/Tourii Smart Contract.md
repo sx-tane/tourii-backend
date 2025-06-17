@@ -52,11 +52,13 @@ This document provides a comprehensive overview of the core smart contracts used
 All contracts utilize OpenZeppelin's `Ownable` pattern for secure administrative control:
 
 ### Owner Privileges
+
 - **Minting Rights**: Only the contract owner can mint new tokens
 - **Metadata Updates**: Digital Passport metadata can be updated by owner only
 - **Administrative Functions**: Pausing, upgrading, and other critical operations
 
 ### Security Features
+
 - **Multi-signature wallets** recommended for production owner accounts
 - **Timelock contracts** for delayed execution of critical operations
 - **Role-based access** for different operational functions
@@ -74,11 +76,13 @@ All contracts utilize OpenZeppelin's `Ownable` pattern for secure administrative
 ### Contract Addresses
 
 **Testnet (Sepolia)**:
+
 - TouriiDigitalPassport: `0x...` (to be deployed)
-- TouriiLog: `0x...` (to be deployed)  
+- TouriiLog: `0x...` (to be deployed)
 - TouriiPerk: `0x...` (to be deployed)
 
 **Mainnet**:
+
 - TouriiDigitalPassport: `0x...` (to be deployed)
 - TouriiLog: `0x...` (to be deployed)
 - TouriiPerk: `0x...` (to be deployed)
@@ -98,31 +102,33 @@ All contracts utilize OpenZeppelin's `Ownable` pattern for secure administrative
 All contracts follow ERC721 metadata standards with Tourii-specific extensions:
 
 ### Digital Passport Metadata
+
 ```json
 {
   "name": "Tourii Passport #123",
   "description": "Digital identity for Tourii traveler",
   "image": "https://cdn.tourii.xyz/passport/123.png",
   "attributes": [
-    {"trait_type": "Level", "value": "E_CLASS_AMATSUKAMI"},
-    {"trait_type": "Total Distance", "value": 1250.5},
-    {"trait_type": "Quests Completed", "value": 15},
-    {"trait_type": "Region", "value": "Kanto"}
+    { "trait_type": "Level", "value": "E_CLASS_AMATSUKAMI" },
+    { "trait_type": "Total Distance", "value": 1250.5 },
+    { "trait_type": "Quests Completed", "value": 15 },
+    { "trait_type": "Region", "value": "Kanto" }
   ]
 }
 ```
 
 ### Travel Log Metadata
+
 ```json
 {
   "name": "Tokyo Adventure Complete",
   "description": "Completed the Tokyo city quest",
   "image": "https://cdn.tourii.xyz/logs/tokyo-123.png",
   "attributes": [
-    {"trait_type": "Quest Type", "value": "SOLO"},
-    {"trait_type": "Location", "value": "Tokyo, Japan"},
-    {"trait_type": "Completion Date", "value": "2024-03-20"},
-    {"trait_type": "Points Earned", "value": 500}
+    { "trait_type": "Quest Type", "value": "SOLO" },
+    { "trait_type": "Location", "value": "Tokyo, Japan" },
+    { "trait_type": "Completion Date", "value": "2024-03-20" },
+    { "trait_type": "Points Earned", "value": 500 }
   ]
 }
 ```
@@ -136,4 +142,4 @@ All contracts follow ERC721 metadata standards with Tourii-specific extensions:
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 16, 2025_

@@ -503,6 +503,13 @@ model user {
 
   /// Invitation logs
   user_invite_log user_invite_log[]
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([email], name: "idx_user_email")
+  @@index([discord_id], name: "idx_user_discord_id")
+  @@index([google_email], name: "idx_user_google_email")
 }
 
 /// User Achievement entity
@@ -968,6 +975,12 @@ model user_story_log {
   //----
   /// Relation to the user who is reading the story
   user user @relation(fields: [user_id], references: [user_id])
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([story_chapter_id, finished_at], name: "idx_user_story_log_progress")
+  @@index([user_id, status], name: "idx_user_story_log_user_status")
 }
 
 /// User Task Log entity
@@ -1092,6 +1105,11 @@ model user_task_log {
   user user @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, quest_id, task_id])
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([status, completed_at], name: "idx_user_task_log_completion")
+  @@index([quest_id, user_id], name: "idx_user_task_log_quest_user")
 }
 
 /// User Travel Log entity
@@ -1192,6 +1210,12 @@ model user_travel_log {
   //----
   /// Relation to the user who traveled
   user user @relation(fields: [user_id], references: [user_id])
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([user_id, ins_date_time], name: "idx_user_travel_log_user_date")
+  @@index([user_longitude, user_latitude], name: "idx_user_travel_log_location")
 }
 
 /// User Invitation Log entity
@@ -1938,6 +1962,12 @@ model quest {
 
   /// Individual tasks that make up this quest
   quest_task quest_task[]
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([tourist_spot_id, quest_type], name: "idx_quest_tourist_spot_type")
+  @@index([is_unlocked, is_premium], name: "idx_quest_unlocked_premium")
 }
 
 /// Quest Task entity

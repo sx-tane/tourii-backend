@@ -5,6 +5,7 @@ This guide covers the deployment of Tourii's smart contracts across multiple blo
 ## 🏗️ Contract Overview
 
 ### 1. TouriiDigitalPassport.sol
+
 - **Type**: Dynamic ERC721 NFT (dNFT)
 - **Purpose**: User identity and progression tracking
 - **Features**:
@@ -14,7 +15,8 @@ This guide covers the deployment of Tourii's smart contracts across multiple blo
   - Pausable functionality
   - Max supply control
 
-### 2. TouriiPerk.sol  
+### 2. TouriiPerk.sol
+
 - **Type**: Burnable ERC721 NFT collections
 - **Purpose**: Location-based rewards and achievements (Goshuin NFTs)
 - **Features**:
@@ -25,6 +27,7 @@ This guide covers the deployment of Tourii's smart contracts across multiple blo
   - Role-based access control
 
 ### 3. TouriiLog.sol
+
 - **Type**: Standard ERC721 NFT for milestones
 - **Purpose**: Record significant travel achievements
 - **Features**:
@@ -35,18 +38,21 @@ This guide covers the deployment of Tourii's smart contracts across multiple blo
 ## 🌐 Supported Networks
 
 ### Soneium (Sony Blockchain)
+
 - **Testnet**: Chain ID 1946
 - **Mainnet**: Chain ID 1868
 - **Type**: EVM-compatible
 - **Gas Token**: ETH
 
 ### SKALE Network (Europa Hub)
+
 - **Testnet**: Chain ID 476158412
 - **Mainnet**: Chain ID 2046399126
 - **Type**: EVM-compatible, Zero Gas Fees
 - **Benefits**: No transaction fees for users
 
 ### Vara Network ⚠️
+
 - **Chain ID**: 4741444
 - **Type**: Polkadot Parachain (Gear Protocol)
 - **Language**: Rust-based smart contracts
@@ -57,11 +63,13 @@ This guide covers the deployment of Tourii's smart contracts across multiple blo
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 1. Node.js (v18+)
 2. npm/yarn/pnpm
 3. Git
 
 ### Installation
+
 ```bash
 # Navigate to contracts directory
 cd contracts
@@ -81,6 +89,7 @@ nano .env
 ## 🔧 Environment Setup
 
 ### Required Environment Variables
+
 ```bash
 # Private key (without 0x prefix)
 PRIVATE_KEY=your_private_key_here
@@ -97,6 +106,7 @@ SKALE_API_KEY=your_skale_api_key
 ```
 
 ### Wallet Setup
+
 1. Create a new wallet for deployment
 2. Fund it with native tokens:
    - **Soneium**: ETH
@@ -106,20 +116,23 @@ SKALE_API_KEY=your_skale_api_key
 ## 📋 Deployment Commands
 
 ### Compile Contracts
+
 ```bash
 npm run compile
 ```
 
 ### Deploy to Testnet (Recommended First)
+
 ```bash
 # Soneium Testnet
 npm run deploy:soneium-testnet
 
-# SKALE Testnet  
+# SKALE Testnet
 npm run deploy:skale-testnet
 ```
 
 ### Deploy to Mainnet
+
 ```bash
 # Soneium Mainnet
 npm run deploy:soneium-mainnet
@@ -129,13 +142,14 @@ npm run deploy:skale-mainnet
 ```
 
 ### Deploy Individual Perk Collections
+
 ```bash
 # Deploy a new perk collection
 npx hardhat run scripts/deploy-perk-collection.ts --network soneiumTestnet -- "Harajiri Falls Collection" "HARAJIRI" "waterfalls" 1000
 
 # Parameters:
 # 1. Collection Name
-# 2. Collection Symbol  
+# 2. Collection Symbol
 # 3. Category (optional)
 # 4. Max Supply (optional, 0 = unlimited)
 ```
@@ -155,6 +169,7 @@ npm run verify:skale-mainnet <contract_address> [constructor_args]
 ```
 
 ### Example Verification Commands
+
 ```bash
 # Digital Passport (no constructor args)
 npx hardhat verify --network soneiumTestnet 0x1234...5678
@@ -194,34 +209,37 @@ Deployment information is automatically saved to `deployments/<network>-<chainId
 ## 🎯 Post-Deployment Setup
 
 ### 1. Role Management
+
 Grant appropriate roles for production:
 
 ```javascript
 // Grant MINTER_ROLE to backend service
 await digitalPassport.grantRole(MINTER_ROLE, backendServiceAddress);
 
-// Grant UPDATER_ROLE for metadata updates  
+// Grant UPDATER_ROLE for metadata updates
 await digitalPassport.grantRole(UPDATER_ROLE, metadataServiceAddress);
 ```
 
 ### 2. Configure Max Supply
+
 ```javascript
 // Set reasonable limits
 await digitalPassport.setMaxSupply(100000); // 100k passports max
-await perkCollection.setMaxSupply(10000);   // 10k perks per collection
+await perkCollection.setMaxSupply(10000); // 10k perks per collection
 ```
 
 ### 3. Update Database
+
 Add contract addresses to your database `onchain_item_catalog` table:
 
 ```sql
 INSERT INTO onchain_item_catalog (
-  item_type, 
-  blockchain_type, 
-  contract_address, 
-  metadata_url, 
+  item_type,
+  blockchain_type,
+  contract_address,
+  metadata_url,
   max_supply
-) VALUES 
+) VALUES
 ('DIGITAL_PASSPORT', 'SONEIUM', '0x...', 'https://metadata.tourii.com/passport/', 100000),
 ('PERK', 'SONEIUM', '0x...', 'https://metadata.tourii.com/perk/', 10000);
 ```
@@ -229,18 +247,21 @@ INSERT INTO onchain_item_catalog (
 ## 🔒 Security Best Practices
 
 ### Access Control
+
 - Use role-based permissions instead of single owner
 - Grant minimal required permissions
 - Use multi-sig wallets for mainnet ownership
 - Regularly audit role assignments
 
 ### Deployment Security
+
 - Use separate wallets for deployment vs. operational use
 - Verify all contract addresses before database updates
 - Test on testnets before mainnet deployment
 - Keep private keys secure and never commit them
 
 ### Monitoring
+
 - Set up contract event monitoring
 - Monitor for unusual minting patterns
 - Track gas usage and optimization opportunities
@@ -260,22 +281,27 @@ These contracts are **not upgradeable** by design for security. For updates:
 ### Common Issues
 
 #### "Insufficient funds for gas"
+
 - Ensure wallet has enough native tokens
 - Check gas price settings in hardhat.config.ts
 
 #### "Contract already verified"
+
 - Verification was successful previously
 - Use the existing verified contract
 
 #### "Network not supported"
+
 - Check network configuration in hardhat.config.ts
 - Verify RPC URL is accessible
 
 #### "Private key invalid"
+
 - Ensure private key is correct format (without 0x prefix)
 - Check .env file is properly loaded
 
 ### Gas Optimization
+
 ```bash
 # Check contract sizes
 npm run size
@@ -287,31 +313,34 @@ REPORT_GAS=true npm test
 ## 📚 Integration Examples
 
 ### Minting Digital Passport
+
 ```javascript
 // Backend service mints passport for new user
 const tx = await digitalPassport.mint(
   userAddress,
-  "https://metadata.tourii.com/passport/123.json"
+  'https://metadata.tourii.com/passport/123.json',
 );
 await tx.wait();
 ```
 
 ### Updating Passport Metadata
+
 ```javascript
 // Update user's progression
 const tx = await digitalPassport.updateMetadataURI(
   tokenId,
-  "https://metadata.tourii.com/passport/123-updated.json"
+  'https://metadata.tourii.com/passport/123-updated.json',
 );
 await tx.wait();
 ```
 
 ### Minting Perk
+
 ```javascript
 // Award perk for completing quest
 const tx = await perkCollection.mint(
   userAddress,
-  "https://metadata.tourii.com/perk/harajiri-falls.json"
+  'https://metadata.tourii.com/perk/harajiri-falls.json',
 );
 await tx.wait();
 ```
@@ -321,6 +350,7 @@ await tx.wait();
 For Vara Network deployment, you'll need:
 
 ### 1. Gear Protocol Setup
+
 ```bash
 # Install Gear CLI
 cargo install --git https://github.com/gear-tech/gear-cli.git gear-cli
@@ -331,6 +361,7 @@ cd tourii-contracts
 ```
 
 ### 2. Rust Contract Structure
+
 ```rust
 // Cargo.toml
 [dependencies]
@@ -341,7 +372,9 @@ gtest = { git = "https://github.com/gear-tech/gear.git" }
 ```
 
 ### 3. Contract Implementation
+
 The contracts would need to be rewritten in Rust following Gear Protocol patterns for:
+
 - Digital Passport (dNFT)
 - Perk Collections (Burnable NFTs)
 - Travel Logs (Standard NFTs)
@@ -349,6 +382,7 @@ The contracts would need to be rewritten in Rust following Gear Protocol pattern
 ## 📞 Support
 
 For deployment issues:
+
 1. Check the troubleshooting section
 2. Verify network configurations
 3. Test on testnets first

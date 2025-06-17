@@ -5,6 +5,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
+import { Request, Response } from 'express';
 import { patchNestJsSwagger } from 'nestjs-zod';
 import { TouriiBackendModule } from './tourii-backend.module';
 
@@ -84,7 +85,7 @@ async function bootstrap() {
 }
 
 // Export for Vercel serverless
-export default async (req: any, res: any) => {
+export default async (req: Request, res: Response) => {
     const nestApp = await createApp();
     const expressInstance = nestApp.getHttpAdapter().getInstance();
     return expressInstance(req, res);

@@ -42,6 +42,7 @@ Make sure you have these installed:
 ## 🔧 Environment Configuration
 
 ### 1. Copy Environment Template
+
 ```bash
 cp .env.example .env
 ```
@@ -49,17 +50,20 @@ cp .env.example .env
 ### 2. Essential Environment Variables
 
 **Core App:**
+
 ```env
 PORT=3000
 NODE_ENV=development
 ```
 
 **Database (auto-configured for Docker):**
+
 ```env
 DATABASE_URL=postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend
 ```
 
 **Required API Keys:**
+
 ```env
 # Get from OpenWeatherMap (free tier)
 OPEN_WEATHER_API_KEY=your_key_here
@@ -74,6 +78,7 @@ JWT_EXPIRATION=15m
 ```
 
 **Optional (for full functionality):**
+
 ```env
 # Redis (use if available, otherwise caching is disabled)
 REDIS_URL=redis://localhost:6379
@@ -95,6 +100,7 @@ GOOGLE_CLIENT_SECRET=your_google_secret
 ## 🗃️ Database Setup
 
 ### 1. Start PostgreSQL (Docker)
+
 ```bash
 cd etc/docker
 docker-compose up -d
@@ -104,6 +110,7 @@ docker ps
 ```
 
 ### 2. Run Database Migrations
+
 ```bash
 # Apply all migrations
 pnpm run prisma:migrate:dev
@@ -113,12 +120,14 @@ pnpm run prisma:db:execute
 ```
 
 ### 3. (Optional) Seed Test Data
+
 ```bash
 # Generate and insert sample data
 npx prisma db seed
 ```
 
 ### 4. Explore Database
+
 ```bash
 # Open Prisma Studio (visual database browser)
 pnpm run prisma:studio
@@ -129,6 +138,7 @@ pnpm run prisma:studio
 ## 🧪 Verify Setup
 
 ### 1. Health Check
+
 ```bash
 curl http://localhost:3000/health-check \
   -H "x-api-key: dev-key" \
@@ -138,6 +148,7 @@ curl http://localhost:3000/health-check \
 ```
 
 ### 2. Run Tests
+
 ```bash
 # Unit tests
 pnpm test
@@ -147,6 +158,7 @@ pnpm test:e2e:app
 ```
 
 ### 3. Check Code Quality
+
 ```bash
 # Lint check
 pnpm lint
@@ -160,12 +172,14 @@ pnpm format
 ## 🔑 API Keys Setup Guide
 
 ### OpenWeatherMap API
+
 1. Go to [OpenWeatherMap](https://openweathermap.org/api)
 2. Sign up for free account
 3. Generate API key
 4. Add to `.env` as `OPEN_WEATHER_API_KEY`
 
 ### Google Maps APIs
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create new project or select existing
 3. Enable these APIs:
@@ -176,6 +190,7 @@ pnpm format
 5. Add to `.env` as `GOOGLE_MAPS_API_KEY` and `GOOGLE_PLACES_API_KEY`
 
 ### JWT Secret
+
 ```bash
 # Generate secure random string
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
@@ -186,6 +201,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ## 🐛 Common Issues & Fixes
 
 ### "Port 7442 already in use"
+
 ```bash
 # Check what's using the port
 lsof -i :7442
@@ -195,6 +211,7 @@ lsof -i :7442
 ```
 
 ### "Database connection failed"
+
 ```bash
 # Restart Docker containers
 cd etc/docker
@@ -204,6 +221,7 @@ docker-compose down && docker-compose up -d
 ```
 
 ### "Prisma generate failed"
+
 ```bash
 # Regenerate Prisma client
 npx prisma generate
@@ -214,6 +232,7 @@ pnpm install
 ```
 
 ### "Module not found"
+
 ```bash
 # Clear pnpm cache and reinstall
 pnpm store prune
@@ -226,6 +245,7 @@ pnpm install
 ## 🛠️ Development Workflow
 
 ### Daily Startup
+
 ```bash
 # Start database
 cd etc/docker && docker-compose start
@@ -238,6 +258,7 @@ pnpm start:dev:tourii-onchain
 ```
 
 ### Making Changes
+
 ```bash
 # Create feature branch
 git checkout -b feature/your-feature-name
@@ -254,6 +275,7 @@ git push origin feature/your-feature-name
 ```
 
 ### Database Changes
+
 ```bash
 # Modify prisma/schema.prisma, then:
 npx prisma migrate dev --name your_migration_name
@@ -284,12 +306,14 @@ tourii-backend/
 ## 🧑‍💻 IDE Setup Recommendations
 
 ### VS Code Extensions
+
 - **Prisma** - Database schema support
 - **TypeScript Importer** - Auto imports
 - **Biome** - Linting & formatting
 - **REST Client** - Test API endpoints from `etc/http/`
 
 ### Useful VS Code Settings
+
 ```json
 {
   "typescript.preferences.importModuleSpecifier": "relative",
@@ -310,6 +334,7 @@ Your development environment is now set up! Next steps:
 4. **💬 Ask**: Reach out to the team for any questions!
 
 ### Quick Reference Commands
+
 ```bash
 # Start everything
 pnpm start:dev
@@ -337,4 +362,4 @@ pnpm format
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 16, 2025_

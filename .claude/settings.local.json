@@ -8,7 +8,15 @@
       "Bash(ls:*)",
       "Bash(rm:*)",
       "Bash(npx jest:*)",
-      "Bash(pnpm test:*)"
+      "Bash(pnpm test:*)",
+      "Bash(pnpm test:*)",
+      "Bash(jq:*)",
+      "Bash(grep:*)",
+      "Bash(pnpm audit:*)",
+      "Bash(rg:*)",
+      "Bash(pnpm prisma db execute:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm:*)"
     ],
     "deny": []
   }
