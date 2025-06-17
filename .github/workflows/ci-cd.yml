@@ -1,0 +1,91 @@
+name: Tourii Backend CI/CD Pipeline
+
+on:
+  push:  # Run tests on ALL branches
+  pull_request:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: touriibackenddev
+          POSTGRES_PASSWORD: touriibackenddev
+          POSTGRES_DB: tourii_backend_test
+        ports:
+          - 7442:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.5
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.0
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        
+      - name: Setup test environment
+        run: |
+          echo 'MIGRATION_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' > .env.test
+          echo 'DATABASE_URL="postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend_test"' >> .env.test
+          
+      - name: Run tests
+        run: pnpm run test
+
+  deploy:
+    name: Deploy & Migrate Database
+    runs-on: ubuntu-latest
+    needs: test
+    # Only run on main branch pushes after tests pass
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.5
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.0
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Drop existing database views
+        run: pnpm prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/drop_view.sql
+        env:
+          MIGRATION_URL: ${{ secrets.MIGRATION_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          
+      - name: Deploy database migrations
+        run: npx prisma migrate deploy --schema=./prisma/schema.prisma
+        env:
+          MIGRATION_URL: ${{ secrets.MIGRATION_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          
+      - name: Recreate database views
+        run: npx prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/moment_view.sql
+        env:
+          MIGRATION_URL: ${{ secrets.MIGRATION_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} 

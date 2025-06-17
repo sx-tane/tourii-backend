@@ -1,0 +1,259 @@
+name: 📚 Auto-Update Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'libs/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.env.example'
+      - 'CLAUDE.md'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update all documentation'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  update-documentation:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Get Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            apps/**
+            libs/**
+            prisma/**
+            package.json
+            pnpm-lock.yaml
+            .env.example
+            CLAUDE.md
+
+      - name: 🧠 Update Documentation with Claude
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.force_update == 'true'
+        uses: sx-tane/claude-code-action@main
+        with:
+          model: 'claude-sonnet-4-20250514'
+          use_oauth: 'true'
+          claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
+          claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
+          prompt: |
+            I need you to update the documentation files in this repository to reflect the latest changes in the codebase. 
+
+            **Changed files in this commit:**
+            ${{ steps.changed-files.outputs.all_changed_files }}
+
+            **Your tasks:**
+            1. **Analyze the codebase changes** and understand what has been modified
+            2. **Update the following documentation files** to reflect current state:
+               - README.md
+               - docs/SYSTEM_ARCHITECTURE.md  
+               - docs/API_EXAMPLES.md
+               - docs/ERROR_CODES.md
+               - docs/SECURITY.md
+               - docs/DATABASE.md
+               - docs/SEEDING_GUIDE.md
+               - docs/TESTING_STRATEGY.md
+               - CLAUDE.md (if needed)
+
+            **Guidelines:**
+            - Keep the existing structure and formatting style
+            - Update version numbers, dates, and status information
+            - Add new features, endpoints, or capabilities discovered
+            - Update performance metrics, security status, or architectural changes
+            - Ensure all links and references are accurate
+            - Update command examples if package.json scripts changed
+            - Maintain professional, clear documentation tone
+            - Only update files that actually need changes
+
+            **Focus areas:**
+            - New API endpoints or modified existing ones
+            - Database schema changes or new migrations
+            - Security improvements or changes
+            - Performance optimizations
+            - New environment variables or configuration
+            - Updated dependencies or tech stack changes
+            - Modified commands or scripts
+
+            Please analyze the changes and update only the documentation that needs updating. Do not make unnecessary changes to maintain clean git history.
+
+      - name: 🔍 Check for Documentation Changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "📝 No documentation updates needed"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "📝 Documentation changes detected"
+            git diff --name-only
+          fi
+
+      - name: 📊 Generate Change Summary
+        if: steps.check-changes.outputs.has_changes == 'true'
+        id: summary
+        run: |
+          echo "## 📚 Documentation Updates" > change_summary.md
+          echo "" >> change_summary.md
+          echo "Automated documentation update triggered by changes in:" >> change_summary.md
+          echo "" >> change_summary.md
+          
+          if [ "${{ steps.changed-files.outputs.any_changed }}" == "true" ]; then
+            echo "### 🔄 Changed Files:" >> change_summary.md
+            echo '```' >> change_summary.md
+            echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' >> change_summary.md
+            echo '```' >> change_summary.md
+            echo "" >> change_summary.md
+          fi
+          
+          echo "### 📝 Updated Documentation:" >> change_summary.md
+          echo '```' >> change_summary.md
+          git diff --name-only | grep -E '\.(md)$' >> change_summary.md
+          echo '```' >> change_summary.md
+          echo "" >> change_summary.md
+          echo "### 🤖 Generated by:" >> change_summary.md
+          echo "- Claude Code Action" >> change_summary.md
+          echo "- Triggered by: ${{ github.event_name }}" >> change_summary.md
+          echo "- Commit: ${{ github.sha }}" >> change_summary.md
+          echo "- Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> change_summary.md
+
+      - name: 🚀 Commit Documentation Updates
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Documentation Bot"
+          
+          # Add all changed markdown files
+          git add -A "*.md"
+          
+          # Create commit with detailed message
+          git commit -m "docs: auto-update documentation
+
+          🤖 Automated documentation update via Claude Code Action
+          
+          Updated documentation files to reflect latest codebase changes:
+          $(git diff --name-only HEAD~1 | grep -E '\.(md)$' | sed 's/^/- /')
+          
+          Triggered by: ${{ github.event_name }}
+          Source commit: ${{ github.sha }}
+          Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+
+      - name: 📤 Push Documentation Updates
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git push origin main
+
+      - name: 💬 Create Pull Request Comment (if applicable)
+        if: steps.check-changes.outputs.has_changes == 'true' && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('change_summary.md', 'utf8');
+            
+            // Find recent PRs that might be related to this push
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 5
+            });
+            
+            const recentPr = prs.find(pr => 
+              pr.merge_commit_sha === context.sha || 
+              pr.head.sha === context.sha
+            );
+            
+            if (recentPr) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: recentPr.number,
+                body: `${summary}\n\n> 🔗 Documentation automatically updated in commit ${context.sha.substring(0, 7)}`
+              });
+            }
+
+      - name: 📊 Job Summary
+        if: always()
+        run: |
+          echo "## 📚 Documentation Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-changes.outputs.has_changes }}" == "true" ]; then
+            echo "✅ **Documentation Successfully Updated**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Updated Files:" >> $GITHUB_STEP_SUMMARY
+            git diff --name-only HEAD~1 | grep -E '\.(md)$' | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **No Documentation Updates Needed**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The current codebase changes did not require documentation updates." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Workflow Details:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changed Files**: ${{ steps.changed-files.outputs.all_changed_files || 'None' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+
+  # Optional: Notify on failure
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: update-documentation
+    if: failure()
+    
+    steps:
+      - name: 🚨 Notify Documentation Update Failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Documentation Auto-Update Failed - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Documentation Update Failure
+              
+              The automated documentation update workflow failed.
+              
+              **Details:**
+              - **Workflow Run**: [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+              - **Commit**: ${context.sha}
+              - **Trigger**: ${context.eventName}
+              - **Timestamp**: ${new Date().toUTCString()}
+              
+              **Action Required:**
+              1. Check the workflow logs for specific errors
+              2. Verify the ANTHROPIC_API_KEY secret is configured
+              3. Ensure Claude has proper permissions to analyze the codebase
+              4. Manually update documentation if needed
+              
+              This issue was automatically created by the documentation update workflow.`,
+              labels: ['documentation', 'automation', 'bug']
+            });

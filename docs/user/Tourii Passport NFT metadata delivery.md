@@ -150,28 +150,28 @@ class PassportMetadataBuilder {
   static async buildMetadata(userId: string): Promise<PassportMetadata> {
     const user = await userService.getUserById(userId);
     const stats = await userService.getUserStats(userId);
-    
+
     return {
       name: `Tourii Passport #${user.id}`,
-      description: "Digital passport for the Tourii tourism platform",
+      description: 'Digital passport for the Tourii tourism platform',
       image: `https://cdn.tourii.xyz/images/passport-${user.id}.png`,
       external_url: `https://tourii.xyz/passport/${user.id}`,
       attributes: [
         {
-          trait_type: "Level",
-          value: user.level
+          trait_type: 'Level',
+          value: user.level,
         },
         {
-          trait_type: "Total Distance Traveled", 
+          trait_type: 'Total Distance Traveled',
           value: stats.totalDistance,
-          display_type: "number"
+          display_type: 'number',
         },
         {
-          trait_type: "Quests Completed",
+          trait_type: 'Quests Completed',
           value: stats.questsCompleted,
-          display_type: "number"
-        }
-      ]
+          display_type: 'number',
+        },
+      ],
     };
   }
 }
@@ -180,11 +180,13 @@ class PassportMetadataBuilder {
 ## 🚀 7. Performance Optimization
 
 ### Caching Strategy
+
 - **S3 Headers**: Set proper cache-control headers
 - **CloudFront**: Configure appropriate TTL settings
 - **Metadata Updates**: Implement cache invalidation when passport levels up
 
 ### Image Optimization
+
 ```javascript
 // Optimize passport images
 await s3.putObject({
@@ -195,19 +197,21 @@ await s3.putObject({
   CacheControl: 'public, max-age=31536000', // 1 year cache
   Metadata: {
     'user-id': passportId,
-    'generated-at': new Date().toISOString()
-  }
+    'generated-at': new Date().toISOString(),
+  },
 });
 ```
 
 ## 🔧 8. Monitoring & Maintenance
 
 ### Health Checks
+
 - Monitor S3 bucket availability
 - Track CloudFront cache hit rates
 - Set up alerts for metadata access failures
 
 ### Backup Strategy
+
 - Regular S3 cross-region replication
 - Metadata backup to secondary storage
 - Version control for metadata schema changes
@@ -222,4 +226,4 @@ await s3.putObject({
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 16, 2025_

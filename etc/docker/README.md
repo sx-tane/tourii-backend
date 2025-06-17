@@ -17,11 +17,13 @@ This guide explains how to set up the local PostgreSQL database using Docker for
 ## 🚀 Initial Setup
 
 1. **Navigate to the docker directory**
+
    ```bash
    cd etc/docker
    ```
 
 2. **Start the container** (creates and starts in detached mode)
+
    ```bash
    docker-compose up -d
    ```
@@ -34,6 +36,7 @@ This guide explains how to set up the local PostgreSQL database using Docker for
 ## 🔧 Common Commands
 
 ### Container Management
+
 ```bash
 # Check running containers
 docker ps
@@ -52,6 +55,7 @@ docker-compose down
 ```
 
 ### Database Operations
+
 ```bash
 # View container logs
 docker-compose logs db
@@ -77,6 +81,7 @@ Once running, connect to the database using:
 - **Password**: `touriibackenddev`
 
 **Connection URL**:
+
 ```
 postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend
 ```
@@ -88,7 +93,9 @@ Database data is persisted in Docker volumes, so your data will remain intact be
 ## 🔧 Troubleshooting
 
 ### Port Already in Use
+
 If port 7442 is already in use:
+
 ```bash
 # Check what's using the port
 lsof -i :7442
@@ -98,6 +105,7 @@ lsof -i :7442
 ```
 
 ### Container Won't Start
+
 ```bash
 # Check detailed logs
 docker-compose logs
@@ -108,6 +116,7 @@ docker-compose up -d
 ```
 
 ### Reset Database
+
 ```bash
 # Stop and remove everything (including volumes)
 docker-compose down -v

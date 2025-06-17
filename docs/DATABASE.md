@@ -7,6 +7,7 @@ This guide covers database setup, migrations, seeding, and common operations for
 ## 📋 Quick Reference
 
 ### Essential Commands
+
 ```bash
 # Database setup
 pnpm run prisma:migrate:dev     # Run migrations
@@ -25,6 +26,7 @@ npx prisma validate             # Validate schema
 ## 🚀 Initial Database Setup
 
 ### 1. Start PostgreSQL Container
+
 ```bash
 cd etc/docker
 docker-compose up -d
@@ -34,6 +36,7 @@ docker ps | grep postgres
 ```
 
 ### 2. Run Migrations
+
 ```bash
 # Apply all pending migrations
 pnpm run prisma:migrate:dev
@@ -46,6 +49,7 @@ pnpm run prisma:migrate:dev
 ```
 
 ### 3. Execute Additional SQL Scripts
+
 ```bash
 # Create views and additional database objects
 pnpm run prisma:db:execute
@@ -55,6 +59,7 @@ pnpm run prisma:db:execute
 ```
 
 ### 4. Seed Test Data
+
 ```bash
 # Populate database with sample data (traditional way)
 npx prisma db seed
@@ -84,6 +89,7 @@ npx tsx prisma/seed-new.ts --clean           # Clean first
 ### Core Entity Groups
 
 #### 👤 User Management
+
 ```
 user ← user_info
 user ← user_achievement
@@ -92,6 +98,7 @@ user ← user_item_claim_log
 ```
 
 #### 🎮 Game Content
+
 ```
 story ← story_chapter
 model_route ← tourist_spot
@@ -99,6 +106,7 @@ quest ← quest_task
 ```
 
 #### 📝 Activity Logging
+
 ```
 user_story_log     # Story reading progress
 user_task_log      # Quest completion logs
@@ -106,6 +114,7 @@ user_travel_log    # Location check-ins
 ```
 
 #### 👥 Social Features
+
 ```
 discord_roles ← discord_user_roles → user
 discord_activity_log
@@ -114,6 +123,7 @@ user_invite_log
 ```
 
 #### ⛓️ Blockchain Integration
+
 ```
 onchain_item_catalog
 user_onchain_item
@@ -126,12 +136,14 @@ user_onchain_item
 ### Creating New Migrations
 
 #### 1. Modify Schema
+
 ```bash
 # Edit prisma/schema.prisma
 # Add new models, fields, or relationships
 ```
 
 #### 2. Generate Migration
+
 ```bash
 # Create migration with descriptive name
 npx prisma migrate dev --name add_user_preferences
@@ -143,6 +155,7 @@ npx prisma migrate dev --name add_user_preferences
 ```
 
 #### 3. Review Generated Files
+
 ```bash
 # Check migration file in prisma/migrations/
 cat prisma/migrations/20250116120000_add_user_preferences/migration.sql
@@ -151,6 +164,7 @@ cat prisma/migrations/20250116120000_add_user_preferences/migration.sql
 ### Migration Best Practices
 
 #### Safe Migrations
+
 ```sql
 -- ✅ Safe operations
 ALTER TABLE "user" ADD COLUMN "timezone" TEXT;
@@ -163,6 +177,7 @@ ALTER TABLE "quest" ALTER COLUMN "name" TYPE VARCHAR(50); -- truncation risk
 ```
 
 #### Production Deployment
+
 ```bash
 # Production migration (no prompts)
 npx prisma migrate deploy
@@ -180,6 +195,7 @@ npx prisma migrate status
 ### Quick Reference
 
 #### Basic Seeding
+
 ```bash
 # Traditional way (still works)
 npx prisma db seed
@@ -194,13 +210,14 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 #### Test Users Created
+
 ```typescript
 // alice@tourii.dev
 - Level: BONJIN
 - Magatama Points: 150
 - Role: USER
 
-// bob@tourii.dev  
+// bob@tourii.dev
 - Level: E_CLASS_AMATSUKAMI
 - Magatama Points: 650
 - Role: USER
@@ -212,6 +229,7 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 #### Sample Content
+
 - **Stories**: Prologue + Tokyo + Kyoto adventures
 - **Tourist Spots**: Shibuya Crossing, Tokyo Station, etc.
 - **Quests**: Photo challenges, Knowledge quizzes
@@ -220,6 +238,7 @@ npx tsx prisma/seed-new.ts --clean
 ### Advanced Seeding
 
 #### Reset and Reseed
+
 ```bash
 # Traditional reset
 npx prisma migrate reset --force
@@ -230,13 +249,20 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 #### Custom Seeding Templates
+
 ```typescript
 // Modify USER_TEMPLATES in prisma/seed-new.ts
 const USER_TEMPLATES = {
-  alice: { /* existing */ },
-  bob: { /* existing */ },
-  admin: { /* existing */ },
-  
+  alice: {
+    /* existing */
+  },
+  bob: {
+    /* existing */
+  },
+  admin: {
+    /* existing */
+  },
+
   // Add your custom user
   tester: {
     username: 'tester',
@@ -250,6 +276,7 @@ const USER_TEMPLATES = {
 ```
 
 #### Seeding for Different Scenarios
+
 ```bash
 # Development: Full setup
 npx tsx prisma/seed-new.ts
@@ -257,7 +284,7 @@ npx tsx prisma/seed-new.ts
 # Testing: Users only
 npx tsx prisma/seed-new.ts --users-only
 
-# Content testing: Stories only  
+# Content testing: Stories only
 npx tsx prisma/seed-new.ts --stories-only
 
 # Fresh start: Clean then seed
@@ -269,6 +296,7 @@ npx tsx prisma/seed-new.ts --clean
 ## 🔍 Database Exploration
 
 ### Prisma Studio (Recommended)
+
 ```bash
 # Open visual database browser
 pnpm run prisma:studio
@@ -282,6 +310,7 @@ pnpm run prisma:studio
 ```
 
 ### Command Line Access
+
 ```bash
 # Connect to PostgreSQL directly
 docker-compose exec db psql -U touriibackenddev -d tourii_backend
@@ -293,13 +322,14 @@ docker-compose exec db psql -U touriibackenddev -d tourii_backend
 ```
 
 ### Common Queries
+
 ```sql
 -- Check user count
 SELECT COUNT(*) FROM "user";
 
 -- View user levels
-SELECT username, level, magatama_points 
-FROM "user" u 
+SELECT username, level, magatama_points
+FROM "user" u
 JOIN "user_info" ui ON u.user_id = ui.user_id;
 
 -- Memory feed preview
@@ -318,12 +348,13 @@ GROUP BY quest_name;
 ## 📝 SQL Views & Custom Objects
 
 ### Memory Feed View
+
 The application uses a custom SQL view for activity feeds:
 
 ```sql
 -- Located in: prisma/scripts/moment_view.sql
 CREATE VIEW memory_feed AS
-SELECT 
+SELECT
   user_id,
   'TRAVEL' AS type,
   tourist_spot_id AS related_id,
@@ -331,17 +362,18 @@ SELECT
   ins_date_time AS created_at
 FROM user_travel_log
 UNION
-SELECT 
+SELECT
   user_id,
   'QUEST',
   quest_id,
   NULL,
   completed_at
-FROM user_task_log 
+FROM user_task_log
 WHERE status = 'COMPLETED';
 ```
 
 ### Updating Views
+
 ```bash
 # Drop and recreate views
 pnpm prisma db execute --file ./prisma/scripts/drop_view.sql
@@ -355,6 +387,7 @@ pnpm prisma db execute --file ./prisma/scripts/moment_view.sql
 ### Backup & Restore
 
 #### Create Backup
+
 ```bash
 # Full database backup
 docker-compose exec db pg_dump -U touriibackenddev tourii_backend > backup_$(date +%Y%m%d).sql
@@ -367,6 +400,7 @@ docker-compose exec db pg_dump -U touriibackenddev --data-only tourii_backend > 
 ```
 
 #### Restore Database
+
 ```bash
 # Restore from backup
 docker-compose exec -T db psql -U touriibackenddev tourii_backend < backup_20250116.sql
@@ -377,31 +411,32 @@ docker-compose exec -T db psql -U touriibackenddev tourii_backup < backup_202501
 ```
 
 ### Performance Monitoring
+
 ```sql
 -- Check table sizes
-SELECT 
+SELECT
   schemaname,
   tablename,
   pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 -- Check slow queries (if logging enabled)
-SELECT query, mean_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_time DESC 
+SELECT query, mean_time, calls
+FROM pg_stat_statements
+ORDER BY mean_time DESC
 LIMIT 10;
 
 -- Active connections
-SELECT 
+SELECT
   pid,
   usename,
   application_name,
   client_addr,
   state,
   query
-FROM pg_stat_activity 
+FROM pg_stat_activity
 WHERE state = 'active';
 ```
 
@@ -412,6 +447,7 @@ WHERE state = 'active';
 ### Common Issues
 
 #### "Database does not exist"
+
 ```bash
 # Check if container is running
 docker ps | grep postgres
@@ -424,6 +460,7 @@ pnpm run prisma:migrate:dev
 ```
 
 #### "Migration failed"
+
 ```bash
 # Check migration status
 npx prisma migrate status
@@ -436,6 +473,7 @@ pnpm run prisma:migrate:dev
 ```
 
 #### "Prisma Client out of sync"
+
 ```bash
 # Regenerate Prisma client
 npx prisma generate
@@ -447,6 +485,7 @@ npx prisma generate
 ```
 
 #### Connection Issues
+
 ```bash
 # Test database connection
 docker-compose exec db psql -U touriibackenddev -d tourii_backend -c "SELECT 1;"
@@ -461,19 +500,21 @@ docker-compose logs db
 ### Data Validation
 
 #### Check Data Integrity
+
 ```sql
 -- Orphaned records
-SELECT COUNT(*) FROM user_task_log utl 
-LEFT JOIN quest q ON utl.quest_id = q.quest_id 
+SELECT COUNT(*) FROM user_task_log utl
+LEFT JOIN quest q ON utl.quest_id = q.quest_id
 WHERE q.quest_id IS NULL;
 
 -- Invalid foreign keys
-SELECT COUNT(*) FROM story_chapter sc 
-LEFT JOIN story s ON sc.story_id = s.story_id 
+SELECT COUNT(*) FROM story_chapter sc
+LEFT JOIN story s ON sc.story_id = s.story_id
 WHERE s.story_id IS NULL;
 ```
 
 #### Clean Test Data
+
 ```bash
 # Remove all seed data (keep schema)
 npx prisma migrate reset --skip-seed
@@ -486,6 +527,7 @@ npx prisma migrate reset --skip-seed
 ## 📚 Advanced Operations
 
 ### Schema Introspection
+
 ```bash
 # Generate schema from existing database
 npx prisma db pull
@@ -498,26 +540,28 @@ npx prisma migrate diff \
 ```
 
 ### Custom Migrations
+
 ```sql
 -- Manual migration file example
 -- prisma/migrations/20250116_custom/migration.sql
 
 -- Add computed column
-ALTER TABLE "user_info" 
+ALTER TABLE "user_info"
 ADD COLUMN "completion_rate" DECIMAL GENERATED ALWAYS AS (
-  CASE 
+  CASE
     WHEN total_quest_completed = 0 THEN 0
     ELSE (total_quest_completed::decimal / 100) * 100
   END
 ) STORED;
 
 -- Create performance index
-CREATE INDEX CONCURRENTLY "idx_user_task_log_status_completed" 
-ON "user_task_log"("status", "completed_at") 
+CREATE INDEX CONCURRENTLY "idx_user_task_log_status_completed"
+ON "user_task_log"("status", "completed_at")
 WHERE status = 'COMPLETED';
 ```
 
 ### Data Migration Scripts
+
 ```typescript
 // scripts/migrate-data.ts
 import { PrismaClient } from '@prisma/client';
@@ -527,14 +571,14 @@ const prisma = new PrismaClient();
 async function migrateUserData() {
   // Example: Update all user levels based on points
   const users = await prisma.user.findMany({
-    include: { user_info: true }
+    include: { user_info: true },
   });
 
   for (const user of users) {
     if (user.user_info?.magatama_points >= 1000) {
       await prisma.user_info.update({
         where: { user_id: user.user_id },
-        data: { level: 'E_CLASS_AMATSUKAMI' }
+        data: { level: 'E_CLASS_AMATSUKAMI' },
       });
     }
   }
@@ -553,4 +597,4 @@ async function migrateUserData() {
 
 ---
 
-*Last Updated: June 17, 2025*
+_Last Updated: June 17, 2025_
