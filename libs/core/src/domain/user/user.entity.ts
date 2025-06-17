@@ -8,8 +8,8 @@ import type { UserInfo } from './user-info';
 import type { UserInviteLog } from './user-invite-log';
 import type { UserItemClaimLog } from './user-item-claim-log';
 import type { UserOnchainItem } from './user-onchain-item';
-import type { UserTaskLog } from './user-task-log';
 import type { UserStoryLog } from './user-story-log';
+import type { UserTaskLog } from './user-task-log';
 import type { UserTravelLog } from './user-travel-log';
 
 interface UserProps {

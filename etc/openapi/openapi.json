@@ -9625,6 +9625,124 @@
         ]
       }
     },
+    "/tasks/{taskId}/share-social": {
+      "post": {
+        "operationId": "TouriiBackendController_completeSocialShareTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Social share proof URL",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "proofUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "proofUrl"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Social share recorded successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Result message for social share completion",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestTaskSocialShareResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Complete social sharing task",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
     "/moments": {
       "get": {
         "description": "Latest traveler moments",
@@ -14553,6 +14671,18 @@
         },
         "required": [
           "password"
+        ]
+      },
+      "QuestTaskSocialShareResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Result message for social share completion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
         ]
       }
     }
