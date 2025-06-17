@@ -61,6 +61,7 @@ import {
 } from '../controller/model/tourii-response/quest-response.model';
 import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
 import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-response/quest-task-social-share-response.model';
+import { QrScanResponseDto } from '../controller/model/tourii-response/qr-scan-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import {
@@ -1934,5 +1935,59 @@ export class TouriiBackendService {
                 TouriiBackendAppErrorType.E_TB_024, // Update failed
             );
         }
+    }
+
+    async completeQrScanTask(
+        taskId: string,
+        userId: string,
+        scannedCode: string,
+        latitude?: number,
+        longitude?: number,
+    ): Promise<QrScanResponseDto> {
+        // Optional location tracking for anti-cheat
+        if (latitude && longitude) {
+            try {
+                const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
+                    userId,
+                    latitude,
+                    longitude,
+                    apiSource: 'qr_scan',
+                    confidence: 0.8,
+                    metadata: { taskId, scannedCode, action: 'qr_scan_completion' },
+                });
+
+                // Create travel log for matching tourist spots
+                await this.locationTrackingService.createAutoDetectedTravelLog({
+                    userId,
+                    questId: '', // Will be filled after task completion
+                    taskId,
+                    touristSpotId: '', // Auto-detected by location tracking
+                    detectedLocation: { latitude, longitude },
+                    checkInMethod: CheckInMethod.QR_CODE,
+                    apiSource: 'qr_scan',
+                    confidence: locationDetection.confidence,
+                    metadata: {
+                        qrCodeScanned: true,
+                        qrCodeValue: scannedCode,
+                        action: 'qr_scan_completion',
+                    },
+                });
+            } catch (error) {
+                this.logger.warn('Failed to auto-detect location for QR scan task', error);
+                // Continue with task completion even if location tracking fails
+            }
+        }
+
+        // Complete QR scan task via repository
+        const result = await this.userTaskLogRepository.completeQrScanTask(userId, taskId, scannedCode);
+
+        return {
+            success: true,
+            message: 'QR code accepted and task completed successfully',
+            taskId,
+            questId: result.questId,
+            magatama_point_awarded: result.magatama_point_awarded,
+            completed_at: new Date().toISOString(),
+        };
     }
 }
