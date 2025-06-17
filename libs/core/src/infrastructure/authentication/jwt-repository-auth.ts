@@ -17,13 +17,13 @@ export class JwtRepositoryAuth implements JwtRepository {
         this.secretKey = secret;
     }
 
-    generateJwtToken(payload: JWTData, options?: jwt.SignOptions): string {
+    generateJwtToken<T extends Record<string, unknown>>(payload: T, options?: jwt.SignOptions): string {
         return jwt.sign(payload, this.secretKey, options);
     }
 
-    dataFromToken(token: string): string | JWTData {
+    dataFromToken<T = Record<string, unknown>>(token: string): T {
         try {
-            return jwt.verify(token, this.secretKey) as JWTData;
+            return jwt.verify(token, this.secretKey) as T;
         } catch (_error) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_002);
         }

@@ -5,6 +5,7 @@ This guide covers the specific implementation requirements for deploying Tourii 
 ## 🔧 Why Vara Network is Different
 
 Vara Network is a Polkadot parachain that uses the **Gear Protocol**, which requires:
+
 - **Rust** programming language instead of Solidity
 - **WebAssembly (WASM)** compilation target
 - **Actor model** for contract execution
@@ -13,6 +14,7 @@ Vara Network is a Polkadot parachain that uses the **Gear Protocol**, which requ
 ## 🚀 Getting Started with Gear Protocol
 
 ### Prerequisites
+
 ```bash
 # Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -26,6 +28,7 @@ cargo install --git https://github.com/gear-tech/gear-cli.git gear-cli
 ```
 
 ### Project Setup
+
 ```bash
 # Create new Gear project
 cargo new --lib tourii-contracts-vara
@@ -59,6 +62,7 @@ tourii-contracts-vara/
 ## 🔨 Contract Implementation
 
 ### Cargo.toml Configuration
+
 ```toml
 [package]
 name = "tourii-contracts"
@@ -80,6 +84,7 @@ gtest = { git = "https://github.com/gear-tech/gear.git" }
 ```
 
 ### Digital Passport Contract (src/digital_passport.rs)
+
 ```rust
 use gstd::{msg, prelude::*, ActorId, MessageId};
 use codec::{Decode, Encode};
@@ -146,7 +151,7 @@ impl PassportState {
         if self.next_token_id >= self.max_supply {
             return Err("Max supply reached");
         }
-        
+
         if self.owner_passports.contains_key(&to) {
             return Err("Address already has a passport");
         }
@@ -172,7 +177,7 @@ impl PassportState {
     pub fn update_metadata(&mut self, token_id: u64, new_uri: String) -> Result<(), &'static str> {
         let passport = self.passports.get_mut(&token_id)
             .ok_or("Token does not exist")?;
-        
+
         passport.metadata_uri = new_uri;
         Ok(())
     }
@@ -204,7 +209,7 @@ extern "C" fn handle() {
                 }
             }
         }
-        
+
         PassportAction::UpdateMetadata { token_id, new_uri } => {
             // Only admin can update metadata
             if msg::source() != state.admin {
@@ -246,7 +251,7 @@ extern "C" fn handle() {
 #[no_mangle]
 extern "C" fn init() {
     let init_config: InitConfig = msg::load().expect("Could not load init config");
-    
+
     let state = PassportState {
         next_token_id: 0,
         max_supply: init_config.max_supply,
@@ -265,6 +270,7 @@ pub struct InitConfig {
 ```
 
 ### Build Script (build.rs)
+
 ```rust
 use gear_wasm_builder::WasmBuilder;
 
@@ -278,6 +284,7 @@ fn main() {
 ## 🚀 Deployment Process
 
 ### 1. Build the Contract
+
 ```bash
 # Build the contract
 cargo build --release --target=wasm32-unknown-unknown
@@ -288,49 +295,55 @@ cargo build --release --target=wasm32-unknown-unknown
 ### 2. Upload to Vara Network
 
 #### Using Gear.js (JavaScript/TypeScript)
+
 ```javascript
 import { GearApi, GearKeyring } from '@gear-js/api';
 import { readFileSync } from 'fs';
 
 async function deployContract() {
-    // Connect to Vara Network
-    const api = await GearApi.create({
-        providerAddress: 'wss://rpc.vara-network.io' // Vara Network RPC
-    });
+  // Connect to Vara Network
+  const api = await GearApi.create({
+    providerAddress: 'wss://rpc.vara-network.io', // Vara Network RPC
+  });
 
-    // Create keyring for deployment
-    const keyring = await GearKeyring.fromSuri('//Alice'); // Use your seed phrase
+  // Create keyring for deployment
+  const keyring = await GearKeyring.fromSuri('//Alice'); // Use your seed phrase
 
-    // Read compiled WASM
-    const wasm = readFileSync('target/wasm32-unknown-unknown/release/tourii_contracts.wasm');
-    
-    // Read metadata
-    const metadata = readFileSync('target/wasm32-unknown-unknown/release/tourii_contracts.meta.wasm');
+  // Read compiled WASM
+  const wasm = readFileSync(
+    'target/wasm32-unknown-unknown/release/tourii_contracts.wasm',
+  );
 
-    // Deploy contract
-    const program = {
-        id: '0x...', // Program ID will be generated
-        source: msg.source,
-        payload: { max_supply: 100000 }, // Init config
-    };
+  // Read metadata
+  const metadata = readFileSync(
+    'target/wasm32-unknown-unknown/release/tourii_contracts.meta.wasm',
+  );
 
-    const tx = api.program.submit({
-        code: wasm,
-        gasLimit: 10_000_000,
-        value: 0,
-        initPayload: program.payload,
-    });
+  // Deploy contract
+  const program = {
+    id: '0x...', // Program ID will be generated
+    source: msg.source,
+    payload: { max_supply: 100000 }, // Init config
+  };
 
-    await tx.signAndSend(keyring, ({ status, events }) => {
-        if (status.isFinalized) {
-            console.log('Contract deployed successfully');
-            // Extract program ID from events
-        }
-    });
+  const tx = api.program.submit({
+    code: wasm,
+    gasLimit: 10_000_000,
+    value: 0,
+    initPayload: program.payload,
+  });
+
+  await tx.signAndSend(keyring, ({ status, events }) => {
+    if (status.isFinalized) {
+      console.log('Contract deployed successfully');
+      // Extract program ID from events
+    }
+  });
 }
 ```
 
 #### Using Gear Idea (Web Interface)
+
 1. Go to https://idea.gear-tech.io
 2. Connect your wallet
 3. Upload WASM file and metadata
@@ -338,18 +351,19 @@ async function deployContract() {
 5. Deploy contract
 
 ### 3. Interact with Contract
+
 ```javascript
 // Send message to contract
 const message = {
-    destination: contractId,
-    payload: {
-        Mint: {
-            to: userAddress,
-            metadata_uri: 'https://metadata.tourii.com/passport/1.json'
-        }
+  destination: contractId,
+  payload: {
+    Mint: {
+      to: userAddress,
+      metadata_uri: 'https://metadata.tourii.com/passport/1.json',
     },
-    gasLimit: 1_000_000,
-    value: 0,
+  },
+  gasLimit: 1_000_000,
+  value: 0,
 };
 
 await api.message.submit(message, metadata);
@@ -358,6 +372,7 @@ await api.message.submit(message, metadata);
 ## 🧪 Testing
 
 ### Unit Tests (src/lib.rs)
+
 ```rust
 #[cfg(test)]
 mod tests {
@@ -370,7 +385,7 @@ mod tests {
         system.init_logger();
 
         let program = Program::current(&system);
-        
+
         let init_config = InitConfig { max_supply: 1000 };
         let res = program.send_bytes(2, init_config);
         assert!(!res.main_failed());
@@ -395,6 +410,7 @@ mod tests {
 ```
 
 ### Run Tests
+
 ```bash
 cargo test
 ```
@@ -402,6 +418,7 @@ cargo test
 ## 📝 Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] Install Rust and Gear toolchain
 - [ ] Implement all contract functionality
 - [ ] Write comprehensive tests
@@ -409,6 +426,7 @@ cargo test
 - [ ] Test on local Gear node
 
 ### Deployment
+
 - [ ] Fund deployment account with VARA tokens
 - [ ] Deploy to Vara testnet first
 - [ ] Verify contract functionality
@@ -416,6 +434,7 @@ cargo test
 - [ ] Update database with contract addresses
 
 ### Post-Deployment
+
 - [ ] Set up contract interaction scripts
 - [ ] Implement backend integration
 - [ ] Monitor contract events
@@ -424,39 +443,41 @@ cargo test
 ## 🔗 Integration with Backend
 
 ### Database Updates
+
 ```sql
 -- Add Vara Network contracts
 INSERT INTO onchain_item_catalog (
-    item_type, 
-    blockchain_type, 
-    contract_address, 
-    metadata_url, 
+    item_type,
+    blockchain_type,
+    contract_address,
+    metadata_url,
     max_supply
-) VALUES 
+) VALUES
 ('DIGITAL_PASSPORT', 'VARA', '0x...', 'https://metadata.tourii.com/passport/', 100000),
 ('PERK', 'VARA', '0x...', 'https://metadata.tourii.com/perk/', 10000);
 ```
 
 ### Backend Service Integration
+
 ```typescript
 // tourii-onchain service integration
 import { GearApi } from '@gear-js/api';
 
 export class VaraContractService {
-    private api: GearApi;
-    
-    async mintDigitalPassport(userAddress: string, metadataUri: string) {
-        const message = {
-            destination: this.passportContractId,
-            payload: {
-                Mint: { to: userAddress, metadata_uri: metadataUri }
-            },
-            gasLimit: 1_000_000,
-            value: 0,
-        };
+  private api: GearApi;
 
-        return await this.api.message.submit(message, this.metadata);
-    }
+  async mintDigitalPassport(userAddress: string, metadataUri: string) {
+    const message = {
+      destination: this.passportContractId,
+      payload: {
+        Mint: { to: userAddress, metadata_uri: metadataUri },
+      },
+      gasLimit: 1_000_000,
+      value: 0,
+    };
+
+    return await this.api.message.submit(message, this.metadata);
+  }
 }
 ```
 
@@ -470,15 +491,15 @@ export class VaraContractService {
 
 ## 🔍 Key Differences from EVM
 
-| Aspect | EVM (Soneium/SKALE) | Vara Network (Gear) |
-|--------|---------------------|---------------------|
-| Language | Solidity | Rust |
-| Compilation | Bytecode | WebAssembly |
-| Execution | Stack-based | Actor Model |
-| State | Storage slots | Persistent memory |
-| Gas | Gas units | Gas units (different calculation) |
-| Deployment | Contract creation | Program upload |
-| Interaction | Function calls | Message passing |
+| Aspect      | EVM (Soneium/SKALE) | Vara Network (Gear)               |
+| ----------- | ------------------- | --------------------------------- |
+| Language    | Solidity            | Rust                              |
+| Compilation | Bytecode            | WebAssembly                       |
+| Execution   | Stack-based         | Actor Model                       |
+| State       | Storage slots       | Persistent memory                 |
+| Gas         | Gas units           | Gas units (different calculation) |
+| Deployment  | Contract creation   | Program upload                    |
+| Interaction | Function calls      | Message passing                   |
 
 ---
 

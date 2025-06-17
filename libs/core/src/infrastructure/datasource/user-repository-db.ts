@@ -2,6 +2,7 @@ import type { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { TaskStatus, StoryStatus } from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 import { UserMapper } from '../mapper/user.mapper';
 
@@ -10,7 +11,13 @@ export class UserRepositoryDb implements UserRepository {
     constructor(private prisma: PrismaService) {}
 
     // Complete include pattern matching UserRelationModel
-    private readonly userInclude = {
+    // Basic user info for authentication and profile
+    private readonly userBasicInclude = {
+        user_info: true,
+    };
+
+    // Full user data for detailed operations
+    private readonly userFullInclude = {
         user_info: true,
         user_achievements: true,
         user_onchain_item: true,
@@ -23,6 +30,28 @@ export class UserRepositoryDb implements UserRepository {
         discord_rewarded_roles: true,
         user_invite_log: true,
     };
+
+    // User with recent activity for feeds and stats
+    private readonly userWithActivityInclude = {
+        user_info: true,
+        user_task_log: {
+            where: { status: TaskStatus.COMPLETED },
+            take: 10,
+            orderBy: { ins_date_time: 'desc' }
+        },
+        user_story_log: {
+            where: { status: StoryStatus.COMPLETED },
+            take: 10,
+            orderBy: { ins_date_time: 'desc' }
+        },
+        user_travel_log: {
+            take: 20,
+            orderBy: { ins_date_time: 'desc' }
+        }
+    };
+
+    // Legacy include for backward compatibility
+    private readonly userInclude = this.userFullInclude;
 
     async createUser(user: UserEntity): Promise<UserEntity> {
         const createdUser = await this.prisma.user.create({
@@ -49,7 +78,7 @@ export class UserRepositoryDb implements UserRepository {
             where: {
                 username,
             },
-            include: this.userInclude,
+            include: this.userBasicInclude,
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
@@ -60,7 +89,7 @@ export class UserRepositoryDb implements UserRepository {
             where: {
                 passport_wallet_address: walletAddress,
             },
-            include: this.userInclude,
+            include: this.userBasicInclude,
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
@@ -71,7 +100,7 @@ export class UserRepositoryDb implements UserRepository {
             where: {
                 discord_id: discordId,
             },
-            include: this.userInclude,
+            include: this.userBasicInclude,
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
@@ -82,7 +111,7 @@ export class UserRepositoryDb implements UserRepository {
             where: {
                 google_email: googleEmail,
             },
-            include: this.userInclude,
+            include: this.userBasicInclude,
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
@@ -95,7 +124,7 @@ export class UserRepositoryDb implements UserRepository {
                     passport_token_id: tokenId,
                 },
             },
-            include: this.userInclude,
+            include: this.userBasicInclude,
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;

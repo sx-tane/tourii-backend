@@ -1518,7 +1518,19 @@ export class TouriiBackendController {
     }
 
     @Post('/quests/tasks/:taskId/photo-upload')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        limits: { 
+            fileSize: 10 * 1024 * 1024, // 10MB limit
+            files: 1 
+        },
+        fileFilter: (_req, file, cb) => {
+            // Only allow image files
+            if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+                return cb(new Error('Only JPEG, PNG, and WebP image files are allowed'), false);
+            }
+            cb(null, true);
+        }
+    }))
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Upload task photo' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
