@@ -1,4 +1,9 @@
-import { R2StorageRepository, TransformDate, UserTaskLogRepository, UserTravelLogRepository } from '@app/core';
+import {
+    R2StorageRepository,
+    TransformDate,
+    UserTaskLogRepository,
+    UserTravelLogRepository,
+} from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
@@ -14,27 +19,26 @@ import { UserStoryLogRepository } from '@app/core/domain/game/story/user-story-l
 import { GeoInfo } from '@app/core/domain/geo/geo-info';
 import { GeoInfoRepository } from '@app/core/domain/geo/geo-info.repository';
 import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
-import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
+import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
-import { QuestType, StoryStatus, TaskStatus } from '@prisma/client';
+import { CheckInMethod, QuestType, StoryStatus, TaskStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import { imageSize } from 'image-size';
-import type { CheckinsFetchRequestDto } from '../controller/model/tourii-request/fetch/checkins-fetch-request.model';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
 import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-request/create/quest-task-create-request.model';
-import type { QuestTaskSocialShareRequestDto } from '../controller/model/tourii-request/create/quest-task-social-share-request.model';
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
+import type { CheckinsFetchRequestDto } from '../controller/model/tourii-request/fetch/checkins-fetch-request.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
 import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
@@ -241,14 +245,14 @@ export class TouriiBackendService {
      */
     async getUserCheckins(
         query: CheckinsFetchRequestDto,
-        requestingUserId: string
+        requestingUserId: string,
     ): Promise<UserTravelLogListResponseDto> {
         // Determine target user ID - use query.userId if provided, otherwise use requesting user
         const targetUserId = query.userId || requestingUserId;
-        
+
         // Users can only see their own check-ins unless they're admin
         if (targetUserId !== requestingUserId) {
-            const user = await this.userRepository.getUserById(requestingUserId);
+            const user = await this.userRepository.getUserInfoByUserId(requestingUserId);
             if (user?.role !== 'ADMIN') {
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
             }
@@ -262,16 +266,18 @@ export class TouriiBackendService {
             startDate: query.startDate,
             endDate: query.endDate,
             checkInMethod: query.checkInMethod,
-            checkInMethods: query.source ? 
-                (query.source === 'manual' ? ['QR_CODE', 'GPS'] : ['AUTO_DETECTED', 'BACKGROUND_GPS']) :
-                undefined,
+            checkInMethods: query.source
+                ? query.source === 'manual'
+                    ? [CheckInMethod.QR_CODE, CheckInMethod.GPS]
+                    : [CheckInMethod.AUTO_DETECTED, CheckInMethod.BACKGROUND_GPS]
+                : undefined,
         };
 
         // Get paginated results from repository
         const checkins = await this.userTravelLogRepository.getUserTravelLogsWithPagination(
             filter,
             query.page,
-            query.limit
+            query.limit,
         );
 
         // Transform to response DTO
@@ -426,7 +432,7 @@ export class TouriiBackendService {
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
                     // Find tourist spots associated with this story chapter
-                    const relevantSpots = locationDetection.nearbyTouristSpots.filter(spot => {
+                    const relevantSpots = locationDetection.nearbyTouristSpots.filter((spot) => {
                         // Check if any spot is related to the story/chapter
                         return spot.touristSpotId; // Basic filter - can be enhanced with chapter-spot mapping
                     });
@@ -453,10 +459,14 @@ export class TouriiBackendService {
                                     },
                                 });
                             } catch (error) {
-                                this.logger.warn(`Failed to create story progress travel log: ${error}`);
+                                this.logger.warn(
+                                    `Failed to create story progress travel log: ${error}`,
+                                );
                             }
                         }
-                        this.logger.log(`Auto-detected story progress location for chapter: ${chapterId}`);
+                        this.logger.log(
+                            `Auto-detected story progress location for chapter: ${chapterId}`,
+                        );
                     }
                 }
             } catch (error) {
@@ -1287,8 +1297,8 @@ export class TouriiBackendService {
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
                     // Check if the queried tourist spot is among the detected ones
-                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
-                        spot.touristSpotId === touristSpotId
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(
+                        (spot) => spot.touristSpotId === touristSpotId,
                     );
 
                     if (matchingSpot) {
@@ -1309,7 +1319,9 @@ export class TouriiBackendService {
                                     presenceVerified: true,
                                 },
                             });
-                            this.logger.log(`Auto-detected user presence at tourist spot: ${touristSpotId}`);
+                            this.logger.log(
+                                `Auto-detected user presence at tourist spot: ${touristSpotId}`,
+                            );
                         } catch (error) {
                             this.logger.warn(`Failed to create auto-detected travel log: ${error}`);
                         }
@@ -1404,7 +1416,7 @@ export class TouriiBackendService {
      * @returns void
      */
     async startGroupQuest(
-        questId: string, 
+        questId: string,
         leaderId: string,
         latitude?: number,
         longitude?: number,
@@ -1449,8 +1461,8 @@ export class TouriiBackendService {
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
                     // Find quest-related tourist spots
-                    const questSpots = locationDetection.nearbyTouristSpots.filter(spot => 
-                        spot.questId === questId || spot.touristSpotId
+                    const questSpots = locationDetection.nearbyTouristSpots.filter(
+                        (spot) => spot.questId === questId || spot.touristSpotId,
                     );
 
                     if (questSpots.length > 0) {
@@ -1475,10 +1487,14 @@ export class TouriiBackendService {
                                     },
                                 });
                             } catch (error) {
-                                this.logger.warn(`Failed to create group quest start travel log: ${error}`);
+                                this.logger.warn(
+                                    `Failed to create group quest start travel log: ${error}`,
+                                );
                             }
                         }
-                        this.logger.log(`Auto-detected group quest leader location for quest: ${questId}`);
+                        this.logger.log(
+                            `Auto-detected group quest leader location for quest: ${questId}`,
+                        );
                     }
                 }
             } catch (error) {
@@ -1565,12 +1581,14 @@ export class TouriiBackendService {
 
         const fileExtension = getFileExtension(file.mimetype);
         const key = `quest-tasks/${taskId}/${userId}/proof${fileExtension}`;
-        
+
         // Try to extract location from photo EXIF data
         let detectedLocation: { latitude: number; longitude: number } | null = null;
         try {
-            detectedLocation = await this.locationTrackingService.extractLocationFromPhoto(file.buffer);
-            
+            detectedLocation = await this.locationTrackingService.extractLocationFromPhoto(
+                file.buffer,
+            );
+
             if (detectedLocation) {
                 // Check if location matches any nearby tourist spots
                 const locationDetection = await this.locationTrackingService.detectLocationFromAPI({
@@ -1583,8 +1601,8 @@ export class TouriiBackendService {
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
                     // Find the matching tourist spot for this task
-                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
-                        spot.taskId === taskId
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(
+                        (spot) => spot.taskId === taskId,
                     );
 
                     if (matchingSpot) {
@@ -1604,8 +1622,10 @@ export class TouriiBackendService {
                                     detectedDistance: matchingSpot.distance,
                                 },
                             });
-                            
-                            this.logger.log(`Auto-detected location for photo upload: ${detectedLocation.latitude}, ${detectedLocation.longitude}`);
+
+                            this.logger.log(
+                                `Auto-detected location for photo upload: ${detectedLocation.latitude}, ${detectedLocation.longitude}`,
+                            );
                         } catch (error) {
                             this.logger.warn('Failed to create auto-detected travel log', error);
                             // Don't fail the photo upload if travel log creation fails
@@ -1624,7 +1644,7 @@ export class TouriiBackendService {
             file.mimetype,
         );
         await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
-        
+
         return { message: 'Photo submitted successfully', proofUrl };
     }
 
@@ -1646,7 +1666,7 @@ export class TouriiBackendService {
     ): Promise<QuestTaskSocialShareResponseDto> {
         // Optional URL format validation
         this.validateSocialUrl(proofUrl);
-        
+
         // If location coordinates provided, try auto-detection
         if (latitude && longitude) {
             try {
@@ -1665,8 +1685,8 @@ export class TouriiBackendService {
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
                     // Find the matching tourist spot for this task
-                    const matchingSpot = locationDetection.nearbyTouristSpots.find(spot => 
-                        spot.taskId === taskId
+                    const matchingSpot = locationDetection.nearbyTouristSpots.find(
+                        (spot) => spot.taskId === taskId,
                     );
 
                     if (matchingSpot) {
@@ -1687,10 +1707,15 @@ export class TouriiBackendService {
                                     detectedDistance: matchingSpot.distance,
                                 },
                             });
-                            
-                            this.logger.log(`Auto-detected location for social share: ${latitude}, ${longitude}`);
+
+                            this.logger.log(
+                                `Auto-detected location for social share: ${latitude}, ${longitude}`,
+                            );
                         } catch (error) {
-                            this.logger.warn('Failed to create auto-detected travel log for social share', error);
+                            this.logger.warn(
+                                'Failed to create auto-detected travel log for social share',
+                                error,
+                            );
                             // Don't fail the social share if travel log creation fails
                         }
                     }
@@ -1700,7 +1725,7 @@ export class TouriiBackendService {
                 // Continue with social share completion even if location detection fails
             }
         }
-        
+
         await this.userTaskLogRepository.completeSocialTask(userId, taskId, proofUrl);
         return { message: 'Social share recorded.' };
     }
@@ -1713,7 +1738,7 @@ export class TouriiBackendService {
         try {
             const parsedUrl = new URL(url);
             const domain = parsedUrl.hostname.toLowerCase();
-            
+
             // List of supported social media platforms
             const supportedPlatforms = [
                 'twitter.com',
@@ -1723,18 +1748,18 @@ export class TouriiBackendService {
                 'linkedin.com',
                 'tiktok.com',
                 'youtube.com',
-                'reddit.com'
+                'reddit.com',
             ];
-            
-            const isSupported = supportedPlatforms.some(platform => 
-                domain === platform || domain === `www.${platform}`
+
+            const isSupported = supportedPlatforms.some(
+                (platform) => domain === platform || domain === `www.${platform}`,
             );
-            
+
             if (!isSupported) {
                 Logger.warn(`Unsupported social platform: ${domain}`, 'TouriiBackendService');
                 // Note: We don't throw an error here to be flexible with new platforms
             }
-        } catch (error) {
+        } catch (_error) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
     }

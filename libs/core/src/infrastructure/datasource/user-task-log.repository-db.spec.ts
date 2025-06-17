@@ -327,9 +327,9 @@ describe('UserTaskLogRepositoryDb', () => {
             const prismaError = new Error('Database connection failed');
             jest.spyOn(prisma.quest_task, 'findUnique').mockRejectedValueOnce(prismaError);
 
-            await expect(repository.completeSocialTask(userId, taskId, socialProofUrl)).rejects.toThrow(
-                prismaError,
-            );
+            await expect(
+                repository.completeSocialTask(userId, taskId, socialProofUrl),
+            ).rejects.toThrow(prismaError);
         });
 
         it('should preserve existing task log fields when updating social task', async () => {
@@ -385,7 +385,7 @@ describe('UserTaskLogRepositoryDb', () => {
 
             for (const [index, url] of testCases.entries()) {
                 const uniqueTaskId = `${taskId}-${index}`;
-                
+
                 // Create a unique task for each test case
                 await prisma.quest_task.create({
                     data: {
@@ -426,7 +426,7 @@ describe('UserTaskLogRepositoryDb', () => {
 
         it('should handle concurrent social task completions without conflicts', async () => {
             const promises = Array.from({ length: 5 }, (_, i) =>
-                repository.completeSocialTask(userId, taskId, `${socialProofUrl}${i}`)
+                repository.completeSocialTask(userId, taskId, `${socialProofUrl}${i}`),
             );
 
             await Promise.all(promises);
@@ -447,7 +447,7 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLogs[0].submission_data).toEqual(
                 expect.objectContaining({
                     social_url: expect.stringContaining(socialProofUrl),
-                })
+                }),
             );
         });
     });

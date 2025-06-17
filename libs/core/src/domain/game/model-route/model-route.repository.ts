@@ -36,9 +36,7 @@ export interface ModelRouteRepository {
      * @param storyChapterId story chapter identifier
      * @returns list of TouristSpot entities
      */
-    getTouristSpotsByStoryChapterId(
-        storyChapterId: string,
-    ): Promise<TouristSpot[]>;
+    getTouristSpotsByStoryChapterId(storyChapterId: string): Promise<TouristSpot[]>;
 
     /**
      * Get model route by model route id

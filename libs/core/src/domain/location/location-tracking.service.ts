@@ -4,7 +4,15 @@ export interface LocationDetectionRequest {
     userId: string;
     latitude?: number;
     longitude?: number;
-    apiSource?: 'weather_api' | 'google_places' | 'photo_upload' | 'manual_query';
+    apiSource?:
+        | 'weather_api'
+        | 'google_places'
+        | 'photo_upload'
+        | 'manual_query'
+        | 'group_quest_start'
+        | 'social_share'
+        | 'quest_spot_query'
+        | 'story_progress';
     confidence?: number;
     metadata?: Record<string, any>;
 }
@@ -45,7 +53,9 @@ export abstract class LocationTrackingService {
      * Detect if user's location matches any tourist spots
      * and recommend automatic check-in
      */
-    abstract detectLocationFromAPI(request: LocationDetectionRequest): Promise<LocationDetectionResult | null>;
+    abstract detectLocationFromAPI(
+        request: LocationDetectionRequest,
+    ): Promise<LocationDetectionResult | null>;
 
     /**
      * Automatically create travel log when location is detected
@@ -57,15 +67,17 @@ export abstract class LocationTrackingService {
      * Find nearby tourist spots within a given radius
      */
     abstract findNearbyTouristSpots(
-        latitude: number, 
-        longitude: number, 
-        radiusKm?: number
-    ): Promise<Array<{
-        touristSpotId: string;
-        distance: number;
-        questId?: string;
-        taskId?: string;
-    }>>;
+        latitude: number,
+        longitude: number,
+        radiusKm?: number,
+    ): Promise<
+        Array<{
+            touristSpotId: string;
+            distance: number;
+            questId?: string;
+            taskId?: string;
+        }>
+    >;
 
     /**
      * Extract location from photo EXIF data
@@ -83,7 +95,7 @@ export abstract class LocationTrackingService {
         userLng: number,
         targetLat: number,
         targetLng: number,
-        maxDistanceMeters?: number
+        maxDistanceMeters?: number,
     ): {
         isValid: boolean;
         distance: number;

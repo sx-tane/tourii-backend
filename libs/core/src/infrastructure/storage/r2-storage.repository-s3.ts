@@ -78,6 +78,43 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
         }
     }
 
+    async uploadMetadata(metadata: object, key: string): Promise<string> {
+        try {
+            const bucket = this.config.get<string>('R2_BUCKET');
+
+            if (!bucket) {
+                throw new Error('R2_BUCKET environment variable is not set');
+            }
+
+            const metadataJson = JSON.stringify(metadata, null, 2);
+            const buffer = Buffer.from(metadataJson, 'utf-8');
+
+            const command = new PutObjectCommand({
+                Bucket: bucket,
+                Key: key,
+                Body: buffer,
+                ContentType: 'application/json',
+                ACL: 'public-read',
+                CacheControl: 'max-age=3600', // Cache for 1 hour
+            });
+
+            await this.s3Client.send(command);
+
+            const publicUrl = this.generatePublicUrl(key);
+            this.logger.log(`Metadata uploaded successfully to R2: ${publicUrl}`);
+
+            return publicUrl;
+        } catch (error) {
+            this.logger.error(
+                `Failed to upload metadata to R2: ${error instanceof Error ? error.message : String(error)}`,
+                error instanceof Error ? error.stack : undefined,
+            );
+            throw new Error(
+                `R2 metadata upload failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
+    }
+
     generatePublicUrl(key: string): string {
         const customDomain = this.config.get<string>('R2_PUBLIC_DOMAIN')?.replace(/\/$/, '');
 

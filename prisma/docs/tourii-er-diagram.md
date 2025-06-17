@@ -131,6 +131,8 @@ LOCAL_INTERACTION LOCAL_INTERACTION
         CheckInMethod {
             QR_CODE QR_CODE
 GPS GPS
+AUTO_DETECTED AUTO_DETECTED
+BACKGROUND_GPS BACKGROUND_GPS
         }
     
 
@@ -245,6 +247,7 @@ EVENT EVENT
     String user_id 
     String digital_passport_address 
     String log_nft_address 
+    String passport_token_id "❓"
     PassportType user_digital_passport_type "❓"
     LevelType level "❓"
     Float discount_rate "❓"

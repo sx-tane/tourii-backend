@@ -623,6 +623,9 @@ model user_info {
   /// Blockchain address for the user's log NFT
   log_nft_address String @default("''")
 
+  /// Token ID for the user's digital passport NFT
+  passport_token_id String? @db.VarChar(255)
+
   /// Type of digital passport assigned to the user
   /// 
   /// | Type         | Description                                 |

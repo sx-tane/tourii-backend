@@ -1,14 +1,14 @@
-import type { CheckInMethod } from '@prisma/client';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { 
-    LocationTrackingService, 
-    LocationDetectionRequest, 
+import type { CheckInMethod } from '@prisma/client';
+import * as ExifReader from 'exifreader';
+import type { QuestRepository } from '../../domain/game/quest/quest.repository';
+import type {
+    AutoTravelLogRequest,
+    LocationDetectionRequest,
     LocationDetectionResult,
-    AutoTravelLogRequest 
+    LocationTrackingService,
 } from '../../domain/location/location-tracking.service';
 import type { UserTravelLogRepository } from '../../domain/user/user-travel-log.repository';
-import type { QuestRepository } from '../../domain/game/quest/quest.repository';
-import * as ExifReader from 'exifreader';
 
 @Injectable()
 export class LocationTrackingServiceImpl implements LocationTrackingService {
@@ -23,7 +23,9 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
         private readonly questRepository: QuestRepository,
     ) {}
 
-    async detectLocationFromAPI(request: LocationDetectionRequest): Promise<LocationDetectionResult | null> {
+    async detectLocationFromAPI(
+        request: LocationDetectionRequest,
+    ): Promise<LocationDetectionResult | null> {
         if (!request.latitude || !request.longitude) {
             return null;
         }
@@ -33,7 +35,7 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
             const nearbySpots = await this.findNearbyTouristSpots(
                 request.latitude,
                 request.longitude,
-                this.PROXIMITY_RADIUS_KM
+                this.PROXIMITY_RADIUS_KM,
             );
 
             if (nearbySpots.length === 0) {
@@ -42,7 +44,7 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
 
             // Determine recommended check-in method based on API source
             const checkInMethod = this.determineCheckInMethod(request.apiSource);
-            
+
             // Calculate confidence based on API source and proximity
             const confidence = this.calculateConfidence(request.apiSource, nearbySpots);
 
@@ -78,29 +80,35 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
             // Metadata could be stored in submission_data for user_task_log
         });
 
-        this.logger.log(`Auto-detected travel log created: ${travelLogId} for user ${request.userId}`);
+        this.logger.log(
+            `Auto-detected travel log created: ${travelLogId} for user ${request.userId}`,
+        );
         return travelLogId;
     }
 
     async findNearbyTouristSpots(
-        latitude: number, 
-        longitude: number, 
-        radiusKm = this.PROXIMITY_RADIUS_KM
-    ): Promise<Array<{
-        touristSpotId: string;
-        distance: number;
-        questId?: string;
-        taskId?: string;
-    }>> {
+        latitude: number,
+        longitude: number,
+        radiusKm = this.PROXIMITY_RADIUS_KM,
+    ): Promise<
+        Array<{
+            touristSpotId: string;
+            distance: number;
+            questId?: string;
+            taskId?: string;
+        }>
+    > {
         try {
             // This would typically query the tourist spot and quest repositories
             // For now, return empty array as repositories need to be extended
-            this.logger.log(`Searching for tourist spots near ${latitude}, ${longitude} within ${radiusKm}km`);
-            
+            this.logger.log(
+                `Searching for tourist spots near ${latitude}, ${longitude} within ${radiusKm}km`,
+            );
+
             // TODO: Implement actual database query with spatial search
             // const touristSpots = await this.touristSpotRepository.findNearby(latitude, longitude, radiusKm);
             // const quests = await this.questRepository.findByTouristSpots(touristSpots.map(ts => ts.id));
-            
+
             return [];
         } catch (error) {
             this.logger.error('Error finding nearby tourist spots', error);
@@ -114,15 +122,15 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
     } | null> {
         try {
             const tags = ExifReader.load(photoBuffer);
-            
+
             if (tags.GPSLatitude && tags.GPSLongitude) {
                 const latitude = this.convertDMSToDD(
                     tags.GPSLatitude.description,
-                    tags.GPSLatitudeRef?.value?.[0]
+                    tags.GPSLatitudeRef?.value as string,
                 );
                 const longitude = this.convertDMSToDD(
                     tags.GPSLongitude.description,
-                    tags.GPSLongitudeRef?.value?.[0]
+                    tags.GPSLongitudeRef?.value as string,
                 );
 
                 if (latitude !== null && longitude !== null) {
@@ -142,7 +150,7 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
         userLng: number,
         targetLat: number,
         targetLng: number,
-        maxDistanceMeters = this.VALIDATION_DISTANCE_METERS
+        maxDistanceMeters = this.VALIDATION_DISTANCE_METERS,
     ): { isValid: boolean; distance: number } {
         const distance = this.calculateDistance(userLat, userLng, targetLat, targetLng);
         const distanceMeters = distance * 1000; // Convert km to meters
@@ -163,6 +171,12 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
                 return 'AUTO_DETECTED';
             case 'manual_query':
                 return 'GPS';
+            case 'group_quest_start':
+                return 'AUTO_DETECTED';
+            case 'social_share':
+                return 'AUTO_DETECTED';
+            case 'quest_spot_query':
+                return 'AUTO_DETECTED';
             default:
                 return 'AUTO_DETECTED';
         }
@@ -188,10 +202,12 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
 
         // Adjust confidence based on proximity to tourist spots
         if (nearbySpots && nearbySpots.length > 0) {
-            const closestDistance = Math.min(...nearbySpots.map(spot => spot.distance));
-            if (closestDistance < 0.1) { // Less than 100m
+            const closestDistance = Math.min(...nearbySpots.map((spot) => spot.distance));
+            if (closestDistance < 0.1) {
+                // Less than 100m
                 baseConfidence += 0.2;
-            } else if (closestDistance < 0.5) { // Less than 500m
+            } else if (closestDistance < 0.5) {
+                // Less than 500m
                 baseConfidence += 0.1;
             }
         }
@@ -203,10 +219,12 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
         const R = 6371; // Earth's radius in kilometers
         const dLat = this.degToRad(lat2 - lat1);
         const dLng = this.degToRad(lng2 - lng1);
-        const a = 
+        const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(this.degToRad(lat1)) * Math.cos(this.degToRad(lat2)) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            Math.cos(this.degToRad(lat1)) *
+                Math.cos(this.degToRad(lat2)) *
+                Math.sin(dLng / 2) *
+                Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
@@ -221,9 +239,9 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
             const matches = dmsString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"/);
             if (!matches) return null;
 
-            const degrees = parseInt(matches[1]);
-            const minutes = parseInt(matches[2]);
-            const seconds = parseFloat(matches[3]);
+            const degrees = Number.parseInt(matches[1]);
+            const minutes = Number.parseInt(matches[2]);
+            const seconds = Number.parseFloat(matches[3]);
 
             let dd = degrees + minutes / 60 + seconds / 3600;
 
