@@ -134,12 +134,13 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
                     select: { tourist_spot_name: true },
                 });
 
-                // Find quests to unlock at this tourist spot
+                // Find quests to unlock at this tourist spot (non-premium only)
                 const questsToUnlock = await prisma.quest.findMany({
                     where: {
                         tourist_spot_id: chapter.tourist_spot_id,
                         del_flag: false,
                         is_unlocked: false,
+                        is_premium: false,
                     },
                     select: {
                         quest_id: true,
@@ -265,6 +266,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
                     story_chapter_id: chapterId,
                     status: StoryStatus.IN_PROGRESS,
                     unlocked_at: now,
+                    finished_at: null,
                     request_id: ContextStorage.getStore()?.getRequestId()?.value,
                     ins_user_id: userId,
                     ins_date_time: now,
@@ -289,6 +291,12 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             },
         });
 
-        return log || null;
+        if (!log) return null;
+
+        return {
+            status: log.status,
+            unlockedAt: log.unlocked_at,
+            finishedAt: log.finished_at,
+        };
     }
 }
