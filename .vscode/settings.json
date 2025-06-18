@@ -38,5 +38,6 @@
     "editor.tabSize": 2,
     "files.autoSave": "onFocusChange",
     "prettier.prettierPath": "./node_modules/prettier",
+    "git.ignoreLimitWarning": true,
     /*"jest.jestCommandLine": "npm test:ci",*/
 }

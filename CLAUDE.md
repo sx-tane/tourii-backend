@@ -45,7 +45,7 @@ pnpm format:prettier              # Format YAML/MD files
 pnpm format:biome                 # Format JS/TS files
 
 # Lint
-pnpm lint                         # Run linter
+pnpm lint                         # Run linter (may need: pnpm exec biome lint . in WSL)
 pnpm check                        # Run biome check with autofix
 ```
 

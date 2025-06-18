@@ -18,7 +18,11 @@
       "Bash(rg:*)",
       "Bash(pnpm prisma db execute:*)",
       "Bash(cat:*)",
-      "Bash(pnpm:*)"
+      "Bash(pnpm:*)",
+      "Bash(node:*)",
+      "Bash(npx biome:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(./node_modules/.bin/prisma:*)"
     ],
     "deny": []
   }

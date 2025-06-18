@@ -12,19 +12,32 @@ git clone [repo-url]
 cd tourii-backend
 pnpm install
 
-# 2. Start database
-cd etc/docker && docker-compose up -d
+# 2. Start databases (dev + test)
+cd etc/docker && docker-compose up db test_db -d
 
 # 3. Setup environment and database
 cp .env.example .env
 pnpm run prisma:migrate:dev
 pnpm run prisma:db:execute
 
-# 4. Start development
-pnpm start:dev
+# 4. Generate Prisma client
+pnpm exec prisma generate
+
+# 5. Start development
+pnpm start:dev:tourii-backend
 ```
 
-**✅ Done!** API should be running at `http://localhost:3000`
+**✅ Done!** API should be running at `http://localhost:4000`
+
+### 🔧 Troubleshooting WSL/Linux Issues
+
+If you encounter `biome` command not found:
+```bash
+# The biome CLI may not link properly in WSL
+# Use npx or pnpm exec instead:
+pnpm exec biome lint .
+pnpm exec biome check --write .
+```
 
 ---
 
