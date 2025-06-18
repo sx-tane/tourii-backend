@@ -20,6 +20,7 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
             findUnique: jest.fn(),
         },
         user_task_log: {
+            findUnique: jest.fn(),
             upsert: jest.fn(),
         },
     };
@@ -61,26 +62,18 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
         const questId = 'test-quest-id';
         const magatama_point_awarded = 100;
 
-        const mockTaskWithLog = {
+        const mockTask = {
             quest_id: questId,
             task_type: 'CHECK_IN',
             required_action: JSON.stringify({ qr_code_value: 'VALID_QR_CODE_123' }),
             magatama_point_awarded,
-            user_task_log: [], // No existing logs
-        };
-
-        const mockTaskWithExistingLog = {
-            quest_id: questId,
-            task_type: 'CHECK_IN',
-            required_action: JSON.stringify({ qr_code_value: 'VALID_QR_CODE_123' }),
-            magatama_point_awarded,
-            user_task_log: [{ user_id: userId }], // Existing log
         };
 
         it('should complete QR scan task successfully', async () => {
             // Mock the transaction
             prismaService.$transaction.mockImplementation(async (callback) => {
-                mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(mockTaskWithLog);
+                mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(mockTask);
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue(null); // No existing log
                 mockTransactionPrisma.user_task_log.upsert.mockResolvedValue({} as any);
                 return callback(mockTransactionPrisma);
             });
@@ -99,15 +92,19 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
                     task_type: true,
                     required_action: true,
                     magatama_point_awarded: true,
-                    user_task_log: {
-                        where: {
-                            user_id: userId,
-                            task_id: taskId,
-                        },
-                        select: {
-                            user_id: true,
-                        },
+                },
+            });
+
+            expect(mockTransactionPrisma.user_task_log.findUnique).toHaveBeenCalledWith({
+                where: {
+                    user_id_quest_id_task_id: {
+                        user_id: userId,
+                        quest_id: questId,
+                        task_id: taskId,
                     },
+                },
+                select: {
+                    user_id: true,
                 },
             });
 
@@ -129,7 +126,8 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
         it('should throw E_TB_032 error if task already completed', async () => {
             prismaService.$transaction.mockImplementation(async (callback) => {
-                mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(mockTaskWithExistingLog);
+                mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(mockTask);
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue({ user_id: userId }); // Existing log
                 return callback(mockTransactionPrisma);
             });
 
@@ -144,12 +142,13 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
         it('should throw E_TB_030 error if task type is not CHECK_IN', async () => {
             const invalidTaskType = {
-                ...mockTaskWithLog,
+                ...mockTask,
                 task_type: 'PHOTO_UPLOAD',
             };
 
             prismaService.$transaction.mockImplementation(async (callback) => {
                 mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(invalidTaskType);
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue(null);
                 return callback(mockTransactionPrisma);
             });
 
@@ -162,12 +161,13 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
         it('should throw E_TB_033 error if required_action is invalid JSON', async () => {
             const invalidTask = {
-                ...mockTaskWithLog,
+                ...mockTask,
                 required_action: 'invalid json',
             };
 
             prismaService.$transaction.mockImplementation(async (callback) => {
                 mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(invalidTask);
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue(null);
                 return callback(mockTransactionPrisma);
             });
 
@@ -180,12 +180,13 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
         it('should throw E_TB_031 error if QR code does not match', async () => {
             const taskWithDifferentQR = {
-                ...mockTaskWithLog,
+                ...mockTask,
                 required_action: JSON.stringify({ qr_code_value: 'DIFFERENT_CODE' }),
             };
 
             prismaService.$transaction.mockImplementation(async (callback) => {
                 mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(taskWithDifferentQR);
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue(null);
                 return callback(mockTransactionPrisma);
             });
 
