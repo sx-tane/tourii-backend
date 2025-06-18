@@ -142,4 +142,4 @@ All contracts follow ERC721 metadata standards with Tourii-specific extensions:
 
 ---
 
-_Last Updated: June 16, 2025_
+_Last Updated: June 18, 2025_
