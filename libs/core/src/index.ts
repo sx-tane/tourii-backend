@@ -10,6 +10,7 @@ export * from './provider/tourii-core-logging-service';
 // Utils
 export * from './utils/date-utils';
 export * from './utils/env-utils';
+export * from './utils/security-utils';
 
 // Domain - Auth
 export * from './domain/auth/encryption.repository';
@@ -32,12 +33,16 @@ export * from './domain/geo/geo-info.repository';
 export * from './domain/geo/weather-info';
 export * from './domain/geo/weather-info.repository';
 
+// Domain - Location
+export * from './domain/location/location-tracking.service';
+
 // Domain - Passport
 export * from './domain/passport/digital-passport.repository';
 
 // Domain - User
 export * from './domain/user/user.entity';
 export * from './domain/user/user.repository';
+export * from './domain/user/user-travel-log.repository';
 export * from './domain/feed/moment.entity';
 export * from './domain/feed/moment-type';
 export * from './domain/feed/moment.repository';
@@ -52,6 +57,7 @@ export * from './infrastructure/datasource/quest-repository-db';
 export * from './infrastructure/datasource/story-repository-db';
 export * from './infrastructure/datasource/user-repository-db';
 export * from './infrastructure/datasource/user-story-log.repository-db';
+export * from './infrastructure/datasource/user-travel-log.repository-db';
 export * from './infrastructure/datasource/moment.repository-db';
 
 // Support
@@ -66,3 +72,6 @@ export * from './domain/storage/r2-storage.repository';
 export * from './domain/game/quest/user-task-log.repository';
 export * from './infrastructure/storage/r2-storage.repository-s3';
 export * from './infrastructure/datasource/user-task-log.repository-db';
+
+// Infrastructure - Location
+export * from './infrastructure/location/location-tracking.service-impl';

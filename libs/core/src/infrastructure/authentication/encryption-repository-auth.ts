@@ -10,7 +10,10 @@ import { u8aToHex } from '@polkadot/util';
 export class EncryptionRepositoryAuth implements EncryptionRepository {
     private readonly secretKey: Buffer;
     constructor(protected readonly configService: ConfigService) {
-        const key = this.configService.get<string>('ENCRYPTION_KEY') || 'defaultSecretKey';
+        const key = this.configService.get<string>('ENCRYPTION_KEY');
+        if (!key) {
+            throw new Error('ENCRYPTION_KEY environment variable is required for security');
+        }
         this.secretKey = crypto.createHash('sha256').update(key).digest();
     }
 

@@ -475,4 +475,208 @@ describe('QuestRepositoryDb', () => {
         const completed = await repository.isQuestCompleted('qtask', 'user1');
         expect(completed).toBe(true);
     });
+
+    it('returns top 3 most popular quests based on completed tasks', async () => {
+        // Clean existing user_task_log entries to avoid unique constraint violations
+        await prisma.user_task_log.deleteMany({});
+
+        // Create additional test users for more realistic data
+        await prisma.user.createMany({
+            data: [
+                {
+                    user_id: 'user2',
+                    username: 'testuser2',
+                    password: 'hashedpassword',
+                    perks_wallet_address: 'test-wallet-address-2',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+                {
+                    user_id: 'user3',
+                    username: 'testuser3',
+                    password: 'hashedpassword',
+                    perks_wallet_address: 'test-wallet-address-3',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+            ],
+        });
+
+        // Create more quest tasks to generate meaningful completion data
+        await prisma.quest_task.createMany({
+            data: [
+                {
+                    quest_task_id: 'task2',
+                    quest_id: 'quest1',
+                    task_theme: 'STORY',
+                    task_type: 'CHECK_IN',
+                    task_name: 'Task 2',
+                    task_desc: 'desc',
+                    is_unlocked: true,
+                    required_action: 'A',
+                    group_activity_members: [],
+                    select_options: [],
+                    anti_cheat_rules: {},
+                    magatama_point_awarded: 1,
+                    reward_earned: '1',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+                {
+                    quest_task_id: 'task3',
+                    quest_id: 'quest2',
+                    task_theme: 'STORY',
+                    task_type: 'CHECK_IN',
+                    task_name: 'Task 3',
+                    task_desc: 'desc',
+                    is_unlocked: true,
+                    required_action: 'A',
+                    group_activity_members: [],
+                    select_options: [],
+                    anti_cheat_rules: {},
+                    magatama_point_awarded: 1,
+                    reward_earned: '1',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+                {
+                    quest_task_id: 'task4_popular',
+                    quest_id: 'qtask',
+                    task_theme: 'STORY',
+                    task_type: 'CHECK_IN',
+                    task_name: 'Task 4 for popularity test',
+                    task_desc: 'desc',
+                    is_unlocked: true,
+                    required_action: 'A',
+                    group_activity_members: [],
+                    select_options: [],
+                    anti_cheat_rules: {},
+                    magatama_point_awarded: 1,
+                    reward_earned: '1',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+            ],
+        });
+
+        // Create task completion logs to make quest1 most popular, quest2 second most popular
+        await prisma.user_task_log.createMany({
+            data: [
+                // quest1 completions (6 total - making it most popular)
+                {
+                    user_id: 'user1',
+                    quest_id: 'quest1',
+                    task_id: 'task1',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user1',
+                    quest_id: 'quest1',
+                    task_id: 'task2',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user2',
+                    quest_id: 'quest1',
+                    task_id: 'task1',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user2',
+                    quest_id: 'quest1',
+                    task_id: 'task2',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user3',
+                    quest_id: 'quest1',
+                    task_id: 'task1',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user3',
+                    quest_id: 'quest1',
+                    task_id: 'task2',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+
+                // quest2 completions (3 total - making it second most popular)
+                {
+                    user_id: 'user1',
+                    quest_id: 'quest2',
+                    task_id: 'task3',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user2',
+                    quest_id: 'quest2',
+                    task_id: 'task3',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+                {
+                    user_id: 'user3',
+                    quest_id: 'quest2',
+                    task_id: 'task3',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+
+                // qtask completions (1 total - making it third most popular)
+                {
+                    user_id: 'user1',
+                    quest_id: 'qtask',
+                    task_id: 'task4_popular',
+                    status: 'COMPLETED',
+                    action: 'CHECK_IN',
+                    group_activity_members: [],
+                },
+            ],
+        });
+
+        const topQuests = await repository.getMostPopularQuest();
+
+        // Should return an array of quests
+        expect(Array.isArray(topQuests)).toBe(true);
+        expect(topQuests.length).toBeGreaterThan(0);
+        expect(topQuests.length).toBeLessThanOrEqual(3);
+
+        // Should be ordered by popularity (most popular first)
+        if (topQuests.length >= 2) {
+            expect(topQuests[0].questId).toBe('quest1'); // Most popular
+            expect(topQuests[1].questId).toBe('quest2'); // Second most popular
+        }
+
+        if (topQuests.length >= 3) {
+            expect(topQuests[2].questId).toBe('qtask'); // Third most popular
+        }
+    });
+
+    it('returns empty array when no completed tasks exist', async () => {
+        // Clean task logs to simulate no completions
+        await prisma.user_task_log.deleteMany({
+            where: { status: 'COMPLETED' },
+        });
+
+        const topQuests = await repository.getMostPopularQuest();
+
+        expect(Array.isArray(topQuests)).toBe(true);
+        expect(topQuests.length).toBe(0);
+    });
 });

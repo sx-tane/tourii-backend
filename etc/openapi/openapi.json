@@ -1235,11 +1235,15 @@
                         "type": "string",
                         "enum": [
                           "QR_CODE",
-                          "GPS"
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
                         ],
                         "x-enumNames": [
                           "QR_CODE",
-                          "GPS"
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
                         ]
                       },
                       "detectedFraud": {
@@ -1563,6 +1567,273 @@
           }
         },
         "summary": "Get current user's basic profile",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/checkins": {
+      "get": {
+        "description": "Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.",
+        "operationId": "TouriiBackendController_getCheckins",
+        "parameters": [
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter to date (ISO format)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter from date (ISO format)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "touristSpotId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific tourist spot ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific quest ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific user ID (admin only)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page (default: 20, max: 100)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User travel checkins retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "checkins": {
+                  "description": "List of user travel log checkins",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userTravelLogId": {
+                        "description": "Travel log ID",
+                        "type": "string"
+                      },
+                      "userId": {
+                        "description": "User ID",
+                        "type": "string"
+                      },
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "taskId": {
+                        "description": "Task ID",
+                        "type": "string"
+                      },
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "userLongitude": {
+                        "description": "User longitude",
+                        "type": "number"
+                      },
+                      "userLatitude": {
+                        "description": "User latitude",
+                        "type": "number"
+                      },
+                      "travelDistanceFromTarget": {
+                        "description": "Distance from target",
+                        "type": "number"
+                      },
+                      "travelDistance": {
+                        "description": "Travel distance",
+                        "type": "number"
+                      },
+                      "qrCodeValue": {
+                        "description": "QR code value",
+                        "type": "string"
+                      },
+                      "checkInMethod": {
+                        "description": "Check-in method",
+                        "type": "string",
+                        "enum": [
+                          "QR_CODE",
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
+                        ],
+                        "x-enumNames": [
+                          "QR_CODE",
+                          "GPS",
+                          "AUTO_DETECTED",
+                          "BACKGROUND_GPS"
+                        ]
+                      },
+                      "detectedFraud": {
+                        "description": "Fraud detected",
+                        "type": "boolean"
+                      },
+                      "fraudReason": {
+                        "description": "Fraud reason",
+                        "type": "string"
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "userTravelLogId",
+                      "userId",
+                      "questId",
+                      "taskId",
+                      "touristSpotId",
+                      "userLongitude",
+                      "userLatitude",
+                      "travelDistance"
+                    ]
+                  }
+                },
+                "pagination": {
+                  "description": "Pagination information",
+                  "type": "object",
+                  "properties": {
+                    "currentPage": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    },
+                    "totalItems": {
+                      "description": "Total number of items",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "currentPage",
+                    "totalPages",
+                    "totalItems"
+                  ]
+                }
+              },
+              "required": [
+                "checkins",
+                "pagination"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTravelLogListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get User Travel Checkins",
         "tags": [
           "User"
         ]
@@ -3464,6 +3735,14 @@
                       "IN_PROGRESS",
                       "COMPLETED"
                     ]
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -3507,6 +3786,311 @@
           }
         },
         "summary": "Save chapter reading progress",
+        "tags": [
+          "Stories"
+        ]
+      }
+    },
+    "/stories/chapters/{chapterId}/action": {
+      "post": {
+        "description": "Handles story start, complete, and progress actions based on X-Story-Action header",
+        "operationId": "TouriiBackendController_handleStoryAction",
+        "parameters": [
+          {
+            "name": "chapterId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Story-Action",
+            "required": true,
+            "in": "header",
+            "description": "Story action to perform: start, complete, or progress",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start",
+                "complete",
+                "progress"
+              ]
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID (used for progress action when body is not provided)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "Story action request (required for start/complete, optional for progress)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "description": "ID of the user performing the story action",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Story action completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "description": "Whether the story completion was successful",
+                          "type": "boolean"
+                        },
+                        "message": {
+                          "description": "Success or error message",
+                          "type": "string"
+                        },
+                        "storyProgress": {
+                          "description": "Story progress information",
+                          "type": "object",
+                          "properties": {
+                            "storyChapterId": {
+                              "description": "ID of the completed story chapter",
+                              "type": "string"
+                            },
+                            "chapterTitle": {
+                              "description": "Title of the completed chapter",
+                              "type": "string"
+                            },
+                            "status": {
+                              "description": "Current story status",
+                              "type": "string",
+                              "enum": [
+                                "UNREAD",
+                                "IN_PROGRESS",
+                                "COMPLETED"
+                              ],
+                              "x-enumNames": [
+                                "UNREAD",
+                                "IN_PROGRESS",
+                                "COMPLETED"
+                              ]
+                            },
+                            "completedAt": {
+                              "description": "Timestamp when the story was completed",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "storyChapterId",
+                            "chapterTitle",
+                            "status",
+                            "completedAt"
+                          ]
+                        },
+                        "unlockedQuests": {
+                          "description": "List of quests unlocked by completing this story",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "questId": {
+                                "description": "ID of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questName": {
+                                "description": "Name of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questDesc": {
+                                "description": "Description of the unlocked quest",
+                                "type": "string"
+                              },
+                              "questImage": {
+                                "description": "Image URL for the quest",
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "touristSpotName": {
+                                "description": "Name of the tourist spot where the quest is located",
+                                "type": "string"
+                              },
+                              "totalMagatamaPointAwarded": {
+                                "description": "Total magatama points awarded for completing this quest",
+                                "type": "number"
+                              },
+                              "isPremium": {
+                                "description": "Whether this is a premium quest",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "questId",
+                              "questName",
+                              "questDesc",
+                              "questImage",
+                              "touristSpotName",
+                              "totalMagatamaPointAwarded",
+                              "isPremium"
+                            ]
+                          }
+                        },
+                        "rewards": {
+                          "description": "Rewards earned from story completion",
+                          "type": "object",
+                          "properties": {
+                            "magatamaPointsEarned": {
+                              "description": "Total magatama points earned from story completion and achievements",
+                              "type": "number"
+                            },
+                            "achievementsUnlocked": {
+                              "description": "List of achievement names unlocked",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "magatamaPointsEarned",
+                            "achievementsUnlocked"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "success",
+                        "message",
+                        "storyProgress",
+                        "unlockedQuests",
+                        "rewards"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "storyChapterId": {
+                          "description": "ID of the story chapter",
+                          "type": "string"
+                        },
+                        "status": {
+                          "description": "Current reading status",
+                          "type": "string",
+                          "enum": [
+                            "UNREAD",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                          ],
+                          "x-enumNames": [
+                            "UNREAD",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                          ]
+                        },
+                        "unlockedAt": {
+                          "description": "Timestamp when the user started reading",
+                          "nullable": true
+                        },
+                        "finishedAt": {
+                          "description": "Timestamp when the user finished reading",
+                          "nullable": true
+                        },
+                        "canStart": {
+                          "description": "Whether the user can start reading this chapter",
+                          "type": "boolean"
+                        },
+                        "canComplete": {
+                          "description": "Whether the user can complete this chapter",
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "storyChapterId",
+                        "status",
+                        "unlockedAt",
+                        "finishedAt",
+                        "canStart",
+                        "canComplete"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Consolidated story action endpoint",
         "tags": [
           "Stories"
         ]
@@ -7052,6 +7636,24 @@
             }
           },
           {
+            "name": "latitude",
+            "required": false,
+            "in": "query",
+            "description": "Latitude for location tracking",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "required": false,
+            "in": "query",
+            "description": "Longitude for location tracking",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
@@ -9448,6 +10050,14 @@
                   "userId": {
                     "description": "User ID of the quest leader starting the quest",
                     "type": "string"
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -9620,6 +10230,278 @@
           }
         },
         "summary": "Upload task photo",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
+    "/tasks/{taskId}/share-social": {
+      "post": {
+        "operationId": "TouriiBackendController_completeSocialShareTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Social share proof URL",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "proofUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "minLength": 1
+                  },
+                  "latitude": {
+                    "description": "Optional latitude for location tracking",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "description": "Optional longitude for location tracking",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "proofUrl"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Social share recorded successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Result message for social share completion",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestTaskSocialShareResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Complete social sharing task",
+        "tags": [
+          "Quest"
+        ]
+      }
+    },
+    "/tasks/{taskId}/qr-scan": {
+      "post": {
+        "description": "Validate scanned QR code and complete the task if correct",
+        "operationId": "TouriiBackendController_completeQrScanTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "QR scan request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "^[A-Za-z0-9_\\-:./#]+$"
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "QR code validated and task completed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "taskId": {
+                  "type": "string"
+                },
+                "questId": {
+                  "type": "string"
+                },
+                "magatama_point_awarded": {
+                  "type": "number"
+                },
+                "completed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "success",
+                "message",
+                "taskId",
+                "questId",
+                "magatama_point_awarded",
+                "completed_at"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrScanResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Complete QR scan task",
         "tags": [
           "Quest"
         ]
@@ -9844,40 +10726,43 @@
                   ],
                   "nullable": true
                 },
-                "popularQuest": {
-                  "type": "object",
-                  "properties": {
-                    "questId": {
-                      "description": "Quest ID",
-                      "type": "string"
+                "popularQuests": {
+                  "description": "Top 3 popular quests",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "title": {
+                        "description": "Quest title",
+                        "type": "string"
+                      },
+                      "imageUrl": {
+                        "description": "Quest image URL",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "link": {
+                        "description": "Deep link to quest",
+                        "type": "string",
+                        "nullable": true
+                      }
                     },
-                    "title": {
-                      "description": "Quest title",
-                      "type": "string"
-                    },
-                    "imageUrl": {
-                      "description": "Quest image URL",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "link": {
-                      "description": "Deep link to quest",
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "questId",
-                    "title",
-                    "imageUrl",
-                    "link"
-                  ],
-                  "nullable": true
+                    "required": [
+                      "questId",
+                      "title",
+                      "imageUrl",
+                      "link"
+                    ]
+                  }
                 }
               },
               "required": [
                 "latestChapter",
-                "popularQuest"
+                "popularQuests"
               ]
             },
             "content": {
@@ -11448,6 +12333,30 @@
           "updUserId"
         ]
       },
+      "StoryReadingStartRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "ID of the user starting to read the story chapter",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "StoryReadingCompleteRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "description": "ID of the user completing the story chapter",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
       "StoryResponseDto": {
         "type": "object",
         "properties": {
@@ -11722,6 +12631,179 @@
           "chapterVideoMobileUrl",
           "chapterPdfUrl",
           "isUnlocked"
+        ]
+      },
+      "StoryCompletionResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "description": "Whether the story completion was successful",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Success or error message",
+            "type": "string"
+          },
+          "storyProgress": {
+            "description": "Story progress information",
+            "type": "object",
+            "properties": {
+              "storyChapterId": {
+                "description": "ID of the completed story chapter",
+                "type": "string"
+              },
+              "chapterTitle": {
+                "description": "Title of the completed chapter",
+                "type": "string"
+              },
+              "status": {
+                "description": "Current story status",
+                "type": "string",
+                "enum": [
+                  "UNREAD",
+                  "IN_PROGRESS",
+                  "COMPLETED"
+                ],
+                "x-enumNames": [
+                  "UNREAD",
+                  "IN_PROGRESS",
+                  "COMPLETED"
+                ]
+              },
+              "completedAt": {
+                "description": "Timestamp when the story was completed",
+                "nullable": true
+              }
+            },
+            "required": [
+              "storyChapterId",
+              "chapterTitle",
+              "status",
+              "completedAt"
+            ]
+          },
+          "unlockedQuests": {
+            "description": "List of quests unlocked by completing this story",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questId": {
+                  "description": "ID of the unlocked quest",
+                  "type": "string"
+                },
+                "questName": {
+                  "description": "Name of the unlocked quest",
+                  "type": "string"
+                },
+                "questDesc": {
+                  "description": "Description of the unlocked quest",
+                  "type": "string"
+                },
+                "questImage": {
+                  "description": "Image URL for the quest",
+                  "type": "string",
+                  "nullable": true
+                },
+                "touristSpotName": {
+                  "description": "Name of the tourist spot where the quest is located",
+                  "type": "string"
+                },
+                "totalMagatamaPointAwarded": {
+                  "description": "Total magatama points awarded for completing this quest",
+                  "type": "number"
+                },
+                "isPremium": {
+                  "description": "Whether this is a premium quest",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "questId",
+                "questName",
+                "questDesc",
+                "questImage",
+                "touristSpotName",
+                "totalMagatamaPointAwarded",
+                "isPremium"
+              ]
+            }
+          },
+          "rewards": {
+            "description": "Rewards earned from story completion",
+            "type": "object",
+            "properties": {
+              "magatamaPointsEarned": {
+                "description": "Total magatama points earned from story completion and achievements",
+                "type": "number"
+              },
+              "achievementsUnlocked": {
+                "description": "List of achievement names unlocked",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "magatamaPointsEarned",
+              "achievementsUnlocked"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "storyProgress",
+          "unlockedQuests",
+          "rewards"
+        ]
+      },
+      "StoryProgressResponseDto": {
+        "type": "object",
+        "properties": {
+          "storyChapterId": {
+            "description": "ID of the story chapter",
+            "type": "string"
+          },
+          "status": {
+            "description": "Current reading status",
+            "type": "string",
+            "enum": [
+              "UNREAD",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ],
+            "x-enumNames": [
+              "UNREAD",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ]
+          },
+          "unlockedAt": {
+            "description": "Timestamp when the user started reading",
+            "nullable": true
+          },
+          "finishedAt": {
+            "description": "Timestamp when the user finished reading",
+            "nullable": true
+          },
+          "canStart": {
+            "description": "Whether the user can start reading this chapter",
+            "type": "boolean"
+          },
+          "canComplete": {
+            "description": "Whether the user can complete this chapter",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storyChapterId",
+          "status",
+          "unlockedAt",
+          "finishedAt",
+          "canStart",
+          "canComplete"
         ]
       },
       "ModelRouteResponseDto": {
@@ -13553,6 +14635,14 @@
           "userId": {
             "description": "User ID of the quest leader starting the quest",
             "type": "string"
+          },
+          "latitude": {
+            "description": "Optional latitude for location tracking",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "Optional longitude for location tracking",
+            "type": "number"
           }
         },
         "required": [
@@ -14520,11 +15610,15 @@
                   "type": "string",
                   "enum": [
                     "QR_CODE",
-                    "GPS"
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
                   ],
                   "x-enumNames": [
                     "QR_CODE",
-                    "GPS"
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
                   ]
                 },
                 "detectedFraud": {
@@ -14787,6 +15881,200 @@
           "isBanned"
         ]
       },
+      "UserTravelLogListResponseDto": {
+        "type": "object",
+        "properties": {
+          "checkins": {
+            "description": "List of user travel log checkins",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userTravelLogId": {
+                  "description": "Travel log ID",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "User ID",
+                  "type": "string"
+                },
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "taskId": {
+                  "description": "Task ID",
+                  "type": "string"
+                },
+                "touristSpotId": {
+                  "description": "Tourist spot ID",
+                  "type": "string"
+                },
+                "userLongitude": {
+                  "description": "User longitude",
+                  "type": "number"
+                },
+                "userLatitude": {
+                  "description": "User latitude",
+                  "type": "number"
+                },
+                "travelDistanceFromTarget": {
+                  "description": "Distance from target",
+                  "type": "number"
+                },
+                "travelDistance": {
+                  "description": "Travel distance",
+                  "type": "number"
+                },
+                "qrCodeValue": {
+                  "description": "QR code value",
+                  "type": "string"
+                },
+                "checkInMethod": {
+                  "description": "Check-in method",
+                  "type": "string",
+                  "enum": [
+                    "QR_CODE",
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
+                  ],
+                  "x-enumNames": [
+                    "QR_CODE",
+                    "GPS",
+                    "AUTO_DETECTED",
+                    "BACKGROUND_GPS"
+                  ]
+                },
+                "detectedFraud": {
+                  "description": "Fraud detected",
+                  "type": "boolean"
+                },
+                "fraudReason": {
+                  "description": "Fraud reason",
+                  "type": "string"
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "userTravelLogId",
+                "userId",
+                "questId",
+                "taskId",
+                "touristSpotId",
+                "userLongitude",
+                "userLatitude",
+                "travelDistance"
+              ]
+            }
+          },
+          "pagination": {
+            "description": "Pagination information",
+            "type": "object",
+            "properties": {
+              "currentPage": {
+                "description": "Current page number",
+                "type": "number"
+              },
+              "totalPages": {
+                "description": "Total number of pages",
+                "type": "number"
+              },
+              "totalItems": {
+                "description": "Total number of items",
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentPage",
+              "totalPages",
+              "totalItems"
+            ]
+          }
+        },
+        "required": [
+          "checkins",
+          "pagination"
+        ]
+      },
+      "CheckinsFetchRequestDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "Page number (default: 1)",
+            "type": "string",
+            "default": "1"
+          },
+          "limit": {
+            "description": "Items per page (default: 20, max: 100)",
+            "type": "string",
+            "default": "20"
+          },
+          "userId": {
+            "description": "Filter by specific user ID (admin only)",
+            "type": "string"
+          },
+          "questId": {
+            "description": "Filter by specific quest ID",
+            "type": "string"
+          },
+          "touristSpotId": {
+            "description": "Filter by specific tourist spot ID",
+            "type": "string"
+          },
+          "checkInMethod": {
+            "description": "Filter by check-in method",
+            "type": "string",
+            "enum": [
+              "QR_CODE",
+              "GPS",
+              "AUTO_DETECTED",
+              "BACKGROUND_GPS"
+            ]
+          },
+          "source": {
+            "description": "Filter by source type (manual=QR_CODE|GPS, auto=AUTO_DETECTED|BACKGROUND_GPS)",
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ]
+          },
+          "startDate": {
+            "description": "Filter from date (ISO format)",
+            "type": "string"
+          },
+          "endDate": {
+            "description": "Filter to date (ISO format)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "startDate",
+          "endDate"
+        ]
+      },
       "QuestTaskPhotoUploadResponseDto": {
         "type": "object",
         "properties": {
@@ -14803,6 +16091,58 @@
         "required": [
           "message",
           "proofUrl"
+        ]
+      },
+      "QrScanRequestDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "pattern": "^[A-Za-z0-9_\\-:./#]+$"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "QrScanResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "questId": {
+            "type": "string"
+          },
+          "magatama_point_awarded": {
+            "type": "number"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "taskId",
+          "questId",
+          "magatama_point_awarded",
+          "completed_at"
         ]
       },
       "HomepageHighlightsResponseDto": {
@@ -14843,40 +16183,43 @@
             ],
             "nullable": true
           },
-          "popularQuest": {
-            "type": "object",
-            "properties": {
-              "questId": {
-                "description": "Quest ID",
-                "type": "string"
+          "popularQuests": {
+            "description": "Top 3 popular quests",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questId": {
+                  "description": "Quest ID",
+                  "type": "string"
+                },
+                "title": {
+                  "description": "Quest title",
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "description": "Quest image URL",
+                  "type": "string",
+                  "nullable": true
+                },
+                "link": {
+                  "description": "Deep link to quest",
+                  "type": "string",
+                  "nullable": true
+                }
               },
-              "title": {
-                "description": "Quest title",
-                "type": "string"
-              },
-              "imageUrl": {
-                "description": "Quest image URL",
-                "type": "string",
-                "nullable": true
-              },
-              "link": {
-                "description": "Deep link to quest",
-                "type": "string",
-                "nullable": true
-              }
-            },
-            "required": [
-              "questId",
-              "title",
-              "imageUrl",
-              "link"
-            ],
-            "nullable": true
+              "required": [
+                "questId",
+                "title",
+                "imageUrl",
+                "link"
+              ]
+            }
           }
         },
         "required": [
           "latestChapter",
-          "popularQuest"
+          "popularQuests"
         ]
       },
       "UserSensitiveInfoResponseDto": {
@@ -14909,6 +16252,18 @@
         },
         "required": [
           "password"
+        ]
+      },
+      "QuestTaskSocialShareResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Result message for social share completion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "SubmitAnswerTextRequestTaskDto": {

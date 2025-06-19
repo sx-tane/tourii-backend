@@ -319,7 +319,7 @@ export class QuestRepositoryDb implements QuestRepository {
         return tasks.every((t) => completedSet.has(t.quest_task_id));
     }
 
-    async getMostPopularQuest(): Promise<QuestEntity | null> {
+    async getMostPopularQuest(): Promise<QuestEntity[]> {
         const topQuests = await this.prisma.user_task_log.groupBy({
             by: ['quest_id'],
             where: {
@@ -333,30 +333,44 @@ export class QuestRepositoryDb implements QuestRepository {
                     quest_id: 'desc',
                 },
             },
-            take: 1,
+            take: 3,
         });
 
         if (topQuests.length === 0) {
-            return null;
+            return [];
         }
 
-        const mostPopularQuestId = topQuests[0].quest_id;
+        const popularQuestIds = topQuests.map(quest => quest.quest_id);
 
-        const questDb = await this.prisma.quest.findUnique({
-            where: { quest_id: mostPopularQuestId },
+        const questsDb = await this.prisma.quest.findMany({
+            where: { quest_id: { in: popularQuestIds } },
             include: { quest_task: true, tourist_spot: true },
         });
 
-        const cachedQuest = await this.cachingService.getOrSet<QuestWithTasks | null>(
-            `quest:${mostPopularQuestId}`,
-            () => Promise.resolve(questDb),
-            CACHE_TTL_SECONDS,
-        );
-
-        if (!cachedQuest) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+        // Create a map to maintain the order based on popularity
+        const questMap = new Map(questsDb.map(quest => [quest.quest_id, quest]));
+        
+        const orderedQuests: QuestWithTasks[] = [];
+        for (const questId of popularQuestIds) {
+            const quest = questMap.get(questId);
+            if (quest) {
+                orderedQuests.push(quest);
+            }
         }
 
-        return QuestMapper.prismaModelToQuestEntity(cachedQuest);
+        // Cache each quest individually
+        const cachedQuests = await Promise.all(
+            orderedQuests.map(async (quest) => {
+                return await this.cachingService.getOrSet<QuestWithTasks | null>(
+                    `quest:${quest.quest_id}`,
+                    () => Promise.resolve(quest),
+                    CACHE_TTL_SECONDS,
+                );
+            })
+        );
+
+        return cachedQuests
+            .filter((quest): quest is QuestWithTasks => quest !== null)
+            .map(quest => QuestMapper.prismaModelToQuestEntity(quest));
     }
 }

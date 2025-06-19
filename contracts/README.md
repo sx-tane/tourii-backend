@@ -18,17 +18,19 @@ contracts/
 ## 🎯 Core Contracts
 
 ### 1. TouriiDigitalPassport
+
 - **Type**: ERC721 NFT
 - **Symbol**: TOURII
 - **Purpose**: Digital identity for Tourii users
-- **Features**: 
+- **Features**:
   - Mutable metadata (passport can evolve)
   - Owner-controlled minting
   - Metadata URI updates
 
 ### 2. TouriiLog
+
 - **Type**: ERC721 NFT
-- **Symbol**: TOURIILOG  
+- **Symbol**: TOURIILOG
 - **Purpose**: Immutable records of user achievements
 - **Features**:
   - Static metadata (permanent records)
@@ -36,6 +38,7 @@ contracts/
   - Owner-controlled minting
 
 ### 3. TouriiPerk
+
 - **Type**: ERC721Burnable NFT
 - **Symbol**: TOURIIPERK
 - **Purpose**: Redeemable rewards and benefits
@@ -47,6 +50,7 @@ contracts/
 ## 🛠️ Development Commands
 
 ### Setup
+
 ```bash
 # Install dependencies
 npm install
@@ -56,6 +60,7 @@ npx hardhat compile
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npx hardhat test
@@ -68,6 +73,7 @@ npx hardhat test test/TouriiDigitalPassport.test.ts
 ```
 
 ### Local Development
+
 ```bash
 # Start local Hardhat node
 npx hardhat node
@@ -77,6 +83,7 @@ npx hardhat ignition deploy ./ignition/modules/TouriiContracts.ts --network loca
 ```
 
 ### Deployment
+
 ```bash
 # Deploy to testnet (e.g., Sepolia)
 npx hardhat ignition deploy ./ignition/modules/TouriiContracts.ts --network sepolia
@@ -111,6 +118,7 @@ npx hardhat verify --network sepolia <CONTRACT_ADDRESS> "TouriiPerk" "TOURIIPERK
 ## 🌐 Network Configuration
 
 Supported networks (configured in `hardhat.config.ts`):
+
 - **Localhost**: For development testing
 - **Sepolia**: Ethereum testnet
 - **Mainnet**: Ethereum mainnet
@@ -120,12 +128,14 @@ Supported networks (configured in `hardhat.config.ts`):
 ## 📚 Documentation
 
 For detailed contract specifications, see:
+
 - [Smart Contract Documentation](../docs/web3/Tourii%20Smart%20Contract.md)
 - [NFT Metadata Guide](../docs/user/Tourii%20Passport%20NFT%20metadata%20delivery.md)
 
 ## 🧪 Testing Framework
 
 Tests are written using:
+
 - **Hardhat**: Development environment
 - **Ethers.js**: Ethereum library
 - **Chai**: Assertion library
@@ -134,6 +144,7 @@ Tests are written using:
 ## 🚀 Integration
 
 These contracts integrate with the Tourii backend through:
+
 - **Gear.js**: For Vara Network interactions
 - **Sails.js**: Smart contract interface framework
 - **Ethers.js**: For EVM-compatible operations

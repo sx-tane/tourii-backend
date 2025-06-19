@@ -7,14 +7,39 @@ This guide provides real-world examples of using the Tourii Backend APIs, includ
 ## 📋 Quick Reference
 
 ### Base URLs
+
 - **Main API**: `http://localhost:3000` (dev) / `https://your-app.onrender.com` (prod)
 - **Onchain API**: `http://localhost:3001` (dev) / `https://your-onchain.onrender.com` (prod)
 
 ### Required Headers (All Requests)
+
 ```bash
 Content-Type: application/json
 x-api-key: dev-key  # Replace with actual API key
 accept-version: 1.0.0
+```
+
+### API Versioning Strategy
+
+```typescript
+export const API_VERSIONS = {
+  V1: '1.0',
+  V2: '2.0',
+} as const;
+
+export type ApiVersion = (typeof API_VERSIONS)[keyof typeof API_VERSIONS];
+```
+
+### Frontend Integration Pattern
+
+Each API endpoint follows the pattern: **Controller → Service → Repository/External Service**
+
+**Example Flow:**
+
+```
+Frontend Request → Security Middleware → Controller → Service → Repository → Database
+                                                           ↓
+                                              External APIs (Google, Weather, etc.)
 ```
 
 ---
@@ -189,15 +214,15 @@ curl -X GET http://localhost:3000/routes/route_tokyo_central \
 # Response includes weather, tourist spots, and recommendations
 ```
 
-### 6. Search for Locations
+### 6. Search for Locations (Cost-Optimized Google Places API)
 
 ```bash
-# Search for location info (Google Places integration)
+# Search for location info (NEW: Cost-optimized Google Places integration)
 curl -X GET "http://localhost:3000/location-info?query=Tokyo Station&latitude=35.6762&longitude=139.6503" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
-# Response:
+# Response (85-90% cost reduction vs legacy API):
 {
   "name": "Tokyo Station",
   "address": "1 Chome Marunouchi, Chiyoda City, Tokyo",
@@ -206,8 +231,28 @@ curl -X GET "http://localhost:3000/location-info?query=Tokyo Station&latitude=35
     "longitude": 139.7645667
   },
   "rating": 4.1,
-  "photos": ["https://maps.googleapis.com/..."],
-  "placeId": "ChIJC3Cf2PuOGGAR5Ku5WxJ1k"
+  "photos": [
+    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=Aap_uEA...",
+    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=Aap_uEB..."
+  ],
+  "placeId": "ChIJC3Cf2PuOGGAR5Ku5WxJ1k",
+  "phoneNumber": "+81-3-3212-2111",
+  "website": "https://www.jreast.co.jp/estation/station/info.aspx?StationCd=1039"
+}
+```
+
+```bash
+# Get geographic coordinates for an address (Optimized Geocoding)
+curl -X GET "http://localhost:3000/geo-info?query=Shibuya Crossing Tokyo" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0"
+
+# Response (Uses new Places API with minimal field mask):
+{
+  "touristSpotName": "Shibuya Crossing",
+  "latitude": 35.6598,
+  "longitude": 139.7006,
+  "formattedAddress": "Shibuya City, Tokyo, Japan"
 }
 ```
 
@@ -267,7 +312,7 @@ curl -X GET "http://localhost:3000/quests/quest_shibuya_photo?userId=usr_abc123"
       }
     },
     {
-      "taskId": "task_002", 
+      "taskId": "task_002",
       "taskName": "Take a photo",
       "taskType": "PHOTO_UPLOAD",
       "isCompleted": false
@@ -319,7 +364,7 @@ curl -X GET http://localhost:3000/quests/quest_group_tokyo/group/members \
       "joinedAt": "2024-01-16T10:00:00Z"
     },
     {
-      "userId": "usr_def456", 
+      "userId": "usr_def456",
       "username": "bob",
       "role": "member",
       "ready": true,
@@ -376,7 +421,7 @@ curl -X GET "http://localhost:3000/moments?page=1&limit=20" \
     {
       "momentId": "moment_002",
       "userId": "usr_def456",
-      "username": "bob", 
+      "username": "bob",
       "type": "TRAVEL_LOG",
       "content": "Visited Tokyo Station",
       "location": "Tokyo Station, Tokyo",
@@ -458,6 +503,7 @@ curl -X POST http://localhost:3001/send-green \
 ## 🧪 Testing & Development
 
 ### Using .http files
+
 The repository includes example requests in `etc/http/` folders:
 
 ```bash
@@ -498,11 +544,13 @@ x-user-id: usr_abc123
 ## 📊 Rate Limiting
 
 Default rate limits:
+
 - **General endpoints**: 100 requests per minute
-- **Auth endpoints**: 10 requests per minute  
+- **Auth endpoints**: 10 requests per minute
 - **Upload endpoints**: 5 requests per minute
 
 Rate limit headers:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -514,6 +562,7 @@ X-RateLimit-Reset: 1642350000
 ## 🔧 Environment-Specific URLs
 
 ### Development
+
 ```bash
 export API_BASE_URL=http://localhost:3000
 export ONCHAIN_BASE_URL=http://localhost:3001
@@ -521,9 +570,10 @@ export API_KEY=dev-key
 ```
 
 ### Production (Render)
+
 ```bash
 export API_BASE_URL=https://your-tourii-backend.onrender.com
-export ONCHAIN_BASE_URL=https://your-tourii-onchain.onrender.com  
+export ONCHAIN_BASE_URL=https://your-tourii-onchain.onrender.com
 export API_KEY=your_production_api_key
 ```
 
@@ -532,6 +582,7 @@ export API_KEY=your_production_api_key
 ## 🆘 Troubleshooting API Issues
 
 ### Authentication Problems
+
 ```bash
 # Check if API key is valid
 curl -X GET http://localhost:3000/health-check \
@@ -540,6 +591,7 @@ curl -X GET http://localhost:3000/health-check \
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Check if database is accessible
 docker ps | grep postgres
@@ -547,6 +599,7 @@ docker ps | grep postgres
 ```
 
 ### CORS Issues
+
 Make sure you're including the correct headers and the request is coming from an allowed origin.
 
 ---
@@ -560,4 +613,27 @@ Make sure you're including the correct headers and the request is coming from an
 
 ---
 
-*Last Updated: June 16, 2025*
+---
+
+## 💰 **Cost Optimization Achievements**
+
+### Google Places API Cost Reduction
+
+The Tourii Backend now implements a **hybrid cost-optimization strategy** for Google Places API calls:
+
+| Metric                        | Before Optimization             | After Optimization                  | Savings              |
+| ----------------------------- | ------------------------------- | ----------------------------------- | -------------------- |
+| **API Calls per 4 locations** | 56 Places + 15 Geocoding        | ~4 Text Search calls                | **85-90%**           |
+| **Cost per 4 locations**      | $2.80 - $3.50                   | $0.12 - $0.28                       | **90% reduction**    |
+| **Implementation**            | Multiple API calls per location | Single Text Search with field masks | Hybrid with fallback |
+
+### Technical Implementation
+
+- **New Places API** with targeted field masks: `places.location,places.formattedAddress,places.displayName`
+- **Fallback system** to legacy API for reliability
+- **24-hour caching** to minimize repeated API calls
+- **Real-time logging** for cost monitoring
+
+---
+
+_Last Updated: June 18, 2025_

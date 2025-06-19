@@ -1,0 +1,33 @@
+### Start Group Quest with Co-location Verification
+POST {{host}}/quests/quest-001/group/start
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "leader-001",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Start Group Quest with Different Location
+POST {{host}}/quests/quest-002/group/start
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "leader-002",
+  "latitude": 34.0522,
+  "longitude": -118.2437
+}
+
+### Start Group Quest without Location (Original functionality)
+POST {{host}}/quests/quest-001/group/start
+x-api-key: {{apiKey}}
+accept-version: 1.0.0
+content-type: application/json
+
+{
+  "userId": "leader-001"
+}

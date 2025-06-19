@@ -401,4 +401,82 @@ export class UserMapper {
             },
         };
     }
+
+    static createUserTaskLogForSocialShare(
+        userId: string,
+        questId: string,
+        taskId: string,
+        proofUrl: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.COMPLETED,
+                action: TaskType.SHARE_SOCIAL,
+                group_activity_members: [],
+                submission_data: { social_url: proofUrl },
+                completed_at: now,
+                claimed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.COMPLETED,
+                submission_data: { social_url: proofUrl },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
+    static createUserTaskLogForQrScan(
+        userId: string,
+        questId: string,
+        taskId: string,
+        qrCodeValue: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.COMPLETED,
+                action: TaskType.CHECK_IN,
+                group_activity_members: [],
+                submission_data: { qr_code_value: qrCodeValue },
+                completed_at: now,
+                claimed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.COMPLETED,
+                submission_data: { qr_code_value: qrCodeValue },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
 }

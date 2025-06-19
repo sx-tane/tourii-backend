@@ -29,8 +29,8 @@ The Tourii Group Quest system enables **real-time collaborative quests** where m
 
 ### Key Features
 
-| Feature                      | Technology            | Purpose                               |
-| ---------------------------- | --------------------- | ------------------------------------- |
+| Feature                       | Technology            | Purpose                               |
+| ----------------------------- | --------------------- | ------------------------------------- |
 | 🏆 **Quest Management**       | HTTP REST API         | Create, join, and manage quests       |
 | ⚡ **Real-time Coordination** | WebSocket (Socket.IO) | Live member status and notifications  |
 | 👥 **Group Formation**        | JSON Storage + API    | Dynamic group creation and management |
@@ -60,8 +60,8 @@ The Tourii Group Quest system enables **real-time collaborative quests** where m
 
 ### When to Use Each Technology
 
-| **HTTP REST API**      | **WebSocket**                 |
-| ---------------------- | ----------------------------- |
+| **HTTP REST API**       | **WebSocket**                  |
+| ----------------------- | ------------------------------ |
 | ✅ Join/Leave quest     | ✅ "Ready" status updates      |
 | ✅ Submit quest results | ✅ Live member notifications   |
 | ✅ Fetch quest data     | ✅ Real-time chat/coordination |
@@ -96,7 +96,7 @@ Response: {
 ```typescript
 // 2. Alice connects to WebSocket
 const socket = io('/group-quest', {
-  auth: { token: 'alice-jwt' }
+  auth: { token: 'alice-jwt' },
 });
 
 // 3. Join quest room for live updates
@@ -112,8 +112,10 @@ socket.on('joinedGroup', () => {
 
 ```typescript
 // 4. Bob joins via API (same as Alice)
-POST /api/quests/tokyo-adventure/join
-Body: { userId: "bob456" }
+POST / api / quests / tokyo - adventure / join;
+Body: {
+  userId: 'bob456';
+}
 
 // 5. Bob connects to WebSocket
 socket.emit('joinGroup', { questId: 'tokyo-adventure' });
@@ -128,9 +130,9 @@ socket.on('memberJoined', (data) => {
 
 ```typescript
 // 7. Alice clicks "Ready" - WebSocket only
-socket.emit('ready', { 
-  questId: 'tokyo-adventure', 
-  userId: 'alice123' 
+socket.emit('ready', {
+  questId: 'tokyo-adventure',
+  userId: 'alice123',
 });
 
 // 8. Bob sees Alice is ready
@@ -141,9 +143,9 @@ socket.on('memberReady', (data) => {
 });
 
 // 9. Bob also becomes ready
-socket.emit('ready', { 
-  questId: 'tokyo-adventure', 
-  userId: 'bob456' 
+socket.emit('ready', {
+  questId: 'tokyo-adventure',
+  userId: 'bob456',
 });
 ```
 
@@ -155,7 +157,7 @@ socket.emit('ready', {
 async handleAllMembersReady(questId: string) {
   // Update database
   await this.questService.startQuest(questId);
-  
+
   // Notify via WebSocket
   this.groupQuestGateway.broadcastQuestStarted(questId);
 }
@@ -212,19 +214,19 @@ Stored in `user_task_log.group_activity_members`:
 
 | Endpoint                       | Method | Purpose           | Auth Required |
 | ------------------------------ | ------ | ----------------- | ------------- |
-| `/api/quests/:questId/join`    | POST   | Join a quest      | ✅             |
-| `/api/quests/:questId/leave`   | POST   | Leave a quest     | ✅             |
-| `/api/quests/:questId/members` | GET    | Get group members | ✅             |
-| `/api/quests/:questId/start`   | POST   | Start group quest | ✅ (Leader)    |
+| `/api/quests/:questId/join`    | POST   | Join a quest      | ✅            |
+| `/api/quests/:questId/leave`   | POST   | Leave a quest     | ✅            |
+| `/api/quests/:questId/members` | GET    | Get group members | ✅            |
+| `/api/quests/:questId/start`   | POST   | Start group quest | ✅ (Leader)   |
 
 ### Task & Progress
 
 | Endpoint                                    | Method | Purpose                | Auth Required |
 | ------------------------------------------- | ------ | ---------------------- | ------------- |
-| `/api/quests/:questId/tasks`                | GET    | Get quest tasks        | ✅             |
-| `/api/quests/:questId/tasks/:taskId/submit` | POST   | Submit task completion | ✅             |
-| `/api/quests/:questId/check-in`             | POST   | Location check-in      | ✅             |
-| `/api/quests/:questId/progress`             | GET    | Get group progress     | ✅             |
+| `/api/quests/:questId/tasks`                | GET    | Get quest tasks        | ✅            |
+| `/api/quests/:questId/tasks/:taskId/submit` | POST   | Submit task completion | ✅            |
+| `/api/quests/:questId/check-in`             | POST   | Location check-in      | ✅            |
+| `/api/quests/:questId/progress`             | GET    | Get group progress     | ✅            |
 
 ### Example API Usage
 
@@ -233,39 +235,39 @@ Stored in `user_task_log.group_activity_members`:
 const joinResponse = await fetch('/api/quests/tokyo-adventure/join', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ' + userToken,
-    'Content-Type': 'application/json'
+    Authorization: 'Bearer ' + userToken,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    userId: 'alice123'
-  })
+    userId: 'alice123',
+  }),
 });
 
 // Check-in at location
 const checkinResponse = await fetch('/api/quests/tokyo-adventure/check-in', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ' + userToken,
-    'Content-Type': 'application/json'
+    Authorization: 'Bearer ' + userToken,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     userId: 'alice123',
     locationId: 'shibuya-crossing',
     latitude: 35.6595,
-    longitude: 139.7006
-  })
+    longitude: 139.7006,
+  }),
 });
 // Upload task proof photo
 const form = new FormData();
-form.append("file", selectedFile);
-const uploadResponse = await fetch("/v2/quest-tasks/task123/photo-upload", {
-  method: "POST",
+form.append('file', selectedFile);
+const uploadResponse = await fetch('/v2/quest-tasks/task123/photo-upload', {
+  method: 'POST',
   headers: {
-    "x-api-key": apiKey,
-    "accept-version": "2.0",
-    "x-user-id": "alice123"
+    'x-api-key': apiKey,
+    'accept-version': '2.0',
+    'x-user-id': 'alice123',
   },
-  body: form
+  body: form,
 });
 const result = await uploadResponse.json();
 console.log(result.proofUrl);
@@ -322,7 +324,7 @@ export const useQuestSocket = (questId: string, userToken: string) => {
 
   useEffect(() => {
     const newSocket = io('/group-quest', {
-      auth: { token: userToken }
+      auth: { token: userToken },
     });
 
     // Join quest room
@@ -334,11 +336,11 @@ export const useQuestSocket = (questId: string, userToken: string) => {
     });
 
     newSocket.on('memberJoined', (data) => {
-      setMembers(prev => [...prev, data]);
+      setMembers((prev) => [...prev, data]);
     });
 
     newSocket.on('memberReady', (data) => {
-      setReadyMembers(prev => new Set([...prev, data.userId]));
+      setReadyMembers((prev) => new Set([...prev, data.userId]));
     });
 
     newSocket.on('questStarted', () => {
@@ -367,7 +369,7 @@ export const useQuestSocket = (questId: string, userToken: string) => {
     members,
     readyMembers,
     questStarted,
-    markReady
+    markReady,
   };
 };
 ```
@@ -383,45 +385,45 @@ export const useQuestSocket = (questId: string, userToken: string) => {
 export class QuestController {
   constructor(
     private readonly questService: QuestService,
-    private readonly groupQuestGateway: GroupQuestGateway
+    private readonly groupQuestGateway: GroupQuestGateway,
   ) {}
 
   @Post(':questId/join')
   async joinQuest(
     @Param('questId') questId: string,
     @Body() body: { userId: string },
-    @Headers('authorization') auth: string
+    @Headers('authorization') auth: string,
   ) {
     // 1. Validate and join quest
     const quest = await this.questService.joinQuest(questId, body.userId);
-    
+
     // 2. WebSocket will handle real-time notifications
     // (User will connect separately via WebSocket)
-    
+
     return {
       success: true,
       questId: quest.questId,
-      members: quest.members
+      members: quest.members,
     };
   }
 
   @Post(':questId/ready')
   async markReady(
     @Param('questId') questId: string,
-    @Body() body: { userId: string }
+    @Body() body: { userId: string },
   ) {
     // 1. Update database
     await this.questService.markUserReady(questId, body.userId);
-    
+
     // 2. Check if all members are ready
     const allReady = await this.questService.checkAllMembersReady(questId);
-    
+
     if (allReady) {
       // 3. Start quest and notify via WebSocket
       await this.questService.startQuest(questId);
       this.groupQuestGateway.broadcastQuestStarted(questId);
     }
-    
+
     return { success: true };
   }
 }
@@ -431,47 +433,52 @@ export class QuestController {
 
 ```typescript
 @WebSocketGateway({
-    namespace: '/group-quest',
-    cors: { /* ... */ }
+  namespace: '/group-quest',
+  cors: {
+    /* ... */
+  },
 })
 export class GroupQuestGateway {
-    @WebSocketServer()
-    server: Server;
+  @WebSocketServer()
+  server: Server;
 
-    @SubscribeMessage('joinGroup')
-    handleJoin(@ConnectedSocket() socket: Socket, @MessageBody() data: { questId: string }) {
-        // Validate questId
-        if (!data?.questId || typeof data.questId !== 'string') {
-            socket.emit('error', { message: 'Invalid quest ID' });
-            return;
-        }
-
-        // Join room
-        socket.join(`group_${data.questId}`);
-        socket.emit('joinedGroup', { questId: data.questId });
+  @SubscribeMessage('joinGroup')
+  handleJoin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { questId: string },
+  ) {
+    // Validate questId
+    if (!data?.questId || typeof data.questId !== 'string') {
+      socket.emit('error', { message: 'Invalid quest ID' });
+      return;
     }
 
-    @SubscribeMessage('ready')
-    handleReady(
-        @ConnectedSocket() socket: Socket,
-        @MessageBody() data: { questId: string; userId: string }
-    ) {
-        // Validate input
-        if (!data?.questId || !data?.userId) {
-            socket.emit('error', { message: 'Invalid quest ID or user ID' });
-            return;
-        }
+    // Join room
+    socket.join(`group_${data.questId}`);
+    socket.emit('joinedGroup', { questId: data.questId });
+  }
 
-        // Broadcast to all members in the quest
-        this.server.to(`group_${data.questId}`).emit('memberReady', { 
-            userId: data.userId 
-        });
+  @SubscribeMessage('ready')
+  handleReady(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { questId: string; userId: string },
+  ) {
+    // Validate input
+    if (!data?.questId || !data?.userId) {
+      socket.emit('error', { message: 'Invalid quest ID or user ID' });
+      return;
     }
 
-    // Called by service when quest should start
-    broadcastQuestStarted(questId: string) {
-        this.server.to(`group_${questId}`).emit('questStarted');
-    }
+    // Broadcast to all members in the quest
+    this.server.to(`group_${data.questId}`).emit('memberReady', {
+      userId: data.userId,
+    });
+  }
+
+  // Called by service when quest should start
+  broadcastQuestStarted(questId: string) {
+    this.server.to(`group_${questId}`).emit('questStarted');
+  }
 }
 ```
 
@@ -501,7 +508,7 @@ export const QuestRoom: React.FC<QuestRoomProps> = ({
   return (
     <div className="quest-waiting-room">
       <h2>Waiting Room - Quest: {questId}</h2>
-      
+
       <div className="members-list">
         <h3>Team Members:</h3>
         {members.map(member => (
@@ -512,7 +519,7 @@ export const QuestRoom: React.FC<QuestRoomProps> = ({
         ))}
       </div>
 
-      <button 
+      <button
         onClick={markReady}
         disabled={readyMembers.has(currentUserId)}
         className="ready-button"
@@ -541,14 +548,14 @@ export const QuestRoom: React.FC<QuestRoomProps> = ({
 ```typescript
 // WebSocket authentication
 const socket = io('/group-quest', {
-  auth: { token: userJwtToken }
+  auth: { token: userJwtToken },
 });
 
 // REST authentication
 fetch('/api/quests/123/join', {
   headers: {
-    'Authorization': `Bearer ${userJwtToken}`
-  }
+    Authorization: `Bearer ${userJwtToken}`,
+  },
 });
 ```
 
@@ -610,8 +617,8 @@ This architecture ensures both **reliability** (via HTTP) and **real-time experi
 
 ---
 
-*For technical support or questions about implementation, refer to the individual code files in the `/src/group-quest/` directory or consult the API documentation.*
+_For technical support or questions about implementation, refer to the individual code files in the `/src/group-quest/` directory or consult the API documentation._
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 18, 2025_

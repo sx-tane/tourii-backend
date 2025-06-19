@@ -6,8 +6,10 @@ import {
     Controller,
     Delete,
     Get,
+    Headers,
     HttpStatus,
     Param,
+    ParseFloatPipe,
     Post,
     Query,
     Req,
@@ -26,7 +28,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { QuestType } from '@prisma/client';
+import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { TouriiBackendService } from '../service/tourii-backend.service';
@@ -58,9 +60,23 @@ import {
     QuestTaskCreateRequestSchema,
 } from './model/tourii-request/create/quest-task-create-request.model';
 import {
+    QuestTaskSocialShareRequestDto,
+    questTaskSocialShareRequestSchema,
+} from './model/tourii-request/create/quest-task-social-share-request.model';
+import {
+    QrScanRequestDto,
+    QrScanRequestSchema,
+} from './model/tourii-request/create/qr-scan-request.model';
+import {
+    StoryActionRequestDto,
+    StoryActionRequestSchema,
+} from './model/tourii-request/create/story-action-request.model';
+import {
     StoryCreateRequestDto,
     StoryCreateRequestSchema,
 } from './model/tourii-request/create/story-create-request.model';
+import { StoryReadingCompleteRequestDto } from './model/tourii-request/create/story-reading-complete-request.model';
+import { StoryReadingStartRequestDto } from './model/tourii-request/create/story-reading-start-request.model';
 import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
@@ -96,6 +112,7 @@ import {
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
 
+import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
 import {
     StartGroupQuestRequestDto,
@@ -153,9 +170,25 @@ import {
     QuestTaskPhotoUploadResponseSchema,
 } from './model/tourii-response/quest-task-photo-upload-response.model';
 import {
+    QuestTaskSocialShareResponseDto,
+    QuestTaskSocialShareResponseSchema,
+} from './model/tourii-response/quest-task-social-share-response.model';
+import {
+    QrScanResponseDto,
+    QrScanResponseSchema,
+} from './model/tourii-response/qr-scan-response.model';
+import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
 } from './model/tourii-response/start-group-quest-response.model';
+import {
+    StoryCompletionResponseDto,
+    StoryCompletionResponseSchema,
+} from './model/tourii-response/story-completion-response.model';
+import {
+    StoryProgressResponseDto,
+    StoryProgressResponseSchema,
+} from './model/tourii-response/story-progress-response.model';
 import {
     StoryResponseDto,
     StoryResponseSchema,
@@ -174,6 +207,10 @@ import {
     UserSensitiveInfoResponseDto,
     UserSensitiveInfoResponseSchema,
 } from './model/tourii-response/user/user-response.model';
+import {
+    UserTravelLogListResponseDto,
+    UserTravelLogListResponseSchema,
+} from './model/tourii-response/user/user-travel-log-list-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -185,8 +222,12 @@ import {
     StoryChapterUpdateRequestDto,
     ModelRouteUpdateRequestDto,
     TouristSpotUpdateRequestDto,
+    StoryReadingStartRequestDto,
+    StoryReadingCompleteRequestDto,
     StoryResponseDto,
     StoryChapterResponseDto,
+    StoryCompletionResponseDto,
+    StoryProgressResponseDto,
     ModelRouteResponseDto,
     TouristSpotResponseDto,
     UserEntity,
@@ -208,7 +249,11 @@ import {
     MomentListResponseDto,
     MomentResponseDto,
     UserResponseDto,
+    UserTravelLogListResponseDto,
+    CheckinsFetchRequestDto,
     QuestTaskPhotoUploadResponseDto,
+    QrScanRequestDto,
+    QrScanResponseDto,
     HomepageHighlightsResponseDto,
 )
 export class TouriiBackendController {
@@ -389,6 +434,77 @@ export class TouriiBackendController {
         }
 
         return this.touriiBackendService.getUserProfile(userId);
+    }
+
+    @Get('/checkins')
+    @ApiTags('User')
+    @ApiOperation({
+        summary: 'Get User Travel Checkins',
+        description:
+            'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Items per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'userId',
+        required: false,
+        type: String,
+        description: 'Filter by specific user ID (admin only)',
+    })
+    @ApiQuery({
+        name: 'questId',
+        required: false,
+        type: String,
+        description: 'Filter by specific quest ID',
+    })
+    @ApiQuery({
+        name: 'touristSpotId',
+        required: false,
+        type: String,
+        description: 'Filter by specific tourist spot ID',
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        type: String,
+        description: 'Filter from date (ISO format)',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        type: String,
+        description: 'Filter to date (ISO format)',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'User travel checkins retrieved successfully',
+        type: UserTravelLogListResponseDto,
+        schema: zodToOpenAPI(UserTravelLogListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getCheckins(
+        @Query() query: CheckinsFetchRequestDto,
+        @Req() req: Request,
+    ): Promise<UserTravelLogListResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.getUserCheckins(query, userId);
     }
 
     // ==========================================
@@ -653,8 +769,137 @@ export class TouriiBackendController {
         @Param('chapterId') chapterId: string,
         @Body() body: ChapterProgressRequestDto,
     ): Promise<{ success: boolean }> {
-        await this.touriiBackendService.trackChapterProgress(body.userId, chapterId, body.status);
+        await this.touriiBackendService.trackChapterProgress(
+            body.userId,
+            chapterId,
+            body.status,
+            body.latitude,
+            body.longitude,
+        );
         return { success: true };
+    }
+
+    @Post('/stories/chapters/:chapterId/action')
+    @Get('/stories/chapters/:chapterId/action')
+    @ApiTags('Stories')
+    @ApiOperation({
+        summary: 'Consolidated story action endpoint',
+        description:
+            'Handles story start, complete, and progress actions based on X-Story-Action header',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'X-Story-Action',
+        description: 'Story action to perform: start, complete, or progress',
+        required: true,
+        enum: ['start', 'complete', 'progress'],
+    })
+    @ApiBody({
+        description: 'Story action request (required for start/complete, optional for progress)',
+        schema: zodToOpenAPI(StoryActionRequestSchema),
+        required: false,
+    })
+    @ApiQuery({
+        name: 'userId',
+        description: 'User ID (used for progress action when body is not provided)',
+        required: false,
+        type: String,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Story action completed successfully',
+        schema: {
+            oneOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        success: { type: 'boolean' },
+                        message: { type: 'string' },
+                    },
+                },
+                zodToOpenAPI(StoryCompletionResponseSchema),
+                zodToOpenAPI(StoryProgressResponseSchema),
+            ],
+        },
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async handleStoryAction(
+        @Param('chapterId') chapterId: string,
+        @Headers('X-Story-Action') action: string,
+        @Body() body?: StoryActionRequestDto,
+        @Query('userId') queryUserId?: string,
+    ): Promise<
+        | { success: boolean; message: string }
+        | StoryCompletionResponseDto
+        | StoryProgressResponseDto
+    > {
+        // Validate action header
+        if (!action || !['start', 'complete', 'progress'].includes(action)) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Determine userId from body or query parameter
+        const userId = body?.userId || queryUserId;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        switch (action) {
+            case 'start':
+                await this.touriiBackendService.startStoryReading(userId, chapterId);
+                return { success: true, message: 'Story reading started successfully' };
+
+            case 'complete': {
+                const result = await this.touriiBackendService.completeStoryWithQuestUnlocking(
+                    userId,
+                    chapterId,
+                );
+                return {
+                    success: true,
+                    message: 'Story completed successfully',
+                    storyProgress: result.chapter,
+                    unlockedQuests: result.unlockedQuests,
+                    rewards: result.rewards,
+                };
+            }
+
+            case 'progress': {
+                const progress = await this.touriiBackendService.getStoryProgress(
+                    userId,
+                    chapterId,
+                );
+
+                if (!progress) {
+                    return {
+                        storyChapterId: chapterId,
+                        status: StoryStatus.UNREAD,
+                        unlockedAt: null,
+                        finishedAt: null,
+                        canStart: true,
+                        canComplete: false,
+                    };
+                }
+
+                return {
+                    storyChapterId: chapterId,
+                    ...progress,
+                };
+            }
+
+            default:
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
     }
 
     // ==========================================
@@ -1077,6 +1322,18 @@ export class TouriiBackendController {
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({ name: 'userId', required: false, type: String, description: 'User ID' })
+    @ApiQuery({
+        name: 'latitude',
+        required: false,
+        type: Number,
+        description: 'Latitude for location tracking',
+    })
+    @ApiQuery({
+        name: 'longitude',
+        required: false,
+        type: Number,
+        description: 'Longitude for location tracking',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Quests found successfully',
@@ -1090,8 +1347,15 @@ export class TouriiBackendController {
     async getQuestByTouristSpotId(
         @Param('touristSpotId') touristSpotId: string,
         @Query('userId') userId?: string,
+        @Query('latitude', new ParseFloatPipe({ optional: true })) latitude?: number,
+        @Query('longitude', new ParseFloatPipe({ optional: true })) longitude?: number,
     ): Promise<QuestResponseDto[]> {
-        return this.touriiBackendService.getQuestsByTouristSpotId(touristSpotId, userId);
+        return this.touriiBackendService.getQuestsByTouristSpotId(
+            touristSpotId,
+            userId,
+            latitude,
+            longitude,
+        );
     }
 
     @Post('/quests/create-quest')
@@ -1257,11 +1521,28 @@ export class TouriiBackendController {
         @Param('questId') questId: string,
         @Body() body: StartGroupQuestRequestDto,
     ): Promise<StartGroupQuestResponseDto> {
-        return this.touriiBackendService.startGroupQuest(questId, body.userId);
+        return this.touriiBackendService.startGroupQuest(
+            questId,
+            body.userId,
+            body.latitude,
+            body.longitude,
+        );
     }
 
     @Post('/quests/tasks/:taskId/photo-upload')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        limits: { 
+            fileSize: 10 * 1024 * 1024, // 10MB limit
+            files: 1 
+        },
+        fileFilter: (_req, file, cb) => {
+            // Only allow image files
+            if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+                return cb(new Error('Only JPEG, PNG, and WebP image files are allowed'), false);
+            }
+            cb(null, true);
+        }
+    }))
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Upload task photo' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1290,6 +1571,84 @@ export class TouriiBackendController {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
         return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, file);
+    }
+
+    @Post('/tasks/:taskId/share-social')
+    @ApiTags('Quest')
+    @ApiOperation({ summary: 'Complete social sharing task' })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiBody({
+        description: 'Social share proof URL',
+        schema: zodToOpenAPI(questTaskSocialShareRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Social share recorded successfully',
+        type: QuestTaskSocialShareResponseDto,
+        schema: zodToOpenAPI(QuestTaskSocialShareResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async completeSocialShareTask(
+        @Param('taskId') taskId: string,
+        @Body() body: QuestTaskSocialShareRequestDto,
+        @Req() req: Request,
+    ): Promise<QuestTaskSocialShareResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.completeSocialShareTask(
+            taskId,
+            userId,
+            body.proofUrl,
+            body.latitude,
+            body.longitude,
+        );
+    }
+
+    @Post('/tasks/:taskId/qr-scan')
+    @ApiTags('Quest')
+    @ApiOperation({ 
+        summary: 'Complete QR scan task', 
+        description: 'Validate scanned QR code and complete the task if correct' 
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiBody({
+        description: 'QR scan request',
+        schema: zodToOpenAPI(QrScanRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'QR code validated and task completed',
+        type: QrScanResponseDto,
+        schema: zodToOpenAPI(QrScanResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async completeQrScanTask(
+        @Param('taskId') taskId: string,
+        @Body() body: QrScanRequestDto,
+        @Req() req: Request,
+    ): Promise<QrScanResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
+        return this.touriiBackendService.completeQrScanTask(
+            taskId,
+            userId,
+            body.code,
+            body.latitude,
+            body.longitude,
+        );
     }
 
     // ==========================================

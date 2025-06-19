@@ -23,7 +23,7 @@ export class TouriiOnchainController {
         return 'OK';
     }
 
-    @Get('keyring/address')
+    @Get('/user-keyring-address')
     @ApiOperation({
         summary: 'Get user keyring address',
     })
@@ -37,7 +37,7 @@ export class TouriiOnchainController {
     })
     async userKeyringAddress(@Req() req: Request, @Res() res: Response) {
         // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-        const token = req.cookies.token;
+        const token = req.cookies['token'];
 
         try {
             res.json(await this.touriiOnchainService.userKeyringAddress(token));
@@ -125,10 +125,10 @@ export class TouriiOnchainController {
         res.send('User logged out');
     }
 
-    @Post('send-green')
+    @Post('/send-green')
     async sendGreen(@Req() req: Request, @Res() res: Response) {
         // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-        const token = req.cookies.token;
+        const token = req.cookies['token'];
 
         try {
             const response = await this.touriiOnchainService.sendGreen(token);
@@ -138,10 +138,10 @@ export class TouriiOnchainController {
         }
     }
 
-    @Post('send-yellow')
+    @Post('/send-yellow')
     async sendYellow(@Req() req: Request, @Res() res: Response) {
         // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-        const token = req.cookies.token;
+        const token = req.cookies['token'];
 
         try {
             const response = await this.touriiOnchainService.sendYellow(token);
@@ -151,10 +151,10 @@ export class TouriiOnchainController {
         }
     }
 
-    @Post('send-red')
+    @Post('/send-red')
     async sendRed(@Req() req: Request, @Res() res: Response) {
         // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-        const token = req.cookies.token;
+        const token = req.cookies['token'];
 
         try {
             const response = await this.touriiOnchainService.sendRed(token);

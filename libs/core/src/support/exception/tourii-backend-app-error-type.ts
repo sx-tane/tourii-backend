@@ -115,6 +115,31 @@ export const TouriiBackendAppErrorType = {
         message: 'Quest task not found',
         type: ErrorType.NOT_FOUND,
     },
+    E_TB_029: {
+        code: 'E_TB_029',
+        message: 'Story chapter already completed',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_030: {
+        code: 'E_TB_030',
+        message: 'Invalid task type for QR code scanning',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_031: {
+        code: 'E_TB_031',
+        message: 'Invalid QR code',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_032: {
+        code: 'E_TB_032',
+        message: 'Task already completed',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_033: {
+        code: 'E_TB_033',
+        message: 'Invalid task configuration - malformed required_action',
+        type: ErrorType.BAD_REQUEST,
+    },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
         code: 'E_GEO_001',

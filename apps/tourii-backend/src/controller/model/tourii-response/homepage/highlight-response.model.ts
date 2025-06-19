@@ -18,7 +18,7 @@ export const QuestHighlightSchema = z.object({
 
 export const HomepageHighlightsResponseSchema = z.object({
     latestChapter: ChapterHighlightSchema.nullable(),
-    popularQuest: QuestHighlightSchema.nullable(),
+    popularQuests: z.array(QuestHighlightSchema).describe('Top 3 popular quests'),
 });
 
 export class ChapterHighlightDto extends createZodDto(ChapterHighlightSchema) {}

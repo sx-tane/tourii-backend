@@ -7,6 +7,7 @@ This guide covers the new modular seeding system that makes database seeding fas
 ## 🚀 Quick Start
 
 ### Run Everything (Recommended)
+
 ```bash
 # Seed complete database with all test data
 npx prisma db seed
@@ -15,11 +16,12 @@ npx tsx prisma/seed-new.ts
 ```
 
 ### Partial Seeding (New!)
+
 ```bash
 # Just users
 npx tsx prisma/seed-new.ts --users-only
 
-# Just stories and content  
+# Just stories and content
 npx tsx prisma/seed-new.ts --stories-only
 
 # Clean everything first, then seed
@@ -31,6 +33,7 @@ npx tsx prisma/seed-new.ts --clean
 ## 🎯 What Gets Created
 
 ### 👤 **Test Users** (3 users)
+
 | Username | Email            | Role  | Level              | Points | Premium |
 | -------- | ---------------- | ----- | ------------------ | ------ | ------- |
 | `alice`  | alice@tourii.dev | USER  | BONJIN             | 150    | No      |
@@ -38,19 +41,22 @@ npx tsx prisma/seed-new.ts --clean
 | `admin`  | admin@tourii.dev | ADMIN | C_CLASS_AMATSUKAMI | 2500   | Yes     |
 
 ### 📚 **Stories** (3 stories)
+
 - **Prologue**: Tutorial and welcome content
 - **Tokyo Urban Adventure**: Shibuya + Tokyo Station
 - **Kyoto Cultural Heritage**: Traditional locations
 
 ### 🎯 **Sample Content**
+
 - **2 Tourist Spots** per story
 - **2 Quests** per tourist spot (Photo + Quiz)
 - **User achievements** and activity logs
 - **Discord roles** and assignments
 
 ### ⛓️ **NFT Catalog**
+
 - Digital Passport NFT template
-- Adventure Log NFT template  
+- Adventure Log NFT template
 - Discount Voucher Perk template
 
 ---
@@ -63,10 +69,16 @@ Edit `USER_TEMPLATES` in `prisma/seed-new.ts`:
 
 ```typescript
 const USER_TEMPLATES = {
-  alice: { /* existing */ },
-  bob: { /* existing */ },
-  admin: { /* existing */ },
-  
+  alice: {
+    /* existing */
+  },
+  bob: {
+    /* existing */
+  },
+  admin: {
+    /* existing */
+  },
+
   // Add your new user
   developer: {
     username: 'developer',
@@ -81,6 +93,7 @@ const USER_TEMPLATES = {
 ```
 
 Then seed with your new user:
+
 ```bash
 npx tsx prisma/seed-new.ts --users-only --clean
 ```
@@ -92,7 +105,7 @@ Edit `STORY_TEMPLATES`:
 ```typescript
 const STORY_TEMPLATES = {
   // existing stories...
-  
+
   osaka: {
     saga_name: 'Osaka Food Adventure',
     saga_desc: 'Discover the culinary heart of Japan',
@@ -115,12 +128,12 @@ const SEED_CONFIG = {
     defaultUsers: ['alice', 'bob', 'admin', 'developer'], // Add custom users
   },
   stories: {
-    createSampleContent: true,    // Set false to skip tourist spots/quests
-    includeRealLocations: true,   // Set false for fake data
+    createSampleContent: true, // Set false to skip tourist spots/quests
+    includeRealLocations: true, // Set false for fake data
   },
   discord: {
-    createRoles: true,           // Set false to skip Discord integration
-    assignToUsers: true,         // Set false to skip role assignments
+    createRoles: true, // Set false to skip Discord integration
+    assignToUsers: true, // Set false to skip role assignments
   },
 };
 ```
@@ -130,18 +143,20 @@ const SEED_CONFIG = {
 ## 🧹 Database Cleanup
 
 ### Clean Everything
+
 ```bash
 npx tsx prisma/seed-new.ts --clean
 ```
 
 ### Clean Specific Parts
+
 ```typescript
 // In your own script
 import { DatabaseCleaner } from './prisma/seed-new';
 
-await DatabaseCleaner.cleanUsers();    // Remove only users
-await DatabaseCleaner.cleanStories();  // Remove only stories
-await DatabaseCleaner.cleanAll();      // Remove everything
+await DatabaseCleaner.cleanUsers(); // Remove only users
+await DatabaseCleaner.cleanStories(); // Remove only stories
+await DatabaseCleaner.cleanAll(); // Remove everything
 ```
 
 ---
@@ -149,6 +164,7 @@ await DatabaseCleaner.cleanAll();      // Remove everything
 ## 🆚 Old vs New Seeding
 
 ### ❌ Old Way (Pain Points)
+
 ```bash
 # One massive 763-line file
 # Hard to modify
@@ -160,6 +176,7 @@ npx prisma db seed  # Only option
 ```
 
 ### ✅ New Way (Modular & Flexible)
+
 ```bash
 # Organized into logical modules
 # Easy to customize
@@ -168,7 +185,7 @@ npx prisma db seed  # Only option
 # Template-based approach
 
 npx tsx prisma/seed-new.ts --users-only     # Just users
-npx tsx prisma/seed-new.ts --stories-only   # Just stories  
+npx tsx prisma/seed-new.ts --stories-only   # Just stories
 npx tsx prisma/seed-new.ts --clean          # Clean first
 ```
 
@@ -177,6 +194,7 @@ npx tsx prisma/seed-new.ts --clean          # Clean first
 ## 🔧 Development Workflows
 
 ### Daily Development
+
 ```bash
 # Quick reset with fresh users
 npx tsx prisma/seed-new.ts --users-only --clean
@@ -186,6 +204,7 @@ npx tsx prisma/seed-new.ts --stories-only --clean
 ```
 
 ### Testing Different Scenarios
+
 ```bash
 # Scenario 1: Fresh database
 npx tsx prisma/seed-new.ts --clean
@@ -198,6 +217,7 @@ npx tsx prisma/seed-new.ts --stories-only
 ```
 
 ### Team Onboarding
+
 ```bash
 # New team member gets complete setup
 npx prisma migrate dev
@@ -209,6 +229,7 @@ npx prisma db seed
 ## 🐛 Troubleshooting
 
 ### "Module not found" Error
+
 ```bash
 # Install tsx for TypeScript execution
 npm install -g tsx
@@ -217,6 +238,7 @@ pnpm add -g tsx
 ```
 
 ### Seeding Fails Partially
+
 ```bash
 # Clean and retry
 npx tsx prisma/seed-new.ts --clean
@@ -226,6 +248,7 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 ### Want to Reset Just One Part
+
 ```bash
 # Reset users only
 npx tsx -e "
@@ -236,6 +259,7 @@ await UserSeeder.seedUsers(['alice', 'bob']);
 ```
 
 ### Customize for Your Environment
+
 ```bash
 # Copy and modify
 cp prisma/seed-new.ts prisma/seed-custom.ts
@@ -248,6 +272,7 @@ npx tsx prisma/seed-custom.ts
 ## 📦 Migration from Old Seed
 
 ### Step 1: Test New Seeding
+
 ```bash
 # Backup current data
 npx prisma db seed  # Run old seed once more
@@ -257,6 +282,7 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 ### Step 2: Update package.json (Optional)
+
 ```json
 {
   "prisma": {
@@ -266,6 +292,7 @@ npx tsx prisma/seed-new.ts --clean
 ```
 
 ### Step 3: Replace Old File
+
 ```bash
 # Backup old seed
 mv prisma/seed.ts prisma/seed-old.ts
@@ -279,25 +306,29 @@ mv prisma/seed-simple.ts prisma/seed.ts
 ## 🎯 Benefits Summary
 
 ### 🚀 **Faster Development**
+
 - Seed only what you need
 - No waiting for full database recreation
 - Quick iterations on specific features
 
-### 🔧 **Easier Maintenance**  
+### 🔧 **Easier Maintenance**
+
 - Clear separation of concerns
 - Template-based approach
 - Easy to add new users/stories
 
 ### 🧪 **Better Testing**
+
 - Multiple test scenarios
 - Isolated seeding for specific features
 - Consistent test data
 
 ### 👥 **Team Friendly**
+
 - Self-documenting code
 - Clear error messages
 - Modular approach everyone can understand
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 18, 2025_

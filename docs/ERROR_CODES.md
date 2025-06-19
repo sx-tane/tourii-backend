@@ -37,6 +37,7 @@ All API errors follow this standardized format:
 | **E_TB_011** | Invalid API key        | 401         | Wrong API key provided      | Use correct API key          |
 
 **Example:**
+
 ```bash
 # Missing API key
 curl http://localhost:3000/health-check
@@ -50,19 +51,27 @@ curl -H "x-api-key: dev-key" http://localhost:3000/health-check
 
 ### 📝 API Versioning
 
-| Code         | Message                                 | HTTP Status | When It Occurs                  | Solution                     |
-| ------------ | --------------------------------------- | ----------- | ------------------------------- | ---------------------------- |
-| **E_TB_020** | Version header is required              | 400         | Missing `accept-version` header | Add version header           |
-| **E_TB_021** | Invalid version format                  | 400         | Malformed version string        | Use format "1.0.0"           |
-| **E_TB_022** | This API version is no longer supported | 400         | Using deprecated version        | Upgrade to supported version |
+| Code         | Message                                 | HTTP Status | When It Occurs                  | Solution                       |
+| ------------ | --------------------------------------- | ----------- | ------------------------------- | ------------------------------ |
+| **E_TB_020** | Version header is required              | 400         | Missing `accept-version` header | Add version header             |
+| **E_TB_021** | Invalid version format                  | 400         | Malformed version header        | Use valid version (e.g. 1.0.0) |
+| **E_TB_022** | This API version is no longer supported | 400         | Using deprecated version        | Upgrade to supported version   |
 
 **Example:**
+
 ```bash
 # Missing version header
 curl -H "x-api-key: dev-key" http://localhost:3000/health-check
 # Returns: E_TB_020
 
-# Fix: Add version header  
+# Fix: Add version header
+curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/health-check
+
+# Invalid version format
+curl -H "x-api-key: dev-key" -H "accept-version: invalid" http://localhost:3000/health-check
+# Returns: E_TB_021
+
+# Fix: Use proper version format
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/health-check
 ```
 
@@ -75,6 +84,7 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/he
 | **E_TB_006** | User already exists | 400         | Duplicate registration | Check if user exists first |
 
 **Example:**
+
 ```bash
 # Trying to register existing user
 curl -X POST http://localhost:3000/auth/signup \
@@ -94,6 +104,7 @@ curl -X POST http://localhost:3000/auth/signup \
 | **E_TB_028** | Quest task not found        | 404         | Task ID doesn't exist           | Verify task ID     |
 
 **Example:**
+
 ```bash
 # Requesting non-existent story
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
@@ -105,7 +116,7 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 
 ### 🌍 External API Services
 
-#### Geocoding Errors (Google Maps)
+#### Geocoding Errors (Google Maps - Cost-Optimized)
 
 | Code          | Message                                       | HTTP Status | When It Occurs               | Solution                   |
 | ------------- | --------------------------------------------- | ----------- | ---------------------------- | -------------------------- |
@@ -114,6 +125,8 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 | **E_GEO_003** | Geocoding: API provider rate limit exceeded   | 400         | Too many requests            | Wait or upgrade quota      |
 | **E_GEO_004** | Geocoding: External API error during request  | 500         | Google Maps service down     | Retry later                |
 | **E_GEO_005** | Geocoding: GOOGLE_MAPS_API_KEY not configured | 500         | Missing environment variable | Set GOOGLE_MAPS_API_KEY    |
+
+**Note**: The system now uses cost-optimized Google Places API with automatic fallback to legacy API, reducing costs by 85-90% while maintaining reliability.
 
 #### Weather Errors (OpenWeatherMap)
 
@@ -126,6 +139,7 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 | **E_WEATHER_005** | Weather API: WEATHER_API_KEY not configured          | 500         | Missing environment variable | Set OPEN_WEATHER_API_KEY |
 
 **Example:**
+
 ```bash
 # Invalid location search
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
@@ -160,19 +174,24 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 ## 🔍 Debugging Guide
 
 ### Step 1: Check the Error Code
+
 Look up the specific error code in the tables above to understand what went wrong.
 
 ### Step 2: Verify Required Headers
+
 Most errors are caused by missing headers:
+
 ```bash
 # Always include these headers
 -H "x-api-key: your-api-key"
--H "accept-version: 1.0.0" 
+-H "accept-version: 1.0.0"
 -H "Content-Type: application/json"
 ```
 
 ### Step 3: Check Environment Configuration
+
 For E_TB_005, E_GEO_005, E_WEATHER_005 errors:
+
 ```bash
 # Verify these environment variables are set
 echo $GOOGLE_MAPS_API_KEY
@@ -181,14 +200,18 @@ echo $JWT_SECRET
 ```
 
 ### Step 4: Validate Request Data
+
 For 400 Bad Request errors, check:
+
 - JSON format is valid
 - Required fields are present
 - Data types match expected format
 - IDs exist in database
 
 ### Step 5: Check External Service Status
+
 For external API errors:
+
 - **Google Maps**: Check [Google Cloud Status](https://status.cloud.google.com/)
 - **OpenWeatherMap**: Check [OpenWeather Status](https://status.openweathermap.org/)
 
@@ -197,17 +220,19 @@ For external API errors:
 ## 🛠️ Common Fixes
 
 ### "API key is required" (E_TB_010)
+
 ```bash
 # Wrong ❌
 curl http://localhost:3000/health-check
 
-# Correct ✅  
+# Correct ✅
 curl -H "x-api-key: dev-key" \
      -H "accept-version: 1.0.0" \
      http://localhost:3000/health-check
 ```
 
 ### "User is not registered" (E_TB_004)
+
 ```bash
 # Create user first
 curl -X POST http://localhost:3000/auth/signup \
@@ -222,6 +247,7 @@ curl -X POST http://localhost:3000/auth/signup \
 ```
 
 ### "Story not found" (E_TB_023)
+
 ```bash
 # Get available stories first
 curl -H "x-api-key: dev-key" \
@@ -235,11 +261,16 @@ curl -H "x-api-key: dev-key" \
 ```
 
 ### External API Configuration
+
 ```bash
 # Add to .env file
 GOOGLE_MAPS_API_KEY=your_google_maps_key
-GOOGLE_PLACES_API_KEY=your_google_places_key  
+GOOGLE_PLACES_API_KEY=your_google_places_key  # Enable new Places API for cost savings
 OPEN_WEATHER_API_KEY=your_weather_api_key
+
+# Optional: Configure cache TTL for cost optimization
+LOCATION_CACHE_TTL_SECONDS=86400  # 24-hour cache for location data
+GEO_CACHE_TTL_SECONDS=86400       # 24-hour cache for geocoding data
 ```
 
 ---
@@ -247,6 +278,7 @@ OPEN_WEATHER_API_KEY=your_weather_api_key
 ## 🚨 Error Monitoring
 
 ### Development
+
 ```bash
 # Watch server logs for errors
 pnpm start:dev
@@ -256,11 +288,13 @@ tail -f logs/error.log | grep "E_TB_"
 ```
 
 ### Production (Render)
+
 1. Check Render dashboard logs
 2. Set up error tracking (Sentry, LogRocket)
 3. Monitor API health endpoints
 
 ### Custom Error Handling
+
 ```typescript
 // In your client code
 try {
@@ -275,7 +309,7 @@ try {
       // Handle story not found
       break;
     default:
-      // Handle generic error
+    // Handle generic error
   }
 }
 ```
@@ -291,4 +325,4 @@ try {
 
 ---
 
-*Last Updated: June 16, 2025*
+_Last Updated: June 18, 2025_

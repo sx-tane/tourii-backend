@@ -10,16 +10,20 @@ import { TouriiBackendAppException } from '../../support/exception/tourii-backen
 export class JwtRepositoryAuth implements JwtRepository {
     private readonly secretKey: string;
     constructor(protected readonly configService: ConfigService) {
-        this.secretKey = this.configService.get<string>('JWT_SECRET') || 'defaultSecretKey';
+        const secret = this.configService.get<string>('JWT_SECRET');
+        if (!secret) {
+            throw new Error('JWT_SECRET environment variable is required for security');
+        }
+        this.secretKey = secret;
     }
 
-    generateJwtToken(payload: JWTData, options?: jwt.SignOptions): string {
+    generateJwtToken<T extends Record<string, unknown>>(payload: T, options?: jwt.SignOptions): string {
         return jwt.sign(payload, this.secretKey, options);
     }
 
-    dataFromToken(token: string): string | JWTData {
+    dataFromToken<T = Record<string, unknown>>(token: string): T {
         try {
-            return jwt.verify(token, this.secretKey) as JWTData;
+            return jwt.verify(token, this.secretKey) as T;
         } catch (_error) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_002);
         }
