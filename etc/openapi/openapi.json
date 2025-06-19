@@ -10412,7 +10412,9 @@
                 "properties": {
                   "code": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "^[A-Za-z0-9_\\-:./#]+$"
                   },
                   "latitude": {
                     "type": "number"
@@ -15740,7 +15742,9 @@
         "properties": {
           "code": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 1000,
+            "pattern": "^[A-Za-z0-9_\\-:./#]+$"
           },
           "latitude": {
             "type": "number"
