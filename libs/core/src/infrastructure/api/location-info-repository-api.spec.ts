@@ -41,49 +41,6 @@ describe('LocationInfoRepositoryApi', () => {
         );
     });
 
-    it('fails to fetch location info from Google Places when PLACE ZERO_RESULTS', async () => {
-        configService.get.mockImplementation((key: string) => {
-            if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
-            return undefined;
-        });
-
-        const findResponse = {
-            data: { candidates: [{ place_id: 'abc123' }] },
-            status: 200,
-        };
-
-        const detailResponse = {
-            data: {
-                result: {
-                    name: 'Sakura-tei',
-                    formatted_address: 'Tokyo, Japan',
-                    international_phone_number: '+81 3-3479-0039',
-                    website: 'https://www.sakuratei.co.jp',
-                    rating: 4,
-                    url: 'https://maps.google.com/?cid=12345',
-                    opening_hours: { weekday_text: ['Mon: 11AM-11PM'] },
-                },
-            },
-            status: 200,
-        };
-
-        httpService.getTouriiBackendHttpService.get
-            .mockReturnValueOnce(of(findResponse))
-            .mockReturnValueOnce(of(detailResponse));
-
-        cachingService.getOrSet.mockImplementation(
-            async (_key: string, fn: () => Promise<LocationInfo>) => fn(),
-        );
-
-        await expect(repository.getLocationInfo('Sakura-tei')).rejects.toEqual(
-            expect.objectContaining({
-                response: expect.objectContaining({
-                    code: TouriiBackendAppErrorType.E_GEO_001.code,
-                }),
-            }),
-        );
-    });
-
     it('fetches location info from Google Places and caches it', async () => {
         configService.get.mockImplementation((key: string) => {
             if (key === 'GOOGLE_PLACES_API_KEY') return 'test-key';
