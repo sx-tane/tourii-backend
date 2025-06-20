@@ -12,6 +12,7 @@ import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-ro
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { GroupQuestRepository } from '@app/core/domain/game/quest/group-quest.repository';
 import { QuestRepository } from '@app/core/domain/game/quest/quest.repository';
+import { TaskRepository } from '@app/core/domain/game/quest/task.repository';
 import { StoryChapter } from '@app/core/domain/game/story/chapter-story';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import type { StoryRepository } from '@app/core/domain/game/story/story.repository';
@@ -84,7 +85,10 @@ import { StoryUpdateRequestBuilder } from './builder/story-update-request-builde
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
+import { SubmitTaskResponseDto } from '../controller/model/tourii-response/submit-tasks-response.model';
+import { TaskResultBuilder } from './builder/task-result-builder';
 import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-builder';
+
 @Injectable()
 export class TouriiBackendService {
     private readonly logger = new Logger(TouriiBackendService.name);
@@ -117,6 +121,8 @@ export class TouriiBackendService {
         private readonly r2StorageRepository: R2StorageRepository,
         @Inject(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN)
         private readonly userTaskLogRepository: UserTaskLogRepository,
+        @Inject(TouriiBackendConstants.TASK_REPOSITORY_TOKEN)
+        private readonly taskRepository: TaskRepository,
         @Inject(TouriiBackendConstants.USER_TRAVEL_LOG_REPOSITORY_TOKEN)
         private readonly userTravelLogRepository: UserTravelLogRepository,
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
@@ -932,7 +938,7 @@ export class TouriiBackendService {
         let weatherInfo: WeatherInfo;
         try {
             const weatherInfoList = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
-                [geoInfo!],
+                geoInfo ? [geoInfo] : [],
             );
 
             if (!weatherInfoList || weatherInfoList.length === 0) {
@@ -1900,7 +1906,7 @@ export class TouriiBackendService {
               }
             : null;
 
-        const popularQuestsDto = popularQuests.map(quest => ({
+        const popularQuestsDto = popularQuests.map((quest) => ({
             questId: quest.questId ?? '',
             title: quest.questName ?? '',
             imageUrl: quest.questImage ?? null,
@@ -1931,6 +1937,47 @@ export class TouriiBackendService {
                 TouriiBackendAppErrorType.E_TB_024, // Update failed
             );
         }
+    }
+
+    async submitAnswerTextTask(
+        taskId: string,
+        answer: string,
+        userId: string,
+    ): Promise<SubmitTaskResponseDto> {
+        const submitResponse = await this.taskRepository.submitAnswerTextTask(
+            taskId,
+            answer,
+            userId,
+        );
+        return TaskResultBuilder.submitTaskResponseToDto(submitResponse);
+    }
+
+    async submitSelectOptionTask(
+        taskId: string,
+        selectedOptionIds: number[],
+        userId: string,
+    ): Promise<SubmitTaskResponseDto> {
+        const submitResponse = await this.taskRepository.submitSelectOptionsTask(
+            taskId,
+            selectedOptionIds,
+            userId,
+        );
+        return TaskResultBuilder.submitTaskResponseToDto(submitResponse);
+    }
+
+    async submitCheckInTask(
+        taskId: string,
+        longitude: number,
+        latitude: number,
+        userId: string,
+    ): Promise<SubmitTaskResponseDto> {
+        const submitResponse = await this.taskRepository.submitCheckInTask(
+            taskId,
+            longitude,
+            latitude,
+            userId,
+        );
+        return TaskResultBuilder.submitTaskResponseToDto(submitResponse);
     }
 
     async completeQrScanTask(

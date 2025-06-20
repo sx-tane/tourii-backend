@@ -40,6 +40,7 @@ import { TouriiBackendContextProvider } from './support/context/tourii-backend-c
 import { SecurityMiddleware } from './support/middleware/security.middleware';
 import { TouriiBackendApiMiddleware } from './support/tourii-backend-api-middleware';
 import { TouriiBackendConstants } from './tourii-backend.constant';
+import { TaskRepositoryDb } from '@app/core/infrastructure/datasource/task-repository-db';
 
 /**
  * Main module for the Tourii Backend application
@@ -177,6 +178,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard, // Global rate limiting
+        },
+        {
+            provide: TouriiBackendConstants.TASK_REPOSITORY_TOKEN,
+            useClass: TaskRepositoryDb,
         },
     ],
 })

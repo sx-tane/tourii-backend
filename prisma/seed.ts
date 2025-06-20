@@ -671,6 +671,7 @@ async function main() {
             },
             magatama_point_awarded: 25,
             ins_user_id: 'system-seed',
+            accepted_answer: '2',
         },
     });
     const _taskCaveQuestion2 = await prisma.quest_task.create({
@@ -689,6 +690,7 @@ async function main() {
             },
             magatama_point_awarded: 25,
             ins_user_id: 'system-seed',
+            accepted_answer: 'Fukiji',
         },
     });
     await prisma.user_story_log.create({

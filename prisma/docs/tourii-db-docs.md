@@ -824,6 +824,7 @@ erDiagram
   TaskType task_type
   String(255) task_name
   String task_desc
+  String(255) accepted_answer "nullable"
   Boolean is_unlocked
   String(255) required_action
   Json group_activity_members
@@ -1105,6 +1106,7 @@ point allocation to ensure fair and engaging gameplay.
     > | PHOTO_UPLOAD    | Upload a photo of the lanterns at Harajiri Falls!            |
     > | QR_SCAN         | Find and scan the hidden QR code near the waterfall.         |
     > | GROUP_ACTIVITY  | Join a team and complete a scavenger hunt together!          |
+  - `accepted_answer`: The correct answer for ANSWER_TEXT or SELECT_OPTION tasks and VISIT_LOCATION radius
   - `is_unlocked`: Whether the task is available without prerequisites
   - `required_action`
     > Extra requirements for task completion.

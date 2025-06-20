@@ -537,6 +537,7 @@ EVENT EVENT
     TaskType task_type 
     String task_name 
     String task_desc 
+    String accepted_answer "❓"
     Boolean is_unlocked 
     String required_action 
     Json group_activity_members 
