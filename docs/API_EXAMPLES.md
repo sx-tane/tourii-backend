@@ -8,7 +8,7 @@ This guide provides real-world examples of using the Tourii Backend APIs, includ
 
 ### Base URLs
 
-- **Main API**: `http://localhost:3000` (dev) / `https://your-app.onrender.com` (prod)
+- **Main API**: `http://localhost:4000` (dev) / `https://your-app.onrender.com` (prod)
 - **Onchain API**: `http://localhost:3001` (dev) / `https://your-onchain.onrender.com` (prod)
 
 ### Required Headers (All Requests)
@@ -50,7 +50,7 @@ Frontend Request → Security Middleware → Controller → Service → Reposito
 
 ```bash
 # Step 1: Create new user account
-curl -X POST http://localhost:3000/auth/signup \
+curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
@@ -71,7 +71,7 @@ curl -X POST http://localhost:3000/auth/signup \
 
 ```bash
 # Step 2: Login user
-curl -X POST http://localhost:3000/login \
+curl -X POST http://localhost:4000/login \
   -H "Content-Type: application/json" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
@@ -94,7 +94,7 @@ curl -X POST http://localhost:3000/login \
 
 ```bash
 # Get current user info
-curl -X GET http://localhost:3000/user/me \
+curl -X GET http://localhost:4000/user/me \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
   -H "x-user-id: usr_abc123"
@@ -120,7 +120,7 @@ curl -X GET http://localhost:3000/user/me \
 
 ```bash
 # Get all story sagas
-curl -X GET http://localhost:3000/stories/sagas \
+curl -X GET http://localhost:4000/stories/sagas \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -141,7 +141,7 @@ curl -X GET http://localhost:3000/stories/sagas \
 
 ```bash
 # Get chapters for a specific story
-curl -X GET http://localhost:3000/stories/sagas/story_tokyo/chapters \
+curl -X GET http://localhost:4000/stories/sagas/story_tokyo/chapters \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -163,7 +163,7 @@ curl -X GET http://localhost:3000/stories/sagas/story_tokyo/chapters \
 
 ```bash
 # Mark chapter as read
-curl -X POST http://localhost:3000/stories/chapters/chapter_001/progress \
+curl -X POST http://localhost:4000/stories/chapters/chapter_001/progress \
   -H "Content-Type: application/json" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
@@ -186,7 +186,7 @@ curl -X POST http://localhost:3000/stories/chapters/chapter_001/progress \
 
 ```bash
 # Get all available routes
-curl -X GET http://localhost:3000/routes \
+curl -X GET http://localhost:4000/routes \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -207,7 +207,7 @@ curl -X GET http://localhost:3000/routes \
 
 ```bash
 # Get detailed route information
-curl -X GET http://localhost:3000/routes/route_tokyo_central \
+curl -X GET http://localhost:4000/routes/route_tokyo_central \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -218,7 +218,7 @@ curl -X GET http://localhost:3000/routes/route_tokyo_central \
 
 ```bash
 # Search for location info (NEW: Cost-optimized Google Places integration)
-curl -X GET "http://localhost:3000/location-info?query=Tokyo Station&latitude=35.6762&longitude=139.6503" \
+curl -X GET "http://localhost:4000/location-info?query=Tokyo Station&latitude=35.6762&longitude=139.6503" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -243,7 +243,7 @@ curl -X GET "http://localhost:3000/location-info?query=Tokyo Station&latitude=35
 
 ```bash
 # Get geographic coordinates for an address (Optimized Geocoding)
-curl -X GET "http://localhost:3000/geo-info?query=Shibuya Crossing Tokyo" \
+curl -X GET "http://localhost:4000/geo-info?query=Shibuya Crossing Tokyo" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -264,7 +264,7 @@ curl -X GET "http://localhost:3000/geo-info?query=Shibuya Crossing Tokyo" \
 
 ```bash
 # Get available quests with filters
-curl -X GET "http://localhost:3000/quests?page=1&limit=10&questType=SOLO&userId=usr_abc123" \
+curl -X GET "http://localhost:4000/quests?page=1&limit=10&questType=SOLO&userId=usr_abc123" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -290,7 +290,7 @@ curl -X GET "http://localhost:3000/quests?page=1&limit=10&questType=SOLO&userId=
 
 ```bash
 # Get detailed quest information
-curl -X GET "http://localhost:3000/quests/quest_shibuya_photo?userId=usr_abc123" \
+curl -X GET "http://localhost:4000/quests/quest_shibuya_photo?userId=usr_abc123" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -325,7 +325,7 @@ curl -X GET "http://localhost:3000/quests/quest_shibuya_photo?userId=usr_abc123"
 
 ```bash
 # Upload photo for quest task
-curl -X POST http://localhost:3000/quests/tasks/task_002/photo-upload \
+curl -X POST http://localhost:4000/quests/tasks/task_002/photo-upload \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
   -H "x-user-id: usr_abc123" \
@@ -348,7 +348,7 @@ curl -X POST http://localhost:3000/quests/tasks/task_002/photo-upload \
 
 ```bash
 # Get group members for a quest
-curl -X GET http://localhost:3000/quests/quest_group_tokyo/group/members \
+curl -X GET http://localhost:4000/quests/quest_group_tokyo/group/members \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -377,7 +377,7 @@ curl -X GET http://localhost:3000/quests/quest_group_tokyo/group/members \
 
 ```bash
 # Start group quest (leader only)
-curl -X POST http://localhost:3000/quests/quest_group_tokyo/group/start \
+curl -X POST http://localhost:4000/quests/quest_group_tokyo/group/start \
   -H "Content-Type: application/json" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
@@ -401,7 +401,7 @@ curl -X POST http://localhost:3000/quests/quest_group_tokyo/group/start \
 
 ```bash
 # Get latest moments/activities
-curl -X GET "http://localhost:3000/moments?page=1&limit=20" \
+curl -X GET "http://localhost:4000/moments?page=1&limit=20" \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -438,7 +438,7 @@ curl -X GET "http://localhost:3000/moments?page=1&limit=20" \
 
 ```bash
 # Get homepage content
-curl -X GET http://localhost:3000/v2/homepage/highlights \
+curl -X GET http://localhost:4000/v2/homepage/highlights \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -508,7 +508,7 @@ The repository includes example requests in `etc/http/` folders:
 
 ```bash
 # Test auth
-GET http://localhost:3000/user/me
+GET http://localhost:4000/user/me
 x-api-key: dev-key
 accept-version: 1.0.0
 x-user-id: usr_abc123
@@ -564,7 +564,7 @@ X-RateLimit-Reset: 1642350000
 ### Development
 
 ```bash
-export API_BASE_URL=http://localhost:3000
+export API_BASE_URL=http://localhost:4000
 export ONCHAIN_BASE_URL=http://localhost:3001
 export API_KEY=dev-key
 ```
@@ -585,7 +585,7 @@ export API_KEY=your_production_api_key
 
 ```bash
 # Check if API key is valid
-curl -X GET http://localhost:3000/health-check \
+curl -X GET http://localhost:4000/health-check \
   -H "x-api-key: your-key" \
   -H "accept-version: 1.0.0"
 ```
@@ -608,8 +608,8 @@ Make sure you're including the correct headers and the request is coming from an
 
 - [Development Setup](./DEVELOPMENT_SETUP.md) - Complete setup guide
 - [API Reference](../README.md#-api-reference) - All available endpoints
-- [Security Guidelines](./SECURITY_GUIDELINES.md) - Authentication & security
-- [Backend Guidelines](./BACKEND_GUIDELINES.md) - Architecture overview
+- [Security Guide](./SECURITY.md) - Authentication & security
+- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
 
 ---
 

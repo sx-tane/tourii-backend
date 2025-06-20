@@ -1,6 +1,6 @@
 # 🌱 Database Seeding Guide
 
-This guide covers the new modular seeding system that makes database seeding fast, flexible, and maintainable.
+This guide covers the modular seeding system that makes database seeding fast, flexible, and maintainable.
 
 ---
 
@@ -15,7 +15,7 @@ npx prisma db seed
 npx tsx prisma/seed-new.ts
 ```
 
-### Partial Seeding (New!)
+### Partial Seeding
 
 ```bash
 # Just users
@@ -161,9 +161,9 @@ await DatabaseCleaner.cleanAll(); // Remove everything
 
 ---
 
-## 🆚 Old vs New Seeding
+## 🆚 Legacy vs Modular Seeding
 
-### ❌ Old Way (Pain Points)
+### ❌ Legacy Way (Pain Points)
 
 ```bash
 # One massive 763-line file
@@ -175,7 +175,7 @@ await DatabaseCleaner.cleanAll(); // Remove everything
 npx prisma db seed  # Only option
 ```
 
-### ✅ New Way (Modular & Flexible)
+### ✅ Modular Way (Flexible & Maintainable)
 
 ```bash
 # Organized into logical modules

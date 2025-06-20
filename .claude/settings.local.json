@@ -22,7 +22,8 @@
       "Bash(node:*)",
       "Bash(npx biome:*)",
       "Bash(npx prisma generate:*)",
-      "Bash(./node_modules/.bin/prisma:*)"
+      "Bash(./node_modules/.bin/prisma:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

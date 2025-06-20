@@ -40,11 +40,11 @@ All API errors follow this standardized format:
 
 ```bash
 # Missing API key
-curl http://localhost:3000/health-check
+curl http://localhost:4000/health-check
 # Returns: E_TB_010
 
 # Fix: Add the header
-curl -H "x-api-key: dev-key" http://localhost:3000/health-check
+curl -H "x-api-key: dev-key" http://localhost:4000/health-check
 ```
 
 ---
@@ -61,18 +61,18 @@ curl -H "x-api-key: dev-key" http://localhost:3000/health-check
 
 ```bash
 # Missing version header
-curl -H "x-api-key: dev-key" http://localhost:3000/health-check
+curl -H "x-api-key: dev-key" http://localhost:4000/health-check
 # Returns: E_TB_020
 
 # Fix: Add version header
-curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/health-check
+curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:4000/health-check
 
 # Invalid version format
-curl -H "x-api-key: dev-key" -H "accept-version: invalid" http://localhost:3000/health-check
+curl -H "x-api-key: dev-key" -H "accept-version: invalid" http://localhost:4000/health-check
 # Returns: E_TB_021
 
 # Fix: Use proper version format
-curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/health-check
+curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:4000/health-check
 ```
 
 ---
@@ -87,7 +87,7 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" http://localhost:3000/he
 
 ```bash
 # Trying to register existing user
-curl -X POST http://localhost:3000/auth/signup \
+curl -X POST http://localhost:4000/auth/signup \
   -d '{"email": "existing@user.com", ...}'
 # Returns: E_TB_006
 ```
@@ -108,7 +108,7 @@ curl -X POST http://localhost:3000/auth/signup \
 ```bash
 # Requesting non-existent story
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
-  http://localhost:3000/stories/sagas/invalid_story_id/chapters
+  http://localhost:4000/stories/sagas/invalid_story_id/chapters
 # Returns: E_TB_023
 ```
 
@@ -143,7 +143,7 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 ```bash
 # Invalid location search
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
-  "http://localhost:3000/location-info?query=invalid_location_xyz"
+  "http://localhost:4000/location-info?query=invalid_location_xyz"
 # Returns: E_GEO_001
 ```
 
@@ -223,19 +223,19 @@ For external API errors:
 
 ```bash
 # Wrong ❌
-curl http://localhost:3000/health-check
+curl http://localhost:4000/health-check
 
 # Correct ✅
 curl -H "x-api-key: dev-key" \
      -H "accept-version: 1.0.0" \
-     http://localhost:3000/health-check
+     http://localhost:4000/health-check
 ```
 
 ### "User is not registered" (E_TB_004)
 
 ```bash
 # Create user first
-curl -X POST http://localhost:3000/auth/signup \
+curl -X POST http://localhost:4000/auth/signup \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0" \
   -H "Content-Type: application/json" \
@@ -252,12 +252,12 @@ curl -X POST http://localhost:3000/auth/signup \
 # Get available stories first
 curl -H "x-api-key: dev-key" \
      -H "accept-version: 1.0.0" \
-     http://localhost:3000/stories/sagas
+     http://localhost:4000/stories/sagas
 
 # Then use valid story ID
 curl -H "x-api-key: dev-key" \
      -H "accept-version: 1.0.0" \
-     http://localhost:3000/stories/sagas/valid_story_id/chapters
+     http://localhost:4000/stories/sagas/valid_story_id/chapters
 ```
 
 ### External API Configuration
@@ -320,8 +320,8 @@ try {
 
 - [API Examples](./API_EXAMPLES.md) - See working API requests
 - [Development Setup](./DEVELOPMENT_SETUP.md) - Environment configuration
-- [Security Guidelines](./SECURITY_GUIDELINES.md) - Authentication details
-- [Backend Guidelines](./BACKEND_GUIDELINES.md) - Architecture overview
+- [Security Guide](./SECURITY.md) - Authentication details
+- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
 
 ---
 

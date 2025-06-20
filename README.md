@@ -111,7 +111,7 @@ graph TB
 - **🔐 Multi-Provider Authentication**: Discord, Google, Twitter, Web3 wallets with JWT security
 - **📚 Interactive Storytelling**: Chapter-based narratives with progress tracking
 - **🗺️ Smart Route Planning**: AI-powered tourist route optimization with **cost-optimized Google Places API (85-90% cost reduction)**
-- **🎮 Gamified Quests**: Location-based challenges with rewards and secure file uploads
+- **🎮 Gamified Quests**: Location-based challenges with QR scan verification, photo uploads, and social sharing tasks
 - **🎫 Digital Passport NFTs**: Blockchain-verified travel credentials on Vara Network
 - **⚡ Real-time Features**: WebSocket-based live interactions with Redis caching
 - **🌍 Weather Integration**: Location-aware weather data with intelligent fallback
@@ -139,9 +139,9 @@ graph TB
 ### 🗺️ Quest & Travel Engine
 
 - Multi-step quests linked to tourist spots
-- Task types: check-in, upload photo, answer text, select options
-- Travel verification via GPS/QR code
-- Reward assignment with Magatama points
+- Task types: QR scan verification, photo upload, social sharing, text answers, multiple choice
+- Travel verification via GPS coordinates and QR code scanning
+- Reward assignment with Magatama points and progress tracking
 
 ### 🎮 Gamification & Memory Wall
 
@@ -383,7 +383,10 @@ All endpoints require these headers:
 | `POST`   | `/quests/create-task/:questId`        | Create quest task                    |
 | `POST`   | `/quests/update-quest`                | Update quest                         |
 | `POST`   | `/quests/update-task`                 | Update quest task                    |
-| `POST`   | `/quests/tasks/:taskId/photo-upload`  | Upload task photo                    |
+| `POST`   | `/quests/tasks/:taskId/photo-upload`  | Upload task photo with validation    |
+| `POST`   | `/quests/tasks/:taskId/qr-scan`       | Complete QR scan task with location verification |
+| `POST`   | `/quests/tasks/:taskId/social-share`  | Complete social sharing task with platform verification |
+| `POST`   | `/quests/tasks/:taskId/response`      | Submit task response (text/multiple choice) |
 | `DELETE` | `/quests/:questId`                    | Delete quest                         |
 | `DELETE` | `/quests/tasks/:taskId`               | Delete quest task                    |
 
@@ -593,6 +596,15 @@ License: [MIT](LICENSE)
 
 ## 🚀 **Recent Achievements (June 2025)**
 
+### **🎯 Enhanced Task Management System**
+- **QR Code Scanning**: Implemented secure QR code verification for location-based tasks with robust validation
+- **Social Media Integration**: Added comprehensive social sharing task completion with multi-platform verification
+- **Photo Upload Optimization**: Enhanced R2 integration with improved file validation, processing, and metadata handling
+- **Task Status Tracking**: Migrated from user_quest_log to user_task_log for granular progress tracking and analytics
+- **Popular Quest Analytics**: Homepage highlights featuring top 3 most popular quests with real-time engagement metrics
+- **Group Quest System**: Advanced multi-user quest coordination with role-based task distribution
+- **Task Response Validation**: Comprehensive validation system for text answers, multiple choice, and media uploads
+
 ### **💰 Cost Optimization**
 - **Google Places API**: Achieved 85-90% cost reduction through hybrid optimization strategy
 - **API Efficiency**: Reduced from 56 Places + 15 Geocoding calls to ~4 Text Search calls per location batch
@@ -616,4 +628,4 @@ License: [MIT](LICENSE)
 
 ---
 
-_Last Updated: June 18, 2025_
+_Last Updated: June 20, 2025_

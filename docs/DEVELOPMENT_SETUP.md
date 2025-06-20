@@ -153,7 +153,7 @@ pnpm run prisma:studio
 ### 1. Health Check
 
 ```bash
-curl http://localhost:3000/health-check \
+curl http://localhost:4000/health-check \
   -H "x-api-key: dev-key" \
   -H "accept-version: 1.0.0"
 
@@ -370,8 +370,8 @@ pnpm format
 
 - **Database Issues**: Check [Docker Setup Guide](../etc/docker/README.md)
 - **API Testing**: See example requests in `etc/http/` folders
-- **Architecture**: Read [Backend Guidelines](./BACKEND_GUIDELINES.md)
-- **Security**: Review [Security Guidelines](./SECURITY_GUIDELINES.md)
+- **Architecture**: Read [System Architecture](./SYSTEM_ARCHITECTURE.md)
+- **Security**: Review [Security Guide](./SECURITY.md)
 
 ---
 

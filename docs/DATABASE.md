@@ -64,10 +64,10 @@ pnpm run prisma:db:execute
 # Populate database with sample data (traditional way)
 npx prisma db seed
 
-# Or use the new modular seeding system (recommended)
+# Or use the modular seeding system (recommended)
 npx tsx prisma/seed-new.ts
 
-# Partial seeding options (new!)
+# Partial seeding options
 npx tsx prisma/seed-new.ts --users-only      # Just users
 npx tsx prisma/seed-new.ts --stories-only    # Just stories
 npx tsx prisma/seed-new.ts --clean           # Clean first
@@ -80,7 +80,7 @@ npx tsx prisma/seed-new.ts --clean           # Clean first
 # - Discord roles and relationships
 ```
 
-> 💡 **New**: See the [Seeding Guide](./SEEDING_GUIDE.md) for advanced seeding options and customization.
+> 💡 **Tip**: See the [Seeding Guide](./SEEDING_GUIDE.md) for advanced seeding options and customization.
 
 ---
 
@@ -190,7 +190,7 @@ npx prisma migrate status
 
 ## 🌱 Database Seeding
 
-> 💡 **New Modular Seeding System**: We've replaced the old monolithic seed file with a flexible, modular system. See the [Seeding Guide](./SEEDING_GUIDE.md) for complete details.
+> 💡 **Modular Seeding System**: We've replaced the legacy monolithic seed file with a flexible, modular system. See the [Seeding Guide](./SEEDING_GUIDE.md) for complete details.
 
 ### Quick Reference
 
@@ -200,10 +200,10 @@ npx prisma migrate status
 # Traditional way (still works)
 npx prisma db seed
 
-# New modular way (recommended)
+# Modular way (recommended)
 npx tsx prisma/seed-new.ts
 
-# Partial seeding (new!)
+# Partial seeding
 npx tsx prisma/seed-new.ts --users-only
 npx tsx prisma/seed-new.ts --stories-only
 npx tsx prisma/seed-new.ts --clean
@@ -244,7 +244,7 @@ npx tsx prisma/seed-new.ts --clean
 npx prisma migrate reset --force
 npx prisma db seed
 
-# New modular reset
+# Modular reset
 npx tsx prisma/seed-new.ts --clean
 ```
 
@@ -592,7 +592,7 @@ async function migrateUserData() {
 - [Development Setup](./DEVELOPMENT_SETUP.md) - Initial environment setup
 - [Seeding Guide](./SEEDING_GUIDE.md) - Advanced seeding options and customization
 - [API Examples](./API_EXAMPLES.md) - Database queries via API
-- [Backend Guidelines](./BACKEND_GUIDELINES.md) - Architecture overview
+- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
 - [Auto-generated DB Docs](../prisma/docs/tourii-db-docs.md) - Complete schema reference
 
 ---
