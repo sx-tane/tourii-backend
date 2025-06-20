@@ -5,9 +5,6 @@
         "clientKind": "git",
         "useIgnoreFile": true
     },
-    "organizeImports": {
-        "enabled": true
-    },
     "formatter": {
         "enabled": true,
         "indentStyle": "space",
@@ -25,7 +22,7 @@
             },
             "suspicious": {
                 "noArrayIndexKey": "warn",
-                "noConsoleLog": "error",
+                "noConsole": "off",
                 "noAssignInExpressions": "off",
                 "noExplicitAny": "warn"
             },
@@ -48,12 +45,13 @@
         }
     },
     "files": {
-        "ignore": [
-            "pgdata/*",
-            ".vscode/*",
-            "etc/docs/db/tbls/*",
-            "etc/openapi/openapi.*",
-            "etc/openapi/wip/openapi.*"
+        "includes": [
+            "**",
+            "!pgdata/*",
+            "!.vscode/*",
+            "!etc/docs/db/tbls/*",
+            "!etc/openapi/openapi.*",
+            "!etc/openapi/wip/openapi.*"
         ]
     }
 }
