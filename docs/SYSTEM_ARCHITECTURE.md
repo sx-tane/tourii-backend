@@ -1,962 +1,588 @@
-# 🏗️ **Tourii Backend System Architecture**
+# 🏗️ Tourii Backend System Architecture
 
-_Comprehensive architecture documentation for the Tourii tourism platform backend_
+> **Complete technical architecture documentation for the Tourii tourism platform backend system**
 
-_Last Updated: June 18, 2025_
+## 🎯 Overview
 
-## 🎯 **Core Features**
+Tourii is a **location-based tourism platform** that combines interactive storytelling, gamified quests, and blockchain technology to create immersive travel experiences. The backend system enables users to explore real-world locations through narrative-driven adventures while earning digital rewards and building their travel passport.
 
-### **🔐 Authentication & Web3**
+### Core Concept
 
-- Social auth (Discord, Twitter, Google)
-- Web3 wallet integration with EIP-191 signature verification
-- NFT-based digital passport system
-- JWT session management with refresh token rotation
+- **Interactive Storytelling**: Chapter-based narratives tied to real tourist locations
+- **Gamified Quests**: Location-based challenges with multiple task types (QR scanning, photo uploads, social sharing)
+- **Digital Passport System**: Blockchain-verified travel credentials with progression levels
+- **Social Integration**: Discord community features and group activities
+- **Real-World Integration**: GPS tracking, location verification, and place discovery
 
-### **📚 Story & Tourism**
+---
 
-- Story saga management with chapter progression
-- Location-based content delivery
-- Media asset management (video/image)
-- Interactive storytelling with progress tracking
+## 🚀 High-Level Architecture
 
-### **🎮 Quest & Gamification**
+### Monorepo Structure
 
-- Online/offline quest management
-- Multi-type task validation (GPS, photo, text, QR)
-- Progress tracking and reward distribution
-- Location-based challenges with Magatama points
+```
+tourii-backend/
+├── apps/
+│   ├── tourii-backend/         # Main API Server (Port 4000)
+│   └── tourii-onchain/         # Blockchain Service (Port 3001)
+├── libs/core/                  # Shared Domain Logic
+├── prisma/                     # Database Schema & Migrations
+└── contracts/                  # Smart Contracts (Vara Network)
+```
 
-### **🎫 Digital Assets**
-
-- EVM-compatible NFT minting
-- Digital passport management
-- Reward perks as NFTs
-- Blockchain transaction handling
-
-### **🗺️ Location & Routes**
-
-- Model route management
-- Location check-in system
-- Cost-optimized Google Places API integration (90% cost reduction)
-- Weather API integration with geographic data handling
-
-### **👥 Social Features**
-
-- Memory wall with activity feeds
-- Achievement sharing
-- Discord integration with role mapping
-
-### **🛒 Shop & Rewards**
-
-- Point system management
-- NFT reward shop
-- Perk redemption with burn-on-redeem logic
-- Transaction history tracking
-
-### **🎛️ Admin Panel**
-
-- Content management for stories, quests, routes
-- User management and analytics dashboard
-- System configuration and monitoring
-
-## 📋 **Table of Contents**
-
-1. [High-Level Architecture](#high-level-architecture)
-2. [Application Structure](#application-structure)
-3. [Domain-Driven Design](#domain-driven-design)
-4. [Data Architecture](#data-architecture)
-5. [Security Architecture](#security-architecture)
-6. [External Integrations](#external-integrations)
-7. [Performance & Scalability](#performance--scalability)
-8. [Deployment Architecture](#deployment-architecture)
-
-## 🎯 **High-Level Architecture**
-
-### **System Overview**
+### Service Architecture
 
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        WEB[Web Application]
+        FE[Frontend App]
         MOBILE[Mobile App]
-        ADMIN[Admin Dashboard]
     end
 
-    subgraph "API Gateway & Security"
-        LB[Load Balancer]
-        SECURITY[Security Middleware]
-        RATE[Rate Limiter]
-        AUTH[Authentication]
+    subgraph "API Gateway Layer"
+        SECURITY[Security Middleware<br/>CORS, Rate Limiting, Headers]
+        VERSION[Version Middleware<br/>API Versioning]
+        AUTH[Authentication<br/>Multi-Provider + JWT]
     end
 
-    subgraph "Application Services"
+    subgraph "Application Layer"
         BACKEND[tourii-backend<br/>Main API Server<br/>Port 4000]
-        ONCHAIN[tourii-onchain<br/>Web3 Service<br/>Port 3001]
-        WEBSOCKET[WebSocket Server<br/>Real-time Events]
+        ONCHAIN[tourii-onchain<br/>Blockchain Service<br/>Port 3001]
     end
 
-    subgraph "Core Libraries"
-        DOMAIN[Domain Layer<br/>Business Logic]
-        INFRA[Infrastructure Layer<br/>Data Access]
-        SHARED[Shared Utilities<br/>Common Services]
+    subgraph "Domain Layer"
+        DOMAIN[Domain Entities<br/>Business Logic]
+        REPO[Repository Interfaces<br/>Data Contracts]
     end
 
-    subgraph "Data Persistence"
+    subgraph "Infrastructure Layer"
+        DB_REPO[Database Repositories]
+        API_REPO[External API Repositories]
+        BLOCKCHAIN_REPO[Blockchain Repositories]
+    end
+
+    subgraph "Data Layer"
         PG[(PostgreSQL<br/>Primary Database)]
-        REDIS[(Redis Cache<br/>Sessions & Cache)]
-        FILES[File Storage<br/>Cloudflare R2/S3]
+        REDIS[(Redis<br/>Cache & Sessions)]
+        S3[CloudFlare R2<br/>File Storage]
     end
 
     subgraph "External Services"
-        GOOGLE[Google Maps API<br/>Places & Geocoding]
-        WEATHER[Weather API<br/>OpenWeatherMap]
-        BLOCKCHAIN[Vara Network<br/>Smart Contracts]
-        SOCIAL[Social Providers<br/>Discord, Google, Twitter]
+        GOOGLE[Google Places API<br/>Location Data]
+        WEATHER[Weather API<br/>Climate Data]
+        VARA[Vara Network<br/>Blockchain]
+        DISCORD[Discord API<br/>Social Integration]
     end
 
-    WEB --> LB
-    MOBILE --> LB
-    ADMIN --> LB
-
-    LB --> SECURITY
-    SECURITY --> RATE
-    RATE --> AUTH
-
+    FE --> SECURITY
+    MOBILE --> SECURITY
+    SECURITY --> VERSION
+    VERSION --> AUTH
     AUTH --> BACKEND
     AUTH --> ONCHAIN
-    AUTH --> WEBSOCKET
 
     BACKEND --> DOMAIN
     ONCHAIN --> DOMAIN
-    WEBSOCKET --> DOMAIN
+    DOMAIN --> REPO
+    REPO --> DB_REPO
+    REPO --> API_REPO
+    REPO --> BLOCKCHAIN_REPO
 
-    DOMAIN --> INFRA
-    INFRA --> SHARED
-
-    SHARED --> PG
-    SHARED --> REDIS
-    SHARED --> FILES
-
-    BACKEND --> GOOGLE
-    BACKEND --> WEATHER
-    ONCHAIN --> BLOCKCHAIN
-    AUTH --> SOCIAL
+    DB_REPO --> PG
+    DB_REPO --> REDIS
+    API_REPO --> S3
+    API_REPO --> GOOGLE
+    API_REPO --> WEATHER
+    BLOCKCHAIN_REPO --> VARA
+    API_REPO --> DISCORD
 ```
 
-### **Architecture Principles**
+---
 
-- **🔄 Domain-Driven Design**: Clear separation of business logic from infrastructure
-- **🔌 Dependency Injection**: Modular, testable, and maintainable code structure
-- **📦 Monorepo with Microservices**: Shared libraries with focused service boundaries
-- **🛡️ Security-First**: Multi-layered security with fail-safe defaults
-- **⚡ Performance-Optimized**: Intelligent caching and optimized database queries
-- **🔧 Configuration-Driven**: Environment-specific behavior without code changes
+## 🏛️ Domain-Driven Design
 
-## 🏢 **Application Structure**
+### Domain Structure
 
-### **Monorepo Organization**
+The system follows Domain-Driven Design principles with clear boundaries:
 
 ```
-tourii-backend/
-├── apps/                        # Application services
-│   ├── tourii-backend/          # Main API application
-│   │   ├── src/
-│   │   │   ├── controller/      # HTTP endpoints (REST API)
-│   │   │   ├── service/         # Business logic coordination
-│   │   │   ├── support/         # Application-specific utilities
-│   │   │   │   ├── middleware/  # Request/response processing
-│   │   │   │   ├── interceptors/ # Cross-cutting concerns
-│   │   │   │   └── decorators/  # Custom decorators
-│   │   │   └── main.ts          # Application bootstrap
-│   │   └── test/                # E2E and integration tests
-│   └── tourii-onchain/          # Blockchain service
-│       ├── src/
-│       │   ├── controller/      # Web3 endpoints
-│       │   ├── service/         # Blockchain business logic
-│       │   └── main.ts          # Service bootstrap
-│       └── test/                # Blockchain-specific tests
-├── libs/                        # Shared libraries
-│   └── core/                    # Core domain library
-│       ├── src/
-│       │   ├── domain/          # Business entities & interfaces
-│       │   │   ├── auth/        # Authentication domain
-│       │   │   ├── game/        # Quest & story domain
-│       │   │   ├── geo/         # Location & weather domain
-│       │   │   └── user/        # User management domain
-│       │   ├── infrastructure/  # Repository implementations
-│       │   │   ├── api/         # External API integrations
-│       │   │   ├── datasource/  # Database repositories
-│       │   │   └── repository/  # Repository patterns
-│       │   ├── provider/        # Shared services
-│       │   │   ├── caching.service.ts     # Redis caching
-│       │   │   ├── prisma.service.ts      # Database ORM
-│       │   │   └── http-service.ts        # HTTP client
-│       │   └── support/         # Utilities & exceptions
-│       │       ├── exception/   # Error handling
-│       │       └── utils/       # Helper functions
-│       └── test/                # Unit tests & test utilities
-├── prisma/                      # Database schema & migrations
-├── docs/                        # Documentation
-├── contracts/                   # Smart contract definitions
-└── etc/                         # Configuration files
+libs/core/src/domain/
+├── auth/                       # Authentication & Security
+├── user/                       # User Management & Profiles
+├── game/                       # Gaming Logic
+│   ├── story/                  # Narrative System
+│   ├── quest/                  # Quest & Task Management
+│   └── model-route/            # Travel Routes & Tourist Spots
+├── geo/                        # Location & Weather Services
+├── passport/                   # Digital Passport & NFT Metadata
+├── storage/                    # File Upload & Management
+└── vara/                       # Blockchain Integration
 ```
 
-### **Service Responsibilities**
+### Key Domain Entities
 
-| Service            | Port | Responsibility                                             | Dependencies                   |
-| ------------------ | ---- | ---------------------------------------------------------- | ------------------------------ |
-| **tourii-backend** | 4000 | Main API, authentication, stories, quests, user management | PostgreSQL, Redis, Google APIs |
-| **tourii-onchain** | 3001 | Web3 operations, NFT minting, blockchain interactions      | Vara Network, Smart Contracts  |
+#### User Management
+- **User**: Core user entity with multi-provider authentication
+- **UserInfo**: Extended profile with game metrics and collectibles
+- **UserAchievement**: Progress tracking and milestones
 
-### **Request Flow Architecture**
+#### Gaming System
+- **Story/StoryChapter**: Interactive narratives tied to locations
+- **Quest/QuestTask**: Gamified challenges with multiple task types
+- **ModelRoute/TouristSpot**: Travel paths and destination management
+
+#### Blockchain Integration
+- **UserOnchainItem**: NFT ownership tracking
+- **PassportMetadata**: Digital passport blockchain data
+- **DigitalPassport**: Travel credential system
+
+---
+
+## 🔧 Technical Stack
+
+### Core Technologies
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Framework** | NestJS | TypeScript backend framework |
+| **Database** | PostgreSQL + Prisma | Primary data storage with ORM |
+| **Cache** | Redis | Session management and caching |
+| **Blockchain** | Vara Network | NFT minting and digital passports |
+| **File Storage** | CloudFlare R2 | Media and document storage |
+| **Authentication** | JWT + Passport.js | Multi-provider auth system |
+
+### Key Dependencies
+
+```json
+{
+  "core": {
+    "@nestjs/core": "^10.4.15",
+    "@prisma/client": "^6.5.0",
+    "ethers": "^6.14.3",
+    "axios": "^1.8.4"
+  },
+  "blockchain": {
+    "@gear-js/api": "0.38.3",
+    "sails-js": "0.3.1",
+    "@polkadot/api": "13.2.1"
+  },
+  "storage": {
+    "@aws-sdk/client-s3": "^3.817.0"
+  },
+  "validation": {
+    "zod": "^3.25.56",
+    "nestjs-zod": "^4.3.1"
+  }
+}
+```
+
+---
+
+## 🔄 Request Flow
+
+### API Request Lifecycle
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant Security
+    participant Version
+    participant Auth
     participant Controller
     participant Service
     participant Repository
     participant Database
-    participant Cache
-    participant External
 
-    Client->>Security: HTTP Request + Headers
-    Security->>Security: Validate API Key
-    Security->>Security: Check Rate Limits
-    Security->>Controller: Authorized Request
-
-    Controller->>Controller: Validate Input (Zod)
-    Controller->>Service: Business Logic Call
-
-    Service->>Cache: Check Cache
-    alt Cache Hit
-        Cache->>Service: Return Cached Data
-    else Cache Miss
-        Service->>Repository: Data Request
-        Repository->>Database: Query/Command
-        Database->>Repository: Result
-        Repository->>Service: Domain Object
-        Service->>Cache: Store Result
-    end
-
-    opt External API Required
-        Service->>External: API Call
-        External->>Service: Response
-    end
-
-    Service->>Controller: Business Result
-    Controller->>Client: HTTP Response
+    Client->>Security: HTTP Request
+    Security->>Version: Apply CORS, Rate Limits
+    Version->>Auth: Validate API Version
+    Auth->>Controller: Verify JWT/API Key
+    Controller->>Service: Business Logic
+    Service->>Repository: Data Operations
+    Repository->>Database: Query/Update
+    Database-->>Repository: Result
+    Repository-->>Service: Domain Entity
+    Service-->>Controller: Response DTO
+    Controller-->>Client: HTTP Response
 ```
 
-## 🎯 **Domain-Driven Design**
+### Context Management
 
-### **Domain Boundaries**
-
-#### **🔐 Authentication Domain**
+The system uses request-scoped context for distributed tracing:
 
 ```typescript
-// Domain Entities
-User Entity
-- userId: string
-- username: string
-- email: string
-- authProviders: AuthProvider[]
-
-// Repository Interfaces
-interface UserRepository {
-    createUser(user: UserEntity): Promise<UserEntity>
-    getUserByUsername(username: string): Promise<UserEntity>
-    getUserByDiscordId(discordId: string): Promise<UserEntity>
+// Request context includes:
+{
+  requestId: string,        // Unique request identifier
+  userId?: string,          // Authenticated user
+  ip: string,              // Client IP address
+  userAgent: string,       // Client information
+  timestamp: DateTime      // Request timestamp
 }
-
-// Use Cases
-- User Registration
-- Multi-provider Login
-- Token Refresh
-- User Profile Management
-```
-
-#### **🎮 Game Domain**
-
-```typescript
-// Aggregates
-Story Aggregate
-├── StoryEntity (root)
-├── StoryChapter
-└── StoryProgress
-
-Quest Aggregate
-├── QuestEntity (root)
-├── QuestTask
-└── UserTaskLog
-
-ModelRoute Aggregate
-├── ModelRouteEntity (root)
-├── TouristSpot
-└── WeatherInfo
-
-// Domain Services
-interface QuestProgressService {
-    completeTask(userId: string, taskId: string): Promise<QuestResult>
-    unlockQuests(userId: string, criteria: UnlockCriteria): Promise<Quest[]>
-}
-
-interface StoryProgressService {
-    startStoryReading(userId: string, chapterId: string): Promise<void>
-    completeStoryWithQuestUnlocking(userId: string, chapterId: string): Promise<StoryCompletionResult>
-}
-```
-
-#### **🌍 Geo Domain**
-
-```typescript
-// Value Objects
-GeoInfo {
-    touristSpotName: string
-    latitude: number
-    longitude: number
-    formattedAddress: string
-}
-
-LocationInfo {
-    name: string
-    formattedAddress: string
-    phoneNumber?: string
-    website?: string
-    rating?: number
-    images?: LocationImage[]
-}
-
-// Domain Services
-interface LocationService {
-    getLocationInfo(query: string, coordinates?: Coordinates): Promise<LocationInfo>
-    optimizeRoute(spots: TouristSpot[]): Promise<OptimizedRoute>
-}
-```
-
-### **Repository Pattern Implementation**
-
-```typescript
-// Domain Interface (libs/core/src/domain)
-interface QuestRepository {
-    createQuest(quest: QuestEntity): Promise<QuestEntity>
-    fetchQuestById(questId: string, userId?: string): Promise<QuestWithTasks>
-    fetchQuestsWithPagination(filters: QuestFilters): Promise<PaginatedQuests>
-}
-
-// Infrastructure Implementation (libs/core/src/infrastructure/datasource)
-@Injectable()
-export class QuestRepositoryDb implements QuestRepository {
-    constructor(private readonly prisma: PrismaService) {}
-
-    async createQuest(quest: QuestEntity): Promise<QuestEntity> {
-        // Database-specific implementation
-    }
-}
-
-// Dependency Injection (apps/tourii-backend/src)
-const QUEST_REPOSITORY_TOKEN = 'QUEST_REPOSITORY_TOKEN'
-
-@Module({
-    providers: [
-        {
-            provide: QUEST_REPOSITORY_TOKEN,
-            useClass: QuestRepositoryDb
-        }
-    ]
-})
-```
-
-## 🗄️ **Data Architecture**
-
-### **Database Design**
-
-#### **Core Tables**
-
-```sql
--- User Management
-user                    # Core user information
-user_info              # Extended user profile
-user_achievement       # User achievement tracking
-user_level             # Level progression system
-
--- Authentication & Security
-discord_user_roles     # Discord integration
-user_story_log         # Story progress tracking
-user_task_log          # Quest task completion
-user_travel_log        # Travel verification
-
--- Content & Stories
-story                  # Story/saga definitions
-story_chapter          # Individual chapters
-model_route            # Tourist route definitions
-tourist_spot           # Location information
-
--- Quest System
-quest                  # Quest definitions
-quest_task             # Individual quest tasks
-group_quest            # Group quest management
-quest_completion       # Quest completion tracking
-
--- Blockchain Integration
-onchain_item_catalog   # NFT type definitions
-user_onchain_item      # User NFT ownership
-digital_passport       # Digital passport NFTs
-
--- Analytics & Reporting
-moment_view            # Aggregated user activity
-discord_activity_log   # Discord activity tracking
-```
-
-#### **Key Relationships**
-
-```mermaid
-erDiagram
-    USER ||--o{ USER_STORY_LOG : tracks
-    USER ||--o{ USER_TASK_LOG : completes
-    USER ||--o{ USER_ONCHAIN_ITEM : owns
-
-    STORY ||--o{ STORY_CHAPTER : contains
-    STORY_CHAPTER ||--o{ USER_STORY_LOG : progress
-    STORY_CHAPTER ||--o{ TOURIST_SPOT : linked
-
-    QUEST ||--o{ QUEST_TASK : contains
-    QUEST_TASK ||--o{ USER_TASK_LOG : completion
-    QUEST ||--|| TOURIST_SPOT : located_at
-
-    MODEL_ROUTE ||--o{ TOURIST_SPOT : includes
-    TOURIST_SPOT ||--o{ QUEST : hosts
-
-    ONCHAIN_ITEM_CATALOG ||--o{ USER_ONCHAIN_ITEM : instantiates
-```
-
-### **Caching Strategy**
-
-#### **Cache Layers**
-
-```typescript
-// Application-level caching
-interface CachingService {
-  // Generic caching with TTL
-  getOrSet<T>(
-    key: string,
-    fetchFn: () => Promise<T>,
-    ttlSeconds: number,
-  ): Promise<T>;
-
-  // Pattern-based invalidation
-  clearPattern(pattern: string): Promise<void>;
-
-  // Cache warming for predictable data
-  warmCache(keys: string[]): Promise<void>;
-}
-
-// Cache Configuration
-const CACHE_CONFIGS = {
-  USER_PROFILE: { ttl: 3600, pattern: 'user:*' },
-  QUEST_DATA: { ttl: 1800, pattern: 'quest:*' },
-  LOCATION_INFO: { ttl: 86400, pattern: 'location:*' },
-  WEATHER_DATA: { ttl: 3600, pattern: 'weather:*' },
-  STORY_CONTENT: { ttl: 7200, pattern: 'story:*' },
-};
-```
-
-#### **Cache Invalidation Strategy**
-
-```typescript
-// Event-driven cache invalidation
-class CacheInvalidationService {
-  async onQuestUpdated(questId: string) {
-    await this.cachingService.clearPattern(`quest:${questId}:*`);
-    await this.cachingService.clearPattern('quest:list:*');
-  }
-
-  async onUserProfileUpdated(userId: string) {
-    await this.cachingService.clearPattern(`user:${userId}:*`);
-  }
-
-  async onStoryContentUpdated(storyId: string) {
-    await this.cachingService.clearPattern(`story:${storyId}:*`);
-    await this.cachingService.clearPattern('story:list:*');
-  }
-}
-```
-
-## 🔒 **Security Architecture**
-
-### **Multi-Layer Security Model**
-
-```mermaid
-graph TD
-    subgraph "Client Security"
-        HTTPS[HTTPS/TLS 1.3]
-        CSP[Content Security Policy]
-        CSRF[CSRF Protection]
-    end
-
-    subgraph "API Gateway Security"
-        CORS[CORS Validation]
-        RATE[Rate Limiting]
-        API_KEY[API Key Validation]
-        VERSION[Version Validation]
-    end
-
-    subgraph "Authentication Layer"
-        JWT[JWT Token Validation]
-        REFRESH[Refresh Token Rotation]
-        MULTI_AUTH[Multi-Provider Auth]
-        WEB3[Web3 Signature Verification]
-    end
-
-    subgraph "Authorization Layer"
-        RBAC[Role-Based Access Control]
-        RESOURCE[Resource-Level Permissions]
-        CONTEXT[Context-Aware Authorization]
-    end
-
-    subgraph "Data Security"
-        ENCRYPTION[Data Encryption at Rest]
-        SQL_PREVENT[SQL Injection Prevention]
-        INPUT_VAL[Input Validation]
-        OUTPUT_ENCODE[Output Encoding]
-    end
-
-    HTTPS --> CORS
-    CSP --> RATE
-    CSRF --> API_KEY
-
-    CORS --> JWT
-    RATE --> REFRESH
-    API_KEY --> MULTI_AUTH
-    VERSION --> WEB3
-
-    JWT --> RBAC
-    REFRESH --> RESOURCE
-    MULTI_AUTH --> CONTEXT
-
-    RBAC --> ENCRYPTION
-    RESOURCE --> SQL_PREVENT
-    CONTEXT --> INPUT_VAL
-    WEB3 --> OUTPUT_ENCODE
-```
-
-### **Authentication Flow**
-
-```typescript
-// Multi-provider authentication strategy
-interface AuthenticationStrategy {
-  // Social OAuth providers
-  discord: DiscordOAuthStrategy;
-  google: GoogleOAuthStrategy;
-  twitter: TwitterOAuthStrategy;
-
-  // Web3 wallet authentication
-  web3: Web3SignatureStrategy;
-
-  // Traditional credentials
-  local: LocalCredentialsStrategy;
-}
-
-// JWT token structure
-interface JWTPayload {
-  sub: string; // User ID
-  email: string; // User email
-  roles: string[]; // User roles
-  provider: string; // Auth provider used
-  iat: number; // Issued at
-  exp: number; // Expiration
-  jti: string; // JWT ID for blacklisting
-}
-
-// Refresh token rotation
-interface TokenPair {
-  accessToken: string; // Short-lived (15 minutes)
-  refreshToken: string; // Long-lived (7 days)
-  expiresAt: Date; // Access token expiration
-}
-```
-
-### **Security Configuration**
-
-```typescript
-// Security middleware configuration
-interface SecurityConfig {
-  cors: {
-    origins: string[]; // Allowed origins
-    credentials: boolean; // Include credentials
-    methods: string[]; // Allowed methods
-  };
-  rateLimit: {
-    windowMs: number; // Time window
-    max: number; // Max requests per window
-    skipSuccessfulRequests: boolean;
-  };
-  helmet: {
-    contentSecurityPolicy: CSPOptions;
-    hsts: HSTSOptions;
-    xssFilter: boolean;
-  };
-}
-```
-
-## 🔌 **External Integrations**
-
-### **Google Maps API Integration**
-
-#### **Cost-Optimized Implementation**
-
-```typescript
-interface GooglePlacesIntegration {
-    // Cost-optimized Places API with field masks
-    searchWithFieldMask(query: string, fields: string[]): Promise<PlaceResult[]>
-
-    // Hybrid approach with fallback
-    getLocationInfo(query: string): Promise<LocationInfo> {
-        try {
-            // Try new cost-optimized API first (85-90% cost reduction)
-            return await this.fetchWithNewPlacesApi(query)
-        } catch (error) {
-            // Fallback to legacy API for reliability
-            return await this.fetchWithLegacyApi(query)
-        }
-    }
-}
-
-// Cost comparison
-const COST_OPTIMIZATION = {
-    before: {
-        placesApiCalls: 56,
-        geocodingCalls: 15,
-        totalCost: '$2.80-$3.50 per 4 locations'
-    },
-    after: {
-        textSearchCalls: 4,
-        totalCost: '$0.12-$0.28 per 4 locations',
-        savings: '85-90%'
-    }
-}
-```
-
-### **Weather API Integration**
-
-```typescript
-interface WeatherIntegration {
-    getCurrentWeather(coordinates: Coordinates): Promise<WeatherInfo>
-    getForecast(coordinates: Coordinates, days: number): Promise<ForecastInfo[]>
-
-    // Intelligent caching strategy
-    getCachedWeatherWithFallback(location: GeoInfo): Promise<WeatherInfo> {
-        const cacheKey = `weather:${location.latitude}:${location.longitude}`
-        return this.cachingService.getOrSet(
-            cacheKey,
-            () => this.weatherApi.getCurrentWeather(location),
-            3600 // 1 hour TTL for weather data
-        )
-    }
-}
-```
-
-### **Blockchain Integration**
-
-```typescript
-interface BlockchainIntegration {
-  // Vara Network integration
-  varaNetwork: {
-    mintDigitalPassport(userAddress: string): Promise<NFTResult>;
-    verifySignature(signature: string, message: string): Promise<boolean>;
-    querySmartContract(contractId: string, method: string): Promise<any>;
-  };
-
-  // Multi-chain support
-  ethereum: {
-    signMessage(message: string): Promise<string>;
-    verifyEIP191Signature(
-      signature: string,
-      message: string,
-      address: string,
-    ): Promise<boolean>;
-  };
-}
-```
-
-## ⚡ **Performance & Scalability**
-
-### **Performance Optimization Strategies**
-
-#### **Database Optimization**
-
-```sql
--- Optimized queries with proper indexing
-CREATE INDEX CONCURRENTLY idx_user_story_log_user_chapter
-ON user_story_log (user_id, story_chapter_id);
-
-CREATE INDEX CONCURRENTLY idx_quest_task_quest_id
-ON quest_task (quest_id)
-WHERE del_flag = false;
-
--- Materialized views for complex aggregations
-CREATE MATERIALIZED VIEW user_quest_progress AS
-SELECT
-    u.user_id,
-    COUNT(DISTINCT q.quest_id) as total_quests,
-    COUNT(DISTINCT utl.quest_id) as completed_quests
-FROM user u
-LEFT JOIN quest q ON true
-LEFT JOIN user_task_log utl ON u.user_id = utl.user_id
-    AND q.quest_id = utl.quest_id
-GROUP BY u.user_id;
-```
-
-#### **Caching Optimization**
-
-```typescript
-// Multi-level caching strategy
-class OptimizedCachingService {
-  private readonly L1_CACHE = new Map<string, any>(); // In-memory
-  private readonly L2_CACHE: Redis; // Redis
-
-  async getOrSet<T>(
-    key: string,
-    fetchFn: () => Promise<T>,
-    ttl: number,
-  ): Promise<T> {
-    // L1 Cache check (fastest)
-    if (this.L1_CACHE.has(key)) {
-      return this.L1_CACHE.get(key);
-    }
-
-    // L2 Cache check (Redis)
-    const cached = await this.L2_CACHE.get(key);
-    if (cached) {
-      this.L1_CACHE.set(key, cached);
-      return JSON.parse(cached);
-    }
-
-    // Fetch from source
-    const result = await fetchFn();
-
-    // Store in both cache levels
-    await this.L2_CACHE.setex(key, ttl, JSON.stringify(result));
-    this.L1_CACHE.set(key, result);
-
-    return result;
-  }
-}
-```
-
-#### **Query Optimization**
-
-```typescript
-// Batch operations to reduce N+1 queries
-class OptimizedQuestRepository {
-  async getQuestsWithDetails(questIds: string[]): Promise<QuestWithDetails[]> {
-    // Single query with joins instead of multiple queries
-    return await this.prisma.quest.findMany({
-      where: { quest_id: { in: questIds } },
-      include: {
-        quest_tasks: {
-          where: { del_flag: false },
-        },
-        tourist_spot: {
-          include: {
-            model_route: true,
-          },
-        },
-      },
-    });
-  }
-}
-```
-
-### **Scalability Architecture**
-
-#### **Horizontal Scaling Strategy**
-
-```mermaid
-graph LR
-    subgraph "Load Balancer"
-        LB[nginx/CloudFlare]
-    end
-
-    subgraph "Application Tier"
-        APP1[App Instance 1]
-        APP2[App Instance 2]
-        APP3[App Instance N]
-    end
-
-    subgraph "Database Tier"
-        PRIMARY[(Primary DB<br/>Write/Read)]
-        REPLICA1[(Read Replica 1)]
-        REPLICA2[(Read Replica 2)]
-    end
-
-    subgraph "Cache Tier"
-        REDIS1[(Redis Primary)]
-        REDIS2[(Redis Replica)]
-    end
-
-    LB --> APP1
-    LB --> APP2
-    LB --> APP3
-
-    APP1 --> PRIMARY
-    APP1 --> REPLICA1
-    APP1 --> REDIS1
-
-    APP2 --> PRIMARY
-    APP2 --> REPLICA2
-    APP2 --> REDIS1
-
-    PRIMARY --> REPLICA1
-    PRIMARY --> REPLICA2
-    REDIS1 --> REDIS2
-```
-
-#### **Microservice Decomposition Strategy**
-
-```typescript
-// Future microservice boundaries
-interface MicroserviceArchitecture {
-  userService: {
-    port: 4001;
-    responsibilities: ['authentication', 'user management', 'profiles'];
-    database: 'user_db';
-  };
-
-  contentService: {
-    port: 4002;
-    responsibilities: ['stories', 'chapters', 'content management'];
-    database: 'content_db';
-  };
-
-  questService: {
-    port: 4003;
-    responsibilities: ['quests', 'tasks', 'quest progression'];
-    database: 'quest_db';
-  };
-
-  locationService: {
-    port: 4004;
-    responsibilities: ['tourist spots', 'routes', 'weather'];
-    database: 'location_db';
-  };
-
-  web3Service: {
-    port: 4005;
-    responsibilities: ['NFT operations', 'blockchain interactions'];
-    database: 'web3_db';
-  };
-}
-```
-
-## 🚀 **Deployment Architecture**
-
-### **Environment Strategy**
-
-```yaml
-# Development Environment
-development:
-  database: PostgreSQL (local)
-  cache: Redis (local)
-  storage: Local filesystem
-  external_apis: Development keys
-  monitoring: Console logs
-
-# Staging Environment
-staging:
-  database: PostgreSQL (managed)
-  cache: Redis (managed)
-  storage: Cloudflare R2
-  external_apis: Staging keys
-  monitoring: Basic logging
-
-# Production Environment
-production:
-  database: PostgreSQL (HA cluster)
-  cache: Redis Cluster
-  storage: Cloudflare R2 + CDN
-  external_apis: Production keys
-  monitoring: Full observability stack
-```
-
-### **Container Strategy**
-
-```dockerfile
-# Multi-stage production build
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-FROM node:20-alpine AS runtime
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY dist ./dist
-COPY prisma ./prisma
-
-EXPOSE 4000
-CMD ["node", "dist/apps/tourii-backend/main.js"]
-```
-
-### **Infrastructure as Code**
-
-```yaml
-# Kubernetes deployment example
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tourii-backend
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: tourii-backend
-  template:
-    metadata:
-      labels:
-        app: tourii-backend
-    spec:
-      containers:
-        - name: tourii-backend
-          image: tourii/backend:latest
-          ports:
-            - containerPort: 4000
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: database-secret
-                  key: url
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: auth-secret
-                  key: jwt-secret
-          resources:
-            requests:
-              memory: '512Mi'
-              cpu: '250m'
-            limits:
-              memory: '1Gi'
-              cpu: '500m'
-          livenessProbe:
-            httpGet:
-              path: /health-check
-              port: 4000
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health-check
-              port: 4000
-            initialDelaySeconds: 5
-            periodSeconds: 5
 ```
 
 ---
 
-**📋 This architecture documentation should be reviewed quarterly and updated whenever significant architectural changes are made to the system.**
+## 📊 Data Architecture
 
-_For implementation details, refer to the specific component documentation in the `/docs` directory._
+### Database Design
+
+The database follows normalized design with these key entity groups:
+
+#### User & Authentication
+- **user**: Core user data with multi-provider auth
+- **user_info**: Extended profile with game metrics
+- **user_achievement**: Progress and milestone tracking
+
+#### Content & Narrative
+- **story**: Story sagas (e.g., "Bungo Ono", "Aomori")
+- **story_chapter**: Individual narrative chapters
+- **model_route**: Travel routes connecting locations
+- **tourist_spot**: Real-world destinations
+
+#### Gaming & Quests
+- **quest**: Location-based challenges
+- **quest_task**: Individual tasks within quests
+- **user_task_log**: User progress on tasks
+- **user_travel_log**: GPS tracking and check-ins
+
+#### Blockchain & NFTs
+- **user_onchain_item**: User-owned blockchain assets
+- **onchain_item_catalog**: Master NFT catalog
+- **digital_passport**: Travel credential system
+
+### Entity Relationships
+
+```mermaid
+erDiagram
+    user ||--o{ user_info : "has profile"
+    user ||--o{ user_task_log : "completes tasks"
+    user ||--o{ user_travel_log : "tracks travel"
+    user ||--o{ user_onchain_item : "owns NFTs"
+    
+    story ||--o{ story_chapter : "contains chapters"
+    story ||--o{ model_route : "defines routes"
+    model_route ||--o{ tourist_spot : "includes spots"
+    tourist_spot ||--o{ quest : "hosts quests"
+    quest ||--o{ quest_task : "contains tasks"
+    
+    quest_task ||--o{ user_task_log : "tracked by users"
+    tourist_spot ||--o{ user_travel_log : "visited by users"
+```
+
+---
+
+## 🎮 Core Features
+
+### 1. Multi-Provider Authentication
+
+**Supported Methods:**
+- **Social Login**: Discord, Google, Twitter
+- **Web3 Wallet**: EIP-191 signature verification
+- **JWT**: Access tokens with refresh rotation
+
+**Implementation:**
+```typescript
+// Authentication flow
+POST /auth/signup
+{
+  "email": "user@example.com",
+  "socialProvider": "DISCORD",
+  "socialId": "123456789"
+}
+```
+
+### 2. Interactive Story System
+
+**Features:**
+- Chapter-based narratives tied to real locations
+- Progress tracking with status management
+- Rich media support (videos, PDFs, images)
+- Character and location integration
+
+**Key Models:**
+- **StoryStatus**: `UNREAD` → `IN_PROGRESS` → `COMPLETED`
+- **Chapter Content**: Videos, PDFs, real-world images
+- **Location Binding**: GPS coordinates linking narrative to places
+
+### 3. Quest System
+
+**Task Types:**
+- **VISIT_LOCATION**: GPS-based check-ins
+- **PHOTO_UPLOAD**: Image capture with validation
+- **QR_SCAN**: QR code verification
+- **ANSWER_TEXT**: Open-ended responses
+- **SELECT_OPTION**: Multiple choice questions
+- **SHARE_SOCIAL**: Social media integration
+- **GROUP_ACTIVITY**: Collaborative challenges
+
+**Anti-Cheat Mechanisms:**
+- Location verification with GPS tolerance
+- QR code uniqueness validation
+- Social media link verification
+- Cooldown periods and attempt limits
+
+### 4. Digital Passport System
+
+**Progression Levels:**
+```
+BONJIN (Base) → E_CLASS → D_CLASS → C_CLASS → B_CLASS → A_CLASS → S_CLASS
+```
+
+**Passport Types:**
+- **BONJIN**: Standard human passport
+- **AMATSUKAMI**: Celestial deity passport
+- **KUNITSUKAMI**: Earthly deity passport
+- **YOKAI**: Supernatural being passport
+
+### 5. Location Intelligence
+
+**Google Places Integration:**
+- Cost-optimized API usage (85-90% reduction achieved)
+- Hybrid approach with automatic fallback
+- Location search with bias and address enhancement
+- Image and place details retrieval
+
+**Weather Integration:**
+- Location-aware weather data
+- Caching for performance optimization
+- Fallback mechanisms for reliability
+
+### 6. Blockchain Integration
+
+**Vara Network Features:**
+- **Digital Passport NFTs**: Travel credential verification
+- **Log NFTs**: Activity and achievement tracking
+- **Travel Perks**: Reward items and benefits
+
+**Implementation Stack:**
+- **Gear.js**: Vara Network blockchain interaction
+- **Sails.js**: Smart contract interface framework
+- **Ethers.js**: General blockchain operations
+
+---
+
+## 🔒 Security Architecture
+
+### Authentication & Authorization
+
+**Multi-Layer Security:**
+1. **API Key Validation**: Required for all endpoints
+2. **JWT Verification**: User session management
+3. **Role-Based Access**: USER, MODERATOR, ADMIN levels
+4. **Rate Limiting**: Prevents abuse and DoS attacks
+
+### Data Protection
+
+**Security Measures:**
+- **Input Validation**: Zod schemas for all inputs
+- **SQL Injection Prevention**: Prisma ORM parameterization
+- **File Upload Security**: MIME type and size validation
+- **Encryption**: Sensitive data encrypted at rest
+- **Request Tracing**: Full audit trail with request IDs
+
+### Infrastructure Security
+
+**Production Hardening:**
+- **CORS Protection**: Configured for specific origins
+- **Security Headers**: Helmet.js implementation
+- **HTTPS Enforcement**: SSL/TLS in production
+- **Environment Separation**: Distinct configs per environment
+
+---
+
+## ⚡ Performance Optimization
+
+### Database Performance
+
+**Optimization Strategies:**
+- **Strategic Indexing**: Query-specific database indexes
+- **Connection Pooling**: Prisma connection management
+- **Read Replicas**: Separation of read/write operations
+- **Query Optimization**: N+1 query elimination
+
+### Caching Strategy
+
+**Redis Implementation:**
+- **API Response Caching**: Location and weather data
+- **Session Management**: User authentication state
+- **Rate Limiting**: Request throttling data
+- **Configurable TTL**: Per-cache-type expiration
+
+### External API Optimization
+
+**Google Places Cost Reduction:**
+- **Hybrid Strategy**: New Places API with legacy fallback
+- **Call Reduction**: 56 Places + 15 Geocoding → ~4 Text Search calls
+- **Cost Savings**: 85-90% reduction in API costs
+- **Performance**: Maintained response times with improved reliability
+
+---
+
+## 🔄 Development Workflow
+
+### Build & Deployment
+
+**Available Commands:**
+```bash
+# Development
+pnpm start:dev                     # Start all services
+pnpm start:dev:tourii-backend      # Main API only
+pnpm start:dev:tourii-onchain      # Blockchain service only
+
+# Production
+pnpm build                         # Build all applications
+pnpm start:prod                    # Run production build
+
+# Database
+pnpm prisma:migrate:dev            # Apply migrations
+pnpm prisma:studio                 # Database GUI
+```
+
+### Testing Strategy
+
+**Test Types:**
+- **Unit Tests**: Repository and service layer testing
+- **Integration Tests**: API endpoint testing
+- **End-to-End Tests**: Complete workflow testing
+- **Security Tests**: Vulnerability assessment
+
+### Code Quality
+
+**Standards:**
+- **Biome**: TypeScript/JavaScript linting and formatting
+- **Prettier**: YAML/Markdown formatting
+- **Husky**: Pre-commit hooks
+- **TypeScript**: Strict type checking with no `any` types
+
+---
+
+## 📊 Monitoring & Observability
+
+### Request Tracing
+
+**Distributed Tracing:**
+- **Request ID**: Unique identifier per request
+- **User Context**: Authentication and user state
+- **Performance Metrics**: Response time tracking
+- **Error Tracking**: Exception monitoring
+
+### Database Monitoring
+
+**Prisma Insights:**
+- **Query Performance**: Slow query identification
+- **Connection Pool**: Database connection monitoring
+- **Migration Tracking**: Schema change management
+
+### External Service Monitoring
+
+**API Monitoring:**
+- **Rate Limit Tracking**: Usage against quotas
+- **Response Time**: Performance benchmarking
+- **Error Rate**: Failure tracking and alerting
+- **Cost Optimization**: Usage and spend tracking
+
+---
+
+## 🚀 Scalability Considerations
+
+### Horizontal Scaling
+
+**Stateless Design:**
+- **No Server State**: All state stored in database/cache
+- **Load Balancer Ready**: Multiple instance deployment
+- **Redis Session**: Shared session storage
+- **Microservice Architecture**: Independent service scaling
+
+### Database Scaling
+
+**Scaling Strategies:**
+- **Read Replicas**: Query load distribution
+- **Connection Pooling**: Efficient connection management
+- **Database Partitioning**: Large table optimization
+- **Caching Layer**: Reduced database load
+
+### File Storage Scaling
+
+**CloudFlare R2:**
+- **CDN Distribution**: Global content delivery
+- **Unlimited Bandwidth**: No egress fees
+- **Object Storage**: Scalable file management
+- **Performance**: Optimized media delivery
+
+---
+
+## 🔧 Configuration Management
+
+### Environment Variables
+
+**Required Configuration:**
+```env
+# Core Application
+PORT=4000
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+
+# Security (Required)
+JWT_SECRET=<64-char-random-string>
+ENCRYPTION_KEY=<32-char-random-string>
+API_KEYS=<comma-separated-keys>
+
+# External Services
+GOOGLE_MAPS_API_KEY=your_key
+GOOGLE_PLACES_API_KEY=your_key
+OPEN_WEATHER_API_KEY=your_key
+
+# Blockchain
+PROVIDER_URL=https://rpc.vara.network
+CONTRACT_ADDRESS=0x...
+
+# Storage
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+R2_BUCKET=tourii-production
+```
+
+### Feature Flags
+
+**Runtime Configuration:**
+- **Quest Types**: Enable/disable quest features
+- **Payment Processing**: Premium quest access
+- **Blockchain Features**: NFT minting controls
+- **External Integrations**: API service toggles
+
+---
+
+## 📚 API Design Principles
+
+### RESTful Design
+
+**Endpoint Structure:**
+```
+/health-check                    # System health
+/auth/signup                     # Authentication
+/user/me                         # User profile
+/stories/sagas                   # Content management
+/quests/{id}                     # Quest system
+/routes/{id}                     # Location management
+/moments                         # Activity feeds
+```
+
+### Request/Response Format
+
+**Standardized Responses:**
+- **Success**: HTTP 200/201 with data payload
+- **Error**: HTTP 4xx/5xx with error details
+- **Pagination**: Consistent page/limit/total structure
+- **Validation**: Zod schema validation with detailed errors
+
+### API Versioning
+
+**Version Management:**
+- **Header-Based**: `accept-version: 1.0.0`
+- **Backward Compatibility**: Multiple version support
+- **Deprecation Strategy**: Gradual version migration
+
+---
+
+_Last Updated: June 20, 2025_

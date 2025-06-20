@@ -1,466 +1,636 @@
-# 🚀 API Examples & Common Workflows
+# 🔗 Tourii Backend API Examples
 
-This guide provides real-world examples of using the Tourii Backend APIs, including complete user journeys and common integration patterns.
+> **Real-world API usage examples and integration patterns for the Tourii tourism platform**
 
----
+This guide provides comprehensive examples of how to integrate with the Tourii Backend API, including authentication, quest management, story progression, and blockchain interactions.
 
-## 📋 Quick Reference
+## 📋 Prerequisites
+
+### Required Headers
+
+All API requests require the following headers:
+
+```http
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+```
 
 ### Base URLs
 
-- **Main API**: `http://localhost:4000` (dev) / `https://your-app.onrender.com` (prod)
-- **Onchain API**: `http://localhost:3001` (dev) / `https://your-onchain.onrender.com` (prod)
-
-### Required Headers (All Requests)
-
-```bash
-Content-Type: application/json
-x-api-key: dev-key  # Replace with actual API key
-accept-version: 1.0.0
-```
-
-### API Versioning Strategy
-
-```typescript
-export const API_VERSIONS = {
-  V1: '1.0',
-  V2: '2.0',
-} as const;
-
-export type ApiVersion = (typeof API_VERSIONS)[keyof typeof API_VERSIONS];
-```
-
-### Frontend Integration Pattern
-
-Each API endpoint follows the pattern: **Controller → Service → Repository/External Service**
-
-**Example Flow:**
-
-```
-Frontend Request → Security Middleware → Controller → Service → Repository → Database
-                                                           ↓
-                                              External APIs (Google, Weather, etc.)
-```
+- **Main API**: `http://localhost:4000` (development) / `https://api.tourii.xyz` (production)
+- **Blockchain Service**: `http://localhost:3001` (development) / `https://onchain.tourii.xyz` (production)
 
 ---
 
-## 🔄 Complete User Journey
+## 🔐 Authentication & User Management
 
-### 1. User Signup & Authentication
+### User Signup
 
-```bash
-# Step 1: Create new user account
-curl -X POST http://localhost:4000/auth/signup \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -d '{
-    "email": "alice@example.com",
-    "socialProvider": "DISCORD",
-    "socialId": "discord_user_123"
-  }'
+Create a new user account with social or Web3 authentication:
 
-# Response:
+```http
+POST http://localhost:4000/auth/signup
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
 {
-  "success": true,
-  "userId": "usr_abc123",
-  "passportMinted": true,
-  "message": "User created and digital passport minted"
+  "email": "traveler@example.com",
+  "socialProvider": "DISCORD",
+  "socialId": "123456789012345678"
 }
 ```
 
-```bash
-# Step 2: Login user
-curl -X POST http://localhost:4000/login \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -d '{
-    "username": "alice@example.com",
-    "loginType": "EMAIL"
-  }'
-
-# Response:
+**Response:**
+```json
 {
-  "user_id": "usr_abc123",
-  "username": "alice",
+  "user": {
+    "user_id": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+    "username": "traveler_123",
+    "email": "traveler@example.com",
+    "digital_passport_type": "BONJIN",
+    "level": "BONJIN"
+  },
+  "tokens": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### User Login
+
+Authenticate existing user:
+
+```http
+POST http://localhost:4000/login
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
+{
+  "email": "traveler@example.com",
+  "socialProvider": "DISCORD",
+  "socialId": "123456789012345678"
+}
+```
+
+### Get Current User Profile
+
+Retrieve authenticated user's basic profile:
+
+```http
+GET http://localhost:4000/user/me
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+```
+
+**Response:**
+```json
+{
+  "user_id": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+  "username": "traveler_123",
   "level": "BONJIN",
-  "total_quest_completed": 0,
+  "magatama_points": 150,
+  "total_quest_completed": 3,
+  "total_travel_distance": 12.5,
   "is_premium": false
 }
 ```
 
-### 2. Get User Profile
+### Get User Sensitive Information
 
-```bash
-# Get current user info
-curl -X GET http://localhost:4000/user/me \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -H "x-user-id: usr_abc123"
+Retrieve extended user profile with sensitive data:
 
-# Response:
+```http
+GET http://localhost:4000/user/sensitive-info
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+```
+
+---
+
+## 📚 Story Management
+
+### Get All Story Sagas
+
+Retrieve all available story sagas:
+
+```http
+GET http://localhost:4000/stories/sagas
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
+[
+  {
+    "story_id": "STO202506-a1b2c3-141501-d4e5f6-AAAA",
+    "saga_name": "Bungo Ono",
+    "saga_desc": "Explore the mystical waterfalls and ancient legends of Bungo Ono",
+    "background_media": "https://cdn.tourii.app/sagas/bungo-ono-cover.jpg",
+    "location": "Oita, Japan",
+    "is_prologue": false,
+    "is_selected": true
+  }
+]
+```
+
+### Get Story Chapters
+
+Retrieve chapters for a specific story:
+
+```http
+GET http://localhost:4000/stories/sagas/STO202506-a1b2c3-141501-d4e5f6-AAAA/chapters
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+### Track Chapter Progress
+
+Record user progress while reading a story chapter:
+
+```http
+POST http://localhost:4000/stories/chapters/SCT202506-a1b2c3-141501-d4e5f6-AAAA/progress
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
 {
-  "userId": "usr_abc123",
-  "username": "alice",
-  "email": "alice@example.com",
-  "level": "BONJIN",
-  "totalQuestCompleted": 0,
-  "totalTravelDistance": 0,
-  "isPremium": false,
-  "registeredAt": "2024-01-16T10:00:00Z"
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+  "status": "IN_PROGRESS",
+  "latitude": 33.1234,
+  "longitude": 131.5678
+}
+```
+
+### Consolidated Story Action
+
+Handle story start, complete, and progress actions:
+
+```http
+POST http://localhost:4000/stories/chapters/SCT202506-a1b2c3-141501-d4e5f6-AAAA/action
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+X-Story-Action: complete
+
+{
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+  "latitude": 33.1234,
+  "longitude": 131.5678
 }
 ```
 
 ---
 
-## 📚 Story & Quest Workflow
+## 🗺️ Routes & Tourist Spots
 
-### 3. Explore Available Stories
+### Get All Model Routes
 
-```bash
-# Get all story sagas
-curl -X GET http://localhost:4000/stories/sagas \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+Retrieve available travel routes:
 
-# Response:
+```http
+GET http://localhost:4000/routes
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+### Get Route by ID
+
+Get detailed information about a specific route:
+
+```http
+GET http://localhost:4000/routes/MRT202506-a1b2c3-141501-d4e5f6-AAAA
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
-  "stories": [
+  "model_route_id": "MRT202506-a1b2c3-141501-d4e5f6-AAAA",
+  "route_name": "Mystical Waterfalls Route",
+  "region": "Bungo Ono",
+  "region_desc": "Ancient volcanic landscape with stunning waterfalls",
+  "region_latitude": 33.1234,
+  "region_longitude": 131.5678,
+  "recommendation": ["Local Food", "Nature", "Hidden Legends"],
+  "tourist_spots": [
     {
-      "storyId": "story_tokyo",
-      "storyTitle": "Tokyo Urban Adventure",
-      "storyDescription": "Explore the bustling streets of Tokyo",
-      "regionName": "Kanto",
-      "difficulty": "BEGINNER",
-      "estimatedDuration": "2-3 hours"
+      "tourist_spot_id": "TST202506-a1b2c3-141501-d4e5f6-AAAA",
+      "tourist_spot_name": "Harajiri Falls",
+      "latitude": 33.1234,
+      "longitude": 131.5678,
+      "address": "Harajiri, Ogata, Bungo-ono, Oita, Japan"
     }
   ]
 }
 ```
 
-```bash
-# Get chapters for a specific story
-curl -X GET http://localhost:4000/stories/sagas/story_tokyo/chapters \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+### Get Tourist Spots by Story Chapter
 
-# Response:
-{
-  "chapters": [
-    {
-      "chapterId": "chapter_001",
-      "chapterTitle": "Shibuya Crossing",
-      "chapterDescription": "Experience the world's busiest crossing",
-      "chapterOrder": 1,
-      "isUnlocked": true
-    }
-  ]
-}
+Retrieve tourist spots linked to a story chapter:
+
+```http
+GET http://localhost:4000/routes/tourist-spots/SCT202506-a1b2c3-141501-d4e5f6-AAAA
+x-api-key: your-api-key
+accept-version: 1.0.0
 ```
 
-### 4. Track Reading Progress
+### Get Location Information
 
-```bash
-# Mark chapter as read
-curl -X POST http://localhost:4000/stories/chapters/chapter_001/progress \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -d '{
-    "userId": "usr_abc123",
-    "status": "COMPLETED"
-  }'
+Search for location details using Google Places API:
 
-# Response:
+```http
+GET http://localhost:4000/location-info?query=Harajiri Falls&latitude=33.1234&longitude=131.5678
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
-  "success": true
+  "places": [
+    {
+      "name": "Harajiri Falls",
+      "address": "Harajiri, Ogata, Bungo-ono, Oita, Japan",
+      "latitude": 33.1234,
+      "longitude": 131.5678,
+      "rating": 4.5,
+      "user_ratings_total": 1250,
+      "photos": [
+        {
+          "photo_reference": "Aap_uEA7vb0DDYVJWEaX3O-AtYp77AaswQKSGtDaimt3gt7QCNpdjp8fVkxTKOG8TF...",
+          "width": 4032,
+          "height": 3024
+        }
+      ]
+    }
+  ]
 }
 ```
 
 ---
 
-## 🗺️ Routes & Location Discovery
+## 🎯 Quest System
 
-### 5. Explore Tourist Routes
+### Get Quests with Pagination
 
-```bash
-# Get all available routes
-curl -X GET http://localhost:4000/routes \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+Retrieve quests with filtering and pagination:
 
-# Response:
-{
-  "routes": [
-    {
-      "routeId": "route_tokyo_central",
-      "routeName": "Tokyo Central Walking Tour",
-      "description": "A walking tour through central Tokyo",
-      "estimatedDuration": "4 hours",
-      "difficulty": "EASY",
-      "touristSpots": ["spot_shibuya", "spot_harajuku", "spot_ginza"]
-    }
-  ]
-}
+```http
+GET http://localhost:4000/quests?page=1&limit=10&questType=TRAVEL_TO_EARN&isPremium=false&userId=TSU202506-a1b2c3-141501-d4e5f6-AAAA
+x-api-key: your-api-key
+accept-version: 1.0.0
 ```
 
-```bash
-# Get detailed route information
-curl -X GET http://localhost:4000/routes/route_tokyo_central \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
-
-# Response includes weather, tourist spots, and recommendations
-```
-
-### 6. Search for Locations (Cost-Optimized Google Places API)
-
-```bash
-# Search for location info (NEW: Cost-optimized Google Places integration)
-curl -X GET "http://localhost:4000/location-info?query=Tokyo Station&latitude=35.6762&longitude=139.6503" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
-
-# Response (85-90% cost reduction vs legacy API):
-{
-  "name": "Tokyo Station",
-  "address": "1 Chome Marunouchi, Chiyoda City, Tokyo",
-  "location": {
-    "latitude": 35.6812362,
-    "longitude": 139.7645667
-  },
-  "rating": 4.1,
-  "photos": [
-    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=Aap_uEA...",
-    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=Aap_uEB..."
-  ],
-  "placeId": "ChIJC3Cf2PuOGGAR5Ku5WxJ1k",
-  "phoneNumber": "+81-3-3212-2111",
-  "website": "https://www.jreast.co.jp/estation/station/info.aspx?StationCd=1039"
-}
-```
-
-```bash
-# Get geographic coordinates for an address (Optimized Geocoding)
-curl -X GET "http://localhost:4000/geo-info?query=Shibuya Crossing Tokyo" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
-
-# Response (Uses new Places API with minimal field mask):
-{
-  "touristSpotName": "Shibuya Crossing",
-  "latitude": 35.6598,
-  "longitude": 139.7006,
-  "formattedAddress": "Shibuya City, Tokyo, Japan"
-}
-```
-
----
-
-## 🎯 Quest System Workflow
-
-### 7. Discover & Start Quests
-
-```bash
-# Get available quests with filters
-curl -X GET "http://localhost:4000/quests?page=1&limit=10&questType=SOLO&userId=usr_abc123" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
-
-# Response:
+**Response:**
+```json
 {
   "quests": [
     {
-      "questId": "quest_shibuya_photo",
-      "questName": "Shibuya Crossing Photo Challenge",
-      "questType": "SOLO",
-      "difficulty": "EASY",
-      "estimatedDuration": "30 minutes",
-      "magatama_point_reward": 100,
-      "isCompleted": false,
-      "isUnlocked": true
+      "quest_id": "QST202506-a1b2c3-141501-d4e5f6-AAAA",
+      "quest_name": "Waterfall Seeker",
+      "quest_desc": "Discover the hidden waterfalls of Bungo Ono",
+      "quest_type": "TRAVEL_TO_EARN",
+      "is_unlocked": true,
+      "is_premium": false,
+      "total_magatama_point_awarded": 100,
+      "reward_type": "LOCAL_EXPERIENCES",
+      "tourist_spot": {
+        "tourist_spot_name": "Harajiri Falls",
+        "latitude": 33.1234,
+        "longitude": 131.5678
+      },
+      "tasks": [
+        {
+          "quest_task_id": "TSK202506-a1b2c3-141501-d4e5f6-AAAA",
+          "task_type": "VISIT_LOCATION",
+          "task_name": "Visit the Falls",
+          "task_desc": "Check in at Harajiri Falls to earn points!",
+          "is_unlocked": true,
+          "magatama_point_awarded": 50
+        }
+      ]
     }
   ],
-  "total": 1,
-  "page": 1,
-  "limit": 10
+  "pagination": {
+    "total": 25,
+    "page": 1,
+    "limit": 10,
+    "total_pages": 3
+  }
 }
 ```
 
-```bash
-# Get detailed quest information
-curl -X GET "http://localhost:4000/quests/quest_shibuya_photo?userId=usr_abc123" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+### Get Quest by ID
 
-# Response:
+Retrieve detailed information about a specific quest:
+
+```http
+GET http://localhost:4000/quests/QST202506-a1b2c3-141501-d4e5f6-AAAA?userId=TSU202506-a1b2c3-141501-d4e5f6-AAAA
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+### Get Quests by Tourist Spot
+
+Retrieve quests available at a specific location:
+
+```http
+GET http://localhost:4000/quests/tourist-spot/TST202506-a1b2c3-141501-d4e5f6-AAAA?userId=TSU202506-a1b2c3-141501-d4e5f6-AAAA&latitude=33.1234&longitude=131.5678
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+---
+
+## ✅ Task Completion
+
+### Complete QR Scan Task
+
+Validate scanned QR code and complete the task:
+
+```http
+POST http://localhost:4000/tasks/TSK202506-a1b2c3-141501-d4e5f6-AAAA/qr-scan
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+
 {
-  "questId": "quest_shibuya_photo",
-  "questName": "Shibuya Crossing Photo Challenge",
-  "questDescription": "Take a photo at the famous Shibuya crossing",
-  "tasks": [
-    {
-      "taskId": "task_001",
-      "taskName": "Arrive at Shibuya Crossing",
-      "taskType": "GPS_CHECK_IN",
-      "isCompleted": false,
-      "requiredLocation": {
-        "latitude": 35.6595,
-        "longitude": 139.7006,
-        "radius": 50
-      }
-    },
-    {
-      "taskId": "task_002",
-      "taskName": "Take a photo",
-      "taskType": "PHOTO_UPLOAD",
-      "isCompleted": false
-    }
-  ]
+  "code": "XG45-7YV9",
+  "latitude": 33.1234,
+  "longitude": 131.5678
 }
 ```
 
-### 8. Complete Quest Tasks
-
-```bash
-# Upload photo for quest task
-curl -X POST http://localhost:4000/quests/tasks/task_002/photo-upload \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -H "x-user-id: usr_abc123" \
-  -F "file=@shibuya_photo.jpg"
-
-# Response:
+**Response:**
+```json
 {
   "success": true,
-  "proofUrl": "https://cdn.tourii.xyz/quest-photos/usr_abc123_task_002.jpg",
-  "taskCompleted": true,
-  "pointsEarned": 50
+  "message": "QR code validated successfully",
+  "task_status": "COMPLETED",
+  "magatama_points_earned": 50,
+  "reward_earned": "Local Experience Voucher"
+}
+```
+
+### Upload Task Photo
+
+Submit photo for photo upload tasks:
+
+```http
+POST http://localhost:4000/quests/tasks/TSK202506-a1b2c3-141501-d4e5f6-AAAA/photo-upload
+Content-Type: multipart/form-data
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="waterfall.jpg"
+Content-Type: image/jpeg
+
+[Binary image data]
+--boundary--
+```
+
+### Complete Social Sharing Task
+
+Record social media sharing task completion:
+
+```http
+POST http://localhost:4000/tasks/TSK202506-a1b2c3-141501-d4e5f6-AAAA/share-social
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+
+{
+  "proofUrl": "https://twitter.com/user/status/1234567890",
+  "latitude": 33.1234,
+  "longitude": 131.5678
+}
+```
+
+### Submit Text Answer Task
+
+Submit response for text-based questions:
+
+```http
+POST http://localhost:4000/tasks/answer-text
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
+{
+  "taskId": "TSK202506-a1b2c3-141501-d4e5f6-AAAA",
+  "answer": "The waterfall represents the eternal flow of time in Japanese folklore",
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA"
+}
+```
+
+### Submit Multiple Choice Task
+
+Complete multiple choice questions:
+
+```http
+POST http://localhost:4000/tasks/select-option
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
+{
+  "taskId": "TSK202506-a1b2c3-141501-d4e5f6-AAAA",
+  "selectedOptionIds": ["option_1", "option_3"],
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA"
+}
+```
+
+### Submit Check-in Task
+
+Complete location-based check-in:
+
+```http
+POST http://localhost:4000/tasks/checkin
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
+{
+  "taskId": "TSK202506-a1b2c3-141501-d4e5f6-AAAA",
+  "latitude": 33.1234,
+  "longitude": 131.5678,
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA"
 }
 ```
 
 ---
 
-## 👥 Group Quest Example
+## 👥 Group Quests
 
-### 9. Group Quest Coordination
+### Get Group Members
 
-```bash
-# Get group members for a quest
-curl -X GET http://localhost:4000/quests/quest_group_tokyo/group/members \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+Retrieve current members of a group quest:
 
-# Response:
+```http
+GET http://localhost:4000/quests/QST202506-a1b2c3-141501-d4e5f6-AAAA/group/members
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
-  "questId": "quest_group_tokyo",
+  "quest_id": "QST202506-a1b2c3-141501-d4e5f6-AAAA",
   "members": [
     {
-      "userId": "usr_abc123",
-      "username": "alice",
-      "role": "leader",
-      "ready": false,
-      "joinedAt": "2024-01-16T10:00:00Z"
+      "user_id": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+      "username": "traveler_123",
+      "discord_id": "123456789012345678",
+      "role": "LEADER"
     },
     {
-      "userId": "usr_def456",
-      "username": "bob",
-      "role": "member",
-      "ready": true,
-      "joinedAt": "2024-01-16T10:05:00Z"
+      "user_id": "TSU202506-b2c3d4-141501-e5f6g7-BBBB",
+      "username": "explorer_456",
+      "discord_id": "234567890123456789",
+      "role": "MEMBER"
     }
   ],
-  "status": "waiting_for_members"
+  "total_members": 2,
+  "max_members": 5
 }
 ```
 
-```bash
-# Start group quest (leader only)
-curl -X POST http://localhost:4000/quests/quest_group_tokyo/group/start \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0" \
-  -d '{
-    "userId": "usr_abc123"
-  }'
+### Start Group Quest
 
-# Response:
+Leader initiates quest for all group members:
+
+```http
+POST http://localhost:4000/quests/QST202506-a1b2c3-141501-d4e5f6-AAAA/group/start
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+
 {
-  "success": true,
-  "questStarted": true,
-  "message": "Group quest started for all members"
+  "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+  "latitude": 33.1234,
+  "longitude": 131.5678
 }
 ```
 
 ---
 
-## 📱 Memory Wall & Dashboard
+## 📱 Activity Feeds & Dashboard
 
-### 10. Get User Activity Feed
+### Get User Checkins
 
-```bash
-# Get latest moments/activities
-curl -X GET "http://localhost:4000/moments?page=1&limit=20" \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+Retrieve user travel history with location coordinates:
 
-# Response:
+```http
+GET http://localhost:4000/checkins?page=1&limit=20&startDate=2025-06-01&endDate=2025-06-20
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+```
+
+**Response:**
+```json
+{
+  "checkins": [
+    {
+      "user_travel_log_id": "UTL202506-a1b2c3-141501-d4e5f6-AAAA",
+      "tourist_spot": {
+        "tourist_spot_name": "Harajiri Falls",
+        "latitude": 33.1234,
+        "longitude": 131.5678
+      },
+      "quest": {
+        "quest_name": "Waterfall Seeker",
+        "quest_type": "TRAVEL_TO_EARN"
+      },
+      "check_in_method": "QR_CODE",
+      "travel_distance": 2.5,
+      "ins_date_time": "2025-06-15T10:30:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 15,
+    "page": 1,
+    "limit": 20
+  }
+}
+```
+
+### Get Latest Moments
+
+Retrieve activity feed with user moments:
+
+```http
+GET http://localhost:4000/moments?page=1&limit=10
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
   "moments": [
     {
-      "momentId": "moment_001",
-      "userId": "usr_abc123",
-      "username": "alice",
-      "type": "QUEST_COMPLETED",
-      "content": "Completed Shibuya Photo Challenge",
-      "imageUrl": "https://cdn.tourii.xyz/quest-photos/...",
-      "createdAt": "2024-01-16T14:30:00Z",
-      "pointsEarned": 100
-    },
-    {
-      "momentId": "moment_002",
-      "userId": "usr_def456",
-      "username": "bob",
-      "type": "TRAVEL_LOG",
-      "content": "Visited Tokyo Station",
-      "location": "Tokyo Station, Tokyo",
-      "createdAt": "2024-01-16T13:15:00Z"
+      "id": "moment_123",
+      "user": {
+        "username": "traveler_123"
+      },
+      "image_url": "https://cdn.tourii.app/uploads/waterfall_photo.jpg",
+      "description": "Just completed the Waterfall Seeker quest at Harajiri Falls!",
+      "reward_text": "Earned 100 Magatama Points",
+      "moment_type": "QUEST_COMPLETION",
+      "ins_date_time": "2025-06-15T10:30:00Z"
     }
   ],
-  "total": 2,
-  "page": 1,
-  "limit": 20
+  "pagination": {
+    "total": 150,
+    "page": 1,
+    "limit": 10
+  }
 }
 ```
 
-### 11. Homepage Highlights
+---
 
-```bash
-# Get homepage content
-curl -X GET http://localhost:4000/v2/homepage/highlights \
-  -H "x-api-key: dev-key" \
-  -H "accept-version: 1.0.0"
+## 🏠 Homepage
 
-# Response:
+### Get Homepage Highlights
+
+Retrieve featured content for the homepage:
+
+```http
+GET http://localhost:4000/v2/homepage/highlights
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
-  "featuredChapter": {
-    "chapterId": "chapter_002",
-    "title": "Harajuku Culture",
-    "description": "Dive into youth culture and fashion",
-    "imageUrl": "https://cdn.tourii.xyz/chapters/harajuku.jpg"
+  "latest_chapter": {
+    "story_chapter_id": "SCT202506-a1b2c3-141501-d4e5f6-AAAA",
+    "chapter_title": "The Legend of Harajiri",
+    "saga_name": "Bungo Ono",
+    "chapter_image": "https://cdn.tourii.app/chapters/harajiri_legend.jpg"
   },
-  "popularQuest": {
-    "questId": "quest_ramen_tour",
-    "title": "Tokyo Ramen Master",
-    "description": "Try 5 different ramen shops",
-    "completionRate": "78%",
-    "averageRating": 4.8
-  },
-  "recentActivities": [
+  "popular_quests": [
     {
-      "type": "NEW_USER_MILESTONE",
-      "message": "Welcome 1000th traveler!"
+      "quest_id": "QST202506-a1b2c3-141501-d4e5f6-AAAA",
+      "quest_name": "Waterfall Seeker",
+      "quest_image": "https://cdn.tourii.app/quests/waterfall_seeker.jpg",
+      "completion_count": 1250,
+      "reward_type": "LOCAL_EXPERIENCES"
     }
   ]
 }
@@ -468,172 +638,125 @@ curl -X GET http://localhost:4000/v2/homepage/highlights \
 
 ---
 
-## ⛓️ Blockchain Operations
+## ⛓️ Blockchain Service
 
-### 12. Onchain Service Examples
+### Health Check
 
-```bash
-# Get user's blockchain address
-curl -X GET http://localhost:3001/keyring/address \
-  -H "Cookie: token=your_jwt_token"
+Verify blockchain service status:
 
-# Response:
-{
-  "address": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-  "publicKey": "0x...",
-  "isActive": true
-}
+```http
+GET http://localhost:3001/health-check
 ```
 
-```bash
-# Send blockchain transaction (example)
-curl -X POST http://localhost:3001/send-green \
-  -H "Cookie: token=your_jwt_token"
+### Get User Keyring Address
 
-# Response:
+Retrieve user's blockchain wallet address:
+
+```http
+GET http://localhost:3001/user-keyring-address
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Get Passport Metadata
+
+Retrieve digital passport NFT metadata:
+
+```http
+GET http://localhost:3001/passport-metadata/TSU202506-a1b2c3-141501-d4e5f6-AAAA
+x-api-key: your-api-key
+accept-version: 1.0.0
+```
+
+**Response:**
+```json
 {
-  "transactionHash": "0x...",
-  "blockNumber": 12345,
-  "status": "success"
+  "name": "Tourii Digital Passport #1234",
+  "description": "Travel credential for the Tourii ecosystem",
+  "image": "https://cdn.tourii.app/passports/passport_1234.png",
+  "attributes": [
+    {
+      "trait_type": "Passport Type",
+      "value": "BONJIN"
+    },
+    {
+      "trait_type": "Level",
+      "value": "E_CLASS_BONJIN"
+    },
+    {
+      "trait_type": "Quests Completed",
+      "value": 15
+    },
+    {
+      "trait_type": "Distance Traveled",
+      "value": "125.5 km"
+    }
+  ]
 }
 ```
 
 ---
 
-## 🧪 Testing & Development
+## 🚨 Error Handling
 
-### Using .http files
+### Standard Error Response
 
-The repository includes example requests in `etc/http/` folders:
-
-```bash
-# Test auth
-GET http://localhost:4000/user/me
-x-api-key: dev-key
-accept-version: 1.0.0
-x-user-id: usr_abc123
-```
-
-### Common Error Responses
+All API errors follow this format:
 
 ```json
-// Invalid API key
 {
-  "statusCode": 401,
-  "message": "Unauthorized",
-  "code": "E_TB_001"
-}
-
-// Invalid version
-{
-  "statusCode": 400,
-  "message": "Invalid version format",
-  "code": "E_TB_021"
-}
-
-// User not found
-{
-  "statusCode": 404,
-  "message": "User not found",
-  "code": "E_TB_003"
+  "error": {
+    "code": "E_TB_001",
+    "message": "Authentication required",
+    "type": "AUTHENTICATION_ERROR",
+    "timestamp": "2025-06-20T10:30:00Z",
+    "request_id": "req_123456789"
+  }
 }
 ```
 
----
+### Common Error Codes
 
-## 📊 Rate Limiting
-
-Default rate limits:
-
-- **General endpoints**: 100 requests per minute
-- **Auth endpoints**: 10 requests per minute
-- **Upload endpoints**: 5 requests per minute
-
-Rate limit headers:
-
-```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1642350000
-```
+| Code | Description | HTTP Status |
+|------|-------------|-------------|
+| `E_TB_001` | Authentication required | 401 |
+| `E_TB_002` | Invalid API version | 400 |
+| `E_TB_003` | User not found | 404 |
+| `E_TB_004` | Quest not available | 403 |
+| `E_TB_005` | Invalid task response | 400 |
 
 ---
 
-## 🔧 Environment-Specific URLs
+## 🔧 Integration Tips
 
-### Development
+### Authentication Flow
 
-```bash
-export API_BASE_URL=http://localhost:4000
-export ONCHAIN_BASE_URL=http://localhost:3001
-export API_KEY=dev-key
-```
+1. **User Signup**: Use `/auth/signup` with social provider
+2. **Store Tokens**: Save access and refresh tokens
+3. **Include Headers**: Add `x-user-id` header for authenticated requests
+4. **Handle Refresh**: Implement token refresh logic
 
-### Production (Render)
+### Quest Completion Workflow
 
-```bash
-export API_BASE_URL=https://your-tourii-backend.onrender.com
-export ONCHAIN_BASE_URL=https://your-tourii-onchain.onrender.com
-export API_KEY=your_production_api_key
-```
+1. **Get Available Quests**: Use `/quests` with user filters
+2. **Check Quest Details**: Get specific quest with `/quests/{id}`
+3. **Complete Tasks**: Use appropriate task completion endpoints
+4. **Track Progress**: Monitor task status and rewards
+5. **Update Feed**: Refresh user moments and checkins
 
----
+### Location-Based Features
 
-## 🆘 Troubleshooting API Issues
+1. **Request Location Permission**: Get user's GPS coordinates
+2. **Search Locations**: Use `/location-info` for place discovery
+3. **Verify Proximity**: Check user distance from target locations
+4. **Complete Check-ins**: Use GPS coordinates for task completion
 
-### Authentication Problems
+### Error Recovery
 
-```bash
-# Check if API key is valid
-curl -X GET http://localhost:4000/health-check \
-  -H "x-api-key: your-key" \
-  -H "accept-version: 1.0.0"
-```
-
-### Database Connection Issues
-
-```bash
-# Check if database is accessible
-docker ps | grep postgres
-# Should show running postgres container
-```
-
-### CORS Issues
-
-Make sure you're including the correct headers and the request is coming from an allowed origin.
+1. **Retry Logic**: Implement exponential backoff for failed requests
+2. **Offline Support**: Cache critical data for offline functionality
+3. **Validation**: Validate input data before API calls
+4. **User Feedback**: Provide meaningful error messages
 
 ---
 
-## 📚 Related Documentation
-
-- [Development Setup](./DEVELOPMENT_SETUP.md) - Complete setup guide
-- [API Reference](../README.md#-api-reference) - All available endpoints
-- [Security Guide](./SECURITY.md) - Authentication & security
-- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
-
----
-
----
-
-## 💰 **Cost Optimization Achievements**
-
-### Google Places API Cost Reduction
-
-The Tourii Backend now implements a **hybrid cost-optimization strategy** for Google Places API calls:
-
-| Metric                        | Before Optimization             | After Optimization                  | Savings              |
-| ----------------------------- | ------------------------------- | ----------------------------------- | -------------------- |
-| **API Calls per 4 locations** | 56 Places + 15 Geocoding        | ~4 Text Search calls                | **85-90%**           |
-| **Cost per 4 locations**      | $2.80 - $3.50                   | $0.12 - $0.28                       | **90% reduction**    |
-| **Implementation**            | Multiple API calls per location | Single Text Search with field masks | Hybrid with fallback |
-
-### Technical Implementation
-
-- **New Places API** with targeted field masks: `places.location,places.formattedAddress,places.displayName`
-- **Fallback system** to legacy API for reliability
-- **24-hour caching** to minimize repeated API calls
-- **Real-time logging** for cost monitoring
-
----
-
-_Last Updated: June 18, 2025_
+_Last Updated: June 20, 2025_

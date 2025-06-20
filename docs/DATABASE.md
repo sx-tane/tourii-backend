@@ -1,600 +1,777 @@
-# 🗃️ Database Guide
+# 🗃️ Tourii Database Architecture
 
-This guide covers database setup, migrations, seeding, and common operations for the Tourii Backend PostgreSQL database.
+> **Complete database documentation for the Tourii tourism platform**
+
+This document provides comprehensive information about the database schema, models, relationships, and operations for the Tourii Backend system.
+
+## 📊 Database Overview
+
+### Technology Stack
+
+- **Database**: PostgreSQL 14+
+- **ORM**: Prisma 6.5.0+
+- **Migration Tool**: Prisma Migrate
+- **Query Builder**: Prisma Client with TypeScript
+- **Caching**: Redis for session and API response caching
+
+### Schema Generation
+
+The database includes auto-generated documentation:
+- **Schema Docs**: `prisma/docs/tourii-db-docs.md`
+- **ER Diagram**: `prisma/docs/tourii-er-diagram.md`
+- **Migration History**: `prisma/migrations/`
 
 ---
 
-## 📋 Quick Reference
+## 🏗️ Database Architecture
 
-### Essential Commands
+### Entity Groups
 
-```bash
-# Database setup
-pnpm run prisma:migrate:dev     # Run migrations
-pnpm run prisma:db:execute      # Execute SQL scripts
-npx prisma db seed              # Seed test data
-pnpm run prisma:studio          # Open visual browser
+The database is organized into logical entity groups:
 
-# Development
-npx prisma generate             # Generate Prisma client
-npx prisma format               # Format schema file
-npx prisma validate             # Validate schema
+```mermaid
+graph TB
+    subgraph "User Management"
+        USER[user]
+        USER_INFO[user_info]
+        USER_ACHIEVEMENT[user_achievement]
+        USER_ONCHAIN[user_onchain_item]
+        USER_CLAIM[user_item_claim_log]
+    end
+
+    subgraph "Content & Narrative"
+        STORY[story]
+        STORY_CHAPTER[story_chapter]
+        MODEL_ROUTE[model_route]
+        TOURIST_SPOT[tourist_spot]
+    end
+
+    subgraph "Gaming System"
+        QUEST[quest]
+        QUEST_TASK[quest_task]
+        USER_TASK_LOG[user_task_log]
+        USER_TRAVEL_LOG[user_travel_log]
+        USER_STORY_LOG[user_story_log]
+    end
+
+    subgraph "Discord Integration"
+        DISCORD_ACTIVITY[discord_activity_log]
+        DISCORD_ROLES[discord_roles]
+        DISCORD_USER_ROLES[discord_user_roles]
+        DISCORD_REWARDED[discord_rewarded_roles]
+    end
+
+    subgraph "Master Data"
+        ONCHAIN_CATALOG[onchain_item_catalog]
+        LEVEL_REQUIREMENTS[level_requirement_master]
+        KENDAMA_SETTINGS[kendama_random_range]
+    end
+
+    USER --> USER_INFO
+    USER --> USER_ACHIEVEMENT
+    USER --> USER_ONCHAIN
+    USER --> USER_TASK_LOG
+    USER --> USER_TRAVEL_LOG
+    USER --> USER_STORY_LOG
+
+    STORY --> STORY_CHAPTER
+    STORY --> MODEL_ROUTE
+    MODEL_ROUTE --> TOURIST_SPOT
+    TOURIST_SPOT --> QUEST
+    QUEST --> QUEST_TASK
 ```
 
 ---
 
-## 🚀 Initial Database Setup
+## 👥 User Management
 
-### 1. Start PostgreSQL Container
+### Core User Entity
 
-```bash
-cd etc/docker
-docker-compose up -d
+The `user` table serves as the foundation for all user-related data:
 
-# Verify container is running
-docker ps | grep postgres
+```sql
+-- User table with multi-provider authentication
+user (
+  user_id              VARCHAR(255) PRIMARY KEY,  -- Generated: TSU202506-rand1-DDHHMI-rand2-counter
+  username             VARCHAR(255) UNIQUE,
+  
+  -- Authentication providers
+  discord_id           VARCHAR UNIQUE,
+  discord_username     VARCHAR(255),
+  twitter_id           VARCHAR UNIQUE,
+  twitter_username     VARCHAR(255),
+  google_email         VARCHAR UNIQUE,
+  email                VARCHAR UNIQUE,
+  password             VARCHAR,                    -- Hashed
+  refresh_token        VARCHAR,                    -- JWT refresh token
+  
+  -- Blockchain wallet addresses
+  passport_wallet_address VARCHAR UNIQUE,
+  perks_wallet_address    VARCHAR UNIQUE,
+  encrypted_private_key   VARCHAR,
+  
+  -- User metrics
+  is_premium              BOOLEAN DEFAULT false,
+  total_quest_completed   INTEGER DEFAULT 0,
+  total_travel_distance   FLOAT DEFAULT 0.0,
+  role                    UserRoleType DEFAULT 'USER',
+  
+  -- System fields
+  registered_at           TIMESTAMP DEFAULT now(),
+  is_banned              BOOLEAN DEFAULT false,
+  del_flag               BOOLEAN DEFAULT false,
+  ins_date_time          TIMESTAMP DEFAULT now(),
+  upd_date_time          TIMESTAMP DEFAULT now()
+);
 ```
 
-### 2. Run Migrations
+### User Profile Extension
 
-```bash
-# Apply all pending migrations
-pnpm run prisma:migrate:dev
+The `user_info` table contains extended profile data:
 
-# This will:
-# 1. Create database if it doesn't exist
-# 2. Apply all migration files from prisma/migrations/
-# 3. Generate Prisma client
-# 4. Create database schema
+```sql
+-- Extended user profile information
+user_info (
+  user_info_id                VARCHAR(255) PRIMARY KEY,
+  user_id                     VARCHAR(255) UNIQUE,      -- FK to user
+  
+  -- Digital passport details
+  digital_passport_address    VARCHAR UNIQUE,
+  log_nft_address            VARCHAR,
+  passport_token_id          VARCHAR(255),
+  user_digital_passport_type PassportType DEFAULT 'BONJIN',
+  level                      LevelType DEFAULT 'BONJIN',
+  discount_rate              FLOAT,
+  
+  -- Game currency & metrics
+  magatama_points            INTEGER DEFAULT 0,
+  magatama_bags              INTEGER DEFAULT 0,
+  total_quest_completed      INTEGER DEFAULT 0,
+  total_travel_distance      FLOAT DEFAULT 0.0,
+  is_premium                 BOOLEAN DEFAULT false,
+  
+  -- Collectibles
+  prayer_bead                INTEGER DEFAULT 0,
+  sword                      INTEGER DEFAULT 0,
+  orge_mask                  INTEGER DEFAULT 0
+);
 ```
 
-### 3. Execute Additional SQL Scripts
+### User Progress Tracking
 
-```bash
-# Create views and additional database objects
-pnpm run prisma:db:execute
+Multiple tables track different aspects of user progress:
 
-# This runs: prisma/scripts/moment_view.sql
-# Creates the memory_feed view for activity feeds
+```sql
+-- Quest task completion tracking
+user_task_log (
+  user_task_log_id           VARCHAR(255) PRIMARY KEY,
+  user_id                    VARCHAR(255),
+  quest_id                   VARCHAR(255),
+  task_id                    VARCHAR(255),
+  
+  status                     TaskStatus DEFAULT 'AVAILABLE',
+  action                     TaskType DEFAULT 'SELECT_OPTION',
+  user_response              TEXT,
+  group_activity_members     JSON[],
+  submission_data            JSON,
+  failed_reason              TEXT,
+  
+  completed_at               TIMESTAMP,
+  total_magatama_point_awarded INTEGER DEFAULT 0,
+  reward_earned              VARCHAR(255),
+  
+  UNIQUE(user_id, quest_id, task_id)
+);
+
+-- Travel and location tracking
+user_travel_log (
+  user_travel_log_id         VARCHAR(255) PRIMARY KEY,
+  user_id                    VARCHAR(255),
+  quest_id                   VARCHAR(255),
+  task_id                    VARCHAR(255),
+  tourist_spot_id            VARCHAR(255),
+  
+  user_longitude             FLOAT,
+  user_latitude              FLOAT,
+  travel_distance_from_target FLOAT,
+  travel_distance            FLOAT DEFAULT 0.0,
+  
+  qr_code_value              VARCHAR(255),
+  check_in_method            CheckInMethod,
+  
+  detected_fraud             BOOLEAN,
+  fraud_reason               VARCHAR(255)
+);
+
+-- Story reading progress
+user_story_log (
+  user_story_log_id          VARCHAR(255) PRIMARY KEY,
+  user_id                    VARCHAR(255),
+  story_chapter_id           VARCHAR(255),
+  
+  status                     StoryStatus DEFAULT 'UNREAD',
+  unlocked_at                TIMESTAMP,
+  finished_at                TIMESTAMP
+);
 ```
 
-### 4. Seed Test Data
+---
 
+## 📚 Content & Narrative System
+
+### Story Management
+
+The story system creates immersive narratives tied to real locations:
+
+```sql
+-- Story sagas (e.g., "Bungo Ono", "Aomori")
+story (
+  story_id              VARCHAR(255) PRIMARY KEY,
+  saga_name             VARCHAR(255),              -- "Bungo Ono"
+  saga_desc             TEXT,
+  background_media      VARCHAR(255),              -- Cover image/video URL
+  map_image             VARCHAR(255),              -- Saga map image
+  location              VARCHAR(255),              -- "Oita, Japan"
+  order                 INTEGER,                   -- Display order
+  is_prologue           BOOLEAN DEFAULT false,
+  is_selected           BOOLEAN DEFAULT false
+);
+
+-- Individual story chapters
+story_chapter (
+  story_chapter_id      VARCHAR(255) PRIMARY KEY,
+  story_id              VARCHAR(255),              -- FK to story
+  tourist_spot_id       VARCHAR(255),              -- Linked location
+  
+  chapter_number        VARCHAR(255),              -- "Prologue", "Chapter 1"
+  chapter_title         VARCHAR(255),
+  chapter_desc          TEXT,
+  chapter_image         VARCHAR(255),              -- Fictional chapter image
+  character_name_list   VARCHAR(255)[],            -- ["Kagura", "Kagutsuchi"]
+  real_world_image      VARCHAR(255),              -- Real location photo
+  
+  -- Rich media content
+  chapter_video_url         VARCHAR(255),          -- Desktop video
+  chapter_video_mobile_url  VARCHAR(255),          -- Mobile-optimized video
+  chapter_pdf_url           VARCHAR(255),          -- Downloadable PDF
+  
+  is_unlocked           BOOLEAN DEFAULT false
+);
+```
+
+### Location & Route Management
+
+Travel routes connect locations into cohesive journeys:
+
+```sql
+-- Travel routes within story sagas
+model_route (
+  model_route_id        VARCHAR(255) PRIMARY KEY,
+  story_id              VARCHAR(255),              -- FK to story
+  
+  route_name            VARCHAR(255),
+  recommendation        JSON[],                    -- ["Local Food", "Nature"]
+  region                VARCHAR(255),              -- From story.saga_name
+  region_desc           TEXT,
+  region_latitude       FLOAT,
+  region_longitude      FLOAT,
+  region_background_media VARCHAR(255)             -- From story.background_media
+);
+
+-- Physical tourist destinations
+tourist_spot (
+  tourist_spot_id       VARCHAR(255) PRIMARY KEY,
+  model_route_id        VARCHAR(255),              -- FK to model_route
+  story_chapter_id      VARCHAR(255),              -- FK to story_chapter
+  
+  tourist_spot_name     VARCHAR(255),              -- "Harajiri Falls"
+  tourist_spot_desc     TEXT,
+  latitude              FLOAT,                     -- GPS coordinates
+  longitude             FLOAT,
+  
+  best_visit_time       VARCHAR(255),              -- "10:00 - 18:00"
+  address               VARCHAR(255),              -- Google Maps address
+  story_chapter_link    VARCHAR(255),
+  tourist_spot_hashtag  VARCHAR(255)[],            -- ["#Tokyo", "#Japan"]
+  
+  -- Image collection
+  image_set             JSON                       -- {"main": "url", "small": ["url1", "url2"]}
+);
+```
+
+---
+
+## 🎯 Quest & Gaming System
+
+### Quest Structure
+
+Quests provide gamified challenges tied to locations:
+
+```sql
+-- Location-based challenges
+quest (
+  quest_id              VARCHAR(255) PRIMARY KEY,
+  tourist_spot_id       VARCHAR(255),              -- FK to tourist_spot
+  
+  quest_name            VARCHAR(255),              -- "Waterfall Seeker"
+  quest_desc            TEXT,
+  quest_type            QuestType DEFAULT 'UNKNOWN',
+  quest_image           VARCHAR(255),
+  
+  is_unlocked           BOOLEAN DEFAULT false,
+  is_premium            BOOLEAN DEFAULT false,     -- Requires subscription
+  
+  -- Rewards
+  total_magatama_point_awarded INTEGER DEFAULT 0,
+  reward_type           RewardType DEFAULT 'UNKNOWN',
+  reward_items          JSON[]                     -- Detailed reward information
+);
+
+-- Individual tasks within quests
+quest_task (
+  quest_task_id         VARCHAR(255) PRIMARY KEY,
+  quest_id              VARCHAR(255),              -- FK to quest
+  
+  task_theme            TaskTheme DEFAULT 'STORY',
+  task_type             TaskType DEFAULT 'SELECT_OPTION',
+  task_name             VARCHAR(255),
+  task_desc             TEXT,
+  accepted_answer       VARCHAR(255),              -- For validation
+  is_unlocked           BOOLEAN DEFAULT false,
+  
+  -- Task configuration
+  required_action       VARCHAR(255),              -- Task-specific requirements
+  group_activity_members JSON[],                   -- For group tasks
+  select_options        JSON[],                    -- Multiple choice options
+  anti_cheat_rules      JSON,                      -- Abuse prevention
+  
+  -- Rewards
+  magatama_point_awarded INTEGER DEFAULT 0,
+  reward_earned         VARCHAR(255)
+);
+```
+
+### Task Types & Validation
+
+The system supports multiple task interaction types:
+
+| Task Type | Description | Validation |
+|-----------|-------------|------------|
+| `VISIT_LOCATION` | GPS-based check-ins | Location proximity |
+| `PHOTO_UPLOAD` | Image capture | File type, size limits |
+| `QR_SCAN` | QR code verification | Code uniqueness |
+| `ANSWER_TEXT` | Open-ended responses | Text matching |
+| `SELECT_OPTION` | Multiple choice | Option validation |
+| `SHARE_SOCIAL` | Social media sharing | URL verification |
+| `GROUP_ACTIVITY` | Collaborative challenges | Member validation |
+| `CHECK_IN` | Location confirmation | GPS tolerance |
+
+---
+
+## ⛓️ Blockchain Integration
+
+### NFT & Digital Assets
+
+The system tracks blockchain items across different networks:
+
+```sql
+-- User-owned blockchain assets
+user_onchain_item (
+  user_onchain_item_id  VARCHAR(255) PRIMARY KEY,
+  user_id               VARCHAR(255),              -- FK to user
+  
+  item_type             OnchainItemType DEFAULT 'UNKNOWN',
+  item_txn_hash         VARCHAR UNIQUE,            -- Blockchain transaction
+  blockchain_type       BlockchainType DEFAULT 'UNKNOWN',
+  minted_at             TIMESTAMP,
+  onchain_item_id       VARCHAR UNIQUE,
+  status                OnchainItemStatus DEFAULT 'ACTIVE'
+);
+
+-- Master catalog of available NFTs
+onchain_item_catalog (
+  onchain_item_id       VARCHAR(255) PRIMARY KEY,
+  
+  item_type             OnchainItemType DEFAULT 'UNKNOWN',
+  blockchain_type       BlockchainType DEFAULT 'UNKNOWN',
+  
+  nft_name              VARCHAR(255),
+  nft_description       VARCHAR(255),
+  image_url             VARCHAR(255),
+  contract_address      VARCHAR(255),
+  
+  -- Blockchain metadata
+  token_id              VARCHAR(255),
+  metadata_url          VARCHAR(255),
+  attributes            JSON[],
+  
+  -- Availability
+  release_date          TIMESTAMP,
+  expiry_date           TIMESTAMP,
+  max_supply            INTEGER DEFAULT 0
+);
+```
+
+### Digital Passport Levels
+
+The progression system defines user advancement:
+
+```sql
+-- Level progression requirements
+level_requirement_master (
+  level                 LevelType PRIMARY KEY,
+  
+  discord_role_id       VARCHAR(255),
+  
+  -- Point requirements
+  min_get_magatama_points INTEGER,
+  max_get_magatama_points INTEGER,
+  
+  -- Item requirements
+  total_onchain_item    INTEGER DEFAULT 0,
+  prayer_bead           INTEGER DEFAULT 0,
+  sword                 INTEGER DEFAULT 0,
+  orge_mask             INTEGER DEFAULT 0
+);
+```
+
+**Progression Levels:**
+```
+BONJIN (Base) → E_CLASS → D_CLASS → C_CLASS → B_CLASS → A_CLASS → S_CLASS
+```
+
+**Passport Types:**
+- `BONJIN`: Standard human passport
+- `AMATSUKAMI`: Celestial deity passport  
+- `KUNITSUKAMI`: Earthly deity passport
+- `YOKAI`: Supernatural being passport
+
+---
+
+## 👥 Discord Integration
+
+### Community Features
+
+Discord integration provides social and community features:
+
+```sql
+-- Discord role management
+discord_roles (
+  role_id               BIGINT PRIMARY KEY,        -- Discord's role ID
+  name                  VARCHAR(255) UNIQUE
+);
+
+-- User role assignments
+discord_user_roles (
+  discord_user_roles_id VARCHAR(255) PRIMARY KEY,
+  user_id               VARCHAR(255),              -- FK to user
+  role_id               BIGINT                     -- FK to discord_roles
+);
+
+-- Activity tracking
+discord_activity_log (
+  discord_activity_log_id VARCHAR(255) PRIMARY KEY,
+  user_id               VARCHAR(255),              -- FK to user
+  
+  activity_type         VARCHAR(255),              -- "message_sent", "voice_participation"
+  activity_details      TEXT,
+  magatama_point_awarded INTEGER
+);
+
+-- Role-based rewards
+discord_rewarded_roles (
+  discord_rewarded_roles_id VARCHAR(255) PRIMARY KEY,
+  user_id               VARCHAR(255),              -- FK to user
+  role_id               BIGINT,
+  magatama_point_awarded INTEGER
+);
+```
+
+---
+
+## 📊 Analytics & Feeds
+
+### Activity Aggregation
+
+The system includes a materialized view for user activity feeds:
+
+```sql
+-- Activity feed aggregation
+VIEW moment_view AS (
+  SELECT 
+    id,
+    user_id,
+    username,
+    image_url,
+    description,
+    reward_text,
+    ins_date_time,
+    moment_type                     -- 'QUEST_COMPLETION', 'STORY_PROGRESS', 'TRAVEL_LOG'
+  FROM (
+    -- Quest completions
+    UNION quest_completion_moments
+    -- Story progress
+    UNION story_progress_moments  
+    -- Travel activities
+    UNION travel_activity_moments
+  )
+  ORDER BY ins_date_time DESC
+);
+```
+
+---
+
+## 🔧 Database Operations
+
+### Setup & Migration
+
+**Initial Setup:**
 ```bash
-# Populate database with sample data (traditional way)
-npx prisma db seed
+# Install dependencies
+pnpm install
 
-# Or use the modular seeding system (recommended)
+# Setup database
+pnpm prisma:migrate:dev
+
+# Execute custom SQL scripts (views, functions)
+pnpm prisma:db:execute
+
+# Open database GUI
+pnpm prisma:studio
+```
+
+**Migration Commands:**
+```bash
+# Development migrations
+pnpm prisma:migrate:dev          # Apply migrations with prompts
+pnpm prisma:migrate:test         # Reset test database
+
+# Custom SQL execution
+pnpm prisma:db:execute           # Execute moment_view.sql script
+```
+
+### Data Seeding
+
+The system includes a modular seeding approach:
+
+**Modular Seeding (Recommended):**
+```bash
+# Full database seeding
 npx tsx prisma/seed-new.ts
 
 # Partial seeding options
-npx tsx prisma/seed-new.ts --users-only      # Just users
-npx tsx prisma/seed-new.ts --stories-only    # Just stories
-npx tsx prisma/seed-new.ts --clean           # Clean first
-
-# This will create:
-# - 3 test users (alice, bob, admin)
-# - Sample stories and chapters
-# - Tourist spots and routes
-# - Quests and tasks
-# - Discord roles and relationships
+npx tsx prisma/seed-new.ts --users-only      # Create test users only
+npx tsx prisma/seed-new.ts --stories-only    # Create stories & content
+npx tsx prisma/seed-new.ts --clean           # Clean database first
 ```
 
-> 💡 **Tip**: See the [Seeding Guide](./SEEDING_GUIDE.md) for advanced seeding options and customization.
+**Default Test Data:**
+- **Users**: `alice` (USER), `bob` (MODERATOR), `admin` (ADMIN)
+- **Stories**: Sample sagas with chapters and routes
+- **Quests**: Example location-based challenges
+- **Master Data**: Level requirements and item catalogs
 
----
+### Database Maintenance
 
-## 📊 Database Schema Overview
-
-### Core Entity Groups
-
-#### 👤 User Management
-
-```
-user ← user_info
-user ← user_achievement
-user ← user_onchain_item
-user ← user_item_claim_log
-```
-
-#### 🎮 Game Content
-
-```
-story ← story_chapter
-model_route ← tourist_spot
-quest ← quest_task
-```
-
-#### 📝 Activity Logging
-
-```
-user_story_log     # Story reading progress
-user_task_log      # Quest completion logs
-user_travel_log    # Location check-ins
-```
-
-#### 👥 Social Features
-
-```
-discord_roles ← discord_user_roles → user
-discord_activity_log
-discord_rewarded_roles
-user_invite_log
-```
-
-#### ⛓️ Blockchain Integration
-
-```
-onchain_item_catalog
-user_onchain_item
-```
-
----
-
-## 🔄 Migration Workflow
-
-### Creating New Migrations
-
-#### 1. Modify Schema
-
-```bash
-# Edit prisma/schema.prisma
-# Add new models, fields, or relationships
-```
-
-#### 2. Generate Migration
-
-```bash
-# Create migration with descriptive name
-npx prisma migrate dev --name add_user_preferences
-
-# This will:
-# 1. Generate SQL migration file
-# 2. Apply migration to database
-# 3. Update Prisma client
-```
-
-#### 3. Review Generated Files
-
-```bash
-# Check migration file in prisma/migrations/
-cat prisma/migrations/20250116120000_add_user_preferences/migration.sql
-```
-
-### Migration Best Practices
-
-#### Safe Migrations
-
+**Performance Optimization:**
 ```sql
--- ✅ Safe operations
-ALTER TABLE "user" ADD COLUMN "timezone" TEXT;
-ALTER TABLE "quest" ADD COLUMN "difficulty_level" INTEGER DEFAULT 1;
-CREATE INDEX "idx_user_email" ON "user"("email");
-
--- ⚠️ Potentially unsafe operations (data loss)
-ALTER TABLE "user" DROP COLUMN "old_field";
-ALTER TABLE "quest" ALTER COLUMN "name" TYPE VARCHAR(50); -- truncation risk
+-- Key indexes for query performance
+CREATE INDEX idx_user_email ON user(email);
+CREATE INDEX idx_user_discord_id ON user(discord_id);
+CREATE INDEX idx_quest_tourist_spot_type ON quest(tourist_spot_id, quest_type);
+CREATE INDEX idx_user_task_log_completion ON user_task_log(status, completed_at);
+CREATE INDEX idx_user_travel_log_location ON user_travel_log(user_longitude, user_latitude);
 ```
 
-#### Production Deployment
-
-```bash
-# Production migration (no prompts)
-npx prisma migrate deploy
-
-# Check migration status
-npx prisma migrate status
-```
-
----
-
-## 🌱 Database Seeding
-
-> 💡 **Modular Seeding System**: We've replaced the legacy monolithic seed file with a flexible, modular system. See the [Seeding Guide](./SEEDING_GUIDE.md) for complete details.
-
-### Quick Reference
-
-#### Basic Seeding
-
-```bash
-# Traditional way (still works)
-npx prisma db seed
-
-# Modular way (recommended)
-npx tsx prisma/seed-new.ts
-
-# Partial seeding
-npx tsx prisma/seed-new.ts --users-only
-npx tsx prisma/seed-new.ts --stories-only
-npx tsx prisma/seed-new.ts --clean
-```
-
-#### Test Users Created
-
-```typescript
-// alice@tourii.dev
-- Level: BONJIN
-- Magatama Points: 150
-- Role: USER
-
-// bob@tourii.dev
-- Level: E_CLASS_AMATSUKAMI
-- Magatama Points: 650
-- Role: USER
-
-// admin@tourii.dev
-- Level: C_CLASS_AMATSUKAMI
-- Magatama Points: 2500
-- Role: ADMIN
-```
-
-#### Sample Content
-
-- **Stories**: Prologue + Tokyo + Kyoto adventures
-- **Tourist Spots**: Shibuya Crossing, Tokyo Station, etc.
-- **Quests**: Photo challenges, Knowledge quizzes
-- **Discord Roles**: User, Moderator, Admin
-
-### Advanced Seeding
-
-#### Reset and Reseed
-
-```bash
-# Traditional reset
-npx prisma migrate reset --force
-npx prisma db seed
-
-# Modular reset
-npx tsx prisma/seed-new.ts --clean
-```
-
-#### Custom Seeding Templates
-
-```typescript
-// Modify USER_TEMPLATES in prisma/seed-new.ts
-const USER_TEMPLATES = {
-  alice: {
-    /* existing */
-  },
-  bob: {
-    /* existing */
-  },
-  admin: {
-    /* existing */
-  },
-
-  // Add your custom user
-  tester: {
-    username: 'tester',
-    email: 'test@tourii.dev',
-    role: UserRoleType.USER,
-    level: LevelType.BONJIN,
-    magatama_points: 1000,
-    is_premium: true,
-  },
-};
-```
-
-#### Seeding for Different Scenarios
-
-```bash
-# Development: Full setup
-npx tsx prisma/seed-new.ts
-
-# Testing: Users only
-npx tsx prisma/seed-new.ts --users-only
-
-# Content testing: Stories only
-npx tsx prisma/seed-new.ts --stories-only
-
-# Fresh start: Clean then seed
-npx tsx prisma/seed-new.ts --clean
-```
-
----
-
-## 🔍 Database Exploration
-
-### Prisma Studio (Recommended)
-
-```bash
-# Open visual database browser
-pnpm run prisma:studio
-
-# Navigate to: http://localhost:5555
-# Features:
-# - Browse all tables and data
-# - Edit records visually
-# - Run queries
-# - View relationships
-```
-
-### Command Line Access
-
-```bash
-# Connect to PostgreSQL directly
-docker-compose exec db psql -U touriibackenddev -d tourii_backend
-
-# Useful PostgreSQL commands
-\dt          # List all tables
-\d user      # Describe user table
-\q           # Quit
-```
-
-### Common Queries
-
+**Data Cleanup:**
 ```sql
--- Check user count
-SELECT COUNT(*) FROM "user";
+-- Soft delete cleanup (periodic maintenance)
+DELETE FROM user WHERE del_flag = true AND upd_date_time < now() - INTERVAL '90 days';
+DELETE FROM quest WHERE del_flag = true AND upd_date_time < INTERVAL '30 days';
+```
 
--- View user levels
-SELECT username, level, magatama_points
-FROM "user" u
-JOIN "user_info" ui ON u.user_id = ui.user_id;
+---
 
--- Memory feed preview
-SELECT * FROM memory_feed LIMIT 10;
+## 🔒 Security & Data Protection
 
--- Quest completion stats
-SELECT quest_name, COUNT(*) as completions
+### Row-Level Security
+
+**User Data Isolation:**
+```sql
+-- Ensure users can only access their own data
+CREATE POLICY user_isolation ON user_task_log
+  FOR ALL TO authenticated_users
+  USING (user_id = current_user_id());
+
+CREATE POLICY travel_log_isolation ON user_travel_log
+  FOR ALL TO authenticated_users
+  USING (user_id = current_user_id());
+```
+
+### Data Encryption
+
+**Sensitive Data Protection:**
+- **Passwords**: Bcrypt hashing with salt
+- **Private Keys**: AES-256 encryption with environment key
+- **PII Data**: Field-level encryption for sensitive information
+
+### Audit Trail
+
+**Request Tracking:**
+- **request_id**: Unique identifier for distributed tracing
+- **ins_user_id/upd_user_id**: User who created/modified records
+- **ins_date_time/upd_date_time**: Creation and modification timestamps
+
+---
+
+## 📈 Performance Considerations
+
+### Query Optimization
+
+**Common Query Patterns:**
+```sql
+-- User quest progress with location data
+SELECT 
+  q.quest_name,
+  ts.tourist_spot_name,
+  ts.latitude,
+  ts.longitude,
+  utl.status,
+  utl.completed_at
 FROM quest q
-JOIN user_task_log utl ON q.quest_id = utl.quest_id
-WHERE utl.status = 'COMPLETED'
-GROUP BY quest_name;
+JOIN tourist_spot ts ON q.tourist_spot_id = ts.tourist_spot_id
+LEFT JOIN user_task_log utl ON q.quest_id = utl.quest_id
+WHERE utl.user_id = $1
+  AND utl.status = 'COMPLETED'
+ORDER BY utl.completed_at DESC;
+
+-- Activity feed with pagination
+SELECT * FROM moment_view
+WHERE user_id = $1
+ORDER BY ins_date_time DESC
+LIMIT $2 OFFSET $3;
+```
+
+### Caching Strategy
+
+**Redis Implementation:**
+- **User Sessions**: 24-hour TTL
+- **Location Data**: 1-hour TTL for Google Places API results
+- **Quest Data**: 15-minute TTL for frequently accessed quests
+- **Leaderboards**: 5-minute TTL for dynamic rankings
+
+### Connection Management
+
+**Prisma Configuration:**
+```typescript
+// Connection pool settings
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+  log: ['query', 'info', 'warn', 'error'],
+});
+
+// Read replica support
+const prismaReadReplica = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_READ_URL,
+    },
+  },
+}).$extends(readReplicas({
+  url: process.env.DATABASE_READ_URL
+}));
 ```
 
 ---
 
-## 📝 SQL Views & Custom Objects
+## 🚨 Backup & Recovery
 
-### Memory Feed View
+### Backup Strategy
 
-The application uses a custom SQL view for activity feeds:
+**Automated Backups:**
+- **Daily**: Full database backup with 30-day retention
+- **Hourly**: Transaction log backup for point-in-time recovery
+- **Weekly**: Full backup with long-term storage (1 year retention)
 
-```sql
--- Located in: prisma/scripts/moment_view.sql
-CREATE VIEW memory_feed AS
-SELECT
-  user_id,
-  'TRAVEL' AS type,
-  tourist_spot_id AS related_id,
-  travel_distance,
-  ins_date_time AS created_at
-FROM user_travel_log
-UNION
-SELECT
-  user_id,
-  'QUEST',
-  quest_id,
-  NULL,
-  completed_at
-FROM user_task_log
-WHERE status = 'COMPLETED';
-```
-
-### Updating Views
-
+**Backup Commands:**
 ```bash
-# Drop and recreate views
-pnpm prisma db execute --file ./prisma/scripts/drop_view.sql
-pnpm prisma db execute --file ./prisma/scripts/moment_view.sql
-```
+# Manual backup
+pg_dump -h localhost -U username -d tourii_backend > backup_$(date +%Y%m%d).sql
 
----
-
-## 🛠️ Database Maintenance
-
-### Backup & Restore
-
-#### Create Backup
-
-```bash
-# Full database backup
-docker-compose exec db pg_dump -U touriibackenddev tourii_backend > backup_$(date +%Y%m%d).sql
-
-# Schema only backup
-docker-compose exec db pg_dump -U touriibackenddev --schema-only tourii_backend > schema_backup.sql
-
-# Data only backup
-docker-compose exec db pg_dump -U touriibackenddev --data-only tourii_backend > data_backup.sql
-```
-
-#### Restore Database
-
-```bash
 # Restore from backup
-docker-compose exec -T db psql -U touriibackenddev tourii_backend < backup_20250116.sql
-
-# Restore to new database
-docker-compose exec db createdb -U touriibackenddev tourii_backup
-docker-compose exec -T db psql -U touriibackenddev tourii_backup < backup_20250116.sql
+psql -h localhost -U username -d tourii_backend < backup_20250620.sql
 ```
 
-### Performance Monitoring
+### Disaster Recovery
 
+**Recovery Procedures:**
+1. **Point-in-Time Recovery**: Restore to specific timestamp
+2. **Cross-Region Replication**: Automated failover to secondary region
+3. **Data Validation**: Integrity checks after recovery
+4. **Application Testing**: Verify functionality post-recovery
+
+---
+
+## 🔍 Monitoring & Diagnostics
+
+### Database Health
+
+**Key Metrics:**
+- **Connection Pool**: Active/idle connections
+- **Query Performance**: Slow query identification
+- **Lock Contention**: Blocking queries and deadlocks
+- **Disk Usage**: Table and index size growth
+- **Cache Hit Ratio**: Buffer cache effectiveness
+
+**Monitoring Queries:**
 ```sql
--- Check table sizes
-SELECT
-  schemaname,
-  tablename,
-  pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables
-WHERE schemaname = 'public'
-ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
-
--- Check slow queries (if logging enabled)
-SELECT query, mean_time, calls
+-- Slow queries
+SELECT query, mean_time, calls, total_time
 FROM pg_stat_statements
 ORDER BY mean_time DESC
 LIMIT 10;
 
--- Active connections
-SELECT
-  pid,
-  usename,
-  application_name,
-  client_addr,
-  state,
-  query
+-- Connection status
+SELECT state, count(*)
 FROM pg_stat_activity
-WHERE state = 'active';
+GROUP BY state;
+
+-- Database size
+SELECT 
+  schemaname,
+  tablename,
+  pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+FROM pg_tables
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## 🚀 Future Considerations
 
-### Common Issues
+### Scalability Planning
 
-#### "Database does not exist"
+**Horizontal Scaling:**
+- **Read Replicas**: Distribute read traffic across multiple instances
+- **Database Sharding**: Partition data by geographic region or user segments
+- **Connection Pooling**: External connection pooler (PgBouncer) for high concurrency
 
-```bash
-# Check if container is running
-docker ps | grep postgres
+**Vertical Scaling:**
+- **Resource Optimization**: CPU, memory, and storage scaling
+- **Index Optimization**: Regular index maintenance and analysis
+- **Query Optimization**: Continuous performance monitoring and tuning
 
-# Restart container if needed
-cd etc/docker && docker-compose restart
+### Schema Evolution
 
-# Wait 10 seconds then retry
-pnpm run prisma:migrate:dev
-```
-
-#### "Migration failed"
-
-```bash
-# Check migration status
-npx prisma migrate status
-
-# Reset migrations (DESTRUCTIVE)
-npx prisma migrate reset
-
-# Re-run migrations
-pnpm run prisma:migrate:dev
-```
-
-#### "Prisma Client out of sync"
-
-```bash
-# Regenerate Prisma client
-npx prisma generate
-
-# If still fails, clear and reinstall
-rm -rf node_modules/.prisma
-pnpm install
-npx prisma generate
-```
-
-#### Connection Issues
-
-```bash
-# Test database connection
-docker-compose exec db psql -U touriibackenddev -d tourii_backend -c "SELECT 1;"
-
-# Check environment variables
-echo $DATABASE_URL
-
-# Verify container logs
-docker-compose logs db
-```
-
-### Data Validation
-
-#### Check Data Integrity
-
-```sql
--- Orphaned records
-SELECT COUNT(*) FROM user_task_log utl
-LEFT JOIN quest q ON utl.quest_id = q.quest_id
-WHERE q.quest_id IS NULL;
-
--- Invalid foreign keys
-SELECT COUNT(*) FROM story_chapter sc
-LEFT JOIN story s ON sc.story_id = s.story_id
-WHERE s.story_id IS NULL;
-```
-
-#### Clean Test Data
-
-```bash
-# Remove all seed data (keep schema)
-npx prisma migrate reset --skip-seed
-
-# Or manually clean specific tables
-```
+**Migration Strategy:**
+- **Blue-Green Deployments**: Zero-downtime schema changes
+- **Feature Flags**: Gradual rollout of database changes
+- **Backward Compatibility**: Maintain API compatibility during transitions
 
 ---
 
-## 📚 Advanced Operations
-
-### Schema Introspection
-
-```bash
-# Generate schema from existing database
-npx prisma db pull
-
-# Compare schemas
-npx prisma migrate diff \
-  --from-empty \
-  --to-schema-datamodel prisma/schema.prisma \
-  --script
-```
-
-### Custom Migrations
-
-```sql
--- Manual migration file example
--- prisma/migrations/20250116_custom/migration.sql
-
--- Add computed column
-ALTER TABLE "user_info"
-ADD COLUMN "completion_rate" DECIMAL GENERATED ALWAYS AS (
-  CASE
-    WHEN total_quest_completed = 0 THEN 0
-    ELSE (total_quest_completed::decimal / 100) * 100
-  END
-) STORED;
-
--- Create performance index
-CREATE INDEX CONCURRENTLY "idx_user_task_log_status_completed"
-ON "user_task_log"("status", "completed_at")
-WHERE status = 'COMPLETED';
-```
-
-### Data Migration Scripts
-
-```typescript
-// scripts/migrate-data.ts
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-async function migrateUserData() {
-  // Example: Update all user levels based on points
-  const users = await prisma.user.findMany({
-    include: { user_info: true },
-  });
-
-  for (const user of users) {
-    if (user.user_info?.magatama_points >= 1000) {
-      await prisma.user_info.update({
-        where: { user_id: user.user_id },
-        data: { level: 'E_CLASS_AMATSUKAMI' },
-      });
-    }
-  }
-}
-```
-
----
-
-## 🔗 Related Documentation
-
-- [Development Setup](./DEVELOPMENT_SETUP.md) - Initial environment setup
-- [Seeding Guide](./SEEDING_GUIDE.md) - Advanced seeding options and customization
-- [API Examples](./API_EXAMPLES.md) - Database queries via API
-- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
-- [Auto-generated DB Docs](../prisma/docs/tourii-db-docs.md) - Complete schema reference
-
----
-
-_Last Updated: June 18, 2025_
+_Last Updated: June 20, 2025_
