@@ -11,7 +11,6 @@ import {
     Param,
     ParseFloatPipe,
     Post,
-    Put,
     Query,
     Req,
     UploadedFile,
@@ -53,6 +52,10 @@ import {
     ModelRouteCreateRequestSchema,
 } from './model/tourii-request/create/model-route-create-request.model';
 import {
+    QrScanRequestDto,
+    QrScanRequestSchema,
+} from './model/tourii-request/create/qr-scan-request.model';
+import {
     QuestCreateRequestDto,
     QuestCreateRequestSchema,
 } from './model/tourii-request/create/quest-create-request.model';
@@ -64,10 +67,6 @@ import {
     QuestTaskSocialShareRequestDto,
     questTaskSocialShareRequestSchema,
 } from './model/tourii-request/create/quest-task-social-share-request.model';
-import {
-    QrScanRequestDto,
-    QrScanRequestSchema,
-} from './model/tourii-request/create/qr-scan-request.model';
 import {
     StoryActionRequestDto,
     StoryActionRequestSchema,
@@ -82,7 +81,9 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
+import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
 import {
     ChapterProgressRequestDto,
@@ -105,20 +106,13 @@ import {
     QuestUpdateRequestSchema,
 } from './model/tourii-request/update/quest-update-request.model';
 import {
-    StoryUpdateRequestDto,
-    StoryUpdateRequestSchema,
-} from './model/tourii-request/update/story-update-request.model';
-import {
-    TouristSpotUpdateRequestDto,
-    TouristSpotUpdateRequestSchema,
-} from './model/tourii-request/update/tourist-spot-update-request.model';
-
-import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
-import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
-import {
     StartGroupQuestRequestDto,
     StartGroupQuestRequestSchema,
 } from './model/tourii-request/update/start-group-quest-request.model';
+import {
+    StoryUpdateRequestDto,
+    StoryUpdateRequestSchema,
+} from './model/tourii-request/update/story-update-request.model';
 import {
     SubmitAnswerTextRequestTaskDto,
     SubmitAnswerTextTaskRequestSchema,
@@ -127,6 +121,15 @@ import {
     SubmitSelectOptionsTaskRequestDto,
     SubmitSelectOptionTaskRequestSchema,
 } from './model/tourii-request/update/submit-tasks-request.model';
+import {
+    TouristSpotUpdateRequestDto,
+    TouristSpotUpdateRequestSchema,
+} from './model/tourii-request/update/tourist-spot-update-request.model';
+import {
+    AdminUserListResponseDto,
+    AdminUserListResponseSchema,
+    AdminUserQueryDto,
+} from './model/tourii-response/admin/admin-user-list-response.model';
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -157,6 +160,10 @@ import {
     MomentResponseDto,
 } from './model/tourii-response/moment-response.model';
 import {
+    QrScanResponseDto,
+    QrScanResponseSchema,
+} from './model/tourii-response/qr-scan-response.model';
+import {
     QuestListResponseDto,
     QuestListResponseSchema,
 } from './model/tourii-response/quest-list-response.model';
@@ -174,10 +181,6 @@ import {
     QuestTaskSocialShareResponseDto,
     QuestTaskSocialShareResponseSchema,
 } from './model/tourii-response/quest-task-social-share-response.model';
-import {
-    QrScanResponseDto,
-    QrScanResponseSchema,
-} from './model/tourii-response/qr-scan-response.model';
 import {
     StartGroupQuestResponseDto,
     StartGroupQuestResponseSchema,
@@ -208,11 +211,6 @@ import {
     UserSensitiveInfoResponseDto,
     UserSensitiveInfoResponseSchema,
 } from './model/tourii-response/user/user-response.model';
-import {
-    AdminUserListResponseDto,
-    AdminUserListResponseSchema,
-    AdminUserQueryDto,
-} from './model/tourii-response/admin/admin-user-list-response.model';
 import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
@@ -390,7 +388,10 @@ export class TouriiBackendController {
 
     @Post('/auth/signup')
     @ApiTags('Auth')
-    @ApiOperation({ summary: 'User signup with wallet' })
+    @ApiOperation({
+        summary: 'User signup with wallet',
+        description: 'Create user account using wallet signature verification.',
+    })
     @ApiBody({
         description: 'Signup info',
         type: AuthSignupRequestDto,
@@ -420,7 +421,10 @@ export class TouriiBackendController {
 
     @Get('/user/me')
     @ApiTags('User')
-    @ApiOperation({ summary: "Get current user's basic profile" })
+    @ApiOperation({
+        summary: "Get current user's basic profile",
+        description: "Retrieve authenticated user's profile information.",
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     // TODO: Replace header-based userId retrieval with proper auth guard
@@ -519,7 +523,8 @@ export class TouriiBackendController {
     @ApiTags('Admin')
     @ApiOperation({
         summary: 'Get all users with pagination and filtering (Admin only)',
-        description: 'Retrieve all users with comprehensive details, pagination, and advanced filtering options for admin dashboard.',
+        description:
+            'Retrieve all users with comprehensive details, pagination, and advanced filtering options for admin dashboard.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -608,7 +613,8 @@ export class TouriiBackendController {
     @ApiTags('Admin')
     @ApiOperation({
         summary: 'Get pending task submissions for manual verification (Admin only)',
-        description: 'Retrieve photo upload, social share, and text answer submissions awaiting admin approval.',
+        description:
+            'Retrieve photo upload, social share, and text answer submissions awaiting admin approval.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -655,11 +661,12 @@ export class TouriiBackendController {
         });
     }
 
-    @Post('/admin/verify-submission')
+    @Post('/admin/submissions/:id/verify')
     @ApiTags('Admin')
     @ApiOperation({
         summary: 'Manually approve or reject task submission (Admin only)',
-        description: 'Admin endpoint to approve or reject pending photo/social share/text answer submissions.',
+        description:
+            'Admin endpoint to approve or reject pending photo/social share/text answer submissions.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -671,8 +678,8 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async verifySubmission(
+        @Param('id') userTaskLogId: string,
         @Body() body: {
-            userTaskLogId: string;
             action: 'approve' | 'reject';
             rejectionReason?: string;
         },
@@ -684,7 +691,7 @@ export class TouriiBackendController {
         }
 
         return this.touriiBackendService.verifyTaskSubmission(
-            body.userTaskLogId,
+            userTaskLogId,
             body.action,
             adminUserId,
             body.rejectionReason,
@@ -771,7 +778,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createStoryChapter(storyId, chapter);
     }
 
-    @Put('/stories/:storyId')
+    @Post('/stories/update-saga')
     @ApiTags('Stories')
     @ApiOperation({
         summary: 'Update Story Saga',
@@ -801,7 +808,6 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async updateStory(
-        @Param('storyId') storyId: string,
         @Body()
         saga: StoryUpdateRequestDto,
     ): Promise<StoryResponseDto> {
@@ -1091,7 +1097,7 @@ export class TouriiBackendController {
     // MODEL ROUTE ENDPOINTS
     // ==========================================
 
-    @Post('/routes/create-model-route')
+    @Post('/routes')
     @ApiTags('Routes')
     @ApiOperation({
         summary: 'Create Model Route',
@@ -1127,7 +1133,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createModelRoute(modelRoute);
     }
 
-    @Post('/routes/create-tourist-spot/:modelRouteId')
+    @Post('/routes/:routeId/tourist-spots')
     @ApiTags('Routes')
     @ApiOperation({
         summary: 'Create Tourist Spot',
@@ -1157,12 +1163,12 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async createTouristSpot(
-        @Param('modelRouteId')
-        modelRouteId: string,
+        @Param('routeId')
+        routeId: string,
         @Body()
         touristSpot: TouristSpotCreateRequestDto,
     ): Promise<TouristSpotResponseDto> {
-        return await this.touriiBackendService.createTouristSpot(touristSpot, modelRouteId);
+        return await this.touriiBackendService.createTouristSpot(touristSpot, routeId);
     }
 
     @Post('/routes/update-model-route')
@@ -1216,7 +1222,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.updateTouristSpot(touristSpot);
     }
 
-    @Delete('/routes/:modelRouteId')
+    @Delete('/routes/:routeId')
     @ApiTags('Routes')
     @ApiOperation({ summary: 'Delete Model Route', description: 'Delete an existing model route.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1225,11 +1231,11 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async deleteModelRoute(@Param('modelRouteId') modelRouteId: string): Promise<void> {
-        await this.touriiBackendService.deleteModelRoute(modelRouteId);
+    async deleteModelRoute(@Param('routeId') routeId: string): Promise<void> {
+        await this.touriiBackendService.deleteModelRoute(routeId);
     }
 
-    @Delete('/routes/tourist-spot/:touristSpotId')
+    @Delete('/routes/tourist-spots/:touristSpotId')
     @ApiTags('Routes')
     @ApiOperation({ summary: 'Delete Tourist Spot', description: 'Delete a tourist spot.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1328,7 +1334,7 @@ export class TouriiBackendController {
         return this.touriiBackendService.getModelRouteById(id);
     }
 
-    @Get('/location-info')
+    @Get('/locations/info')
     @ApiTags('Routes')
     @ApiOperation({
         summary: 'Get Location Info',
@@ -1543,7 +1549,7 @@ export class TouriiBackendController {
         );
     }
 
-    @Post('/quests/create-quest')
+    @Post('/quests')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1565,7 +1571,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createQuest(quest);
     }
 
-    @Post('/quests/create-task/:questId')
+    @Post('/quests/:questId/tasks')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1647,7 +1653,7 @@ export class TouriiBackendController {
         await this.touriiBackendService.deleteQuest(questId);
     }
 
-    @Delete('/quests/tasks/:taskId')
+    @Delete('/tasks/:taskId')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Delete Quest Task', description: 'Delete an individual quest task.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1715,23 +1721,29 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/photo-upload')
-    @UseInterceptors(FileInterceptor('file', {
-        limits: { 
-            fileSize: 10 * 1024 * 1024, // 10MB limit
-            files: 1 
-        },
-        fileFilter: (_req, file, cb) => {
-            // Only allow image files
-            if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp)$/)) {
-                return cb(new Error('Only JPEG, PNG, and WebP image files are allowed'), false);
-            }
-            cb(null, true);
-        }
-    }))
-    @ApiTags('Quest')
-    @ApiOperation({ summary: 'Upload task photo' })
+    @UseInterceptors(
+        FileInterceptor('file', {
+            limits: {
+                fileSize: 10 * 1024 * 1024, // 10MB limit
+                files: 1,
+            },
+            fileFilter: (_req, file, cb) => {
+                // Only allow image files
+                if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+                    return cb(new Error('Only JPEG, PNG, and WebP image files are allowed'), false);
+                }
+                cb(null, true);
+            },
+        }),
+    )
+    @ApiTags('Task')
+    @ApiOperation({
+        summary: 'Upload task photo',
+        description: 'Upload photo for photo submission task completion.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         description: 'Photo upload payload',
@@ -1755,12 +1767,23 @@ export class TouriiBackendController {
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, file);
+        
+        if (!file || !file.buffer) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
+        return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, {
+            buffer: file.buffer,
+            mimetype: file.mimetype,
+        });
     }
 
     @Post('/tasks/:taskId/social-share')
-    @ApiTags('Quest')
-    @ApiOperation({ summary: 'Complete social sharing task' })
+    @ApiTags('Task')
+    @ApiOperation({
+        summary: 'Complete social sharing task',
+        description: 'Submit social media proof URL for task completion.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
@@ -1796,10 +1819,10 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/qr-scan')
-    @ApiTags('Quest')
-    @ApiOperation({ 
-        summary: 'Complete QR scan task', 
-        description: 'Validate scanned QR code and complete the task if correct' 
+    @ApiTags('Task')
+    @ApiOperation({
+        summary: 'Complete QR scan task',
+        description: 'Validate scanned QR code and complete the task if correct',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1826,7 +1849,7 @@ export class TouriiBackendController {
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        
+
         return this.touriiBackendService.completeQrScanTask(
             taskId,
             userId,
@@ -1842,7 +1865,10 @@ export class TouriiBackendController {
 
     @Get('/moments')
     @ApiTags('Moment')
-    @ApiOperation({ summary: 'Get latest moments', description: 'Latest traveler moments' })
+    @ApiOperation({
+        summary: 'Get latest moments',
+        description: 'Retrieve latest traveler moments and activities.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
@@ -1890,9 +1916,13 @@ export class TouriiBackendController {
 
     @Post('/tasks/:taskId/answer-text')
     @ApiTags('Task')
-    @ApiOperation({ summary: 'Submit answer text task' })
+    @ApiOperation({
+        summary: 'Submit answer text task',
+        description: 'Submit text answer for text-based task completion.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiBody({
         description: 'Submit answer text task request',
         type: SubmitAnswerTextRequestTaskDto,
@@ -1910,16 +1940,22 @@ export class TouriiBackendController {
     async submitAnswerTextTask(
         @Param('taskId') taskId: string,
         @Body() payload: SubmitAnswerTextRequestTaskDto,
+        @Req() req: Request,
     ): Promise<SubmitTaskResponseDto> {
-        const { answer, userId } = payload;
+        const { answer } = payload;
+        const userId = req.headers['x-user-id'] as string;
         return await this.touriiBackendService.submitAnswerTextTask(taskId, answer, userId);
     }
 
     @Post('/tasks/:taskId/select-option')
     @ApiTags('Task')
-    @ApiOperation({ summary: 'Submit select option task' })
+    @ApiOperation({
+        summary: 'Submit select option task',
+        description: 'Submit selected options for multiple choice task completion.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiBody({
         description: 'Submit select option task request',
         type: SubmitSelectOptionsTaskRequestDto,
@@ -1937,8 +1973,10 @@ export class TouriiBackendController {
     async submitSelectOptionTask(
         @Param('taskId') taskId: string,
         @Body() payload: SubmitSelectOptionsTaskRequestDto,
+        @Req() req: Request,
     ): Promise<SubmitTaskResponseDto> {
-        const { selectedOptionIds, userId } = payload;
+        const { selectedOptionIds } = payload;
+        const userId = req.headers['x-user-id'] as string;
         return await this.touriiBackendService.submitSelectOptionTask(
             taskId,
             selectedOptionIds,
@@ -1948,9 +1986,13 @@ export class TouriiBackendController {
 
     @Post('/tasks/:taskId/checkin')
     @ApiTags('Task')
-    @ApiOperation({ summary: 'Submit checkin task' })
+    @ApiOperation({
+        summary: 'Submit checkin task',
+        description: 'Submit location coordinates for check-in task completion.',
+    })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiBody({
         description: 'Submit checkin task request',
         type: SubmitCheckInTaskRequestDto,
@@ -1968,8 +2010,10 @@ export class TouriiBackendController {
     async submitCheckInTask(
         @Param('taskId') taskId: string,
         @Body() payload: SubmitCheckInTaskRequestDto,
+        @Req() req: Request,
     ): Promise<SubmitTaskResponseDto> {
-        const { longitude, latitude, userId } = payload;
+        const { longitude, latitude } = payload;
+        const userId = req.headers['x-user-id'] as string;
         return await this.touriiBackendService.submitCheckInTask(
             taskId,
             longitude,

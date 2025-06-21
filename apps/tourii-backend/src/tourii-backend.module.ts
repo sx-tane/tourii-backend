@@ -8,6 +8,7 @@ import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/mode
 import { MomentRepositoryDb } from '@app/core/infrastructure/datasource/moment.repository-db';
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
+import { TaskRepositoryDb } from '@app/core/infrastructure/datasource/task-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
 import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/user-story-log.repository-db';
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
@@ -40,7 +41,6 @@ import { TouriiBackendContextProvider } from './support/context/tourii-backend-c
 import { SecurityMiddleware } from './support/middleware/security.middleware';
 import { TouriiBackendApiMiddleware } from './support/tourii-backend-api-middleware';
 import { TouriiBackendConstants } from './tourii-backend.constant';
-import { TaskRepositoryDb } from '@app/core/infrastructure/datasource/task-repository-db';
 
 /**
  * Main module for the Tourii Backend application

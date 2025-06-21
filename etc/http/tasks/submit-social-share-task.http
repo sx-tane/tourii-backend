@@ -1,0 +1,203 @@
+### Submit Social Share Task - Twitter/X Post
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{twitterUrl}}"
+}
+
+### Submit Social Share Task - Instagram Post
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{instagramUrl}}"
+}
+
+### Submit Social Share Task - Facebook Post
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{facebookUrl}}"
+}
+
+### Submit Social Share Task - With Location (Twitter)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{twitterUrl}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit Social Share Task - With Location (Instagram)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{instagramUrl}}",
+  "latitude": {{tokyoLatitude}},
+  "longitude": {{tokyoLongitude}}
+}
+
+### Submit Social Share Task - Custom Social Platform
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://linkedin.com/posts/activity-1234567890"
+}
+
+### Submit Social Share Task - TikTok Video
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://tiktok.com/@user/video/1234567890"
+}
+
+### Submit Social Share Task - YouTube Video
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://youtube.com/watch?v=abc123def456"
+}
+
+### Submit Social Share Task - Reddit Post
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "https://reddit.com/r/travel/comments/abc123/my_amazing_trip/"
+}
+
+### Submit Social Share Task - Invalid URL (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "not-a-valid-url"
+}
+
+### Submit Social Share Task - Empty URL (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": ""
+}
+
+### Submit Social Share Task - Missing Proof URL (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit Social Share Task - Invalid Coordinates (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{twitterUrl}}",
+  "latitude": 91.0,
+  "longitude": 181.0
+}
+
+### Submit Social Share Task - Missing User ID (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+
+{
+  "proofUrl": "{{twitterUrl}}"
+}
+
+### Submit Social Share Task - Invalid Task ID (should fail)
+POST {{baseUrl}}/tasks/invalid-task-id/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{twitterUrl}}"
+}
+
+### Submit Social Share Task - Unauthorized (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "{{twitterUrl}}"
+}
+
+### Submit Social Share Task - Malicious URL (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "javascript:alert('xss')"
+}
+
+### Submit Social Share Task - Local File URL (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/social-share
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "proofUrl": "file:///etc/passwd"
+}

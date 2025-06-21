@@ -1,0 +1,125 @@
+### Get All Pending Submissions (Admin)
+
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@adminUserId = 1234567890
+@userId = 1234567890
+
+GET {{baseUrl}}/admin/pending-submissions
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Photo Upload Submissions (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=PHOTO_UPLOAD
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Social Share Submissions (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=SHARE_SOCIAL
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Text Answer Submissions (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=ANSWER_TEXT
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions with Pagination (Admin)
+GET {{baseUrl}}/admin/pending-submissions?page=1&limit=10
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Page 2 (Admin)
+GET {{baseUrl}}/admin/pending-submissions?page=2&limit=5
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Photo Uploads - Large Page Size (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=PHOTO_UPLOAD&page=1&limit=50
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Social Shares - Small Page Size (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=SHARE_SOCIAL&page=1&limit=2
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Text Answers - Medium Page Size (Admin)
+GET {{baseUrl}}/admin/pending-submissions?taskType=ANSWER_TEXT&page=1&limit=20
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Maximum Page Size (Admin)
+GET {{baseUrl}}/admin/pending-submissions?page=1&limit=100
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Page 0 (should default to 1)
+GET {{baseUrl}}/admin/pending-submissions?page=0&limit=10
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Negative Page (should default to 1)
+GET {{baseUrl}}/admin/pending-submissions?page=-1&limit=10
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Limit 0 (should default to 1)
+GET {{baseUrl}}/admin/pending-submissions?page=1&limit=0
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Oversized Limit (should cap at 100)
+GET {{baseUrl}}/admin/pending-submissions?page=1&limit=200
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Invalid Task Type (should fail)
+GET {{baseUrl}}/admin/pending-submissions?taskType=INVALID_TYPE
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Missing User ID (should fail)
+GET {{baseUrl}}/admin/pending-submissions
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+
+### Get Pending Submissions - Invalid API Key (should fail)
+GET {{baseUrl}}/admin/pending-submissions
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - Non-Admin User (should fail)
+GET {{baseUrl}}/admin/pending-submissions
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+### Get Pending Submissions - String Page Number (edge case)
+GET {{baseUrl}}/admin/pending-submissions?page=abc&limit=10
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+### Get Pending Submissions - String Limit (edge case)
+GET {{baseUrl}}/admin/pending-submissions?page=1&limit=xyz
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}

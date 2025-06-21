@@ -348,8 +348,8 @@ All endpoints require these headers:
 
 | Method   | Endpoint                                | Description                    |
 | -------- | --------------------------------------- | ------------------------------ |
-| `POST`   | `/stories/create-saga`                  | Create story saga              |
-| `POST`   | `/stories/create-chapter/:storyId`      | Create story chapter           |
+| `POST`   | `/stories`                              | Create story saga              |
+| `POST`   | `/stories/:storyId/chapters`            | Create story chapter           |
 | `POST`   | `/stories/update-saga`                  | Update story saga              |
 | `POST`   | `/stories/update-chapter`               | Update story chapter           |
 | `GET`    | `/stories/sagas`                        | Get all story sagas            |
@@ -362,16 +362,16 @@ All endpoints require these headers:
 
 | Method   | Endpoint                                    | Description                          |
 | -------- | ------------------------------------------- | ------------------------------------ |
-| `POST`   | `/routes/create-model-route`                | Create model route                   |
-| `POST`   | `/routes/create-tourist-spot/:modelRouteId` | Create tourist spot                  |
+| `POST`   | `/routes`                                   | Create model route                   |
+| `POST`   | `/routes/:routeId/tourist-spots`            | Create tourist spot                  |
 | `POST`   | `/routes/update-model-route`                | Update model route                   |
 | `POST`   | `/routes/update-tourist-spot`               | Update tourist spot                  |
 | `GET`    | `/routes`                                   | Get all model routes                 |
 | `GET`    | `/routes/:id`                               | Get model route by ID                |
 | `GET`    | `/routes/tourist-spots/:storyChapterId`     | Get tourist spots by chapter         |
-| `GET`    | `/location-info`                            | Get location info with Google Places |
-| `DELETE` | `/routes/:modelRouteId`                     | Delete model route                   |
-| `DELETE` | `/routes/tourist-spot/:touristSpotId`       | Delete tourist spot                  |
+| `GET`    | `/locations/info`                           | Get location info with Google Places |
+| `DELETE` | `/routes/:routeId`                          | Delete model route                   |
+| `DELETE` | `/routes/tourist-spots/:touristSpotId`      | Delete tourist spot                  |
 
 #### 🎯 Quests & Tasks
 
@@ -380,16 +380,18 @@ All endpoints require these headers:
 | `GET`    | `/quests`                             | Get quests with pagination & filters |
 | `GET`    | `/quests/:questId`                    | Get quest by ID                      |
 | `GET`    | `/quests/tourist-spot/:touristSpotId` | Get quests by tourist spot           |
-| `POST`   | `/quests/create-quest`                | Create new quest                     |
-| `POST`   | `/quests/create-task/:questId`        | Create quest task                    |
+| `POST`   | `/quests`                             | Create new quest                     |
+| `POST`   | `/quests/:questId/tasks`              | Create quest task                    |
 | `POST`   | `/quests/update-quest`                | Update quest                         |
 | `POST`   | `/quests/update-task`                 | Update quest task                    |
-| `POST`   | `/quests/tasks/:taskId/photo-upload`  | Upload task photo with validation    |
-| `POST`   | `/quests/tasks/:taskId/qr-scan`       | Complete QR scan task with location verification |
-| `POST`   | `/quests/tasks/:taskId/social-share`  | Complete social sharing task with platform verification |
-| `POST`   | `/quests/tasks/:taskId/response`      | Submit task response (text/multiple choice) |
+| `POST`   | `/tasks/:taskId/photo-upload`         | Upload task photo with validation    |
+| `POST`   | `/tasks/:taskId/qr-scan`              | Complete QR scan task with location verification |
+| `POST`   | `/tasks/:taskId/social-share`         | Complete social sharing task with platform verification |
+| `POST`   | `/tasks/:taskId/answer-text`          | Submit text answer task              |
+| `POST`   | `/tasks/:taskId/select-option`        | Submit multiple choice task          |
+| `POST`   | `/tasks/:taskId/checkin`              | Submit check-in task                 |
 | `DELETE` | `/quests/:questId`                    | Delete quest                         |
-| `DELETE` | `/quests/tasks/:taskId`               | Delete quest task                    |
+| `DELETE` | `/tasks/:taskId`                      | Delete quest task                    |
 
 #### 👥 Group Quests
 
@@ -457,7 +459,7 @@ All endpoints require these headers:
 - `questType`: Filter by quest type (SOLO, GROUP, etc.)
 - `userId`: User ID for personalized results
 
-#### Location Search (`/location-info`) - Cost-Optimized
+#### Location Search (`/locations/info`) - Cost-Optimized
 
 - `query`: Place name or search query (required)
 - `latitude`: Latitude for location bias  

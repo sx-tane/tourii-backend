@@ -1751,12 +1751,30 @@ export class TouriiBackendService {
                 });
 
                 if (locationDetection && locationDetection.nearbyTouristSpots.length > 0) {
+                    this.logger.debug(
+                        `Found ${locationDetection.nearbyTouristSpots.length} nearby tourist spots:`,
+                        {
+                            spots: locationDetection.nearbyTouristSpots.map((spot) => ({
+                                touristSpotId: spot.touristSpotId,
+                                taskId: spot.taskId,
+                                questId: spot.questId,
+                                distance: spot.distance,
+                            })),
+                            searchingForTaskId: taskId,
+                        },
+                    );
+
                     // Find the matching tourist spot for this task
                     const matchingSpot = locationDetection.nearbyTouristSpots.find(
                         (spot) => spot.taskId === taskId,
                     );
 
                     if (matchingSpot) {
+                        this.logger.debug(
+                            `Found matching tourist spot for task ${taskId}:`,
+                            matchingSpot,
+                        );
+
                         // Auto-create travel log for detected location
                         try {
                             await this.locationTrackingService.createAutoDetectedTravelLog({
@@ -1775,13 +1793,21 @@ export class TouriiBackendService {
                             });
 
                             this.logger.log(
-                                `Auto-detected location for photo upload: ${detectedLocation.latitude}, ${detectedLocation.longitude}`,
+                                `Successfully created auto-detected travel log for photo upload: ${detectedLocation.latitude}, ${detectedLocation.longitude}`,
                             );
                         } catch (error) {
                             this.logger.warn('Failed to create auto-detected travel log', error);
                             // Don't fail the photo upload if travel log creation fails
                         }
+                    } else {
+                        this.logger.warn(
+                            `No matching tourist spot found for task ${taskId}. Found spots belong to other tasks.`,
+                        );
                     }
+                } else {
+                    this.logger.debug(
+                        `No nearby tourist spots found within 1km of coordinates ${detectedLocation.latitude}, ${detectedLocation.longitude}`,
+                    );
                 }
             }
         } catch (error) {
@@ -2113,7 +2139,7 @@ export class TouriiBackendService {
     ): Promise<SubmitTaskResponseDto> {
         // Submit for manual verification instead of auto-completing
         await this.userTaskLogRepository.submitTextTaskForVerification(userId, taskId, answer);
-        
+
         return {
             success: true,
             message: 'Text answer submitted successfully and pending admin verification',

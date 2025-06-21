@@ -1,0 +1,303 @@
+### Submit Check-in Task - Fukoji Temple Location
+
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@userId = 1234567890
+@taskId = TSK202506-689f0d-141504-c54ed3-BAAA
+@longitude = 131.4566312
+@latitude = 33.0544884
+
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": {{latitude}}}
+
+### Submit Check-in Task - Tokyo Location
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{tokyoLongitude}},
+  "latitude": {{tokyoLatitude}}}
+
+### Submit Check-in Task - Tourist Spot Location
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 131.4566312,
+  "latitude": 33.0544884}
+
+### Submit Check-in Task - Mountain Location (Mount Fuji)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 138.7274,
+  "latitude": 35.3606}
+
+### Submit Check-in Task - Beach Location
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 140.1233,
+  "latitude": 36.3418}
+
+### Submit Check-in Task - High Precision GPS
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 131.4300837123,
+  "latitude": 32.9848782456}
+
+### Submit Check-in Task - Urban Center (Shibuya Crossing)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 139.7006,
+  "latitude": 35.6598}
+
+### Submit Check-in Task - Historical Site (Kyoto Kinkaku-ji)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 135.7292,
+  "latitude": 35.0394}
+
+### Submit Check-in Task - Remote Island Location
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 139.7673,
+  "latitude": 24.3365}
+
+### Submit Check-in Task - Edge Case - Equator
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 0.0,
+  "latitude": 0.0}
+
+### Submit Check-in Task - Edge Case - North Pole
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 0.0,
+  "latitude": 90.0}
+
+### Submit Check-in Task - Edge Case - South Pole
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 0.0,
+  "latitude": -90.0}
+
+### Submit Check-in Task - International Date Line
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 180.0,
+  "latitude": 60.0}
+
+### Submit Check-in Task - Prime Meridian
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 0.0,
+  "latitude": 51.4778}
+
+### Submit Check-in Task - Negative Coordinates (Southern Hemisphere)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 151.2093,
+  "latitude": -33.8688}
+
+### Submit Check-in Task - Invalid Longitude Too High (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": 181.0,
+  "latitude": {{latitude}}}
+
+### Submit Check-in Task - Invalid Longitude Too Low (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": -181.0,
+  "latitude": {{latitude}}}
+
+### Submit Check-in Task - Invalid Latitude Too High (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": 91.0}
+
+### Submit Check-in Task - Invalid Latitude Too Low (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": -91.0}
+
+### Submit Check-in Task - Missing Coordinates (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+}
+
+### Submit Check-in Task - Missing Longitude (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "latitude": {{latitude}}}
+
+### Submit Check-in Task - Missing Latitude (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}}}
+
+### Submit Check-in Task - Missing User ID in Body (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": {{latitude}}
+}
+
+### Submit Check-in Task - Invalid Task ID (should fail)
+POST {{baseUrl}}/tasks/invalid-task-id/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": {{latitude}}}
+
+### Submit Check-in Task - String Coordinates (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": "{{longitude}}",
+  "latitude": "{{latitude}}"}
+
+### Submit Check-in Task - Null Coordinates (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": null,
+  "latitude": null}
+
+### Submit Check-in Task - Unauthorized (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/checkin
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "longitude": {{longitude}},
+  "latitude": {{latitude}}}

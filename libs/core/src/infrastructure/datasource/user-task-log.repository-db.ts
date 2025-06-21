@@ -69,20 +69,24 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         });
     }
 
-    async completeQrScanTask(userId: string, taskId: string, qrCodeValue: string): Promise<{ questId: string; magatama_point_awarded: number }> {
+    async completeQrScanTask(
+        userId: string,
+        taskId: string,
+        qrCodeValue: string,
+    ): Promise<{ questId: string; magatama_point_awarded: number }> {
         // Use transaction for atomic operations and better performance
         return await this.prisma.$transaction(async (tx) => {
             // Get task info
             const task = await tx.quest_task.findUnique({
                 where: { quest_task_id: taskId },
-                select: { 
-                    quest_id: true, 
+                select: {
+                    quest_id: true,
                     task_type: true,
                     required_action: true,
                     magatama_point_awarded: true,
                 },
             });
-            
+
             if (!task) {
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
             }
@@ -117,13 +121,16 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
             try {
                 const requiredAction = JSON.parse(task.required_action);
                 expectedQrCode = requiredAction.qr_code_value;
-            } catch (error) {
+            } catch (_error) {
                 await randomDelay(15, 45); // Add delay to prevent timing analysis
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_033);
             }
 
             // Use constant-time comparison to prevent timing attacks
-            if (!expectedQrCode || !constantTimeStringCompare(qrCodeValue.trim(), expectedQrCode.trim())) {
+            if (
+                !expectedQrCode ||
+                !constantTimeStringCompare(qrCodeValue.trim(), expectedQrCode.trim())
+            ) {
                 await randomDelay(15, 45); // Add delay to prevent timing analysis
                 throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_031);
             }
@@ -154,7 +161,11 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
     }
 
     // Manual verification methods (current implementation)
-    async submitPhotoTaskForVerification(userId: string, taskId: string, proofUrl: string): Promise<void> {
+    async submitPhotoTaskForVerification(
+        userId: string,
+        taskId: string,
+        proofUrl: string,
+    ): Promise<void> {
         const task = await this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
             select: { quest_id: true },
@@ -182,7 +193,11 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         });
     }
 
-    async submitSocialTaskForVerification(userId: string, taskId: string, proofUrl: string): Promise<void> {
+    async submitSocialTaskForVerification(
+        userId: string,
+        taskId: string,
+        proofUrl: string,
+    ): Promise<void> {
         const task = await this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
             select: { quest_id: true },
@@ -210,7 +225,11 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         });
     }
 
-    async submitTextTaskForVerification(userId: string, taskId: string, textAnswer: string): Promise<void> {
+    async submitTextTaskForVerification(
+        userId: string,
+        taskId: string,
+        textAnswer: string,
+    ): Promise<void> {
         const task = await this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
             select: { quest_id: true },
@@ -244,11 +263,11 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
     }) {
         const offset = (options.page - 1) * options.limit;
-        
+
         const whereClause = {
             status: TaskStatus.ONGOING,
-            action: options.taskType 
-                ? { equals: options.taskType as TaskType } 
+            action: options.taskType
+                ? { equals: options.taskType as TaskType }
                 : { in: [TaskType.PHOTO_UPLOAD, TaskType.SHARE_SOCIAL, TaskType.ANSWER_TEXT] },
         };
 
@@ -266,7 +285,7 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         ]);
 
         return {
-            submissions: submissions.map(submission => ({
+            submissions: submissions.map((submission) => ({
                 userTaskLogId: submission.user_task_log_id,
                 userId: submission.user_id,
                 username: (submission.user as any)?.username || 'Unknown',

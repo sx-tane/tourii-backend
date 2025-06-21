@@ -1,4 +1,4 @@
-POST http://localhost:4000/routes/create-tourist-spot/MRT202506-2fd478-071420-09930a-EAAA
+POST http://localhost:4000/routes/MRT202506-2fd478-071420-09930a-EAAA/tourist-spots
 Content-Type: application/json
 x-api-key: your-api-key-2       
 accept-version: 1.0.0

@@ -1,0 +1,266 @@
+### Approve Photo Upload Submission (Admin)
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@adminUserId = 1234567890
+@userId = 1234567890
+
+POST {{baseUrl}}/admin/submissions/UTL202506-50e2ed-212343-e2b0fb-BAAA/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Approve Social Share Submission (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-social-123456-002/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Approve Text Answer Submission (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-text-123456-003/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Reject Photo Upload - Quality Issues (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-004/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Photo quality is too low - image is blurry and doesn't clearly show the required location"
+}
+
+### Reject Social Share - Inappropriate Content (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-social-123456-005/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Post content does not meet community guidelines - contains inappropriate language"
+}
+
+### Reject Text Answer - Insufficient Detail (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-text-123456-006/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Answer is too brief and lacks sufficient detail to demonstrate understanding of the historical significance"
+}
+
+### Reject Photo Upload - Wrong Location (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-007/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Photo does not match the required quest location - shows different temple/building"
+}
+
+### Reject Social Share - Spam Content (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-social-123456-008/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Content appears to be spam or copied from another source without proper attribution"
+}
+
+### Reject Text Answer - Off-topic (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-text-123456-009/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Answer does not address the question and appears to be unrelated to the quest topic"
+}
+
+### Reject Photo Upload - Privacy Violation (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-010/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Photo contains identifiable individuals without consent - violates privacy policy"
+}
+
+### Reject Social Share - Broken Link (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-social-123456-011/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "userTaskLogId": "UTL202506-social-123456-011",
+  "action": "reject",
+  "rejectionReason": "Provided social media link is broken or inaccessible for verification"
+}
+
+### Reject Text Answer - Plagiarism (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-text-123456-012/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "Answer appears to be copied directly from Wikipedia or other sources without original thought"
+}
+
+### Approve with Additional Notes (Admin)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-013/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Invalid Task Log ID (should fail)
+POST {{baseUrl}}/admin/submissions/invalid-task-log-id/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Invalid Action (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-001/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "invalid_action"
+}
+
+### Verify Submission - Missing Action (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-001/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+}
+
+### Verify Submission - Missing Task Log ID (should fail)
+POST {{baseUrl}}/admin/submissions/missing-id/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Empty Request Body (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-empty/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+}
+
+### Verify Submission - Reject Without Reason (should work)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-014/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject"
+}
+
+### Verify Submission - Non-Admin User (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-001/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Missing User ID (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-001/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Unauthorized Access (should fail)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-001/verify
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "approve"
+}
+
+### Verify Submission - Extremely Long Rejection Reason (edge case)
+POST {{baseUrl}}/admin/submissions/UTL202506-photo-123456-015/verify
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{adminUserId}}
+
+{
+  "action": "reject",
+  "rejectionReason": "This is an extremely long rejection reason that tests the system's ability to handle lengthy text inputs for admin feedback. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The photo quality is insufficient for verification purposes and does not meet the minimum standards required for quest completion approval."
+}

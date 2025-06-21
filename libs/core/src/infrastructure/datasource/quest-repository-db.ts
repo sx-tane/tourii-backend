@@ -340,7 +340,7 @@ export class QuestRepositoryDb implements QuestRepository {
             return [];
         }
 
-        const popularQuestIds = topQuests.map(quest => quest.quest_id);
+        const popularQuestIds = topQuests.map((quest) => quest.quest_id);
 
         const questsDb = await this.prisma.quest.findMany({
             where: { quest_id: { in: popularQuestIds } },
@@ -348,8 +348,8 @@ export class QuestRepositoryDb implements QuestRepository {
         });
 
         // Create a map to maintain the order based on popularity
-        const questMap = new Map(questsDb.map(quest => [quest.quest_id, quest]));
-        
+        const questMap = new Map(questsDb.map((quest) => [quest.quest_id, quest]));
+
         const orderedQuests: QuestWithTasks[] = [];
         for (const questId of popularQuestIds) {
             const quest = questMap.get(questId);
@@ -366,110 +366,108 @@ export class QuestRepositoryDb implements QuestRepository {
                     () => Promise.resolve(quest),
                     CACHE_TTL_SECONDS,
                 );
-            })
+            }),
         );
 
         return cachedQuests
             .filter((quest): quest is QuestWithTasks => quest !== null)
-            .map(quest => QuestMapper.prismaModelToQuestEntity(quest));
+            .map((quest) => QuestMapper.prismaModelToQuestEntity(quest));
     }
 
     async findNearbyTouristSpots(
         latitude: number,
         longitude: number,
         radiusKm: number,
-    ): Promise<Array<{
-        touristSpotId: string;
-        distance: number;
-        questId?: string;
-        taskId?: string;
-    }>> {
+    ): Promise<
+        Array<{
+            touristSpotId: string;
+            distance: number;
+            questId?: string;
+            taskId?: string;
+        }>
+    > {
         try {
             this.logger.log(
                 `Searching for tourist spots near ${latitude}, ${longitude} within ${radiusKm}km`,
             );
 
-            // Use Haversine formula to calculate distance in SQL
-            // The formula: 6371 * acos(cos(radians(lat1)) * cos(radians(lat2)) * cos(radians(lng2) - radians(lng1)) + sin(radians(lat1)) * sin(radians(lat2)))
-            const nearbySpots = await this.prisma.$queryRaw<Array<{
-                tourist_spot_id: string;
-                quest_id: string | null;
-                task_id: string | null;
-                distance: number;
-                tourist_spot_name: string;
-                latitude: number;
-                longitude: number;
-            }>>`
-                WITH nearby_spots AS (
-                    SELECT 
-                        ts.tourist_spot_id,
-                        ts.tourist_spot_name,
-                        ts.latitude,
-                        ts.longitude,
-                        (6371 * acos(
-                            cos(radians(${latitude})) * 
-                            cos(radians(ts.latitude)) * 
-                            cos(radians(ts.longitude) - radians(${longitude})) + 
-                            sin(radians(${latitude})) * 
-                            sin(radians(ts.latitude))
-                        )) AS distance
-                    FROM tourist_spot ts
-                    WHERE (6371 * acos(
-                        cos(radians(${latitude})) * 
-                        cos(radians(ts.latitude)) * 
-                        cos(radians(ts.longitude) - radians(${longitude})) + 
-                        sin(radians(${latitude})) * 
-                        sin(radians(ts.latitude))
-                    )) <= ${radiusKm}
-                )
-                SELECT 
-                    ns.tourist_spot_id,
-                    ns.distance,
-                    ns.tourist_spot_name,
-                    ns.latitude,
-                    ns.longitude,
-                    q.quest_id,
-                    qt.quest_task_id as task_id
-                FROM nearby_spots ns
-                LEFT JOIN quest q ON q.tourist_spot_id = ns.tourist_spot_id
-                LEFT JOIN quest_task qt ON qt.quest_id = q.quest_id
-                ORDER BY ns.distance ASC
-            `;
+            // Get all tourist spots and calculate distance
+            const touristSpots = await this.prisma.tourist_spot.findMany({
+                include: {
+                    quest: {
+                        include: {
+                            quest_task: true,
+                        },
+                    },
+                },
+            });
 
-            this.logger.log(
-                `Found ${nearbySpots.length} tourist spots/tasks within ${radiusKm}km radius`,
-            );
+            const results = [];
 
-            // Group by tourist spot to avoid duplicates and get the closest quest/task for each spot
-            const spotMap = new Map<string, {
-                touristSpotId: string;
-                distance: number;
-                questId?: string;
-                taskId?: string;
-            }>();
+            for (const spot of touristSpots) {
+                // Calculate distance using Haversine formula
+                const distance = this.calculateDistance(
+                    latitude,
+                    longitude,
+                    spot.latitude,
+                    spot.longitude,
+                );
 
-            for (const spot of nearbySpots) {
-                const key = spot.tourist_spot_id;
-                if (!spotMap.has(key) || spotMap.get(key)!.distance > spot.distance) {
-                    spotMap.set(key, {
-                        touristSpotId: spot.tourist_spot_id,
-                        distance: spot.distance,
-                        questId: spot.quest_id || undefined,
-                        taskId: spot.task_id || undefined,
-                    });
+                // Only include spots within the radius
+                if (distance <= radiusKm) {
+                    // Add each quest/task combination for this tourist spot
+                    for (const quest of spot.quest) {
+                        for (const task of quest.quest_task) {
+                            results.push({
+                                touristSpotId: spot.tourist_spot_id,
+                                distance: distance,
+                                questId: quest.quest_id,
+                                taskId: task.quest_task_id,
+                            });
+                        }
+                    }
+
+                    // If no quests/tasks, still include the tourist spot
+                    if (spot.quest.length === 0) {
+                        results.push({
+                            touristSpotId: spot.tourist_spot_id,
+                            distance: distance,
+                            questId: undefined,
+                            taskId: undefined,
+                        });
+                    }
                 }
             }
 
-            const result = Array.from(spotMap.values()).sort((a, b) => a.distance - b.distance);
+            // Sort by distance
+            results.sort((a, b) => a.distance - b.distance);
 
             this.logger.log(
-                `Returning ${result.length} unique tourist spots with distances: ${result.map(r => `${r.touristSpotId}(${r.distance.toFixed(3)}km)`).join(', ')}`,
+                `Found ${results.length} quest/task combinations within ${radiusKm}km radius`,
             );
 
-            return result;
+            return results;
         } catch (error) {
             this.logger.error('Error finding nearby tourist spots', error);
             return [];
         }
+    }
+
+    private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = this.deg2rad(lat2 - lat1);
+        const dLon = this.deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.deg2rad(lat1)) *
+                Math.cos(this.deg2rad(lat2)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in kilometers
+    }
+
+    private deg2rad(deg: number): number {
+        return deg * (Math.PI / 180);
     }
 }

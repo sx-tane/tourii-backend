@@ -586,12 +586,17 @@ R2_BUCKET=tourii-production
 /health-check                    # System health
 /auth/signup                     # Authentication
 /user/me                         # User profile
-/stories/sagas                   # Content management
-/quests/{id}                     # Quest system
-/routes/{id}                     # Location management
+/stories                         # Story creation
+/stories/sagas                   # Story management  
+/quests                          # Quest creation
+/quests/{id}                     # Quest management
+/routes                          # Route creation
+/routes/{id}                     # Route management
+/tasks/{id}/*                    # Task operations
+/locations/info                  # Location services
 /moments                         # Activity feeds
 /admin/users                     # Admin user management
-/admin/pending-submissions       # Admin task verification
+/admin/submissions/*             # Admin task verification
 ```
 
 ### Request/Response Format

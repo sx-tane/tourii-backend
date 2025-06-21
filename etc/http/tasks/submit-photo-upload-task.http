@@ -1,0 +1,153 @@
+### Submit Photo Upload Task - JPG Image
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@userId = TSU202506-810e69-212336-3e1b94-BAAA
+@taskId = TSK202506-8b4c96-212342-23200a-BAAA
+
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="temple-photo.jpg"
+Content-Type: image/jpeg
+
+< ../sample-files/germany-allgaeu-fliegenpilz.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - PNG Image
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="location-photo.png"
+Content-Type: image/png
+
+< ../sample-files/location-photo.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - WebP Image
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="tourist-spot.webp"
+Content-Type: image/webp
+
+< ./sample-files/tourist-spot.webp
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Large File (Edge Case)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="high-resolution.jpg"
+Content-Type: image/jpeg
+
+< ./sample-files/high-resolution.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Invalid File Type (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="document.pdf"
+Content-Type: application/pdf
+
+< ./sample-files/document.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - GIF File (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="animation.gif"
+Content-Type: image/gif
+
+< ./sample-files/animation.gif
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Missing File (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Missing User ID (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./sample-files/test.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Invalid Task ID (should fail)
+POST {{baseUrl}}/tasks/invalid-task-id/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./sample-files/test.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Unauthorized (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./sample-files/test.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Photo Upload Task - Oversized File (should fail - 10MB+ limit)
+POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="oversized-image.jpg"
+Content-Type: image/jpeg
+
+< ./sample-files/oversized-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

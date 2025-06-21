@@ -1,0 +1,220 @@
+### Submit Answer Text Task - Detailed Historical Response
+
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@userId = 1234567890
+@taskId = TSK202506-689f0d-141504-c54ed3-BAAA
+
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "This is my detailed answer explaining the historical significance of this location. The temple was built in 1369 and features unique rock-carved Buddhist statues that were created by volcanic activity. The main statue of Fudo Myoo stands 11.4 meters tall and represents spiritual protection.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Short Cultural Response
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "Beautiful temple with amazing rock statues that showcase traditional Japanese Buddhist artistry.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Personal Experience
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "My experience at this cultural site was deeply moving. The way the ancient artisans carved these massive figures directly into the volcanic rock demonstrates incredible skill and spiritual devotion. The peaceful atmosphere made me reflect on the continuous practice of Buddhism at this location for over 600 years.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Multi-paragraph Essay
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "The Fukoji Temple visit exceeded my expectations in several ways.\n\nFirst, the scale of the rock-carved statues was breathtaking. Standing before the 11.4-meter Fudo Myoo statue, I felt a profound sense of the spiritual dedication required to create such artwork.\n\nSecond, the historical context enhanced my appreciation. Learning that these carvings were made possible by ancient volcanic activity connected me to both natural and human history.\n\nFinally, the temple grounds offered a perfect balance of spiritual contemplation and natural beauty, especially during the hydrangea blooming season.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Japanese Characters and Symbols
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "The temple's Japanese name 「福王寺」 means \"Temple of the Blessed King\". The magaibutsu (磨崖仏) carved statues represent different Buddhist deities: Fudō Myōō (不動明王), Kongara-dōji, and Seitaka-dōji. These sacred figures have watched over visitors for centuries.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Technical Description
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "The Fukoji Temple magaibutsu demonstrate advanced Heian period (794-1185) carving techniques. The statues were carved directly into the cliff face using traditional Japanese chisels and hammers. The volcanic tuff stone provided an ideal medium for detailed relief work, allowing artisans to create intricate facial expressions and flowing robes that have survived over 600 years of weathering.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Travel Blog Style
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "🏮 HIDDEN GEM ALERT! 🏮 Just discovered the most incredible Buddhist temple carved into a cliff face! The Fukoji Temple statues are absolutely massive - the main one is 11+ meters tall! 😱 Perfect blend of history, spirituality, and nature. The hydrangeas were blooming when I visited, making it even more magical. Definitely adding this to my 'must-visit again' list! #Buddhism #Japan #HiddenGems #Travel",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Academic Analysis
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "The Fukoji Temple magaibutsu represent a significant example of medieval Japanese Buddhist rock art, demonstrating the confluence of religious devotion and geological opportunity. The site exemplifies the Kamakura period's emphasis on accessible Buddhist practice, as these cliff carvings served as focal points for mountain asceticism (shugendō) and popular pilgrimage. The iconography follows traditional Shingon Buddhist conventions while adapting to the constraints of cliff-face carving, resulting in a unique synthesis of artistic and devotional expression.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Simple One-liner
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "Impressive ancient Buddhist statues carved into rock cliff.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Poetry Style
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "Ancient hands carved wisdom into stone,\nWhere volcanic cliffs and faith have grown.\nFudo Myoo stands guardian tall,\nWatching pilgrims, blessing all.\nCenturies pass, yet still they stand,\nTestament to devotion's hand.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Empty Answer (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Whitespace Only (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "   \n\t   \n   ",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Missing Answer Field (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Missing User ID in Body (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "This should fail because userId is missing from request body"
+}
+
+### Submit Answer Text Task - Invalid Task ID (should fail)
+POST {{baseUrl}}/tasks/invalid-task-id/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "This should fail due to invalid task ID",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Unauthorized (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "This should fail due to invalid API key",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Extremely Long Answer (edge case)
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "This is an extremely long answer that tests the system's ability to handle large text submissions. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+  "userId": "{{userId}}"
+}
+
+### Submit Answer Text Task - Special Characters and Emojis
+POST {{baseUrl}}/tasks/{{taskId}}/answer-text
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "answer": "Special chars test: !@#$%^&*()_+-=[]{}|;':\",./<>? Emojis: 🏯⛩️🙏✨🌸🗾 Unicode: ñáéíóú àèìòù äëïöü çñ",
+  "userId": "{{userId}}"
+}

@@ -1,0 +1,242 @@
+### Submit QR Scan Task - Valid QR Code with Location
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Valid QR Code (Tokyo Location)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{tokyoLatitude}},
+  "longitude": {{tokyoLongitude}}
+}
+
+### Submit QR Scan Task - Valid QR Code without Location
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}"
+}
+
+### Submit QR Scan Task - Complex QR Code (URL)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "https://tourii.app/quest/verify/QST202506-abc123",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Numeric QR Code
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "1234567890",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Alphanumeric QR Code
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "TST-QR-2025-ABC123",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - JSON-encoded QR Code
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{\"questId\":\"QST202506-test\",\"taskId\":\"TSK202506-qr\",\"location\":\"fukoji\"}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - High Precision Coordinates
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": 32.9848782456,
+  "longitude": 131.4300837123
+}
+
+### Submit QR Scan Task - Edge Coordinates (North Pole)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": 90.0,
+  "longitude": 0.0
+}
+
+### Submit QR Scan Task - Edge Coordinates (South Pole)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": -90.0,
+  "longitude": 0.0
+}
+
+### Submit QR Scan Task - Invalid QR Code (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{invalidQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Empty QR Code (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Missing QR Code (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Invalid Latitude (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": 91.0,
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Invalid Longitude (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": 181.0
+}
+
+### Submit QR Scan Task - Missing User ID (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Invalid Task ID (should fail)
+POST {{baseUrl}}/tasks/invalid-task-id/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - Unauthorized (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": {{latitude}},
+  "longitude": {{longitude}}
+}
+
+### Submit QR Scan Task - String Coordinates (should fail)
+POST {{baseUrl}}/tasks/{{taskId}}/qr-scan
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "code": "{{validQrCode}}",
+  "latitude": "{{latitude}}",
+  "longitude": "{{longitude}}"
+}

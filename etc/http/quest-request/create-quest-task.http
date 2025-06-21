@@ -1,4 +1,4 @@
-POST http://localhost:4000/quests/create-task/QST202506-f4869c-141501-dbae3f-BAAA
+POST http://localhost:4000/quests/QST202506-f4869c-141501-dbae3f-BAAA/tasks
 Content-Type: application/json
 x-api-key: your-api-key-1
 accept-version: 1.0.0
