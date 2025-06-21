@@ -1,0 +1,53 @@
+### Filter Users by Role - ADMIN
+GET http://localhost:4000/admin/users?role=ADMIN
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Role - MODERATOR
+GET http://localhost:4000/admin/users?role=MODERATOR
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Role - USER
+GET http://localhost:4000/admin/users?role=USER&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Premium Status - Premium Only
+GET http://localhost:4000/admin/users?isPremium=true
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Premium Status - Free Only
+GET http://localhost:4000/admin/users?isPremium=false&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Banned Status - Banned Users
+GET http://localhost:4000/admin/users?isBanned=true
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Banned Status - Active Users
+GET http://localhost:4000/admin/users?isBanned=false&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Combined Filter - Premium Users by Quest Count
+GET http://localhost:4000/admin/users?isPremium=true&sortBy=total_quest_completed&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Combined Filter - Non-Premium Users with Low Activity
+GET http://localhost:4000/admin/users?isPremium=false&sortBy=total_quest_completed&sortOrder=asc&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

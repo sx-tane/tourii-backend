@@ -1,0 +1,41 @@
+### Filter Users by Registration Date - Recent Users (Last 6 Months)
+GET http://localhost:4000/admin/users?startDate=2024-12-21&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Registration Date - Older Users (Before 2025)
+GET http://localhost:4000/admin/users?endDate=2024-12-31&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Registration Date - Specific Date Range (Q1 2025)
+GET http://localhost:4000/admin/users?startDate=2025-01-01&endDate=2025-03-31&sortBy=registered_at&sortOrder=asc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Registration Date - This Year Only
+GET http://localhost:4000/admin/users?startDate=2025-01-01&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Filter Users by Registration Date - Last Year Only
+GET http://localhost:4000/admin/users?startDate=2024-01-01&endDate=2024-12-31&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Combined Date and Status Filter - Recent Premium Users
+GET http://localhost:4000/admin/users?startDate=2025-01-01&isPremium=true&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Combined Date and Role Filter - Recent Admin/Moderator Users
+GET http://localhost:4000/admin/users?startDate=2024-01-01&role=ADMIN
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

@@ -99,17 +99,22 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
         }>
     > {
         try {
-            // This would typically query the tourist spot and quest repositories
-            // For now, return empty array as repositories need to be extended
             this.logger.log(
                 `Searching for tourist spots near ${latitude}, ${longitude} within ${radiusKm}km`,
             );
 
-            // TODO: Implement actual database query with spatial search
-            // const touristSpots = await this.touristSpotRepository.findNearby(latitude, longitude, radiusKm);
-            // const quests = await this.questRepository.findByTouristSpots(touristSpots.map(ts => ts.id));
+            // Use the quest repository to find nearby tourist spots
+            const nearbySpots = await this.questRepository.findNearbyTouristSpots(
+                latitude,
+                longitude,
+                radiusKm,
+            );
 
-            return [];
+            this.logger.log(
+                `Found ${nearbySpots.length} tourist spots within ${radiusKm}km: ${nearbySpots.map(spot => `${spot.touristSpotId}(${spot.distance.toFixed(3)}km)`).join(', ')}`,
+            );
+
+            return nearbySpots;
         } catch (error) {
             this.logger.error('Error finding nearby tourist spots', error);
             return [];
@@ -122,6 +127,21 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
     } | null> {
         try {
             const tags = ExifReader.load(photoBuffer);
+            
+            this.logger.debug('EXIF tags extracted:', {
+                hasGPSLatitude: !!tags.GPSLatitude,
+                hasGPSLongitude: !!tags.GPSLongitude,
+                hasGPSLatitudeRef: !!tags.GPSLatitudeRef,
+                hasGPSLongitudeRef: !!tags.GPSLongitudeRef,
+                latitudeDescription: tags.GPSLatitude?.description,
+                longitudeDescription: tags.GPSLongitude?.description,
+                latitudeRef: tags.GPSLatitudeRef?.value,
+                longitudeRef: tags.GPSLongitudeRef?.value,
+                latitudeType: typeof tags.GPSLatitude?.description,
+                longitudeType: typeof tags.GPSLongitude?.description,
+                latitudeFullObject: tags.GPSLatitude,
+                longitudeFullObject: tags.GPSLongitude
+            });
 
             if (tags.GPSLatitude && tags.GPSLongitude) {
                 const latitude = this.convertDMSToDD(
@@ -134,8 +154,11 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
                 );
 
                 if (latitude !== null && longitude !== null) {
+                    this.logger.debug(`Successfully extracted GPS coordinates: ${latitude}, ${longitude}`);
                     return { latitude, longitude };
                 }
+            } else {
+                this.logger.debug('No GPS coordinates found in EXIF data');
             }
 
             return null;
@@ -233,26 +256,64 @@ export class LocationTrackingServiceImpl implements LocationTrackingService {
         return deg * (Math.PI / 180);
     }
 
-    private convertDMSToDD(dmsString: string, direction: string): number | null {
+    private convertDMSToDD(coordinateData: any, direction: string): number | null {
         try {
-            // Parse DMS format like "35° 39' 2.00""
-            const matches = dmsString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"/);
-            if (!matches) return null;
-
-            const degrees = Number.parseInt(matches[1]);
-            const minutes = Number.parseInt(matches[2]);
-            const seconds = Number.parseFloat(matches[3]);
-
-            let dd = degrees + minutes / 60 + seconds / 3600;
-
-            // Apply direction
-            if (direction === 'S' || direction === 'W') {
-                dd = -dd;
+            this.logger.debug(`Converting coordinate to DD:`, {
+                coordinateData,
+                type: typeof coordinateData,
+                direction,
+                isString: typeof coordinateData === 'string',
+                isNumber: typeof coordinateData === 'number'
+            });
+            
+            // If it's already a number, use it directly
+            if (typeof coordinateData === 'number') {
+                let dd = coordinateData;
+                if (direction === 'S' || direction === 'W') {
+                    dd = -dd;
+                }
+                this.logger.debug(`Used numeric value directly: ${dd}`);
+                return dd;
             }
+            
+            // Convert to string if it isn't already
+            const coordinateString = String(coordinateData);
+            
+            // Try to parse as decimal number directly (most common case)
+            const numericValue = Number.parseFloat(coordinateString);
+            if (!Number.isNaN(numericValue)) {
+                // Apply direction for DD format
+                let dd = numericValue;
+                if (direction === 'S' || direction === 'W') {
+                    dd = -dd;
+                }
+                
+                this.logger.debug(`Successfully parsed as decimal degrees: ${dd}`);
+                return dd;
+            }
+            
+            // Parse DMS format like "35° 39' 2.00""
+            const dmsMatches = coordinateString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"/);
+            if (dmsMatches) {
+                const degrees = Number.parseInt(dmsMatches[1]);
+                const minutes = Number.parseInt(dmsMatches[2]);
+                const seconds = Number.parseFloat(dmsMatches[3]);
 
-            return dd;
+                let dd = degrees + minutes / 60 + seconds / 3600;
+
+                // Apply direction for DMS format
+                if (direction === 'S' || direction === 'W') {
+                    dd = -dd;
+                }
+
+                this.logger.debug(`Successfully converted DMS to DD: ${dd}`);
+                return dd;
+            }
+            
+            this.logger.warn(`Coordinate data "${coordinateData}" could not be parsed as number or DMS format`);
+            return null;
         } catch (error) {
-            this.logger.error('Error converting DMS to DD', error);
+            this.logger.error(`Error converting coordinate to DD for data "${coordinateData}" with direction "${direction}"`, error);
             return null;
         }
     }

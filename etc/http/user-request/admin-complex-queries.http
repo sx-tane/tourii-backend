@@ -1,0 +1,65 @@
+### Complex Query - Top Premium Users by Quest Count
+GET http://localhost:4000/admin/users?isPremium=true&sortBy=total_quest_completed&sortOrder=desc&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Most Traveled Non-Premium Users
+GET http://localhost:4000/admin/users?isPremium=false&sortBy=total_travel_distance&sortOrder=desc&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Recently Joined Premium Users
+GET http://localhost:4000/admin/users?isPremium=true&startDate=2025-01-01&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Inactive Users (Low Quest Count)
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=asc&isBanned=false&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Veteran Users (High Activity)
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=desc&startDate=2024-01-01&endDate=2024-12-31
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Search Elite Users by Activity
+GET http://localhost:4000/admin/users?searchTerm=elite&sortBy=total_travel_distance&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Discord Users with High Activity
+GET http://localhost:4000/admin/users?searchTerm=Discord&sortBy=total_quest_completed&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Problem Users (Banned + Search)
+GET http://localhost:4000/admin/users?isBanned=true&searchTerm=banned
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - Staff Members (Admin + Moderator)
+GET http://localhost:4000/admin/users?role=ADMIN
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+###
+GET http://localhost:4000/admin/users?role=MODERATOR
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Complex Query - New Users with Potential (Recent + Some Activity)
+GET http://localhost:4000/admin/users?startDate=2025-01-01&sortBy=total_quest_completed&sortOrder=desc&isBanned=false
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

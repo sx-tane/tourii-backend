@@ -441,6 +441,120 @@ export class UserMapper {
         };
     }
 
+    static createUserTaskLogForPhotoUploadPending(
+        userId: string,
+        questId: string,
+        taskId: string,
+        proofUrl: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.ONGOING, // Pending verification
+                action: TaskType.PHOTO_UPLOAD,
+                group_activity_members: [],
+                submission_data: { image_url: proofUrl },
+                completed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.ONGOING, // Pending verification
+                submission_data: { image_url: proofUrl },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
+    static createUserTaskLogForSocialSharePending(
+        userId: string,
+        questId: string,
+        taskId: string,
+        proofUrl: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.ONGOING, // Pending verification
+                action: TaskType.SHARE_SOCIAL,
+                group_activity_members: [],
+                submission_data: { social_url: proofUrl },
+                completed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.ONGOING, // Pending verification
+                submission_data: { social_url: proofUrl },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
+    static createUserTaskLogForAnswerTextPending(
+        userId: string,
+        questId: string,
+        taskId: string,
+        textAnswer: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.ONGOING, // Pending verification
+                action: TaskType.ANSWER_TEXT,
+                group_activity_members: [],
+                user_response: textAnswer,
+                completed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.ONGOING, // Pending verification
+                user_response: textAnswer,
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
     static createUserTaskLogForQrScan(
         userId: string,
         questId: string,

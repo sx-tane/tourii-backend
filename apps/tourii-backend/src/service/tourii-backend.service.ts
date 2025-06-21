@@ -28,7 +28,7 @@ import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.reposit
 import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
-import type { UserRepository } from '@app/core/domain/user/user.repository';
+import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -49,6 +49,10 @@ import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-reque
 import type { QuestUpdateRequestDto } from '../controller/model/tourii-request/update/quest-update-request.model';
 import type { StoryUpdateRequestDto } from '../controller/model/tourii-request/update/story-update-request.model';
 import type { TouristSpotUpdateRequestDto } from '../controller/model/tourii-request/update/tourist-spot-update-request.model';
+import {
+    AdminUserListResponseDto,
+    AdminUserQueryDto,
+} from '../controller/model/tourii-response/admin/admin-user-list-response.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
@@ -64,6 +68,7 @@ import {
 import { QuestTaskPhotoUploadResponseDto } from '../controller/model/tourii-response/quest-task-photo-upload-response.model';
 import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-response/quest-task-social-share-response.model';
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
+import { SubmitTaskResponseDto } from '../controller/model/tourii-response/submit-tasks-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
 import {
     UserResponseDto,
@@ -82,11 +87,10 @@ import { QuestUpdateRequestBuilder } from './builder/quest-update-request-builde
 import { StoryCreateRequestBuilder } from './builder/story-create-request-builder';
 import { StoryResultBuilder } from './builder/story-result-builder';
 import { StoryUpdateRequestBuilder } from './builder/story-update-request-builder';
+import { TaskResultBuilder } from './builder/task-result-builder';
 import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-request-builder';
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
-import { SubmitTaskResponseDto } from '../controller/model/tourii-response/submit-tasks-response.model';
-import { TaskResultBuilder } from './builder/task-result-builder';
 import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-builder';
 
 @Injectable()
@@ -245,6 +249,85 @@ export class TouriiBackendService {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
         }
         return UserResultBuilder.userSensitiveInfoToDto(user);
+    }
+
+    /**
+     * Get all users with pagination and filtering (Admin only)
+     * @param query Admin user query with filters and pagination
+     * @returns Paginated list of users with admin details
+     */
+    async getAllUsersForAdmin(query: AdminUserQueryDto): Promise<AdminUserListResponseDto> {
+        // Parse and validate query parameters
+        const page = Math.max(1, parseInt(query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 20));
+
+        // Parse date filters
+        const startDate = query.startDate ? new Date(query.startDate) : undefined;
+        const endDate = query.endDate ? new Date(query.endDate) : undefined;
+
+        // Parse boolean filters
+        const isPremium = query.isPremium !== undefined ? query.isPremium === 'true' : undefined;
+        const isBanned = query.isBanned !== undefined ? query.isBanned === 'true' : undefined;
+
+        const options: GetAllUsersOptions = {
+            page,
+            limit,
+            searchTerm: query.searchTerm,
+            role: query.role,
+            isPremium,
+            isBanned,
+            startDate,
+            endDate,
+            sortBy: query.sortBy || 'registered_at',
+            sortOrder: query.sortOrder || 'desc',
+        };
+
+        const result = await this.userRepository.getAllUsersWithPagination(options);
+
+        // Build response DTOs with summary stats
+        const adminUsers = result.users.map((user) => {
+            const dto = UserResultBuilder.userToDto(user);
+
+            // Add summary statistics for admin view
+            const summaryStats = {
+                achievementCount: user.userAchievements?.length || 0,
+                onchainItemCount: user.userOnchainItems?.length || 0,
+                storyCompletedCount:
+                    user.userStoryLogs?.filter((log) => log.status === 'COMPLETED').length || 0,
+                taskCompletedCount:
+                    user.userTaskLogs?.filter((log) => log.status === 'COMPLETED').length || 0,
+                totalCheckinsCount: user.userTravelLogs?.length || 0,
+                discordActivityCount: user.discordActivityLogs?.length || 0,
+                invitesSentCount: user.userInviteLogs?.length || 0,
+            };
+
+            return {
+                ...dto,
+                // Add admin-specific fields
+                latestIpAddress: user.latestIpAddress,
+                summaryStats,
+            };
+        });
+
+        return {
+            users: adminUsers,
+            pagination: {
+                totalCount: result.totalCount,
+                page: result.page,
+                limit: result.limit,
+                totalPages: result.totalPages,
+            },
+            filters: {
+                searchTerm: query.searchTerm,
+                role: query.role,
+                isPremium,
+                isBanned,
+                startDate,
+                endDate,
+                sortBy: query.sortBy,
+                sortOrder: query.sortOrder,
+            },
+        };
     }
 
     /**
@@ -1711,9 +1794,14 @@ export class TouriiBackendService {
             key,
             file.mimetype,
         );
-        await this.userTaskLogRepository.completePhotoTask(userId, taskId, proofUrl);
 
-        return { message: 'Photo submitted successfully', proofUrl };
+        // Submit for manual verification instead of auto-completing
+        await this.userTaskLogRepository.submitPhotoTaskForVerification(userId, taskId, proofUrl);
+
+        return {
+            message: 'Photo submitted successfully and pending admin verification',
+            proofUrl,
+        };
     }
 
     /**
@@ -1794,8 +1882,11 @@ export class TouriiBackendService {
             }
         }
 
-        await this.userTaskLogRepository.completeSocialTask(userId, taskId, proofUrl);
-        return { message: 'Social share recorded.' };
+        // Submit for manual verification instead of auto-completing
+        await this.userTaskLogRepository.submitSocialTaskForVerification(userId, taskId, proofUrl);
+        return {
+            message: 'Social share submitted successfully and pending admin verification.',
+        };
     }
 
     /**
@@ -1900,8 +1991,10 @@ export class TouriiBackendService {
             ? {
                   storyId: latestChapterResult.storyId,
                   chapterId: latestChapterResult.chapter.storyChapterId ?? '',
+                  chapterNumber: latestChapterResult.chapter.chapterNumber ?? '',
                   title: latestChapterResult.chapter.chapterTitle ?? '',
                   imageUrl: latestChapterResult.chapter.chapterImage ?? null,
+                  region: latestChapterResult.sagaName ?? null,
                   link: `/v2/touriiverse/${latestChapterResult.storyId}/chapters/${latestChapterResult.chapter.storyChapterId}`,
               }
             : null;
@@ -1914,6 +2007,80 @@ export class TouriiBackendService {
         }));
 
         return { latestChapter: latestChapterDto, popularQuests: popularQuestsDto };
+    }
+
+    // ==========================================
+    // ADMIN VERIFICATION METHODS
+    // ==========================================
+
+    /**
+     * Get pending task submissions for admin verification
+     * @param options Query options with pagination and filters
+     * @returns Paginated list of pending submissions
+     */
+    async getPendingSubmissions(options: {
+        page: number;
+        limit: number;
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+    }) {
+        const result = await this.userTaskLogRepository.getPendingSubmissions(options);
+
+        return {
+            submissions: result.submissions.map((submission) => ({
+                userTaskLogId: submission.userTaskLogId,
+                userId: submission.userId,
+                username: submission.username,
+                taskId: submission.taskId,
+                questId: submission.questId,
+                questName: submission.questName,
+                taskType: submission.action,
+                submissionData: submission.submissionData,
+                userResponse: submission.userResponse,
+                submittedAt: submission.completedAt,
+                daysSinceSubmission: Math.floor(
+                    (Date.now() - new Date(submission.completedAt || '').getTime()) /
+                        (1000 * 60 * 60 * 24),
+                ),
+            })),
+            pagination: {
+                page: options.page,
+                limit: options.limit,
+                totalCount: result.totalCount,
+                totalPages: Math.ceil(result.totalCount / options.limit),
+            },
+        };
+    }
+
+    /**
+     * Manually verify (approve/reject) a task submission
+     * @param userTaskLogId Task log ID to verify
+     * @param action Approve or reject
+     * @param adminUserId Admin user performing verification
+     * @param rejectionReason Optional reason if rejecting
+     * @returns Verification result
+     */
+    async verifyTaskSubmission(
+        userTaskLogId: string,
+        action: 'approve' | 'reject',
+        adminUserId: string,
+        rejectionReason?: string,
+    ) {
+        await this.userTaskLogRepository.verifySubmission(
+            userTaskLogId,
+            action,
+            adminUserId,
+            rejectionReason,
+        );
+
+        return {
+            success: true,
+            message: `Submission ${action}d successfully`,
+            userTaskLogId,
+            action,
+            verifiedBy: adminUserId,
+            verifiedAt: new Date().toISOString(),
+            ...(rejectionReason && { rejectionReason }),
+        };
     }
 
     /**
@@ -1944,12 +2111,13 @@ export class TouriiBackendService {
         answer: string,
         userId: string,
     ): Promise<SubmitTaskResponseDto> {
-        const submitResponse = await this.taskRepository.submitAnswerTextTask(
-            taskId,
-            answer,
-            userId,
-        );
-        return TaskResultBuilder.submitTaskResponseToDto(submitResponse);
+        // Submit for manual verification instead of auto-completing
+        await this.userTaskLogRepository.submitTextTaskForVerification(userId, taskId, answer);
+        
+        return {
+            success: true,
+            message: 'Text answer submitted successfully and pending admin verification',
+        };
     }
 
     async submitSelectOptionTask(

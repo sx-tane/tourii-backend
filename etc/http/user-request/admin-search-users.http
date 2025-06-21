@@ -1,0 +1,53 @@
+### Search Users by Username
+GET http://localhost:4000/admin/users?searchTerm=alice
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users by Email Domain
+GET http://localhost:4000/admin/users?searchTerm=@tourii.dev
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users by Discord Username
+GET http://localhost:4000/admin/users?searchTerm=Discord
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users by Twitter Username
+GET http://localhost:4000/admin/users?searchTerm=twitter
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users - Case Insensitive
+GET http://localhost:4000/admin/users?searchTerm=ADMIN
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users - Partial Match
+GET http://localhost:4000/admin/users?searchTerm=mod
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users - Elite Users
+GET http://localhost:4000/admin/users?searchTerm=elite
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search Users - Banned Users
+GET http://localhost:4000/admin/users?searchTerm=banned
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Search with Filters - Premium Users Named "grace"
+GET http://localhost:4000/admin/users?searchTerm=grace&isPremium=true
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

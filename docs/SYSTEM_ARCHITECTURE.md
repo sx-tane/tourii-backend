@@ -125,6 +125,7 @@ libs/core/src/domain/
 - **User**: Core user entity with multi-provider authentication
 - **UserInfo**: Extended profile with game metrics and collectibles
 - **UserAchievement**: Progress tracking and milestones
+- **Admin API**: Comprehensive user management with pagination, filtering, and analytics
 
 #### Gaming System
 - **Story/StoryChapter**: Interactive narratives tied to locations
@@ -322,7 +323,30 @@ POST /auth/signup
 - Social media link verification
 - Cooldown periods and attempt limits
 
-### 4. Digital Passport System
+### 4. Admin Management System
+
+**Features:**
+- Comprehensive user analytics with pagination and filtering
+- Advanced search across username, email, and social handles
+- Role-based filtering (USER, MODERATOR, ADMIN)
+- Activity metrics and engagement tracking
+- Task submission verification system
+
+**Key Capabilities:**
+- **User Overview**: Paginated lists with summary statistics
+- **Advanced Filtering**: By role, premium status, registration date, activity level
+- **Real-time Search**: Case-insensitive search across multiple fields
+- **Analytics Dashboard**: Top performers, recent signups, engagement metrics
+- **Task Verification**: Manual approval/rejection of photo and social media submissions
+
+**API Endpoints:**
+```typescript
+GET /admin/users                    # Get all users with filters
+GET /admin/pending-submissions      # Get pending task verifications
+POST /admin/submissions/{id}/verify # Approve/reject task submissions
+```
+
+### 5. Digital Passport System
 
 **Progression Levels:**
 ```
@@ -566,6 +590,8 @@ R2_BUCKET=tourii-production
 /quests/{id}                     # Quest system
 /routes/{id}                     # Location management
 /moments                         # Activity feeds
+/admin/users                     # Admin user management
+/admin/pending-submissions       # Admin task verification
 ```
 
 ### Request/Response Format

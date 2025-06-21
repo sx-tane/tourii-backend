@@ -11,6 +11,7 @@ import {
     Param,
     ParseFloatPipe,
     Post,
+    Put,
     Query,
     Req,
     UploadedFile,
@@ -208,6 +209,11 @@ import {
     UserSensitiveInfoResponseSchema,
 } from './model/tourii-response/user/user-response.model';
 import {
+    AdminUserListResponseDto,
+    AdminUserListResponseSchema,
+    AdminUserQueryDto,
+} from './model/tourii-response/admin/admin-user-list-response.model';
+import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
 } from './model/tourii-response/user/user-travel-log-list-response.model';
@@ -255,6 +261,8 @@ import {
     QrScanRequestDto,
     QrScanResponseDto,
     HomepageHighlightsResponseDto,
+    AdminUserListResponseDto,
+    AdminUserQueryDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -507,11 +515,187 @@ export class TouriiBackendController {
         return this.touriiBackendService.getUserCheckins(query, userId);
     }
 
+    @Get('/admin/users')
+    @ApiTags('Admin')
+    @ApiOperation({
+        summary: 'Get all users with pagination and filtering (Admin only)',
+        description: 'Retrieve all users with comprehensive details, pagination, and advanced filtering options for admin dashboard.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Users per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'searchTerm',
+        required: false,
+        type: String,
+        description: 'Search in username, email, discord/twitter usernames',
+    })
+    @ApiQuery({
+        name: 'role',
+        required: false,
+        enum: ['USER', 'MODERATOR', 'ADMIN'],
+        description: 'Filter by user role',
+    })
+    @ApiQuery({
+        name: 'isPremium',
+        required: false,
+        type: String,
+        description: 'Filter by premium status (true/false)',
+    })
+    @ApiQuery({
+        name: 'isBanned',
+        required: false,
+        type: String,
+        description: 'Filter by banned status (true/false)',
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        type: String,
+        description: 'Filter by registration start date (ISO format)',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        type: String,
+        description: 'Filter by registration end date (ISO format)',
+    })
+    @ApiQuery({
+        name: 'sortBy',
+        required: false,
+        enum: ['username', 'registered_at', 'total_quest_completed', 'total_travel_distance'],
+        description: 'Sort field (default: registered_at)',
+    })
+    @ApiQuery({
+        name: 'sortOrder',
+        required: false,
+        enum: ['asc', 'desc'],
+        description: 'Sort order (default: desc)',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'All users retrieved successfully with pagination and filtering',
+        type: AdminUserListResponseDto,
+        schema: zodToOpenAPI(AdminUserListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getAllUsersForAdmin(
+        @Query() query: AdminUserQueryDto,
+        @Req() req: Request,
+    ): Promise<AdminUserListResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        return this.touriiBackendService.getAllUsersForAdmin(query);
+    }
+
+    @Get('/admin/pending-submissions')
+    @ApiTags('Admin')
+    @ApiOperation({
+        summary: 'Get pending task submissions for manual verification (Admin only)',
+        description: 'Retrieve photo upload, social share, and text answer submissions awaiting admin approval.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (default: 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Submissions per page (default: 20, max: 100)',
+    })
+    @ApiQuery({
+        name: 'taskType',
+        required: false,
+        enum: ['PHOTO_UPLOAD', 'SHARE_SOCIAL', 'ANSWER_TEXT'],
+        description: 'Filter by task type',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Pending submissions retrieved successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getPendingSubmissions(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 20,
+        @Query('taskType') taskType: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | undefined,
+        @Req() req: Request,
+    ) {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        return this.touriiBackendService.getPendingSubmissions({
+            page: Math.max(1, page),
+            limit: Math.min(100, Math.max(1, limit)),
+            taskType,
+        });
+    }
+
+    @Post('/admin/verify-submission')
+    @ApiTags('Admin')
+    @ApiOperation({
+        summary: 'Manually approve or reject task submission (Admin only)',
+        description: 'Admin endpoint to approve or reject pending photo/social share/text answer submissions.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Submission verification completed',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async verifySubmission(
+        @Body() body: {
+            userTaskLogId: string;
+            action: 'approve' | 'reject';
+            rejectionReason?: string;
+        },
+        @Req() req: Request,
+    ) {
+        const adminUserId = req.headers['x-user-id'] as string;
+        if (!adminUserId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        return this.touriiBackendService.verifyTaskSubmission(
+            body.userTaskLogId,
+            body.action,
+            adminUserId,
+            body.rejectionReason,
+        );
+    }
+
     // ==========================================
     // STORY ENDPOINTS
     // ==========================================
 
-    @Post('/stories/create-saga')
+    @Post('/stories')
     @ApiTags('Stories')
     @ApiOperation({
         summary: 'Create Story Saga',
@@ -548,7 +732,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createStory(saga);
     }
 
-    @Post('/stories/create-chapter/:storyId')
+    @Post('/stories/:storyId/chapters')
     @ApiTags('Stories')
     @ApiOperation({
         summary: 'Create Story Chapter',
@@ -587,7 +771,7 @@ export class TouriiBackendController {
         return await this.touriiBackendService.createStoryChapter(storyId, chapter);
     }
 
-    @Post('/stories/update-saga')
+    @Put('/stories/:storyId')
     @ApiTags('Stories')
     @ApiOperation({
         summary: 'Update Story Saga',
@@ -617,6 +801,7 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async updateStory(
+        @Param('storyId') storyId: string,
         @Body()
         saga: StoryUpdateRequestDto,
     ): Promise<StoryResponseDto> {
@@ -1529,7 +1714,7 @@ export class TouriiBackendController {
         );
     }
 
-    @Post('/quests/tasks/:taskId/photo-upload')
+    @Post('/tasks/:taskId/photo-upload')
     @UseInterceptors(FileInterceptor('file', {
         limits: { 
             fileSize: 10 * 1024 * 1024, // 10MB limit
@@ -1573,7 +1758,7 @@ export class TouriiBackendController {
         return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, file);
     }
 
-    @Post('/tasks/:taskId/share-social')
+    @Post('/tasks/:taskId/social-share')
     @ApiTags('Quest')
     @ApiOperation({ summary: 'Complete social sharing task' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1703,7 +1888,7 @@ export class TouriiBackendController {
         return this.touriiBackendService.getHomepageHighlights();
     }
 
-    @Post('/tasks/answer-text')
+    @Post('/tasks/:taskId/answer-text')
     @ApiTags('Task')
     @ApiOperation({ summary: 'Submit answer text task' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1723,13 +1908,14 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async submitAnswerTextTask(
+        @Param('taskId') taskId: string,
         @Body() payload: SubmitAnswerTextRequestTaskDto,
     ): Promise<SubmitTaskResponseDto> {
-        const { taskId, answer, userId } = payload;
+        const { answer, userId } = payload;
         return await this.touriiBackendService.submitAnswerTextTask(taskId, answer, userId);
     }
 
-    @Post('/tasks/select-option')
+    @Post('/tasks/:taskId/select-option')
     @ApiTags('Task')
     @ApiOperation({ summary: 'Submit select option task' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1749,9 +1935,10 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async submitSelectOptionTask(
+        @Param('taskId') taskId: string,
         @Body() payload: SubmitSelectOptionsTaskRequestDto,
     ): Promise<SubmitTaskResponseDto> {
-        const { taskId, selectedOptionIds, userId } = payload;
+        const { selectedOptionIds, userId } = payload;
         return await this.touriiBackendService.submitSelectOptionTask(
             taskId,
             selectedOptionIds,
@@ -1759,7 +1946,7 @@ export class TouriiBackendController {
         );
     }
 
-    @Post('/tasks/checkin')
+    @Post('/tasks/:taskId/checkin')
     @ApiTags('Task')
     @ApiOperation({ summary: 'Submit checkin task' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
@@ -1779,9 +1966,10 @@ export class TouriiBackendController {
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
     async submitCheckInTask(
+        @Param('taskId') taskId: string,
         @Body() payload: SubmitCheckInTaskRequestDto,
     ): Promise<SubmitTaskResponseDto> {
-        const { taskId, longitude, latitude, userId } = payload;
+        const { longitude, latitude, userId } = payload;
         return await this.touriiBackendService.submitCheckInTask(
             taskId,
             longitude,

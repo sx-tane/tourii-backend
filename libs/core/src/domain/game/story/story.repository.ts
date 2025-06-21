@@ -79,5 +79,9 @@ export interface StoryRepository {
     /**
      * Retrieve the most recently created story chapter.
      */
-    getLatestStoryChapter(): Promise<{ chapter: StoryChapter; storyId: string } | null>;
+    getLatestStoryChapter(): Promise<{
+        chapter: StoryChapter;
+        storyId: string;
+        sagaName?: string;
+    } | null>;
 }

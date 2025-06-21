@@ -49,4 +49,32 @@ export interface UserRepository {
      * @returns UserEntity
      */
     findByPassportTokenId(tokenId: string): Promise<UserEntity | undefined>;
+
+    /**
+     * Get all users with pagination and filtering (Admin only)
+     * @param options - Pagination and filter options
+     * @returns Paginated list of users with full details
+     */
+    getAllUsersWithPagination(options: GetAllUsersOptions): Promise<GetAllUsersResult>;
+}
+
+export interface GetAllUsersOptions {
+    page: number;
+    limit: number;
+    searchTerm?: string;
+    role?: string;
+    isPremium?: boolean;
+    isBanned?: boolean;
+    startDate?: Date;
+    endDate?: Date;
+    sortBy?: 'username' | 'registered_at' | 'total_quest_completed' | 'total_travel_distance';
+    sortOrder?: 'asc' | 'desc';
+}
+
+export interface GetAllUsersResult {
+    users: UserEntity[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
 }

@@ -679,4 +679,129 @@ describe('QuestRepositoryDb', () => {
         expect(Array.isArray(topQuests)).toBe(true);
         expect(topQuests.length).toBe(0);
     });
+
+    it('finds nearby tourist spots within specified radius', async () => {
+        // Create additional tourist spots at different locations for proximity testing
+        await prisma.story.create({
+            data: {
+                story_id: 'story2',
+                saga_name: 'Test Saga 2',
+                saga_desc: 'A saga for testing proximity',
+                order: 2,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.model_route.create({
+            data: {
+                model_route_id: 'route2',
+                story_id: 'story2',
+                route_name: 'Test Route 2',
+                region: 'Test Region 2',
+                region_latitude: 47.4651666,
+                region_longitude: 10.201276,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        await prisma.story_chapter.create({
+            data: {
+                story_chapter_id: 'chapter2',
+                tourist_spot_id: 'spot2',
+                story_id: 'story2',
+                chapter_title: 'Test Chapter 2',
+                chapter_number: '1',
+                chapter_desc: 'A chapter for proximity testing',
+                chapter_image: 'image2.png',
+                real_world_image: 'image2.png',
+                chapter_pdf_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                chapter_video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                chapter_video_mobile_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+        
+        // Create tourist spot at known coordinates
+        await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'spot2',
+                model_route_id: 'route2',
+                story_chapter_id: 'chapter2',
+                tourist_spot_name: 'Nearby Test Spot',
+                tourist_spot_desc: 'A spot for proximity testing',
+                latitude: 47.4651666, // About 280m from search point
+                longitude: 10.201276,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        // Create a quest and task for this tourist spot
+        await prisma.quest.create({
+            data: {
+                quest_id: 'quest3',
+                tourist_spot_id: 'spot2',
+                quest_name: 'Proximity Quest',
+                quest_desc: 'A quest for proximity testing',
+                quest_type: 'TRAVEL_TO_EARN',
+                reward_type: 'LOCAL_EXPERIENCES',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        await prisma.quest_task.create({
+            data: {
+                quest_task_id: 'task_proximity',
+                quest_id: 'quest3',
+                task_theme: 'STORY',
+                task_type: 'CHECK_IN',
+                task_name: 'Proximity Task',
+                task_desc: 'A task for proximity testing',
+                is_unlocked: true,
+                required_action: 'CHECK_IN',
+                group_activity_members: [],
+                select_options: [],
+                anti_cheat_rules: {},
+                magatama_point_awarded: 1,
+                reward_earned: '1',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        // Search from photo coordinates: 47.466905555555556, 10.20375
+        const searchLat = 47.466905555555556;
+        const searchLng = 10.20375;
+        const radiusKm = 1.0;
+
+        const nearbySpots = await repository.findNearbyTouristSpots(searchLat, searchLng, radiusKm);
+
+        // Should find the tourist spot we created (about 280m away)
+        expect(nearbySpots.length).toBeGreaterThan(0);
+        
+        const foundSpot = nearbySpots.find(spot => spot.touristSpotId === 'spot2');
+        expect(foundSpot).toBeDefined();
+        expect(foundSpot?.distance).toBeLessThan(1.0); // Within 1km
+        expect(foundSpot?.distance).toBeGreaterThan(0.2); // About 280m = 0.28km
+        expect(foundSpot?.questId).toBe('quest3');
+        expect(foundSpot?.taskId).toBe('task_proximity');
+
+        // Test that spots outside radius are not returned
+        const nearbySpotsTight = await repository.findNearbyTouristSpots(searchLat, searchLng, 0.1); // 100m radius
+        expect(nearbySpotsTight.length).toBe(0); // Should not find any spots within 100m
+    });
+
+    it('returns empty array when no tourist spots are within radius', async () => {
+        // Search in a remote location where no tourist spots exist
+        const nearbySpots = await repository.findNearbyTouristSpots(90, 180, 1.0);
+        expect(nearbySpots.length).toBe(0);
+    });
+
+    it('handles database errors gracefully in findNearbyTouristSpots', async () => {
+        // Simulate database error by using invalid coordinates
+        const nearbySpots = await repository.findNearbyTouristSpots(NaN, NaN, 1.0);
+        expect(nearbySpots.length).toBe(0);
+    });
 });

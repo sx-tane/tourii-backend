@@ -238,11 +238,17 @@ export class StoryRepositoryDb implements StoryRepository {
         return true;
     }
 
-    async getLatestStoryChapter(): Promise<{ chapter: StoryChapter; storyId: string } | null> {
+    async getLatestStoryChapter(): Promise<{
+        chapter: StoryChapter;
+        storyId: string;
+        sagaName?: string;
+    } | null> {
         const chapterDb = await this.prisma.story_chapter.findFirst({
             where: { ins_date_time: { not: undefined } },
             orderBy: { ins_date_time: 'desc' },
-            include: { story: { select: { saga_name: true, story_id: true } } },
+            include: {
+                story: { select: { saga_name: true, story_id: true } },
+            },
         });
 
         if (!chapterDb) {
@@ -265,6 +271,7 @@ export class StoryRepositoryDb implements StoryRepository {
                 chapterDb.story.saga_name,
             )[0],
             storyId: chapterDb.story.story_id,
+            sagaName: chapterDb.story.saga_name,
         };
     }
 }

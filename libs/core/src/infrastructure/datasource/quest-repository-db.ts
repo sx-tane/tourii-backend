@@ -373,4 +373,103 @@ export class QuestRepositoryDb implements QuestRepository {
             .filter((quest): quest is QuestWithTasks => quest !== null)
             .map(quest => QuestMapper.prismaModelToQuestEntity(quest));
     }
+
+    async findNearbyTouristSpots(
+        latitude: number,
+        longitude: number,
+        radiusKm: number,
+    ): Promise<Array<{
+        touristSpotId: string;
+        distance: number;
+        questId?: string;
+        taskId?: string;
+    }>> {
+        try {
+            this.logger.log(
+                `Searching for tourist spots near ${latitude}, ${longitude} within ${radiusKm}km`,
+            );
+
+            // Use Haversine formula to calculate distance in SQL
+            // The formula: 6371 * acos(cos(radians(lat1)) * cos(radians(lat2)) * cos(radians(lng2) - radians(lng1)) + sin(radians(lat1)) * sin(radians(lat2)))
+            const nearbySpots = await this.prisma.$queryRaw<Array<{
+                tourist_spot_id: string;
+                quest_id: string | null;
+                task_id: string | null;
+                distance: number;
+                tourist_spot_name: string;
+                latitude: number;
+                longitude: number;
+            }>>`
+                WITH nearby_spots AS (
+                    SELECT 
+                        ts.tourist_spot_id,
+                        ts.tourist_spot_name,
+                        ts.latitude,
+                        ts.longitude,
+                        (6371 * acos(
+                            cos(radians(${latitude})) * 
+                            cos(radians(ts.latitude)) * 
+                            cos(radians(ts.longitude) - radians(${longitude})) + 
+                            sin(radians(${latitude})) * 
+                            sin(radians(ts.latitude))
+                        )) AS distance
+                    FROM tourist_spot ts
+                    WHERE (6371 * acos(
+                        cos(radians(${latitude})) * 
+                        cos(radians(ts.latitude)) * 
+                        cos(radians(ts.longitude) - radians(${longitude})) + 
+                        sin(radians(${latitude})) * 
+                        sin(radians(ts.latitude))
+                    )) <= ${radiusKm}
+                )
+                SELECT 
+                    ns.tourist_spot_id,
+                    ns.distance,
+                    ns.tourist_spot_name,
+                    ns.latitude,
+                    ns.longitude,
+                    q.quest_id,
+                    qt.quest_task_id as task_id
+                FROM nearby_spots ns
+                LEFT JOIN quest q ON q.tourist_spot_id = ns.tourist_spot_id
+                LEFT JOIN quest_task qt ON qt.quest_id = q.quest_id
+                ORDER BY ns.distance ASC
+            `;
+
+            this.logger.log(
+                `Found ${nearbySpots.length} tourist spots/tasks within ${radiusKm}km radius`,
+            );
+
+            // Group by tourist spot to avoid duplicates and get the closest quest/task for each spot
+            const spotMap = new Map<string, {
+                touristSpotId: string;
+                distance: number;
+                questId?: string;
+                taskId?: string;
+            }>();
+
+            for (const spot of nearbySpots) {
+                const key = spot.tourist_spot_id;
+                if (!spotMap.has(key) || spotMap.get(key)!.distance > spot.distance) {
+                    spotMap.set(key, {
+                        touristSpotId: spot.tourist_spot_id,
+                        distance: spot.distance,
+                        questId: spot.quest_id || undefined,
+                        taskId: spot.task_id || undefined,
+                    });
+                }
+            }
+
+            const result = Array.from(spotMap.values()).sort((a, b) => a.distance - b.distance);
+
+            this.logger.log(
+                `Returning ${result.length} unique tourist spots with distances: ${result.map(r => `${r.touristSpotId}(${r.distance.toFixed(3)}km)`).join(', ')}`,
+            );
+
+            return result;
+        } catch (error) {
+            this.logger.error('Error finding nearby tourist spots', error);
+            return [];
+        }
+    }
 }

@@ -343,8 +343,9 @@ Your development environment is now set up! Next steps:
 
 1. **📖 Read**: [API Documentation](../README.md#-api-reference)
 2. **🧪 Test**: Try the example requests in `etc/http/`
-3. **🔍 Explore**: Use Prisma Studio to understand the data model
-4. **💬 Ask**: Reach out to the team for any questions!
+3. **👑 Admin Testing**: Use the admin API requests in `etc/http/user-request/`
+4. **🔍 Explore**: Use Prisma Studio to understand the data model
+5. **💬 Ask**: Reach out to the team for any questions!
 
 ### Quick Reference Commands
 
@@ -366,10 +367,52 @@ pnpm format
 
 ---
 
+## 👑 Admin API Testing
+
+### Quick Start with Admin Endpoints
+
+After setting up your development environment, you can test the admin user management API:
+
+```bash
+# 1. Seed test users with comprehensive data
+npx tsx prisma/seed-admin-users.ts
+
+# 2. Start the development server
+pnpm start:dev:tourii-backend
+
+# 3. Test admin endpoints using VS Code REST Client
+# Open any .http file in etc/http/user-request/ and click "Send Request"
+```
+
+### Available Admin HTTP Test Files
+
+Located in `etc/http/user-request/`:
+
+- **`admin-get-all-users.http`** - Basic user retrieval and sorting
+- **`admin-filter-users.http`** - Role and status filtering
+- **`admin-search-users.http`** - Search functionality tests
+- **`admin-pagination-examples.http`** - Pagination scenarios
+- **`admin-dashboard-queries.http`** - Ready-to-use dashboard queries
+- **`admin-complex-queries.http`** - Combined filter examples
+- **`admin-edge-cases.http`** - Error handling tests
+
+### Admin API Key Setup
+
+Make sure your `.env` file includes:
+```env
+# Use the correct API key from the seeded data
+API_KEYS=your-api-key-1,your-api-key-2
+```
+
+The HTTP test files use `your-api-key-1` by default.
+
+---
+
 ## 🆘 Need Help?
 
 - **Database Issues**: Check [Docker Setup Guide](../etc/docker/README.md)
 - **API Testing**: See example requests in `etc/http/` folders
+- **Admin API**: Check comprehensive documentation in `etc/http/user-request/README-admin-api.md`
 - **Architecture**: Read [System Architecture](./SYSTEM_ARCHITECTURE.md)
 - **Security**: Review [Security Guide](./SECURITY.md)
 

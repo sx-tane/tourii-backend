@@ -1,0 +1,53 @@
+### Pagination - First Page (Default)
+GET http://localhost:4000/admin/users?page=1&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination - Second Page
+GET http://localhost:4000/admin/users?page=2&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination - Third Page
+GET http://localhost:4000/admin/users?page=3&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination - Large Page Size
+GET http://localhost:4000/admin/users?page=1&limit=20
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination - Small Page Size
+GET http://localhost:4000/admin/users?page=1&limit=3
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination - Maximum Page Size (100)
+GET http://localhost:4000/admin/users?page=1&limit=100
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination with Filters - Premium Users Page 1
+GET http://localhost:4000/admin/users?isPremium=true&page=1&limit=3
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination with Filters - Premium Users Page 2
+GET http://localhost:4000/admin/users?isPremium=true&page=2&limit=3
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Pagination with Search - Discord Users
+GET http://localhost:4000/admin/users?searchTerm=Discord&page=1&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

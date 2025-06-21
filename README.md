@@ -116,6 +116,7 @@ graph TB
 - **⚡ Real-time Features**: WebSocket-based live interactions with Redis caching
 - **🌍 Weather Integration**: Location-aware weather data with intelligent fallback
 - **📊 Advanced Analytics**: User behavior and content performance metrics
+- **👑 Admin Management**: Comprehensive user analytics with pagination, filtering, and task verification
 - **🛡️ Enterprise Security**: Production-ready security with comprehensive input validation
 - **⚡ Performance Optimized**: Database indexes, N+1 query elimination, granular cache invalidation
 
@@ -397,6 +398,14 @@ All endpoints require these headers:
 | `GET`  | `/quests/:questId/group/members` | Get group members |
 | `POST` | `/quests/:questId/group/start`   | Start group quest |
 
+#### 👑 Admin Management
+
+| Method | Endpoint                              | Description                          |
+| ------ | ------------------------------------- | ------------------------------------ |
+| `GET`  | `/admin/users`                        | Get all users with pagination & filters |
+| `GET`  | `/admin/pending-submissions`          | Get pending task submissions         |
+| `POST` | `/admin/submissions/:id/verify`       | Approve/reject task submissions      |
+
 #### 📱 Moments & Dashboard
 
 | Method | Endpoint   | Description                 |
@@ -462,6 +471,19 @@ All endpoints require these headers:
 - `page`: Page number
 - `limit`: Items per page
 - `momentType`: Filter by moment type
+
+#### Admin Users (`/admin/users`)
+
+- `page`: Page number (default: 1)
+- `limit`: Users per page (default: 20, max: 100)
+- `searchTerm`: Search in username, email, Discord/Twitter usernames
+- `role`: Filter by user role (USER, MODERATOR, ADMIN)
+- `isPremium`: Filter by premium status (true/false)
+- `isBanned`: Filter by banned status (true/false)
+- `startDate`: Filter by registration start date (ISO format)
+- `endDate`: Filter by registration end date (ISO format)
+- `sortBy`: Sort field (username, registered_at, total_quest_completed, total_travel_distance)
+- `sortOrder`: Sort order (asc, desc)
 
 ### 🔒 Authentication
 

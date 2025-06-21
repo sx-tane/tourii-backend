@@ -4,8 +4,10 @@ import { z } from 'zod';
 export const ChapterHighlightSchema = z.object({
     storyId: z.string().describe('Story ID'),
     chapterId: z.string().describe('Chapter ID'),
+    chapterNumber: z.string().describe('Chapter number (e.g., "Chapter 1", "Prologue")'),
     title: z.string().describe('Chapter title'),
     imageUrl: z.string().optional().nullable().describe('Cover image URL'),
+    region: z.string().optional().nullable().describe('Region of the story'),
     link: z.string().nullable().describe('Deep link to chapter'),
 });
 

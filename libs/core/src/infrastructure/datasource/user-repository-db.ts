@@ -1,8 +1,8 @@
 import type { UserEntity } from '@app/core/domain/user/user.entity';
-import type { UserRepository } from '@app/core/domain/user/user.repository';
+import type { UserRepository, GetAllUsersOptions, GetAllUsersResult } from '@app/core/domain/user/user.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { TaskStatus, StoryStatus } from '@prisma/client';
+import { TaskStatus, StoryStatus, UserRoleType } from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 import { UserMapper } from '../mapper/user.mapper';
 
@@ -128,5 +128,93 @@ export class UserRepositoryDb implements UserRepository {
         });
 
         return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
+    }
+
+    async getAllUsersWithPagination(options: GetAllUsersOptions): Promise<GetAllUsersResult> {
+        const {
+            page = 1,
+            limit = 20,
+            searchTerm,
+            role,
+            isPremium,
+            isBanned,
+            startDate,
+            endDate,
+            sortBy = 'registered_at',
+            sortOrder = 'desc'
+        } = options;
+
+        // Ensure reasonable limits
+        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const skip = (page - 1) * finalLimit;
+
+        // Build where clause
+        const whereClause: any = {
+            del_flag: false, // Only get non-deleted users
+        };
+
+        // Search filter (username, email, discord_username, twitter_username)
+        if (searchTerm) {
+            whereClause.OR = [
+                { username: { contains: searchTerm, mode: 'insensitive' } },
+                { email: { contains: searchTerm, mode: 'insensitive' } },
+                { discord_username: { contains: searchTerm, mode: 'insensitive' } },
+                { twitter_username: { contains: searchTerm, mode: 'insensitive' } },
+            ];
+        }
+
+        // Role filter
+        if (role && Object.values(UserRoleType).includes(role as UserRoleType)) {
+            whereClause.role = role as UserRoleType;
+        }
+
+        // Premium filter
+        if (isPremium !== undefined) {
+            whereClause.is_premium = isPremium;
+        }
+
+        // Banned filter
+        if (isBanned !== undefined) {
+            whereClause.is_banned = isBanned;
+        }
+
+        // Date range filter
+        if (startDate || endDate) {
+            whereClause.registered_at = {};
+            if (startDate) {
+                whereClause.registered_at.gte = startDate;
+            }
+            if (endDate) {
+                whereClause.registered_at.lte = endDate;
+            }
+        }
+
+        // Build order clause
+        const orderBy: any = {};
+        orderBy[sortBy] = sortOrder;
+
+        // Execute queries in parallel
+        const [users, totalCount] = await Promise.all([
+            this.prisma.user.findMany({
+                where: whereClause,
+                include: this.userFullInclude,
+                skip,
+                take: finalLimit,
+                orderBy,
+            }),
+            this.prisma.user.count({
+                where: whereClause,
+            }),
+        ]);
+
+        const totalPages = Math.ceil(totalCount / finalLimit);
+
+        return {
+            users: users.map(user => UserMapper.prismaModelToUserEntity(user as UserRelationModel)),
+            totalCount,
+            page,
+            limit: finalLimit,
+            totalPages,
+        };
     }
 }

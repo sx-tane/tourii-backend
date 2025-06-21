@@ -5,11 +5,13 @@ import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-ba
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { constantTimeStringCompare, randomDelay } from '@app/core/utils/security-utils';
 import { Injectable } from '@nestjs/common';
+import { TaskStatus, TaskType } from '@prisma/client';
 
 @Injectable()
 export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
     constructor(private readonly prisma: PrismaService) {}
 
+    // REDACTED - Legacy auto-complete method (preserved for potential future use)
     async completePhotoTask(userId: string, taskId: string, proofUrl: string): Promise<void> {
         const task = await this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
@@ -38,6 +40,7 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         });
     }
 
+    // REDACTED - Legacy auto-complete method (preserved for potential future use)
     async completeSocialTask(userId: string, taskId: string, proofUrl: string): Promise<void> {
         const task = await this.prisma.quest_task.findUnique({
             where: { quest_task_id: taskId },
@@ -147,6 +150,153 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
                 questId: task.quest_id,
                 magatama_point_awarded: task.magatama_point_awarded,
             };
+        });
+    }
+
+    // Manual verification methods (current implementation)
+    async submitPhotoTaskForVerification(userId: string, taskId: string, proofUrl: string): Promise<void> {
+        const task = await this.prisma.quest_task.findUnique({
+            where: { quest_task_id: taskId },
+            select: { quest_id: true },
+        });
+        if (!task) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
+        }
+
+        const taskLogData = UserMapper.createUserTaskLogForPhotoUploadPending(
+            userId,
+            task.quest_id,
+            taskId,
+            proofUrl,
+        );
+
+        await this.prisma.user_task_log.upsert({
+            where: {
+                user_id_quest_id_task_id: {
+                    user_id: userId,
+                    quest_id: task.quest_id,
+                    task_id: taskId,
+                },
+            },
+            ...taskLogData,
+        });
+    }
+
+    async submitSocialTaskForVerification(userId: string, taskId: string, proofUrl: string): Promise<void> {
+        const task = await this.prisma.quest_task.findUnique({
+            where: { quest_task_id: taskId },
+            select: { quest_id: true },
+        });
+        if (!task) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
+        }
+
+        const taskLogData = UserMapper.createUserTaskLogForSocialSharePending(
+            userId,
+            task.quest_id,
+            taskId,
+            proofUrl,
+        );
+
+        await this.prisma.user_task_log.upsert({
+            where: {
+                user_id_quest_id_task_id: {
+                    user_id: userId,
+                    quest_id: task.quest_id,
+                    task_id: taskId,
+                },
+            },
+            ...taskLogData,
+        });
+    }
+
+    async submitTextTaskForVerification(userId: string, taskId: string, textAnswer: string): Promise<void> {
+        const task = await this.prisma.quest_task.findUnique({
+            where: { quest_task_id: taskId },
+            select: { quest_id: true },
+        });
+        if (!task) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
+        }
+
+        const taskLogData = UserMapper.createUserTaskLogForAnswerTextPending(
+            userId,
+            task.quest_id,
+            taskId,
+            textAnswer,
+        );
+
+        await this.prisma.user_task_log.upsert({
+            where: {
+                user_id_quest_id_task_id: {
+                    user_id: userId,
+                    quest_id: task.quest_id,
+                    task_id: taskId,
+                },
+            },
+            ...taskLogData,
+        });
+    }
+
+    async getPendingSubmissions(options: {
+        page: number;
+        limit: number;
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+    }) {
+        const offset = (options.page - 1) * options.limit;
+        
+        const whereClause = {
+            status: TaskStatus.ONGOING,
+            action: options.taskType 
+                ? { equals: options.taskType as TaskType } 
+                : { in: [TaskType.PHOTO_UPLOAD, TaskType.SHARE_SOCIAL, TaskType.ANSWER_TEXT] },
+        };
+
+        const [submissions, totalCount] = await Promise.all([
+            this.prisma.user_task_log.findMany({
+                where: whereClause,
+                include: {
+                    user: { select: { username: true } },
+                },
+                orderBy: { completed_at: 'desc' },
+                skip: offset,
+                take: options.limit,
+            }),
+            this.prisma.user_task_log.count({ where: whereClause }),
+        ]);
+
+        return {
+            submissions: submissions.map(submission => ({
+                userTaskLogId: submission.user_task_log_id,
+                userId: submission.user_id,
+                username: (submission.user as any)?.username || 'Unknown',
+                taskId: submission.task_id,
+                questId: submission.quest_id,
+                questName: 'Quest', // Will need to fetch separately if needed
+                action: submission.action,
+                submissionData: submission.submission_data,
+                userResponse: submission.user_response,
+                completedAt: submission.completed_at,
+            })),
+            totalCount,
+        };
+    }
+
+    async verifySubmission(
+        userTaskLogId: string,
+        action: 'approve' | 'reject',
+        _adminUserId: string,
+        rejectionReason?: string,
+    ): Promise<void> {
+        const updateData = {
+            status: action === 'approve' ? TaskStatus.COMPLETED : TaskStatus.FAILED,
+            ...(action === 'reject' && rejectionReason && { failed_reason: rejectionReason }),
+            claimed_at: new Date(),
+        };
+
+        await this.prisma.user_task_log.update({
+            where: { user_task_log_id: userTaskLogId },
+            data: updateData,
         });
     }
 }

@@ -80,4 +80,22 @@ export interface QuestRepository {
      * Retrieve the top 3 quests with the highest number of completed tasks.
      */
     getMostPopularQuest(): Promise<QuestEntity[]>;
+
+    /**
+     * Find quests/tourist spots near a geographic location
+     * @param latitude Latitude coordinate
+     * @param longitude Longitude coordinate
+     * @param radiusKm Search radius in kilometers
+     * @returns Array of tourist spots with distances and associated quest/task IDs
+     */
+    findNearbyTouristSpots(
+        latitude: number,
+        longitude: number,
+        radiusKm: number,
+    ): Promise<Array<{
+        touristSpotId: string;
+        distance: number;
+        questId?: string;
+        taskId?: string;
+    }>>;
 }

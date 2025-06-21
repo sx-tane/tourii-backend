@@ -759,4 +759,138 @@ All API errors follow this format:
 
 ---
 
-_Last Updated: June 20, 2025_
+## 👑 Admin Management API
+
+### Get All Users with Filtering
+
+Retrieve paginated list of users with comprehensive filtering and search capabilities:
+
+```http
+GET http://localhost:4000/admin/users?page=1&limit=20&sortBy=total_quest_completed&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+```
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA",
+      "username": "elite_traveler",
+      "email": "elite@tourii.dev",
+      "role": "USER",
+      "isPremium": true,
+      "isBanned": false,
+      "totalQuestCompleted": 52,
+      "totalTravelDistance": 2847.3,
+      "registeredAt": "2025-03-15T10:30:00.000Z",
+      "userInfo": {
+        "level": "S_CLASS",
+        "magatamaPoints": 5200,
+        "userDigitalPassportType": "YOKAI"
+      },
+      "summaryStats": {
+        "achievementCount": 15,
+        "storyCompletedCount": 8,
+        "taskCompletedCount": 52,
+        "totalCheckinsCount": 127,
+        "discordActivityCount": 34
+      }
+    }
+  ],
+  "pagination": {
+    "totalCount": 13,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 1
+  },
+  "filters": {
+    "sortBy": "total_quest_completed",
+    "sortOrder": "desc"
+  }
+}
+```
+
+### Advanced User Search and Filtering
+
+Search users by multiple criteria:
+
+```http
+GET http://localhost:4000/admin/users?searchTerm=discord&isPremium=true&role=USER&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+```
+
+### Filter by Date Range
+
+Get users who registered in a specific time period:
+
+```http
+GET http://localhost:4000/admin/users?startDate=2025-01-01&endDate=2025-06-30&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+```
+
+### Get Premium Users Dashboard
+
+Retrieve top premium users for analytics:
+
+```http
+GET http://localhost:4000/admin/users?isPremium=true&sortBy=total_travel_distance&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+```
+
+### Admin Dashboard Queries
+
+**Top Performers Leaderboard:**
+```http
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=desc&limit=10
+```
+
+**Recent Signups:**
+```http
+GET http://localhost:4000/admin/users?startDate=2025-05-22&sortBy=registered_at&sortOrder=desc
+```
+
+**At-Risk Users (Low Activity):**
+```http
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=asc&isBanned=false&limit=10
+```
+
+**Problem Users Monitoring:**
+```http
+GET http://localhost:4000/admin/users?isBanned=true&sortBy=registered_at&sortOrder=desc
+```
+
+### Admin Workflow Examples
+
+#### User Analytics Dashboard Integration
+
+1. **Overview Statistics**: Get recent users with high activity
+2. **Performance Metrics**: Sort by quest completion and travel distance
+3. **User Health Check**: Monitor banned users and low-activity accounts
+4. **Growth Analysis**: Track new registrations and engagement patterns
+
+#### Search and Filter Workflow
+
+1. **Quick Search**: Use `searchTerm` for username/email lookup
+2. **Role Management**: Filter by USER/MODERATOR/ADMIN roles
+3. **Premium Analysis**: Track premium user engagement and retention
+4. **Date Range Analysis**: Monitor growth patterns and seasonal trends
+
+#### Best Practices for Admin API
+
+1. **Pagination**: Always use appropriate `limit` values (max 100)
+2. **Sorting**: Use meaningful sort fields for dashboard views
+3. **Filtering**: Combine multiple filters for targeted analytics
+4. **Caching**: Cache dashboard queries for better performance
+
+---
+
+_Last Updated: June 21, 2025_

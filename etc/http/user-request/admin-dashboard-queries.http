@@ -1,0 +1,77 @@
+### Dashboard Query - User Overview Statistics
+GET http://localhost:4000/admin/users?page=1&limit=50&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Top Performers (Leaderboard)
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Most Traveled Users
+GET http://localhost:4000/admin/users?sortBy=total_travel_distance&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Recent Signups (Last 30 Days)
+GET http://localhost:4000/admin/users?startDate=2025-05-22&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Premium User Analysis
+GET http://localhost:4000/admin/users?isPremium=true&sortBy=total_quest_completed&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - At-Risk Users (Low Activity)
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=asc&isBanned=false&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Problem Users Monitoring
+GET http://localhost:4000/admin/users?isBanned=true&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Staff Overview
+GET http://localhost:4000/admin/users?role=ADMIN&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+###
+GET http://localhost:4000/admin/users?role=MODERATOR&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - User Engagement Metrics
+GET http://localhost:4000/admin/users?isPremium=false&sortBy=total_quest_completed&sortOrder=desc&limit=20
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Geographic Distribution (High Travel Users)
+GET http://localhost:4000/admin/users?sortBy=total_travel_distance&sortOrder=desc&limit=15
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - Growth Analysis (Monthly Signups)
+GET http://localhost:4000/admin/users?startDate=2025-06-01&endDate=2025-06-30&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Dashboard Query - User Health Check (All Active Users)
+GET http://localhost:4000/admin/users?isBanned=false&sortBy=registered_at&sortOrder=desc&limit=30
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA

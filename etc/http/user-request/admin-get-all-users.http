@@ -1,0 +1,29 @@
+### Get All Users (Admin) - Basic
+GET http://localhost:4000/admin/users
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Get All Users (Admin) - With Pagination
+GET http://localhost:4000/admin/users?page=1&limit=5
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Get All Users (Admin) - Sort by Quest Count
+GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Get All Users (Admin) - Sort by Registration Date
+GET http://localhost:4000/admin/users?sortBy=registered_at&sortOrder=asc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
+
+### Get All Users (Admin) - Sort by Travel Distance
+GET http://localhost:4000/admin/users?sortBy=total_travel_distance&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
