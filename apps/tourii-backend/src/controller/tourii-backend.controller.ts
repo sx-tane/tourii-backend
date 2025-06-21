@@ -122,6 +122,10 @@ import {
     SubmitSelectOptionTaskRequestSchema,
 } from './model/tourii-request/update/submit-tasks-request.model';
 import {
+    LocalInteractionSubmissionDto,
+    LocalInteractionSubmissionSchema,
+} from './model/tourii-request/create/local-interaction-request.model';
+import {
     TouristSpotUpdateRequestDto,
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
@@ -146,6 +150,10 @@ import {
     HomepageHighlightsResponseDto,
     HomepageHighlightsResponseSchema,
 } from './model/tourii-response/homepage/highlight-response.model';
+import {
+    LocalInteractionResponseDto,
+    LocalInteractionResponseSchema,
+} from './model/tourii-response/local-interaction-response.model';
 import {
     LocationInfoResponseDto,
     LocationInfoResponseSchema,
@@ -261,6 +269,8 @@ import {
     HomepageHighlightsResponseDto,
     AdminUserListResponseDto,
     AdminUserQueryDto,
+    LocalInteractionSubmissionDto,
+    LocalInteractionResponseDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -2020,5 +2030,40 @@ export class TouriiBackendController {
             latitude,
             userId,
         );
+    }
+
+    @Post('/tasks/:taskId/local-interaction')
+    @ApiTags('Task')
+    @ApiOperation({
+        summary: 'Submit local interaction task',
+        description: 'Submit text, photo, or audio content for local interaction tasks pending admin verification'
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiBody({
+        description: 'Local interaction submission',
+        type: LocalInteractionSubmissionDto,
+        schema: zodToOpenAPI(LocalInteractionSubmissionSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Local interaction submitted successfully',
+        type: LocalInteractionResponseDto,
+        schema: zodToOpenAPI(LocalInteractionResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async submitLocalInteraction(
+        @Param('taskId') taskId: string,
+        @Body() body: LocalInteractionSubmissionDto,
+        @Req() req: Request,
+    ): Promise<LocalInteractionResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        return this.touriiBackendService.submitLocalInteractionTask(taskId, userId, body);
     }
 }

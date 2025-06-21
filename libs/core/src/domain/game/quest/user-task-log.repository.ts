@@ -21,6 +21,12 @@ export interface UserTaskLogRepository {
         taskId: string,
         textAnswer: string,
     ): Promise<void>;
+    submitLocalInteractionTaskForVerification(
+        userId: string,
+        taskId: string,
+        interactionType: 'text' | 'photo' | 'audio',
+        content: string,
+    ): Promise<void>;
     getPendingSubmissions(options: {
         page: number;
         limit: number;

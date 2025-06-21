@@ -70,6 +70,8 @@ import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-resp
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import { SubmitTaskResponseDto } from '../controller/model/tourii-response/submit-tasks-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
+import type { LocalInteractionSubmissionDto } from '../controller/model/tourii-request/create/local-interaction-request.model';
+import type { LocalInteractionResponseDto } from '../controller/model/tourii-response/local-interaction-response.model';
 import {
     UserResponseDto,
     UserSensitiveInfoResponseDto,
@@ -1912,6 +1914,36 @@ export class TouriiBackendService {
         await this.userTaskLogRepository.submitSocialTaskForVerification(userId, taskId, proofUrl);
         return {
             message: 'Social share submitted successfully and pending admin verification.',
+        };
+    }
+
+    async submitLocalInteractionTask(
+        taskId: string,
+        userId: string,
+        submission: LocalInteractionSubmissionDto,
+    ): Promise<LocalInteractionResponseDto> {
+        // Handle file upload if not text
+        let contentUrl = submission.content;
+        if (submission.interactionType !== 'text') {
+            const fileBuffer = Buffer.from(submission.content, 'base64');
+            const mimeType = submission.interactionType === 'photo' ? 'image/jpeg' : 'audio/mpeg';
+            const key = `local-interactions/${taskId}/${userId}/${Date.now()}.${submission.interactionType === 'photo' ? 'jpg' : 'mp3'}`;
+
+            contentUrl = await this.r2StorageRepository.uploadFile(fileBuffer, key, mimeType);
+        }
+
+        // Submit for verification (same pattern as photo upload)
+        await this.userTaskLogRepository.submitLocalInteractionTaskForVerification(
+            userId,
+            taskId,
+            submission.interactionType,
+            contentUrl,
+        );
+
+        return {
+            message: 'Local interaction submitted successfully and pending admin verification',
+            status: TaskStatus.ONGOING,
+            estimatedReviewTime: '24-48 hours'
         };
     }
 

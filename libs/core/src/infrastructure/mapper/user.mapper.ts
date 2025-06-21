@@ -555,6 +555,53 @@ export class UserMapper {
         };
     }
 
+    static createUserTaskLogForLocalInteractionPending(
+        userId: string,
+        questId: string,
+        taskId: string,
+        interactionType: 'text' | 'photo' | 'audio',
+        content: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.ONGOING, // Pending verification
+                action: TaskType.LOCAL_INTERACTION,
+                group_activity_members: [],
+                submission_data: {
+                    interactionType,
+                    content,
+                    submittedAt: now.toISOString(),
+                },
+                completed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.ONGOING, // Pending verification
+                submission_data: {
+                    interactionType,
+                    content,
+                    submittedAt: now.toISOString(),
+                },
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
     static createUserTaskLogForQrScan(
         userId: string,
         questId: string,
