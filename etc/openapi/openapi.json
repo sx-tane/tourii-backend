@@ -12475,7 +12475,7 @@
     },
     "/tasks/{taskId}/local-interaction": {
       "post": {
-        "description": "Submit text, photo, or audio content for local interaction tasks pending admin verification",
+        "description": "Submit text, photo, or audio content for local interaction tasks. Supports both JSON (with base64) and multipart file uploads.",
         "operationId": "TouriiBackendController_submitLocalInteraction",
         "parameters": [
           {
@@ -12516,39 +12516,146 @@
         ],
         "requestBody": {
           "required": true,
-          "description": "Local interaction submission",
+          "description": "Local interaction submission - supports JSON with base64 or multipart file upload",
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "interactionType": {
-                    "description": "Type of interaction content",
-                    "type": "string",
-                    "enum": [
-                      "text",
-                      "photo",
-                      "audio"
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "description": "Type of interaction content",
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ]
+                      },
+                      "content": {
+                        "description": "Text content or base64 encoded file",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Optional latitude for anti-cheat verification",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Optional longitude for anti-cheat verification",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "interactionType",
+                      "content"
                     ]
                   },
-                  "content": {
-                    "description": "Text content or base64 encoded file",
-                    "type": "string"
-                  },
-                  "latitude": {
-                    "description": "Optional latitude for anti-cheat verification",
-                    "type": "number"
-                  },
-                  "longitude": {
-                    "description": "Optional longitude for anti-cheat verification",
-                    "type": "number"
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ],
+                        "description": "Type of interaction content"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Text content (for text type)"
+                      },
+                      "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Photo or audio file (for photo/audio types)"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "description": "Optional latitude for anti-cheat verification"
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "description": "Optional longitude for anti-cheat verification"
+                      }
+                    },
+                    "required": [
+                      "interactionType"
+                    ]
                   }
-                },
-                "required": [
-                  "interactionType",
-                  "content"
-                ],
-                "$ref": "#/components/schemas/LocalInteractionSubmissionDto"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "description": "Type of interaction content",
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ]
+                      },
+                      "content": {
+                        "description": "Text content or base64 encoded file",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Optional latitude for anti-cheat verification",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Optional longitude for anti-cheat verification",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "interactionType",
+                      "content"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ],
+                        "description": "Type of interaction content"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Text content (for text type)"
+                      },
+                      "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Photo or audio file (for photo/audio types)"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "description": "Optional latitude for anti-cheat verification"
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "description": "Optional longitude for anti-cheat verification"
+                      }
+                    },
+                    "required": [
+                      "interactionType"
+                    ]
+                  }
+                ]
               }
             }
           }

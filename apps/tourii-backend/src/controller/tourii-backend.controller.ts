@@ -1996,15 +1996,48 @@ export class TouriiBackendController {
     @ApiOperation({
         summary: 'Submit local interaction task',
         description:
-            'Submit text, photo, or audio content for local interaction tasks pending admin verification',
+            'Submit text, photo, or audio content for local interaction tasks. Supports both JSON (with base64) and multipart file uploads.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiConsumes('application/json', 'multipart/form-data')
     @ApiBody({
-        description: 'Local interaction submission',
-        type: LocalInteractionSubmissionDto,
-        schema: zodToOpenAPI(LocalInteractionSubmissionSchema),
+        description:
+            'Local interaction submission - supports JSON with base64 or multipart file upload',
+        schema: {
+            oneOf: [
+                zodToOpenAPI(LocalInteractionSubmissionSchema),
+                {
+                    type: 'object',
+                    properties: {
+                        interactionType: {
+                            type: 'string',
+                            enum: ['text', 'photo', 'audio'],
+                            description: 'Type of interaction content',
+                        },
+                        content: {
+                            type: 'string',
+                            description: 'Text content (for text type)',
+                        },
+                        file: {
+                            type: 'string',
+                            format: 'binary',
+                            description: 'Photo or audio file (for photo/audio types)',
+                        },
+                        latitude: {
+                            type: 'number',
+                            description: 'Optional latitude for anti-cheat verification',
+                        },
+                        longitude: {
+                            type: 'number',
+                            description: 'Optional longitude for anti-cheat verification',
+                        },
+                    },
+                    required: ['interactionType'],
+                },
+            ],
+        },
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -2015,16 +2048,51 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
+    @UseInterceptors(FileInterceptor('file'))
     async submitLocalInteraction(
         @Param('taskId') taskId: string,
-        @Body() body: LocalInteractionSubmissionDto,
+        @Body() body: any,
+        @UploadedFile() file: any,
         @Req() req: Request,
     ): Promise<LocalInteractionResponseDto> {
         const userId = req.headers['x-user-id'] as string;
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        return this.touriiBackendService.submitLocalInteractionTask(taskId, userId, body);
+
+        const contentType = req.headers['content-type'] || '';
+        let submission: LocalInteractionSubmissionDto;
+
+        // Handle multipart/form-data (file upload)
+        if (contentType.includes('multipart/form-data')) {
+            if (!file && body.interactionType !== 'text') {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+            }
+
+            if (body.interactionType === 'text') {
+                // Text submission via multipart
+                submission = {
+                    interactionType: 'text',
+                    content: body.content || '',
+                    latitude: body.latitude ? parseFloat(body.latitude) : undefined,
+                    longitude: body.longitude ? parseFloat(body.longitude) : undefined,
+                };
+            } else {
+                // File submission via multipart - convert to base64
+                const base64Content = file.buffer.toString('base64');
+                submission = {
+                    interactionType: body.interactionType,
+                    content: base64Content,
+                    latitude: body.latitude ? parseFloat(body.latitude) : undefined,
+                    longitude: body.longitude ? parseFloat(body.longitude) : undefined,
+                };
+            }
+        } else {
+            // Handle application/json (existing behavior)
+            submission = body as LocalInteractionSubmissionDto;
+        }
+
+        return this.touriiBackendService.submitLocalInteractionTask(taskId, userId, submission);
     }
 
     // ==========================================
