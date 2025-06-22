@@ -327,6 +327,7 @@ All endpoints require these headers:
 
 - `x-api-key`: API key for authentication
 - `accept-version`: API version (e.g., 1.0.0)
+- `x-user-id`: User ID for user-specific and admin endpoints
 
 #### 🔧 Health & System
 
@@ -493,7 +494,7 @@ Most endpoints require authentication via:
 
 1. **API Key**: `x-api-key` header
 2. **Version**: `accept-version` header
-3. **User Context**: `x-user-id` header (temporary, will be replaced with JWT)
+3. **User Context**: `x-user-id` header (required for user-specific and admin endpoints)
 
 ### 📝 Response Formats
 
@@ -628,6 +629,7 @@ License: [MIT](LICENSE)
 - **Popular Quest Analytics**: Homepage highlights featuring top 3 most popular quests with real-time engagement metrics
 - **Group Quest System**: Advanced multi-user quest coordination with role-based task distribution
 - **Task Response Validation**: Comprehensive validation system for text answers, multiple choice, and media uploads
+- **Admin Task Verification**: Created proper DTO structure for admin submission verification endpoints
 
 ### **💰 Cost Optimization**
 - **Google Places API**: Achieved 85-90% cost reduction through hybrid optimization strategy
@@ -649,7 +651,8 @@ License: [MIT](LICENSE)
 - **Comprehensive Docs**: 8 detailed documentation files covering all aspects
 - **Team Onboarding**: 5-minute quick start guide with real-world examples
 - **Error Reference**: Complete error code documentation with solutions
+- **API Documentation Synchronization**: Fixed 6 endpoints with missing x-user-id header annotations and created proper DTO classes for accurate OpenAPI specification
 
 ---
 
-_Last Updated: June 20, 2025_
+_Last Updated: June 22, 2025_

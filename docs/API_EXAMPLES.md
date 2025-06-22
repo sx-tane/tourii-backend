@@ -851,16 +851,25 @@ x-user-id: TSU202506-614e2f-211442-172685-KAAA
 **Top Performers Leaderboard:**
 ```http
 GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=desc&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
 ```
 
 **Recent Signups:**
 ```http
 GET http://localhost:4000/admin/users?startDate=2025-05-22&sortBy=registered_at&sortOrder=desc
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
 ```
 
 **At-Risk Users (Low Activity):**
 ```http
 GET http://localhost:4000/admin/users?sortBy=total_quest_completed&sortOrder=asc&isBanned=false&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-614e2f-211442-172685-KAAA
 ```
 
 **Problem Users Monitoring:**

@@ -46,6 +46,10 @@ import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
 } from './model/tourii-request/create/chapter-story-create-request.model';
+import {
+    LocalInteractionSubmissionDto,
+    LocalInteractionSubmissionSchema,
+} from './model/tourii-request/create/local-interaction-request.model';
 import { LoginRequestDto } from './model/tourii-request/create/login-request.model';
 import {
     ModelRouteCreateRequestDto,
@@ -122,13 +126,10 @@ import {
     SubmitSelectOptionTaskRequestSchema,
 } from './model/tourii-request/update/submit-tasks-request.model';
 import {
-    LocalInteractionSubmissionDto,
-    LocalInteractionSubmissionSchema,
-} from './model/tourii-request/create/local-interaction-request.model';
-import {
     TouristSpotUpdateRequestDto,
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
+import { VerifySubmissionRequestDto } from './model/tourii-request/update/verify-submission-request.model';
 import {
     AdminUserListResponseDto,
     AdminUserListResponseSchema,
@@ -271,6 +272,7 @@ import {
     AdminUserQueryDto,
     LocalInteractionSubmissionDto,
     LocalInteractionResponseDto,
+    VerifySubmissionRequestDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -321,6 +323,7 @@ export class TouriiBackendController {
         description: 'Get user sensitive info',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiResponse({
         status: 200,
@@ -436,6 +439,7 @@ export class TouriiBackendController {
         description: "Retrieve authenticated user's profile information.",
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     // TODO: Replace header-based userId retrieval with proper auth guard
     @ApiResponse({
@@ -466,6 +470,7 @@ export class TouriiBackendController {
             'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -537,6 +542,7 @@ export class TouriiBackendController {
             'Retrieve all users with comprehensive details, pagination, and advanced filtering options for admin dashboard.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -627,6 +633,7 @@ export class TouriiBackendController {
             'Retrieve photo upload, social share, and text answer submissions awaiting admin approval.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -679,7 +686,12 @@ export class TouriiBackendController {
             'Admin endpoint to approve or reject pending photo/social share/text answer submissions.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Submission verification request',
+        type: VerifySubmissionRequestDto,
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Submission verification completed',
@@ -689,10 +701,7 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async verifySubmission(
         @Param('id') userTaskLogId: string,
-        @Body() body: {
-            action: 'approve' | 'reject';
-            rejectionReason?: string;
-        },
+        @Body() body: VerifySubmissionRequestDto,
         @Req() req: Request,
     ) {
         const adminUserId = req.headers['x-user-id'] as string;
@@ -1777,11 +1786,11 @@ export class TouriiBackendController {
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        
+
         if (!file || !file.buffer) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        
+
         return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, {
             buffer: file.buffer,
             mimetype: file.mimetype,
@@ -1867,61 +1876,6 @@ export class TouriiBackendController {
             body.latitude,
             body.longitude,
         );
-    }
-
-    // ==========================================
-    // DASHBOARD ENDPOINTS
-    // ==========================================
-
-    @Get('/moments')
-    @ApiTags('Moment')
-    @ApiOperation({
-        summary: 'Get latest moments',
-        description: 'Retrieve latest traveler moments and activities.',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Fetch moments successfully',
-        type: MomentListResponseDto,
-        schema: zodToOpenAPI(MomentListResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
-        return await this.touriiBackendService.getLatestMoments(
-            Number(query.page),
-            Number(query.limit),
-            query.momentType,
-        );
-    }
-
-    // ==========================================
-    // HOMEPAGE ENDPOINTS
-    // ==========================================
-    @Get('/v2/homepage/highlights')
-    @ApiTags('Homepage')
-    @ApiOperation({
-        summary: 'Get homepage highlights',
-        description: 'Latest chapter and popular quest',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Homepage highlights',
-        type: HomepageHighlightsResponseDto,
-        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
-        return this.touriiBackendService.getHomepageHighlights();
     }
 
     @Post('/tasks/:taskId/answer-text')
@@ -2036,7 +1990,8 @@ export class TouriiBackendController {
     @ApiTags('Task')
     @ApiOperation({
         summary: 'Submit local interaction task',
-        description: 'Submit text, photo, or audio content for local interaction tasks pending admin verification'
+        description:
+            'Submit text, photo, or audio content for local interaction tasks pending admin verification',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -2065,5 +2020,60 @@ export class TouriiBackendController {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
         return this.touriiBackendService.submitLocalInteractionTask(taskId, userId, body);
+    }
+
+    // ==========================================
+    // DASHBOARD ENDPOINTS
+    // ==========================================
+
+    @Get('/moments')
+    @ApiTags('Moment')
+    @ApiOperation({
+        summary: 'Get latest moments',
+        description: 'Retrieve latest traveler moments and activities.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Fetch moments successfully',
+        type: MomentListResponseDto,
+        schema: zodToOpenAPI(MomentListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
+        return await this.touriiBackendService.getLatestMoments(
+            Number(query.page),
+            Number(query.limit),
+            query.momentType,
+        );
+    }
+
+    // ==========================================
+    // HOMEPAGE ENDPOINTS
+    // ==========================================
+    @Get('/v2/homepage/highlights')
+    @ApiTags('Homepage')
+    @ApiOperation({
+        summary: 'Get homepage highlights',
+        description: 'Latest chapter and popular quest',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Homepage highlights',
+        type: HomepageHighlightsResponseDto,
+        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
+        return this.touriiBackendService.getHomepageHighlights();
     }
 }
