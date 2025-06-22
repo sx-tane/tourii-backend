@@ -291,6 +291,9 @@ pnpm test:watch                   # Run tests in watch mode
 pnpm test:cov                     # Run tests with coverage
 pnpm test:e2e:app                 # Run e2e tests
 
+# Test Environment (uses separate database on port 7443)
+# Configured in .env.test to protect development data
+
 # Database Operations
 pnpm prisma:migrate:dev           # Run migrations (dev)
 pnpm prisma:migrate:test          # Run migrations (test)
@@ -510,6 +513,7 @@ All API responses follow consistent formatting:
 - **Success**: JSON objects/arrays with relevant data
 - **Error**: Standardized error objects with `code`, `message`, and `type` fields
 - **Pagination**: Includes `total`, `page`, `limit`, and `data` arrays
+- **Manual Verification Tasks**: Include `estimatedReviewTime` field (typically "24-48 hours") for tasks requiring admin review
 
 ### 🔍 API Documentation
 
@@ -636,6 +640,8 @@ License: [MIT](LICENSE)
 - **Popular Quest Analytics**: Homepage highlights featuring top 3 most popular quests with real-time engagement metrics
 - **Group Quest System**: Advanced multi-user quest coordination with role-based task distribution
 - **Task Response Validation**: Comprehensive validation system for text answers, multiple choice, and media uploads
+- **Local Interaction Tasks**: New task type supporting text, photo, and audio submissions for cultural immersion experiences
+- **Enhanced User Experience**: Added `estimatedReviewTime` to all manual verification tasks (24-48 hours) for better user expectation management
 - **Admin Task Verification**: Created proper DTO structure for admin submission verification endpoints
 
 ### **💰 Cost Optimization**
@@ -648,6 +654,7 @@ License: [MIT](LICENSE)
 - **Type Safety**: Eliminated `any` types, implemented proper TypeScript generics
 - **Input Validation**: Enhanced file upload security with comprehensive validation
 - **Environment Security**: Required security variables, no default fallbacks
+- **Comprehensive Error Handling**: Replaced all generic errors with `TouriiBackendAppException` for better debugging and monitoring
 
 ### **⚡ Performance Optimization**  
 - **Database Performance**: 60-80% query speed improvement through strategic indexing
@@ -659,6 +666,7 @@ License: [MIT](LICENSE)
 - **Team Onboarding**: 5-minute quick start guide with real-world examples
 - **Error Reference**: Complete error code documentation with solutions
 - **API Documentation Synchronization**: Fixed 6 endpoints with missing x-user-id header annotations and created proper DTO classes for accurate OpenAPI specification
+- **Test Environment Documentation**: Added comprehensive test database setup guides with data isolation best practices
 
 ---
 

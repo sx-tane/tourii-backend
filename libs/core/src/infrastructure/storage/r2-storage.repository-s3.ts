@@ -68,6 +68,9 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
 
             return publicUrl;
         } catch (error) {
+            if (error instanceof TouriiBackendAppException) {
+                throw error;
+            }
             this.logger.error(
                 `Failed to upload file to R2: ${error instanceof Error ? error.message : String(error)}`,
                 error instanceof Error ? error.stack : undefined,
@@ -103,6 +106,9 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
 
             return publicUrl;
         } catch (error) {
+            if (error instanceof TouriiBackendAppException) {
+                throw error;
+            }
             this.logger.error(
                 `Failed to upload metadata to R2: ${error instanceof Error ? error.message : String(error)}`,
                 error instanceof Error ? error.stack : undefined,

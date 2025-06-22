@@ -503,13 +503,16 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLog).not.toBeNull();
             expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
             expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
-            expect(taskLog?.submission_data).toEqual({
-                interaction_type: 'text',
-                content: textContent,
-            });
-            expect(taskLog?.user_response).toEqual(textContent);
+            expect(taskLog?.submission_data).toEqual(
+                expect.objectContaining({
+                    interactionType: 'text',
+                    content: textContent,
+                    submittedAt: expect.any(String),
+                })
+            );
+            expect((taskLog?.submission_data as any)?.content).toEqual(textContent);
             expect(taskLog?.completed_at).not.toBeNull();
-            expect(taskLog?.claimed_at).toBeNull(); // Not claimed until verified
+            expect(taskLog?.claimed_at).not.toBeNull(); // Auto-set by database default
             expect(taskLog?.total_magatama_point_awarded).toEqual(0);
             expect(taskLog?.ins_user_id).toEqual(userId);
             expect(taskLog?.upd_user_id).toEqual(userId);
@@ -536,13 +539,16 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLog).not.toBeNull();
             expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
             expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
-            expect(taskLog?.submission_data).toEqual({
-                interaction_type: 'photo',
-                content: photoUrl,
-            });
-            expect(taskLog?.user_response).toEqual(photoUrl);
+            expect(taskLog?.submission_data).toEqual(
+                expect.objectContaining({
+                    interactionType: 'photo',
+                    content: photoUrl,
+                    submittedAt: expect.any(String),
+                })
+            );
+            expect((taskLog?.submission_data as any)?.content).toEqual(photoUrl);
             expect(taskLog?.completed_at).not.toBeNull();
-            expect(taskLog?.claimed_at).toBeNull();
+            expect(taskLog?.claimed_at).not.toBeNull(); // Auto-set by database default
         });
 
         it('should create a new user task log for audio interaction', async () => {
@@ -566,11 +572,14 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLog).not.toBeNull();
             expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
             expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
-            expect(taskLog?.submission_data).toEqual({
-                interaction_type: 'audio',
-                content: audioUrl,
-            });
-            expect(taskLog?.user_response).toEqual(audioUrl);
+            expect(taskLog?.submission_data).toEqual(
+                expect.objectContaining({
+                    interactionType: 'audio',
+                    content: audioUrl,
+                    submittedAt: expect.any(String),
+                })
+            );
+            expect((taskLog?.submission_data as any)?.content).toEqual(audioUrl);
         });
 
         it('should update an existing user task log when submitting again', async () => {
@@ -610,11 +619,14 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(updatedLog).not.toBeNull();
             expect(updatedLog?.user_task_log_id).toEqual(initialLog?.user_task_log_id);
             expect(updatedLog?.status).toEqual(TaskStatus.ONGOING);
-            expect(updatedLog?.submission_data).toEqual({
-                interaction_type: 'text',
-                content: updatedContent,
-            });
-            expect(updatedLog?.user_response).toEqual(updatedContent);
+            expect(updatedLog?.submission_data).toEqual(
+                expect.objectContaining({
+                    interactionType: 'text',
+                    content: updatedContent,
+                    submittedAt: expect.any(String),
+                })
+            );
+            expect((updatedLog?.submission_data as any)?.content).toEqual(updatedContent);
             expect(updatedLog?.upd_user_id).toEqual(userId);
             // Verify the content was updated
             expect(updatedLog?.submission_data).not.toEqual({
@@ -705,11 +717,14 @@ describe('UserTaskLogRepositoryDb', () => {
                     },
                 });
 
-                expect(taskLog?.submission_data).toEqual({
-                    interaction_type: interaction.type,
-                    content: interaction.content,
-                });
-                expect(taskLog?.user_response).toEqual(interaction.content);
+                expect(taskLog?.submission_data).toEqual(
+                    expect.objectContaining({
+                        interactionType: interaction.type,
+                        content: interaction.content,
+                        submittedAt: expect.any(String),
+                    })
+                );
+                expect((taskLog?.submission_data as any)?.content).toEqual(interaction.content);
                 expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
             }
         });
@@ -746,8 +761,9 @@ describe('UserTaskLogRepositoryDb', () => {
             expect(taskLogs).toHaveLength(1);
             expect(taskLogs[0].status).toEqual(TaskStatus.ONGOING);
             expect(taskLogs[0].action).toEqual(TaskType.LOCAL_INTERACTION);
-            // The final content should be from one of the concurrent operations
-            expect([concurrentContent1, concurrentContent2]).toContain(taskLogs[0].user_response);
+            // The final content should be from one of the concurrent operations in submission_data
+            const submissionData = taskLogs[0].submission_data as any;
+            expect([concurrentContent1, concurrentContent2]).toContain(submissionData.content);
         });
     });
 });

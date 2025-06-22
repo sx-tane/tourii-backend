@@ -11749,11 +11749,16 @@
                   "description": "Public URL for the uploaded proof image",
                   "type": "string",
                   "format": "uri"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review of the submission",
+                  "type": "string"
                 }
               },
               "required": [
                 "message",
-                "proofUrl"
+                "proofUrl",
+                "estimatedReviewTime"
               ]
             },
             "content": {
@@ -11877,10 +11882,15 @@
                 "message": {
                   "description": "Result message for social share completion",
                   "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review of the submission",
+                  "type": "string"
                 }
               },
               "required": [
-                "message"
+                "message",
+                "estimatedReviewTime"
               ]
             },
             "content": {
@@ -12146,6 +12156,10 @@
                 "message": {
                   "description": "Message to the user",
                   "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
+                  "type": "string"
                 }
               },
               "required": [
@@ -12272,6 +12286,10 @@
                 },
                 "message": {
                   "description": "Message to the user",
+                  "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
                   "type": "string"
                 }
               },
@@ -12401,6 +12419,10 @@
                 },
                 "message": {
                   "description": "Message to the user",
+                  "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
                   "type": "string"
                 }
               },
@@ -17844,11 +17866,16 @@
             "description": "Public URL for the uploaded proof image",
             "type": "string",
             "format": "uri"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review of the submission",
+            "type": "string"
           }
         },
         "required": [
           "message",
-          "proofUrl"
+          "proofUrl",
+          "estimatedReviewTime"
         ]
       },
       "QrScanRequestDto": {
@@ -19328,10 +19355,15 @@
           "message": {
             "description": "Result message for social share completion",
             "type": "string"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review of the submission",
+            "type": "string"
           }
         },
         "required": [
-          "message"
+          "message",
+          "estimatedReviewTime"
         ]
       },
       "SubmitAnswerTextRequestTaskDto": {
@@ -19355,6 +19387,10 @@
           },
           "message": {
             "description": "Message to the user",
+            "type": "string"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review (only for manual verification tasks)",
             "type": "string"
           }
         },

@@ -1829,6 +1829,7 @@ export class TouriiBackendService {
         return {
             message: 'Photo submitted successfully and pending admin verification',
             proofUrl,
+            estimatedReviewTime: '24-48 hours',
         };
     }
 
@@ -1914,6 +1915,7 @@ export class TouriiBackendService {
         await this.userTaskLogRepository.submitSocialTaskForVerification(userId, taskId, proofUrl);
         return {
             message: 'Social share submitted successfully and pending admin verification.',
+            estimatedReviewTime: '24-48 hours',
         };
     }
 
@@ -2175,6 +2177,7 @@ export class TouriiBackendService {
         return {
             success: true,
             message: 'Text answer submitted successfully and pending admin verification',
+            estimatedReviewTime: '24-48 hours',
         };
     }
 

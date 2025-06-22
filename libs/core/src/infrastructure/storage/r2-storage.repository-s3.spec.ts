@@ -26,7 +26,6 @@ describe('R2StorageRepositoryS3', () => {
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                R2StorageRepositoryS3,
                 {
                     provide: ConfigService,
                     useValue: {
@@ -429,7 +428,7 @@ describe('R2StorageRepositoryS3', () => {
             expect(TouriiBackendAppErrorType.E_TB_035.message).toContain('endpoint');
             expect(TouriiBackendAppErrorType.E_TB_036.message).toContain('bucket');
             expect(TouriiBackendAppErrorType.E_TB_037.message).toContain('upload');
-            expect(TouriiBackendAppErrorType.E_TB_038.message).toContain('metadata');
+            expect(TouriiBackendAppErrorType.E_TB_038.message).toContain('Metadata');
             expect(TouriiBackendAppErrorType.E_TB_039.message).toContain('domain');
         });
     });

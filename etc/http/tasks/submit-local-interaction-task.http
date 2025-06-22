@@ -4,7 +4,7 @@
 @apiKey = your-api-key-1
 @version = 1.0.0
 @userId = TSU202506-810e69-212336-3e1b94-BAAA
-@taskId = TSK202506-local-interaction-test-01
+@taskId = TSK202506-e4ecd1-221632-9628fd-BAAA
 
 POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
 Content-Type: application/json
@@ -14,7 +14,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "I interviewed the local temple caretaker and learned that this temple has been active for over 400 years. The community still gathers here every Sunday for traditional ceremonies and meditation sessions. The bell tower was rebuilt in 1965 after earthquake damage.",
+  "content": "I interviewed the local temple caretaker and learned that this temple has been active for over 400 years. The community still gathers here every Sunday for traditional ceremonies and meditation sessions. The bell tower was rebuilt in 1965 after earthquake damage.",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -83,7 +83,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "Today I had the privilege of speaking with Takeshi-san, an 82-year-old local resident whose family has lived in this neighborhood for five generations. He shared fascinating stories about how this area looked before urbanization - there used to be rice paddies where the shopping center now stands. He also told me about the annual festival that brings the whole community together every autumn, where families prepare traditional foods and children learn folk dances that have been passed down for centuries. His grandfather was a craftsman who helped repair the temple roof in 1923 after the Great Kanto Earthquake.",
+  "content": "Today I had the privilege of speaking with Takeshi-san, an 82-year-old local resident whose family has lived in this neighborhood for five generations. He shared fascinating stories about how this area looked before urbanization - there used to be rice paddies where the shopping center now stands. He also told me about the annual festival that brings the whole community together every autumn, where families prepare traditional foods and children learn folk dances that have been passed down for centuries. His grandfather was a craftsman who helped repair the temple roof in 1923 after the Great Kanto Earthquake.",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -98,7 +98,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "Spent the morning at the local fish market with Yamada-san, a third-generation fishmonger. He taught me how to identify the freshest fish and explained the traditional preparation methods for seasonal specialties. The market has operated in this location since 1952, and many vendors' families have been working here for decades. I learned about the early morning auction process and how seasonal weather affects the daily catch.",
+  "content": "Spent the morning at the local fish market with Yamada-san, a third-generation fishmonger. He taught me how to identify the freshest fish and explained the traditional preparation methods for seasonal specialties. The market has operated in this location since 1952, and many vendors' families have been working here for decades. I learned about the early morning auction process and how seasonal weather affects the daily catch.",
   "latitude": 35.6658,
   "longitude": 139.7024
 }
@@ -113,7 +113,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "Participated in a pottery workshop with Master Sato, who has been creating traditional ceramics for over 30 years. She showed me the ancient techniques for glazing and firing that her teacher passed down to her. The clay comes from a specific mountain region and has unique properties that make it perfect for tea ceremony pieces. I learned about the spiritual aspects of pottery making and how each piece reflects the maker's connection to nature.",
+  "content": "Participated in a pottery workshop with Master Sato, who has been creating traditional ceramics for over 30 years. She showed me the ancient techniques for glazing and firing that her teacher passed down to her. The clay comes from a specific mountain region and has unique properties that make it perfect for tea ceremony pieces. I learned about the spiritual aspects of pottery making and how each piece reflects the maker's connection to nature.",
   "latitude": 35.6586,
   "longitude": 139.7454
 }
@@ -128,7 +128,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "Had an incredible home-cooked meal with the Tanaka family, who invited me to experience authentic local cuisine. Grandmother Tanaka taught me to make her family's secret miso soup recipe, which includes ingredients foraged from nearby mountains. We discussed how food traditions have evolved over generations while maintaining their cultural essence. The family shared stories about food rationing during wartime and how community gardens helped neighborhoods survive difficult periods.",
+  "content": "Had an incredible home-cooked meal with the Tanaka family, who invited me to experience authentic local cuisine. Grandmother Tanaka taught me to make her family's secret miso soup recipe, which includes ingredients foraged from nearby mountains. We discussed how food traditions have evolved over generations while maintaining their cultural essence. The family shared stories about food rationing during wartime and how community gardens helped neighborhoods survive difficult periods.",
   "latitude": 35.6785,
   "longitude": 139.6823
 }
@@ -197,7 +197,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "今日、地元の書道家の田中先生と話をしました。彼は60年以上書道を教えており、多くの外国人学生にも日本の書道文化を伝えています。Today I spoke with Tanaka-sensei, a local calligraphy master who has been teaching for over 60 years. He shared insights about how calligraphy connects mind, body, and spirit in Japanese culture. The art form requires years of practice to master the proper brush techniques and understand the deeper meaning behind each character.",
+  "content": "今日、地元の書道家の田中先生と話をしました。彼は60年以上書道を教えており、多くの外国人学生にも日本の書道文化を伝えています。Today I spoke with Tanaka-sensei, a local calligraphy master who has been teaching for over 60 years. He shared insights about how calligraphy connects mind, body, and spirit in Japanese culture. The art form requires years of practice to master the proper brush techniques and understand the deeper meaning behind each character.",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -212,7 +212,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "",
+  "content": "",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -227,7 +227,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "video",
-  "textContent": "This should fail because video is not a supported interaction type",
+  "content": "This should fail because video is not a supported interaction type",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -241,7 +241,7 @@ accept-version: {{version}}
 x-user-id: {{userId}}
 
 {
-  "textContent": "This should fail because interactionType is missing"
+  "content": "This should fail because interactionType is missing"
 }
 
 ### Submit Local Interaction Task - Invalid Task ID (should fail)
@@ -254,7 +254,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "This should fail due to invalid task ID",
+  "content": "This should fail due to invalid task ID",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -269,7 +269,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "This should fail due to invalid API key",
+  "content": "This should fail due to invalid API key",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -283,7 +283,7 @@ accept-version: {{version}}
 
 {
   "interactionType": "text",
-  "textContent": "This should fail because x-user-id header is missing",
+  "content": "This should fail because x-user-id header is missing",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -325,7 +325,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "This is an extremely detailed local interaction that tests the system's ability to handle large text submissions. I spent an entire day with the Suzuki family, learning about their traditional tea ceremony practices that have been passed down through seven generations. The matriarch, 94-year-old Suzuki Hanako-san, demonstrated the precise movements and rituals involved in the tea ceremony, explaining the spiritual significance of each gesture. She told me stories about how her grandmother taught her these same movements during World War II, when tea was scarce and the ceremony became even more precious as a connection to cultural identity. The family maintains a traditional tea house in their garden, built in 1887, which has survived earthquakes, fires, and the rapid modernization of Tokyo. Today, they continue to host monthly tea ceremonies for the neighborhood, welcoming both longtime residents and newcomers to experience this beautiful cultural tradition. The afternoon included lessons on proper posture, breathing techniques, and the meditation aspects of tea preparation. Hanako-san emphasized that tea ceremony is not just about serving tea, but about creating a moment of peace and connection between people, regardless of their backgrounds or life circumstances.",
+  "content": "This is an extremely detailed local interaction that tests the system's ability to handle large text submissions. I spent an entire day with the Suzuki family, learning about their traditional tea ceremony practices that have been passed down through seven generations. The matriarch, 94-year-old Suzuki Hanako-san, demonstrated the precise movements and rituals involved in the tea ceremony, explaining the spiritual significance of each gesture. She told me stories about how her grandmother taught her these same movements during World War II, when tea was scarce and the ceremony became even more precious as a connection to cultural identity. The family maintains a traditional tea house in their garden, built in 1887, which has survived earthquakes, fires, and the rapid modernization of Tokyo. Today, they continue to host monthly tea ceremonies for the neighborhood, welcoming both longtime residents and newcomers to experience this beautiful cultural tradition. The afternoon included lessons on proper posture, breathing techniques, and the meditation aspects of tea preparation. Hanako-san emphasized that tea ceremony is not just about serving tea, but about creating a moment of peace and connection between people, regardless of their backgrounds or life circumstances.",
   "latitude": 35.6762,
   "longitude": 139.6503
 }
@@ -340,7 +340,7 @@ x-user-id: {{userId}}
 
 {
   "interactionType": "text",
-  "textContent": "🏮 Amazing cultural exchange today! Met with Kenji-san (健二さん) who taught me origami techniques 🎌 Special chars: !@#$%^&*()_+-=[]{}|;':\",./<>? Unicode test: ñáéíóú àèìòù äëïöü çñ 日本語 中文 한국어 العربية Русский 🌸⛩️🗾✨",
+  "content": "🏮 Amazing cultural exchange today! Met with Kenji-san (健二さん) who taught me origami techniques 🎌 Special chars: !@#$%^&*()_+-=[]{}|;':\",./<>? Unicode test: ñáéíóú àèìòù äëïöü çñ 日本語 中文 한국어 العربية Русский 🌸⛩️🗾✨",
   "latitude": 35.6762,
   "longitude": 139.6503
 }

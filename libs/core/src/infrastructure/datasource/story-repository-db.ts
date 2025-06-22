@@ -92,7 +92,11 @@ export class StoryRepositoryDb implements StoryRepository {
         const fetchDataFn = async (): Promise<StoryRelationModel[]> => {
             return this.prisma.story.findMany({
                 include: {
-                    story_chapter: true,
+                    story_chapter: {
+                        orderBy: {
+                            ins_date_time: 'asc',
+                        },
+                    },
                 },
             });
         };
@@ -124,7 +128,11 @@ export class StoryRepositoryDb implements StoryRepository {
                 story_id: storyId,
             },
             include: {
-                story_chapter: true,
+                story_chapter: {
+                    orderBy: {
+                        ins_date_time: 'asc',
+                    },
+                },
             },
         });
         if (!storyDb) {

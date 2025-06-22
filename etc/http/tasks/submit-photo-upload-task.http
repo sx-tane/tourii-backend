@@ -2,8 +2,8 @@
 @baseUrl = http://localhost:4000
 @apiKey = your-api-key-1
 @version = 1.0.0
-@userId = TSU202506-810e69-212336-3e1b94-BAAA
-@taskId = TSK202506-8b4c96-212342-23200a-BAAA
+@userId = TSU202506-ae8a85-222006-4bdd44-BAAA
+@taskId = TSK202506-064550-222017-39f5ea-BAAA
 
 POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
 x-api-key: {{apiKey}}
@@ -15,7 +15,7 @@ Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0g
 Content-Disposition: form-data; name="file"; filename="temple-photo.jpg"
 Content-Type: image/jpeg
 
-< ../sample-files/germany-allgaeu-fliegenpilz.jpg
+< ../sample-files/20230304_014111621_iOS.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### Submit Photo Upload Task - PNG Image
