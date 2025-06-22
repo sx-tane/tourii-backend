@@ -171,6 +171,77 @@ curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
 
 ---
 
+### 🗄️ Storage Errors
+
+| Code         | Message                                                                   | HTTP Status | When It Occurs                         | Solution                                |
+| ------------ | ------------------------------------------------------------------------- | ----------- | -------------------------------------- | --------------------------------------- |
+| **E_TB_035** | R2 storage endpoint not configured. Set R2_ENDPOINT or R2_ACCOUNT_ID environment variable | 500         | Missing R2 configuration               | Set R2_ACCOUNT_ID environment variable  |
+| **E_TB_036** | R2 storage bucket not configured. Set R2_BUCKET environment variable     | 500         | Missing bucket configuration           | Set R2_BUCKET environment variable      |
+| **E_TB_037** | File upload to R2 storage failed                                         | 500         | Storage upload failure                 | Check R2 credentials and connectivity   |
+| **E_TB_038** | Metadata upload to R2 storage failed                                     | 500         | Metadata upload failure                | Check R2 credentials and connectivity   |
+| **E_TB_039** | R2 public domain not configured. Set R2_PUBLIC_DOMAIN environment variable | 500         | Missing public domain configuration    | Set R2_PUBLIC_DOMAIN environment variable |
+
+**Example:**
+
+```bash
+# Missing R2 configuration
+# Returns: E_TB_035, E_TB_036, or E_TB_039
+
+# Fix: Set required environment variables
+export R2_ACCOUNT_ID=your-cloudflare-account-id
+export R2_BUCKET=your-bucket-name  
+export R2_PUBLIC_DOMAIN=https://your-domain.com
+```
+
+---
+
+### 🔐 Authentication Configuration Errors
+
+| Code         | Message                                                  | HTTP Status | When It Occurs                    | Solution                          |
+| ------------ | -------------------------------------------------------- | ----------- | ---------------------------------- | --------------------------------- |
+| **E_TB_040** | JWT_SECRET environment variable is required for security | 500         | Missing JWT secret configuration   | Set JWT_SECRET environment variable |
+| **E_TB_041** | ENCRYPTION_KEY environment variable is required for security | 500 | Missing encryption key configuration | Set ENCRYPTION_KEY environment variable |
+
+**Example:**
+
+```bash
+# Missing security configuration  
+# Returns: E_TB_040 or E_TB_041
+
+# Fix: Set required security environment variables
+export JWT_SECRET=your-strong-random-64-char-string
+export ENCRYPTION_KEY=your-strong-random-32-char-string
+
+# Generate secure keys:
+openssl rand -base64 64  # For JWT_SECRET
+openssl rand -hex 32     # For ENCRYPTION_KEY
+```
+
+---
+
+### 🎯 Quest & Task Management
+
+| Code         | Message                                              | HTTP Status | When It Occurs                      | Solution                         |
+| ------------ | ---------------------------------------------------- | ----------- | ----------------------------------- | -------------------------------- |
+| **E_TB_028** | Quest task not found                                 | 404         | Task ID doesn't exist               | Verify task ID exists            |
+| **E_TB_030** | Invalid task type for QR code scanning              | 400         | Wrong task type for QR scan         | Use CHECK_IN task type           |
+| **E_TB_031** | Invalid QR code                                      | 400         | QR code doesn't match expected value | Scan the correct QR code         |
+| **E_TB_032** | Task already completed                               | 400         | Attempting to complete finished task | Check task completion status     |
+| **E_TB_033** | Invalid task configuration - malformed required_action | 400         | Task has invalid configuration      | Contact administrator            |
+
+**Example:**
+
+```bash
+# Completing a QR scan task
+curl -X POST http://localhost:4000/tasks/task-123/qr-scan \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0" \
+  -H "x-user-id: user-123" \
+  -d '{"qrCodeValue": "expected-qr-value"}'
+```
+
+---
+
 ## 🔍 Debugging Guide
 
 ### Step 1: Check the Error Code
@@ -190,13 +261,17 @@ Most errors are caused by missing headers:
 
 ### Step 3: Check Environment Configuration
 
-For E_TB_005, E_GEO_005, E_WEATHER_005 errors:
+For configuration errors (E_TB_035-041, E_GEO_005, E_WEATHER_005):
 
 ```bash
 # Verify these environment variables are set
 echo $GOOGLE_MAPS_API_KEY
 echo $OPEN_WEATHER_API_KEY
 echo $JWT_SECRET
+echo $ENCRYPTION_KEY
+echo $R2_ACCOUNT_ID
+echo $R2_BUCKET
+echo $R2_PUBLIC_DOMAIN
 ```
 
 ### Step 4: Validate Request Data

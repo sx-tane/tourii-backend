@@ -12,13 +12,13 @@ export function constantTimeStringCompare(a: string, b: string): boolean {
     // If lengths are different, still compare to avoid timing leaks
     const maxLength = Math.max(a.length, b.length);
     let result = a.length === b.length ? 0 : 1;
-    
+
     for (let i = 0; i < maxLength; i++) {
         const charA = i < a.length ? a.charCodeAt(i) : 0;
         const charB = i < b.length ? b.charCodeAt(i) : 0;
         result |= charA ^ charB;
     }
-    
+
     return result === 0;
 }
 
@@ -29,5 +29,5 @@ export function constantTimeStringCompare(a: string, b: string): boolean {
  */
 export function randomDelay(minMs: number = 10, maxMs: number = 50): Promise<void> {
     const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
-    return new Promise(resolve => setTimeout(resolve, delay));
+    return new Promise((resolve) => setTimeout(resolve, delay));
 }

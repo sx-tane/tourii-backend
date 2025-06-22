@@ -5,8 +5,8 @@ import {
     UserTravelLogRepository,
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
-import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -36,6 +36,7 @@ import { CheckInMethod, QuestType, StoryStatus, TaskStatus } from '@prisma/clien
 import { ethers } from 'ethers';
 import { imageSize } from 'image-size';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
+import type { LocalInteractionSubmissionDto } from '../controller/model/tourii-request/create/local-interaction-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
 import type { ModelRouteCreateRequestDto } from '../controller/model/tourii-request/create/model-route-create-request.model';
 import type { QuestCreateRequestDto } from '../controller/model/tourii-request/create/quest-create-request.model';
@@ -56,6 +57,7 @@ import {
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
+import type { LocalInteractionResponseDto } from '../controller/model/tourii-response/local-interaction-response.model';
 import { LocationInfoResponseDto } from '../controller/model/tourii-response/location-info-response.model';
 import type { ModelRouteResponseDto } from '../controller/model/tourii-response/model-route-response.model';
 import { MomentListResponseDto } from '../controller/model/tourii-response/moment-response.model';
@@ -70,8 +72,6 @@ import { QuestTaskSocialShareResponseDto } from '../controller/model/tourii-resp
 import type { StoryResponseDto } from '../controller/model/tourii-response/story-response.model';
 import { SubmitTaskResponseDto } from '../controller/model/tourii-response/submit-tasks-response.model';
 import type { TouristSpotResponseDto } from '../controller/model/tourii-response/tourist-spot-response.model';
-import type { LocalInteractionSubmissionDto } from '../controller/model/tourii-request/create/local-interaction-request.model';
-import type { LocalInteractionResponseDto } from '../controller/model/tourii-response/local-interaction-response.model';
 import {
     UserResponseDto,
     UserSensitiveInfoResponseDto,
@@ -1817,7 +1817,7 @@ export class TouriiBackendService {
             // Continue with photo upload even if location detection fails
         }
 
-        const proofUrl = await this.r2StorageRepository.uploadProofImage(
+        const proofUrl = await this.r2StorageRepository.uploadProof(
             file.buffer,
             key,
             file.mimetype,
@@ -1929,7 +1929,7 @@ export class TouriiBackendService {
             const mimeType = submission.interactionType === 'photo' ? 'image/jpeg' : 'audio/mpeg';
             const key = `local-interactions/${taskId}/${userId}/${Date.now()}.${submission.interactionType === 'photo' ? 'jpg' : 'mp3'}`;
 
-            contentUrl = await this.r2StorageRepository.uploadFile(fileBuffer, key, mimeType);
+            contentUrl = await this.r2StorageRepository.uploadProof(fileBuffer, key, mimeType);
         }
 
         // Submit for verification (same pattern as photo upload)
@@ -1943,7 +1943,7 @@ export class TouriiBackendService {
         return {
             message: 'Local interaction submitted successfully and pending admin verification',
             status: TaskStatus.ONGOING,
-            estimatedReviewTime: '24-48 hours'
+            estimatedReviewTime: '24-48 hours',
         };
     }
 
@@ -2079,7 +2079,7 @@ export class TouriiBackendService {
     async getPendingSubmissions(options: {
         page: number;
         limit: number;
-        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | 'LOCAL_INTERACTION';
     }) {
         const result = await this.userTaskLogRepository.getPendingSubmissions(options);
 

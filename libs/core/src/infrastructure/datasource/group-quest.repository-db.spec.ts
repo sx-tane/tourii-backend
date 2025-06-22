@@ -1,5 +1,5 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { TaskStatus } from '@prisma/client';
 import { GroupQuestRepositoryDb } from './group-quest.repository-db';

@@ -1,4 +1,4 @@
-import { QuestType, RewardType, quest, quest_task, tourist_spot } from '@prisma/client';
+import { QuestType, quest, quest_task, RewardType, tourist_spot } from '@prisma/client';
 import { Entity } from '../../entity';
 import { TouristSpot } from '../model-route/tourist-spot';
 import { Task } from './task';

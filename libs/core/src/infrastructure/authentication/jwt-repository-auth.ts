@@ -1,5 +1,4 @@
 import { JwtRepository } from '@app/core/domain/auth/jwt.repository';
-import { JWTData } from '@app/tourii-onchain/service/dto/jwt-dto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
@@ -12,12 +11,15 @@ export class JwtRepositoryAuth implements JwtRepository {
     constructor(protected readonly configService: ConfigService) {
         const secret = this.configService.get<string>('JWT_SECRET');
         if (!secret) {
-            throw new Error('JWT_SECRET environment variable is required for security');
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_040);
         }
         this.secretKey = secret;
     }
 
-    generateJwtToken<T extends Record<string, unknown>>(payload: T, options?: jwt.SignOptions): string {
+    generateJwtToken<T extends Record<string, unknown>>(
+        payload: T,
+        options?: jwt.SignOptions,
+    ): string {
         return jwt.sign(payload, this.secretKey, options);
     }
 

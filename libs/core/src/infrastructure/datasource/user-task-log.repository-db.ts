@@ -294,7 +294,7 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
     async getPendingSubmissions(options: {
         page: number;
         limit: number;
-        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | 'LOCAL_INTERACTION';
     }) {
         const offset = (options.page - 1) * options.limit;
 
@@ -302,7 +302,14 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
             status: TaskStatus.ONGOING,
             action: options.taskType
                 ? { equals: options.taskType as TaskType }
-                : { in: [TaskType.PHOTO_UPLOAD, TaskType.SHARE_SOCIAL, TaskType.ANSWER_TEXT] },
+                : {
+                      in: [
+                          TaskType.PHOTO_UPLOAD,
+                          TaskType.SHARE_SOCIAL,
+                          TaskType.ANSWER_TEXT,
+                          TaskType.LOCAL_INTERACTION,
+                      ],
+                  },
         };
 
         const [submissions, totalCount] = await Promise.all([

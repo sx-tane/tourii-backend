@@ -391,6 +391,7 @@ All endpoints require these headers:
 | `POST`   | `/tasks/:taskId/answer-text`          | Submit text answer task              |
 | `POST`   | `/tasks/:taskId/select-option`        | Submit multiple choice task          |
 | `POST`   | `/tasks/:taskId/checkin`              | Submit check-in task                 |
+| `POST`   | `/tasks/:taskId/local-interaction`    | Submit local interaction task (text/photo/audio) |
 | `DELETE` | `/quests/:questId`                    | Delete quest                         |
 | `DELETE` | `/tasks/:taskId`                      | Delete quest task                    |
 
@@ -406,7 +407,7 @@ All endpoints require these headers:
 | Method | Endpoint                              | Description                          |
 | ------ | ------------------------------------- | ------------------------------------ |
 | `GET`  | `/admin/users`                        | Get all users with pagination & filters |
-| `GET`  | `/admin/pending-submissions`          | Get pending task submissions         |
+| `GET`  | `/admin/pending-submissions`          | Get pending task submissions (photo, social, text, local interaction) |
 | `POST` | `/admin/submissions/:id/verify`       | Approve/reject task submissions      |
 
 #### 📱 Moments & Dashboard
@@ -487,6 +488,12 @@ All endpoints require these headers:
 - `endDate`: Filter by registration end date (ISO format)
 - `sortBy`: Sort field (username, registered_at, total_quest_completed, total_travel_distance)
 - `sortOrder`: Sort order (asc, desc)
+
+#### Admin Pending Submissions (`/admin/pending-submissions`)
+
+- `page`: Page number (default: 1)
+- `limit`: Submissions per page (default: 20, max: 100)
+- `taskType`: Filter by task type (PHOTO_UPLOAD, SHARE_SOCIAL, ANSWER_TEXT, LOCAL_INTERACTION)
 
 ### 🔒 Authentication
 

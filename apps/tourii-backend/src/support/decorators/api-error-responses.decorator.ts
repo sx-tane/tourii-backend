@@ -1,13 +1,9 @@
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
-import { HttpStatus, applyDecorators } from '@nestjs/common';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 
 // Helper to generate the standard schema
-const createErrorSchema = (errorType: {
-    code: string;
-    message: string;
-    type: string;
-}) => ({
+const createErrorSchema = (errorType: { code: string; message: string; type: string }) => ({
     type: 'object',
     properties: {
         code: {

@@ -1,9 +1,9 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { QuestEntity } from '@app/core/domain/game/quest/quest.entity';
 import { Task } from '@app/core/domain/game/quest/task';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { QuestRepositoryDb } from './quest-repository-db';
 
@@ -721,7 +721,7 @@ describe('QuestRepositoryDb', () => {
                 upd_user_id: 'system',
             },
         });
-        
+
         // Create tourist spot at known coordinates
         await prisma.tourist_spot.create({
             data: {
@@ -780,8 +780,8 @@ describe('QuestRepositoryDb', () => {
 
         // Should find the tourist spot we created (about 280m away)
         expect(nearbySpots.length).toBeGreaterThan(0);
-        
-        const foundSpot = nearbySpots.find(spot => spot.touristSpotId === 'spot2');
+
+        const foundSpot = nearbySpots.find((spot) => spot.touristSpotId === 'spot2');
         expect(foundSpot).toBeDefined();
         expect(foundSpot?.distance).toBeLessThan(1.0); // Within 1km
         expect(foundSpot?.distance).toBeGreaterThan(0.2); // About 280m = 0.28km

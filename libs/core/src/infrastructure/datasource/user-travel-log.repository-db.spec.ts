@@ -1,8 +1,8 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
+import type { UserTravelLogFilter } from '@app/core/domain/user/user-travel-log.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { UserTravelLogRepositoryDb } from './user-travel-log.repository-db';
-import type { UserTravelLogFilter } from '@app/core/domain/user/user-travel-log.repository';
 
 describe('UserTravelLogRepositoryDb', () => {
     let repository: UserTravelLogRepositoryDb;
@@ -19,7 +19,7 @@ describe('UserTravelLogRepositoryDb', () => {
 
     beforeEach(async () => {
         await cleanDb();
-        
+
         // Create prerequisite user record for foreign key constraint
         await prismaService.user.create({
             data: {
@@ -203,7 +203,7 @@ describe('UserTravelLogRepositoryDb', () => {
             const questId = 'test-quest-id';
             const taskId = 'test-task-id';
             const touristSpotId = 'test-tourist-spot-id';
-            
+
             const oldDate = new Date('2024-01-01');
             const newDate = new Date('2024-12-01');
             const filterStartDate = new Date('2024-06-01');

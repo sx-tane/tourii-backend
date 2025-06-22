@@ -650,7 +650,7 @@ export class TouriiBackendController {
     @ApiQuery({
         name: 'taskType',
         required: false,
-        enum: ['PHOTO_UPLOAD', 'SHARE_SOCIAL', 'ANSWER_TEXT'],
+        enum: ['PHOTO_UPLOAD', 'SHARE_SOCIAL', 'ANSWER_TEXT', 'LOCAL_INTERACTION'],
         description: 'Filter by task type',
     })
     @ApiResponse({
@@ -663,7 +663,12 @@ export class TouriiBackendController {
     async getPendingSubmissions(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 20,
-        @Query('taskType') taskType: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | undefined,
+        @Query('taskType') taskType:
+            | 'PHOTO_UPLOAD'
+            | 'SHARE_SOCIAL'
+            | 'ANSWER_TEXT'
+            | 'LOCAL_INTERACTION'
+            | undefined,
         @Req() req: Request,
     ) {
         const userId = req.headers['x-user-id'] as string;

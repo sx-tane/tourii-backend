@@ -1,7 +1,7 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { MomentRepositoryDb } from './moment.repository-db';
 

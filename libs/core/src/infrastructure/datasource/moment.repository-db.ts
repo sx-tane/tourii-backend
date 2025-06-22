@@ -1,6 +1,6 @@
-import { MomentType } from '@app/core/domain/feed/moment-type';
 import type { MomentEntity } from '@app/core/domain/feed/moment.entity';
 import type { MomentRepository } from '@app/core/domain/feed/moment.repository';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';

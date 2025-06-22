@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserTaskLogRepositoryDb } from './user-task-log.repository-db';
 import { PrismaService } from '@app/core/provider/prisma.service';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UserMapper } from '../mapper/user.mapper';
+import { UserTaskLogRepositoryDb } from './user-task-log.repository-db';
 
 // Mock the security utils to avoid delays in tests
 jest.mock('@app/core/utils/security-utils', () => ({
@@ -119,23 +119,21 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
             await expect(
                 repository.completeQrScanTask(userId, taskId, qrCodeValue),
-            ).rejects.toThrow(
-                new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028)
-            );
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028));
         });
 
         it('should throw E_TB_032 error if task already completed', async () => {
             prismaService.$transaction.mockImplementation(async (callback) => {
                 mockTransactionPrisma.quest_task.findUnique.mockResolvedValue(mockTask);
-                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue({ user_id: userId }); // Existing log
+                mockTransactionPrisma.user_task_log.findUnique.mockResolvedValue({
+                    user_id: userId,
+                }); // Existing log
                 return callback(mockTransactionPrisma);
             });
 
             await expect(
                 repository.completeQrScanTask(userId, taskId, qrCodeValue),
-            ).rejects.toThrow(
-                new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_032)
-            );
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_032));
 
             expect(mockTransactionPrisma.user_task_log.upsert).not.toHaveBeenCalled();
         });
@@ -154,9 +152,7 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
             await expect(
                 repository.completeQrScanTask(userId, taskId, qrCodeValue),
-            ).rejects.toThrow(
-                new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_030)
-            );
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_030));
         });
 
         it('should throw E_TB_033 error if required_action is invalid JSON', async () => {
@@ -173,9 +169,7 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
             await expect(
                 repository.completeQrScanTask(userId, taskId, qrCodeValue),
-            ).rejects.toThrow(
-                new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_033)
-            );
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_033));
         });
 
         it('should throw E_TB_031 error if QR code does not match', async () => {
@@ -192,9 +186,7 @@ describe('UserTaskLogRepositoryDb - QR Scan', () => {
 
             await expect(
                 repository.completeQrScanTask(userId, taskId, qrCodeValue),
-            ).rejects.toThrow(
-                new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_031)
-            );
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_031));
         });
     });
 });

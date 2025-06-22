@@ -1,12 +1,8 @@
-import { HttpStatus, applyDecorators } from '@nestjs/common';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { TouriiOnchainAppErrorType } from '../exception/tourii-onchain-app-error-type';
 
-const createErrorSchema = (errorType: {
-    code: string;
-    message: string;
-    type: string;
-}) => ({
+const createErrorSchema = (errorType: { code: string; message: string; type: string }) => ({
     type: 'object',
     properties: {
         code: {

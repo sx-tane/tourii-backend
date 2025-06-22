@@ -1,8 +1,8 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { UserMapper } from '@app/core/infrastructure/mapper/user.mapper';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { TaskStatus, TaskType } from '@prisma/client';
 import { UserTaskLogRepositoryDb } from './user-task-log.repository-db';
@@ -449,6 +449,305 @@ describe('UserTaskLogRepositoryDb', () => {
                     social_url: expect.stringContaining(socialProofUrl),
                 }),
             );
+        });
+    });
+
+    describe('submitLocalInteractionTaskForVerification', () => {
+        beforeEach(async () => {
+            // Create a task specifically for local interaction testing
+            await prisma.quest_task.upsert({
+                where: { quest_task_id: taskId },
+                update: {
+                    task_type: 'LOCAL_INTERACTION',
+                    task_name: 'Local Interaction Task',
+                    task_desc: 'Submit a local interaction to complete this task',
+                },
+                create: {
+                    quest_task_id: taskId,
+                    quest_id: questId,
+                    task_theme: 'STORY',
+                    task_type: 'LOCAL_INTERACTION',
+                    task_name: 'Local Interaction Task',
+                    task_desc: 'Submit a local interaction to complete this task',
+                    is_unlocked: true,
+                    required_action: 'Submit local interaction',
+                    group_activity_members: [],
+                    select_options: [],
+                    anti_cheat_rules: {},
+                    magatama_point_awarded: 15,
+                    reward_earned: 'Interaction Badge',
+                    ins_user_id: 'system',
+                    upd_user_id: 'system',
+                },
+            });
+        });
+
+        it('should create a new user task log for text interaction when submitting for the first time', async () => {
+            const textContent = 'This is my local interaction text response';
+
+            await repository.submitLocalInteractionTaskForVerification(
+                userId,
+                taskId,
+                'text',
+                textContent,
+            );
+
+            const taskLog = await prisma.user_task_log.findFirst({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            expect(taskLog).not.toBeNull();
+            expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
+            expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
+            expect(taskLog?.submission_data).toEqual({
+                interaction_type: 'text',
+                content: textContent,
+            });
+            expect(taskLog?.user_response).toEqual(textContent);
+            expect(taskLog?.completed_at).not.toBeNull();
+            expect(taskLog?.claimed_at).toBeNull(); // Not claimed until verified
+            expect(taskLog?.total_magatama_point_awarded).toEqual(0);
+            expect(taskLog?.ins_user_id).toEqual(userId);
+            expect(taskLog?.upd_user_id).toEqual(userId);
+        });
+
+        it('should create a new user task log for photo interaction', async () => {
+            const photoUrl = 'https://example.com/photo-interaction.jpg';
+
+            await repository.submitLocalInteractionTaskForVerification(
+                userId,
+                taskId,
+                'photo',
+                photoUrl,
+            );
+
+            const taskLog = await prisma.user_task_log.findFirst({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            expect(taskLog).not.toBeNull();
+            expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
+            expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
+            expect(taskLog?.submission_data).toEqual({
+                interaction_type: 'photo',
+                content: photoUrl,
+            });
+            expect(taskLog?.user_response).toEqual(photoUrl);
+            expect(taskLog?.completed_at).not.toBeNull();
+            expect(taskLog?.claimed_at).toBeNull();
+        });
+
+        it('should create a new user task log for audio interaction', async () => {
+            const audioUrl = 'https://example.com/audio-interaction.mp3';
+
+            await repository.submitLocalInteractionTaskForVerification(
+                userId,
+                taskId,
+                'audio',
+                audioUrl,
+            );
+
+            const taskLog = await prisma.user_task_log.findFirst({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            expect(taskLog).not.toBeNull();
+            expect(taskLog?.status).toEqual(TaskStatus.ONGOING);
+            expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
+            expect(taskLog?.submission_data).toEqual({
+                interaction_type: 'audio',
+                content: audioUrl,
+            });
+            expect(taskLog?.user_response).toEqual(audioUrl);
+        });
+
+        it('should update an existing user task log when submitting again', async () => {
+            const initialContent = 'Initial interaction text';
+            const updatedContent = 'Updated interaction text';
+
+            // First submission
+            await repository.submitLocalInteractionTaskForVerification(
+                userId,
+                taskId,
+                'text',
+                initialContent,
+            );
+            const initialLog = await prisma.user_task_log.findFirst({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            // Second submission with updated content
+            await repository.submitLocalInteractionTaskForVerification(
+                userId,
+                taskId,
+                'text',
+                updatedContent,
+            );
+            const updatedLog = await prisma.user_task_log.findFirst({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            expect(updatedLog).not.toBeNull();
+            expect(updatedLog?.user_task_log_id).toEqual(initialLog?.user_task_log_id);
+            expect(updatedLog?.status).toEqual(TaskStatus.ONGOING);
+            expect(updatedLog?.submission_data).toEqual({
+                interaction_type: 'text',
+                content: updatedContent,
+            });
+            expect(updatedLog?.user_response).toEqual(updatedContent);
+            expect(updatedLog?.upd_user_id).toEqual(userId);
+            // Verify the content was updated
+            expect(updatedLog?.submission_data).not.toEqual({
+                interaction_type: 'text',
+                content: initialContent,
+            });
+        });
+
+        it('should throw TouriiBackendAppException when the quest task does not exist', async () => {
+            const nonExistentTaskId = 'non-existent-task-id';
+            const textContent = 'Test content';
+
+            await expect(
+                repository.submitLocalInteractionTaskForVerification(
+                    userId,
+                    nonExistentTaskId,
+                    'text',
+                    textContent,
+                ),
+            ).rejects.toThrow(TouriiBackendAppException);
+
+            await expect(
+                repository.submitLocalInteractionTaskForVerification(
+                    userId,
+                    nonExistentTaskId,
+                    'text',
+                    textContent,
+                ),
+            ).rejects.toThrow('Quest task not found');
+        });
+
+        it('should handle different interaction types correctly in submission data', async () => {
+            const interactions = [
+                { type: 'text' as const, content: 'Text interaction content' },
+                { type: 'photo' as const, content: 'https://example.com/photo.jpg' },
+                { type: 'audio' as const, content: 'https://example.com/audio.mp3' },
+            ];
+
+            for (let i = 0; i < interactions.length; i++) {
+                const interaction = interactions[i];
+                const uniqueTaskId = `${taskId}-${i}`;
+                const uniqueUserId = `${userId}-${i}`;
+
+                // Create unique task and user for each test case
+                await prisma.quest_task.create({
+                    data: {
+                        quest_task_id: uniqueTaskId,
+                        quest_id: questId,
+                        task_theme: 'STORY',
+                        task_type: 'LOCAL_INTERACTION',
+                        task_name: `Test Task ${i}`,
+                        task_desc: 'Test task description',
+                        is_unlocked: true,
+                        required_action: 'Submit interaction',
+                        group_activity_members: [],
+                        select_options: [],
+                        anti_cheat_rules: {},
+                        magatama_point_awarded: 10,
+                        reward_earned: 'Test Badge',
+                        ins_user_id: 'system',
+                        upd_user_id: 'system',
+                    },
+                });
+
+                await prisma.user.create({
+                    data: {
+                        user_id: uniqueUserId,
+                        username: `test-user-${i}`,
+                        password: 'password',
+                        perks_wallet_address: `test-wallet-address-${i}`,
+                        ins_user_id: 'system',
+                        upd_user_id: 'system',
+                    },
+                });
+
+                await repository.submitLocalInteractionTaskForVerification(
+                    uniqueUserId,
+                    uniqueTaskId,
+                    interaction.type,
+                    interaction.content,
+                );
+
+                const taskLog = await prisma.user_task_log.findFirst({
+                    where: {
+                        user_id: uniqueUserId,
+                        quest_id: questId,
+                        task_id: uniqueTaskId,
+                    },
+                });
+
+                expect(taskLog?.submission_data).toEqual({
+                    interaction_type: interaction.type,
+                    content: interaction.content,
+                });
+                expect(taskLog?.user_response).toEqual(interaction.content);
+                expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);
+            }
+        });
+
+        it('should handle concurrent submissions correctly with upsert behavior', async () => {
+            const concurrentContent1 = 'Concurrent content 1';
+            const concurrentContent2 = 'Concurrent content 2';
+
+            // Submit two interactions concurrently
+            await Promise.all([
+                repository.submitLocalInteractionTaskForVerification(
+                    userId,
+                    taskId,
+                    'text',
+                    concurrentContent1,
+                ),
+                repository.submitLocalInteractionTaskForVerification(
+                    userId,
+                    taskId,
+                    'text',
+                    concurrentContent2,
+                ),
+            ]);
+
+            const taskLogs = await prisma.user_task_log.findMany({
+                where: {
+                    user_id: userId,
+                    quest_id: questId,
+                    task_id: taskId,
+                },
+            });
+
+            // Should only have one record due to upsert behavior
+            expect(taskLogs).toHaveLength(1);
+            expect(taskLogs[0].status).toEqual(TaskStatus.ONGOING);
+            expect(taskLogs[0].action).toEqual(TaskType.LOCAL_INTERACTION);
+            // The final content should be from one of the concurrent operations
+            expect([concurrentContent1, concurrentContent2]).toContain(taskLogs[0].user_response);
         });
     });
 });

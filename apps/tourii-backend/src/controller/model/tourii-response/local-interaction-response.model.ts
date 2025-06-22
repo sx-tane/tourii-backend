@@ -1,6 +1,6 @@
+import { TaskStatus } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import { TaskStatus } from '@prisma/client';
 
 export const LocalInteractionResponseSchema = z.object({
     message: z.string().describe('Status message'),

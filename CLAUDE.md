@@ -258,6 +258,15 @@ Implemented comprehensive task management and quest system improvements:
 - **DTO implementation**: Created VerifySubmissionRequestDto for admin submission verification endpoint
 - **OpenAPI spec accuracy**: Ensures API consumers receive correct header requirements and body schemas in documentation
 
+### Enhanced Error Handling & Task Management (June 2025)
+
+- **Comprehensive Error Handling**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
+- **R2 Storage Error Types**: Added 5 new error codes (E_TB_035-039) for Cloudflare R2 storage configuration and operation failures
+- **Authentication Security Errors**: Added 2 new error codes (E_TB_040-041) for JWT and encryption configuration requirements
+- **Task Management Enhancement**: Added LOCAL_INTERACTION task type support in admin pending submissions and verification APIs
+- **Complete Error Documentation**: Updated ERROR_CODES.md with 28+ error codes, solutions, and debugging examples
+- **Testing Coverage**: Added comprehensive test suites for R2 storage error handling and local interaction task submissions
+
 ---
 
 _Last Updated: June 22, 2025_

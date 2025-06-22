@@ -34,13 +34,15 @@ export interface PassportMetadataInput {
 
 export class DigitalPassportMetadataBuilder {
     static build(input: PassportMetadataInput): DigitalPassportMetadata {
-        const passportTypeName = this.getPassportTypeName(input.passportType);
-        const levelName = this.getLevelName(input.level);
-        
+        const passportTypeName = DigitalPassportMetadataBuilder.getPassportTypeName(
+            input.passportType,
+        );
+        const levelName = DigitalPassportMetadataBuilder.getLevelName(input.level);
+
         return {
             name: `${passportTypeName} Digital Passport #${input.tokenId}`,
             description: `Tourii Digital Passport for ${input.username}. This passport grants access to exclusive travel experiences and tracks your journey through Japan's hidden gems.`,
-            image: this.generateImageUrl(input.passportType, input.level),
+            image: DigitalPassportMetadataBuilder.generateImageUrl(input.passportType, input.level),
             external_url: `https://tourii.com/passport/${input.tokenId}`,
             attributes: [
                 {
@@ -79,21 +81,33 @@ export class DigitalPassportMetadataBuilder {
                     value: Math.floor(input.registeredAt.getTime() / 1000),
                     display_type: 'date',
                 },
-                ...(input.prayerBead !== undefined && input.prayerBead > 0 ? [{
-                    trait_type: 'Prayer Beads',
-                    value: input.prayerBead,
-                    display_type: 'number' as const,
-                }] : []),
-                ...(input.sword !== undefined && input.sword > 0 ? [{
-                    trait_type: 'Swords',
-                    value: input.sword,
-                    display_type: 'number' as const,
-                }] : []),
-                ...(input.orgeMask !== undefined && input.orgeMask > 0 ? [{
-                    trait_type: 'Orge Masks',
-                    value: input.orgeMask,
-                    display_type: 'number' as const,
-                }] : []),
+                ...(input.prayerBead !== undefined && input.prayerBead > 0
+                    ? [
+                          {
+                              trait_type: 'Prayer Beads',
+                              value: input.prayerBead,
+                              display_type: 'number' as const,
+                          },
+                      ]
+                    : []),
+                ...(input.sword !== undefined && input.sword > 0
+                    ? [
+                          {
+                              trait_type: 'Swords',
+                              value: input.sword,
+                              display_type: 'number' as const,
+                          },
+                      ]
+                    : []),
+                ...(input.orgeMask !== undefined && input.orgeMask > 0
+                    ? [
+                          {
+                              trait_type: 'Orge Masks',
+                              value: input.orgeMask,
+                              display_type: 'number' as const,
+                          },
+                      ]
+                    : []),
             ],
         };
     }
@@ -139,7 +153,7 @@ export class DigitalPassportMetadataBuilder {
         const baseUrl = 'https://assets.tourii.com/passport';
         const typeSlug = passportType.toLowerCase();
         const levelSlug = level.toLowerCase().replace(/_/g, '-');
-        
+
         return `${baseUrl}/${typeSlug}/${levelSlug}.png`;
     }
 }
