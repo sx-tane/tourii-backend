@@ -114,17 +114,10 @@ import {
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
 import {
-    SubmitAnswerTextRequestTaskDto,
-    SubmitAnswerTextTaskRequestSchema,
-    SubmitCheckInTaskRequestDto,
-    SubmitCheckInTaskRequestSchema,
-    SubmitSelectOptionsTaskRequestDto,
-    SubmitSelectOptionTaskRequestSchema,
-} from './model/tourii-request/update/submit-tasks-request.model';
-import {
     TouristSpotUpdateRequestDto,
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
+import { VerifySubmissionRequestDto } from './model/tourii-request/update/verify-submission-request.model';
 import {
     AdminUserListResponseDto,
     AdminUserListResponseSchema,
@@ -198,10 +191,6 @@ import {
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
 import {
-    SubmitTaskResponseDto,
-    SubmitTaskResponseSchema,
-} from './model/tourii-response/submit-tasks-response.model';
-import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
@@ -215,6 +204,18 @@ import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
 } from './model/tourii-response/user/user-travel-log-list-response.model';
+import {
+    SubmitAnswerTextRequestTaskDto,
+    SubmitAnswerTextTaskRequestSchema,
+    SubmitSelectOptionsTaskRequestDto,
+    SubmitSelectOptionTaskRequestSchema,
+    SubmitCheckInTaskRequestDto,
+    SubmitCheckInTaskRequestSchema,
+} from './model/tourii-request/update/submit-tasks-request.model';
+import {
+    SubmitTaskResponseDto,
+    SubmitTaskResponseSchema,
+} from './model/tourii-response/submit-tasks-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -261,6 +262,7 @@ import {
     HomepageHighlightsResponseDto,
     AdminUserListResponseDto,
     AdminUserQueryDto,
+    VerifySubmissionRequestDto,
 )
 export class TouriiBackendController {
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
@@ -676,6 +678,10 @@ export class TouriiBackendController {
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiBody({
+        description: 'Submission verification request',
+        type: VerifySubmissionRequestDto,
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Submission verification completed',
@@ -685,10 +691,7 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async verifySubmission(
         @Param('id') userTaskLogId: string,
-        @Body() body: {
-            action: 'approve' | 'reject';
-            rejectionReason?: string;
-        },
+        @Body() body: VerifySubmissionRequestDto,
         @Req() req: Request,
     ) {
         const adminUserId = req.headers['x-user-id'] as string;
@@ -1773,11 +1776,11 @@ export class TouriiBackendController {
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        
+
         if (!file || !file.buffer) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
-        
+
         return this.touriiBackendService.uploadQuestTaskPhoto(taskId, userId, {
             buffer: file.buffer,
             mimetype: file.mimetype,
@@ -1863,61 +1866,6 @@ export class TouriiBackendController {
             body.latitude,
             body.longitude,
         );
-    }
-
-    // ==========================================
-    // DASHBOARD ENDPOINTS
-    // ==========================================
-
-    @Get('/moments')
-    @ApiTags('Moment')
-    @ApiOperation({
-        summary: 'Get latest moments',
-        description: 'Retrieve latest traveler moments and activities.',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Fetch moments successfully',
-        type: MomentListResponseDto,
-        schema: zodToOpenAPI(MomentListResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
-        return await this.touriiBackendService.getLatestMoments(
-            Number(query.page),
-            Number(query.limit),
-            query.momentType,
-        );
-    }
-
-    // ==========================================
-    // HOMEPAGE ENDPOINTS
-    // ==========================================
-    @Get('/v2/homepage/highlights')
-    @ApiTags('Homepage')
-    @ApiOperation({
-        summary: 'Get homepage highlights',
-        description: 'Latest chapter and popular quest',
-    })
-    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
-    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Homepage highlights',
-        type: HomepageHighlightsResponseDto,
-        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
-    })
-    @ApiUnauthorizedResponse()
-    @ApiInvalidVersionResponse()
-    @ApiDefaultBadRequestResponse()
-    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
-        return this.touriiBackendService.getHomepageHighlights();
     }
 
     @Post('/tasks/:taskId/answer-text')
@@ -2026,5 +1974,60 @@ export class TouriiBackendController {
             latitude,
             userId,
         );
+    }
+
+    // ==========================================
+    // DASHBOARD ENDPOINTS
+    // ==========================================
+
+    @Get('/moments')
+    @ApiTags('Moment')
+    @ApiOperation({
+        summary: 'Get latest moments',
+        description: 'Retrieve latest traveler moments and activities.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Fetch moments successfully',
+        type: MomentListResponseDto,
+        schema: zodToOpenAPI(MomentListResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getMoments(@Query() query: MomentListQueryDto): Promise<MomentListResponseDto> {
+        return await this.touriiBackendService.getLatestMoments(
+            Number(query.page),
+            Number(query.limit),
+            query.momentType,
+        );
+    }
+
+    // ==========================================
+    // HOMEPAGE ENDPOINTS
+    // ==========================================
+    @Get('/v2/homepage/highlights')
+    @ApiTags('Homepage')
+    @ApiOperation({
+        summary: 'Get homepage highlights',
+        description: 'Latest chapter and popular quest',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Homepage highlights',
+        type: HomepageHighlightsResponseDto,
+        schema: zodToOpenAPI(HomepageHighlightsResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
+        return this.touriiBackendService.getHomepageHighlights();
     }
 }

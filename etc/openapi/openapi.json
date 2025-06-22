@@ -3346,6 +3346,17 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Submission verification request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifySubmissionRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Submission verification completed"
@@ -12059,317 +12070,6 @@
         ]
       }
     },
-    "/moments": {
-      "get": {
-        "description": "Retrieve latest traveler moments and activities.",
-        "operationId": "TouriiBackendController_getMoments",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Items per page",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Page number",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Fetch moments successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "moments": {
-                  "type": "array",
-                  "items": {
-                    "description": "Traveler moment information",
-                    "type": "object",
-                    "properties": {
-                      "imageUrl": {
-                        "description": "URL of the moment image",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "username": {
-                        "description": "Traveler display name",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "description": {
-                        "description": "Short moment description",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "rewardText": {
-                        "description": "Text describing earned rewards",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "insDateTime": {
-                        "description": "Timestamp when the moment occurred",
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "insDateTime"
-                    ]
-                  }
-                },
-                "pagination": {
-                  "type": "object",
-                  "properties": {
-                    "currentPage": {
-                      "description": "Current page number",
-                      "type": "number"
-                    },
-                    "totalPages": {
-                      "description": "Total number of pages",
-                      "type": "number"
-                    },
-                    "totalItems": {
-                      "description": "Total number of items",
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "currentPage",
-                    "totalPages",
-                    "totalItems"
-                  ]
-                }
-              },
-              "required": [
-                "moments",
-                "pagination"
-              ]
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MomentListResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "Get latest moments",
-        "tags": [
-          "Moment"
-        ]
-      }
-    },
-    "/v2/homepage/highlights": {
-      "get": {
-        "description": "Latest chapter and popular quest",
-        "operationId": "TouriiBackendController_getHomepageHighlights",
-        "parameters": [
-          {
-            "name": "accept-version",
-            "in": "header",
-            "description": "API version (e.g., 1.0.0)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-api-key",
-            "in": "header",
-            "description": "API key for authentication",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Homepage highlights",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "latestChapter": {
-                  "type": "object",
-                  "properties": {
-                    "storyId": {
-                      "description": "Story ID",
-                      "type": "string"
-                    },
-                    "chapterId": {
-                      "description": "Chapter ID",
-                      "type": "string"
-                    },
-                    "chapterNumber": {
-                      "description": "Chapter number (e.g., \"Chapter 1\", \"Prologue\")",
-                      "type": "string"
-                    },
-                    "title": {
-                      "description": "Chapter title",
-                      "type": "string"
-                    },
-                    "imageUrl": {
-                      "description": "Cover image URL",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "region": {
-                      "description": "Region of the story",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "link": {
-                      "description": "Deep link to chapter",
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "storyId",
-                    "chapterId",
-                    "chapterNumber",
-                    "title",
-                    "imageUrl",
-                    "region",
-                    "link"
-                  ],
-                  "nullable": true
-                },
-                "popularQuests": {
-                  "description": "Top 3 popular quests",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "questId": {
-                        "description": "Quest ID",
-                        "type": "string"
-                      },
-                      "title": {
-                        "description": "Quest title",
-                        "type": "string"
-                      },
-                      "imageUrl": {
-                        "description": "Quest image URL",
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "link": {
-                        "description": "Deep link to quest",
-                        "type": "string",
-                        "nullable": true
-                      }
-                    },
-                    "required": [
-                      "questId",
-                      "title",
-                      "imageUrl",
-                      "link"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "latestChapter",
-                "popularQuests"
-              ]
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HomepageHighlightsResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_TB_021"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Invalid version format"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "summary": "Get homepage highlights",
-        "tags": [
-          "Homepage"
-        ]
-      }
-    },
     "/tasks/{taskId}/answer-text": {
       "post": {
         "description": "Submit text answer for text-based task completion.",
@@ -12747,6 +12447,317 @@
         "summary": "Submit checkin task",
         "tags": [
           "Task"
+        ]
+      }
+    },
+    "/moments": {
+      "get": {
+        "description": "Retrieve latest traveler moments and activities.",
+        "operationId": "TouriiBackendController_getMoments",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetch moments successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "moments": {
+                  "type": "array",
+                  "items": {
+                    "description": "Traveler moment information",
+                    "type": "object",
+                    "properties": {
+                      "imageUrl": {
+                        "description": "URL of the moment image",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "username": {
+                        "description": "Traveler display name",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "description": {
+                        "description": "Short moment description",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "rewardText": {
+                        "description": "Text describing earned rewards",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp when the moment occurred",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "insDateTime"
+                    ]
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    },
+                    "totalItems": {
+                      "description": "Total number of items",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "currentPage",
+                    "totalPages",
+                    "totalItems"
+                  ]
+                }
+              },
+              "required": [
+                "moments",
+                "pagination"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MomentListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get latest moments",
+        "tags": [
+          "Moment"
+        ]
+      }
+    },
+    "/v2/homepage/highlights": {
+      "get": {
+        "description": "Latest chapter and popular quest",
+        "operationId": "TouriiBackendController_getHomepageHighlights",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Homepage highlights",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "latestChapter": {
+                  "type": "object",
+                  "properties": {
+                    "storyId": {
+                      "description": "Story ID",
+                      "type": "string"
+                    },
+                    "chapterId": {
+                      "description": "Chapter ID",
+                      "type": "string"
+                    },
+                    "chapterNumber": {
+                      "description": "Chapter number (e.g., \"Chapter 1\", \"Prologue\")",
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "Chapter title",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "description": "Cover image URL",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "region": {
+                      "description": "Region of the story",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "link": {
+                      "description": "Deep link to chapter",
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "storyId",
+                    "chapterId",
+                    "chapterNumber",
+                    "title",
+                    "imageUrl",
+                    "region",
+                    "link"
+                  ],
+                  "nullable": true
+                },
+                "popularQuests": {
+                  "description": "Top 3 popular quests",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "questId": {
+                        "description": "Quest ID",
+                        "type": "string"
+                      },
+                      "title": {
+                        "description": "Quest title",
+                        "type": "string"
+                      },
+                      "imageUrl": {
+                        "description": "Quest image URL",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "link": {
+                        "description": "Deep link to quest",
+                        "type": "string",
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "questId",
+                      "title",
+                      "imageUrl",
+                      "link"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "latestChapter",
+                "popularQuests"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomepageHighlightsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get homepage highlights",
+        "tags": [
+          "Homepage"
         ]
       }
     },
@@ -19034,6 +19045,26 @@
             "default": "desc"
           }
         }
+      },
+      "VerifySubmissionRequestDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "description": "Action to take on the submission",
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ]
+          },
+          "rejectionReason": {
+            "description": "Reason for rejection (required when action is reject)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action"
+        ]
       },
       "UserSensitiveInfoResponseDto": {
         "type": "object",

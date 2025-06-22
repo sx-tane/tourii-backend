@@ -255,7 +255,8 @@ Implemented comprehensive task management and quest system improvements:
 - **Fixed missing x-user-id header annotations**: Resolved 6 endpoints with mismatched OpenAPI documentation
 - **Admin endpoints corrected**: All admin endpoints now properly document required x-user-id header
 - **User endpoints updated**: Fixed `/user/me`, `/user/sensitive-info`, and `/checkins` endpoints
-- **OpenAPI spec accuracy**: Ensures API consumers receive correct header requirements in documentation
+- **DTO implementation**: Created VerifySubmissionRequestDto for admin submission verification endpoint
+- **OpenAPI spec accuracy**: Ensures API consumers receive correct header requirements and body schemas in documentation
 
 ---
 
