@@ -327,6 +327,7 @@ All endpoints require these headers:
 
 - `x-api-key`: API key for authentication
 - `accept-version`: API version (e.g., 1.0.0)
+- `x-user-id`: User ID for user-specific and admin endpoints
 
 #### 🔧 Health & System
 
@@ -493,7 +494,7 @@ Most endpoints require authentication via:
 
 1. **API Key**: `x-api-key` header
 2. **Version**: `accept-version` header
-3. **User Context**: `x-user-id` header (temporary, will be replaced with JWT)
+3. **User Context**: `x-user-id` header (required for user-specific and admin endpoints)
 
 ### 📝 Response Formats
 
@@ -649,7 +650,8 @@ License: [MIT](LICENSE)
 - **Comprehensive Docs**: 8 detailed documentation files covering all aspects
 - **Team Onboarding**: 5-minute quick start guide with real-world examples
 - **Error Reference**: Complete error code documentation with solutions
+- **API Documentation Synchronization**: Fixed 6 endpoints with missing x-user-id header annotations for accurate OpenAPI specification
 
 ---
 
-_Last Updated: June 20, 2025_
+_Last Updated: June 22, 2025_

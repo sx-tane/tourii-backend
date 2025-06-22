@@ -311,6 +311,7 @@ export class TouriiBackendController {
         description: 'Get user sensitive info',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiResponse({
         status: 200,
@@ -426,6 +427,7 @@ export class TouriiBackendController {
         description: "Retrieve authenticated user's profile information.",
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     // TODO: Replace header-based userId retrieval with proper auth guard
     @ApiResponse({
@@ -456,6 +458,7 @@ export class TouriiBackendController {
             'Retrieve user travel checkin history with location coordinates for map rendering. Supports pagination and filtering by quest, tourist spot, and date range.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -527,6 +530,7 @@ export class TouriiBackendController {
             'Retrieve all users with comprehensive details, pagination, and advanced filtering options for admin dashboard.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -617,6 +621,7 @@ export class TouriiBackendController {
             'Retrieve photo upload, social share, and text answer submissions awaiting admin approval.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiQuery({
         name: 'page',
@@ -669,6 +674,7 @@ export class TouriiBackendController {
             'Admin endpoint to approve or reject pending photo/social share/text answer submissions.',
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
     @ApiResponse({
         status: HttpStatus.OK,

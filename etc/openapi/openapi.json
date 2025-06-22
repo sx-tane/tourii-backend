@@ -86,6 +86,15 @@
             }
           },
           {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "description": "API key for authentication",
@@ -464,6 +473,15 @@
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
             "required": true,
             "schema": {
               "type": "string"
@@ -1652,6 +1670,15 @@
             }
           },
           {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "description": "API key for authentication",
@@ -1955,6 +1982,15 @@
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
             "required": true,
             "schema": {
               "type": "string"
@@ -3213,6 +3249,15 @@
             }
           },
           {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "x-api-key",
             "in": "header",
             "description": "API key for authentication",
@@ -3277,6 +3322,15 @@
             "name": "accept-version",
             "in": "header",
             "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
             "required": true,
             "schema": {
               "type": "string"

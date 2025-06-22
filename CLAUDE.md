@@ -250,6 +250,13 @@ Implemented comprehensive task management and quest system improvements:
 - Established **testing strategy guidelines** in `docs/TESTING_STRATEGY.md`
 - **Consolidated overlapping content** and improved documentation navigation
 
+### API Documentation Synchronization (June 2025)
+
+- **Fixed missing x-user-id header annotations**: Resolved 6 endpoints with mismatched OpenAPI documentation
+- **Admin endpoints corrected**: All admin endpoints now properly document required x-user-id header
+- **User endpoints updated**: Fixed `/user/me`, `/user/sensitive-info`, and `/checkins` endpoints
+- **OpenAPI spec accuracy**: Ensures API consumers receive correct header requirements in documentation
+
 ---
 
-_Last Updated: June 20, 2025_
+_Last Updated: June 22, 2025_
