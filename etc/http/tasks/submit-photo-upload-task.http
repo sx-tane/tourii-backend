@@ -2,8 +2,8 @@
 @baseUrl = http://localhost:4000
 @apiKey = your-api-key-1
 @version = 1.0.0
-@userId = TSU202506-810e69-212336-3e1b94-BAAA
-@taskId = TSK202506-8b4c96-212342-23200a-BAAA
+@userId = TSU202506-ae8a85-222006-4bdd44-BAAA
+@taskId = TSK202506-d29c1e-222006-c8cfaa-BAAA
 
 POST {{baseUrl}}/tasks/{{taskId}}/photo-upload
 x-api-key: {{apiKey}}

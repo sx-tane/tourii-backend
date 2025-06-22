@@ -1,7 +1,7 @@
 import { SubmitTaskResponse, TaskRepository } from '@app/core/domain/game/quest/task.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { TaskStatus, TaskType, quest_task } from '@prisma/client';
+import { quest_task, TaskStatus, TaskType } from '@prisma/client';
 
 @Injectable()
 export class TaskRepositoryDb implements TaskRepository {

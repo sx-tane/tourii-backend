@@ -27,13 +27,17 @@ const config: HardhatUserConfig = {
         },
         // SKALE Europa Hub Testnet
         skaleTestnet: {
-            url: process.env.SKALE_TESTNET_RPC_URL || 'https://testnet.skalenodes.com/v1/juicy-low-small-testnet',
+            url:
+                process.env.SKALE_TESTNET_RPC_URL ||
+                'https://testnet.skalenodes.com/v1/juicy-low-small-testnet',
             accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
             chainId: 476158412, // SKALE Europa Hub testnet
         },
         // SKALE Europa Hub Mainnet
         skaleMainnet: {
-            url: process.env.SKALE_MAINNET_RPC_URL || 'https://mainnet.skalenodes.com/v1/elated-tan-skat',
+            url:
+                process.env.SKALE_MAINNET_RPC_URL ||
+                'https://mainnet.skalenodes.com/v1/elated-tan-skat',
             accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
             chainId: 2046399126, // SKALE Europa Hub mainnet
         },

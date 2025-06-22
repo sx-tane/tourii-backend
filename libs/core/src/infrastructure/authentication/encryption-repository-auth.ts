@@ -1,5 +1,7 @@
 import * as crypto from 'node:crypto';
 import { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { HexString } from '@gear-js/api/types';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,7 +14,7 @@ export class EncryptionRepositoryAuth implements EncryptionRepository {
     constructor(protected readonly configService: ConfigService) {
         const key = this.configService.get<string>('ENCRYPTION_KEY');
         if (!key) {
-            throw new Error('ENCRYPTION_KEY environment variable is required for security');
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_041);
         }
         this.secretKey = crypto.createHash('sha256').update(key).digest();
     }

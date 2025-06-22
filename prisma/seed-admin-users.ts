@@ -1,17 +1,12 @@
 /**
  * 🌱 Admin Users Seeding
- * 
+ *
  * Creates diverse set of users for testing the admin dashboard
  * with various roles, levels, and activity patterns.
  */
 
 import { Logger } from '@nestjs/common';
-import {
-    LevelType,
-    PassportType,
-    PrismaClient,
-    UserRoleType,
-} from '@prisma/client';
+import { LevelType, PassportType, PrismaClient, UserRoleType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const logger = new Logger('AdminUserSeeder');
@@ -42,7 +37,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 3,
             sword: 1,
             orge_mask: 0,
-        }
+        },
     },
     {
         username: 'bob_wanderer',
@@ -68,7 +63,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 8,
             sword: 3,
             orge_mask: 1,
-        }
+        },
     },
     {
         username: 'charlie_seeker',
@@ -93,7 +88,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 5,
             sword: 2,
             orge_mask: 1,
-        }
+        },
     },
     {
         username: 'diana_moderator',
@@ -119,7 +114,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 15,
             sword: 8,
             orge_mask: 3,
-        }
+        },
     },
     {
         username: 'eve_premium',
@@ -144,7 +139,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 12,
             sword: 6,
             orge_mask: 4,
-        }
+        },
     },
     {
         username: 'frank_newbie',
@@ -168,7 +163,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 1,
             sword: 0,
             orge_mask: 0,
-        }
+        },
     },
     {
         username: 'grace_veteran',
@@ -195,7 +190,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 25,
             sword: 15,
             orge_mask: 8,
-        }
+        },
     },
     {
         username: 'henry_banned',
@@ -219,7 +214,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 2,
             sword: 0,
             orge_mask: 0,
-        }
+        },
     },
     {
         username: 'irene_social',
@@ -245,7 +240,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 10,
             sword: 4,
             orge_mask: 2,
-        }
+        },
     },
     {
         username: 'jack_admin',
@@ -270,7 +265,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 30,
             sword: 20,
             orge_mask: 10,
-        }
+        },
     },
     {
         username: 'katie_casual',
@@ -294,7 +289,7 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 4,
             sword: 1,
             orge_mask: 1,
-        }
+        },
     },
     {
         username: 'liam_elite',
@@ -321,15 +316,15 @@ const ENHANCED_USER_TEMPLATES = [
             prayer_bead: 40,
             sword: 25,
             orge_mask: 15,
-        }
-    }
+        },
+    },
 ];
 
 async function seedEnhancedUsers() {
     logger.log('🌱 Starting enhanced user seeding...');
-    
+
     let createdCount = 0;
-    
+
     for (const userTemplate of ENHANCED_USER_TEMPLATES) {
         try {
             // Check if user already exists
@@ -338,9 +333,9 @@ async function seedEnhancedUsers() {
                     OR: [
                         { username: userTemplate.username },
                         { email: userTemplate.email },
-                        { discord_id: userTemplate.discord_id }
-                    ]
-                }
+                        { discord_id: userTemplate.discord_id },
+                    ],
+                },
             });
 
             if (existingUser) {
@@ -368,15 +363,18 @@ async function seedEnhancedUsers() {
                     perks_wallet_address: `wallet_${userTemplate.username}_${Date.now()}`,
                     passport_wallet_address: `passport_${userTemplate.username}_${Date.now()}`,
                     registered_at: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000), // Random date within last year
-                    discord_joined_at: new Date(Date.now() - Math.random() * 200 * 24 * 60 * 60 * 1000), // Random date within last 200 days
-                    
+                    discord_joined_at: new Date(
+                        Date.now() - Math.random() * 200 * 24 * 60 * 60 * 1000,
+                    ), // Random date within last 200 days
+
                     // Create user_info as nested relation
                     user_info: {
                         create: {
                             digital_passport_address: `passport_addr_${userTemplate.username}`,
                             log_nft_address: `log_nft_addr_${userTemplate.username}`,
                             passport_token_id: `token_${userTemplate.username}_${Date.now()}`,
-                            user_digital_passport_type: userTemplate.userInfo.user_digital_passport_type,
+                            user_digital_passport_type:
+                                userTemplate.userInfo.user_digital_passport_type,
                             level: userTemplate.userInfo.level,
                             magatama_points: userTemplate.userInfo.magatama_points,
                             magatama_bags: userTemplate.userInfo.magatama_bags,
@@ -387,22 +385,23 @@ async function seedEnhancedUsers() {
                             sword: userTemplate.userInfo.sword,
                             orge_mask: userTemplate.userInfo.orge_mask,
                             discount_rate: userTemplate.is_premium ? 0.1 : 0.0, // 10% discount for premium users
-                        }
-                    }
+                        },
+                    },
                 },
                 include: {
-                    user_info: true
-                }
+                    user_info: true,
+                },
             });
 
             createdCount++;
-            logger.log(`✅ Created user: ${user.username} (${user.role}) with ${user.user_info?.magatama_points} magatama points`);
-            
+            logger.log(
+                `✅ Created user: ${user.username} (${user.role}) with ${user.user_info?.magatama_points} magatama points`,
+            );
         } catch (error) {
             logger.error(`❌ Failed to create user ${userTemplate.username}:`, error);
         }
     }
-    
+
     logger.log(`🎉 Enhanced user seeding completed! Created ${createdCount} users.`);
 }
 

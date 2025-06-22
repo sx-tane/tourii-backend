@@ -43,7 +43,7 @@ export interface UserTravelLogRepository {
     getUserTravelLogsWithPagination(
         filter: UserTravelLogFilter,
         page: number,
-        limit: number
+        limit: number,
     ): Promise<UserTravelLogWithPagination>;
 
     /**

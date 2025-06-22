@@ -1,4 +1,6 @@
 import { R2StorageRepository } from '@app/core/domain/storage/r2-storage.repository';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -21,9 +23,7 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             : undefined;
 
         if (!endpoint) {
-            throw new Error(
-                'R2 endpoint not configured. Set R2_ENDPOINT or R2_ACCOUNT_ID environment variable',
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_035);
         }
 
         this.s3Client = new S3Client({
@@ -45,12 +45,12 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
         this.logger.log(`R2 client initialized successfully with endpoint: ${endpoint}`);
     }
 
-    async uploadProofImage(file: Buffer, key: string, contentType: string): Promise<string> {
+    async uploadProof(file: Buffer, key: string, contentType: string): Promise<string> {
         try {
             const bucket = this.config.get<string>('R2_BUCKET');
 
             if (!bucket) {
-                throw new Error('R2_BUCKET environment variable is not set');
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_036);
             }
 
             const command = new PutObjectCommand({
@@ -68,13 +68,14 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
 
             return publicUrl;
         } catch (error) {
+            if (error instanceof TouriiBackendAppException) {
+                throw error;
+            }
             this.logger.error(
                 `Failed to upload file to R2: ${error instanceof Error ? error.message : String(error)}`,
                 error instanceof Error ? error.stack : undefined,
             );
-            throw new Error(
-                `R2 upload failed: ${error instanceof Error ? error.message : String(error)}`,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_037);
         }
     }
 
@@ -83,7 +84,7 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             const bucket = this.config.get<string>('R2_BUCKET');
 
             if (!bucket) {
-                throw new Error('R2_BUCKET environment variable is not set');
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_036);
             }
 
             const metadataJson = JSON.stringify(metadata, null, 2);
@@ -105,13 +106,14 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
 
             return publicUrl;
         } catch (error) {
+            if (error instanceof TouriiBackendAppException) {
+                throw error;
+            }
             this.logger.error(
                 `Failed to upload metadata to R2: ${error instanceof Error ? error.message : String(error)}`,
                 error instanceof Error ? error.stack : undefined,
             );
-            throw new Error(
-                `R2 metadata upload failed: ${error instanceof Error ? error.message : String(error)}`,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_038);
         }
     }
 
@@ -120,11 +122,9 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
 
         if (customDomain) {
             // Use custom domain if configured
-            return `https://${customDomain}/${key}`;
+            return `${customDomain}/${key}`;
         }
 
-        throw new Error(
-            'R2 public domain not configured. Set R2_PUBLIC_DOMAIN, or both R2_ACCOUNT_ID and R2_BUCKET environment variables',
-        );
+        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_039);
     }
 }

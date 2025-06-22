@@ -1042,6 +1042,38 @@ declare namespace Components {
         link: string | null;
       }[];
     }
+    export interface LocalInteractionResponseDto {
+      /**
+       * Status message
+       */
+      message: string;
+      /**
+       * Task status after submission
+       */
+      status: 'AVAILABLE' | 'ONGOING' | 'COMPLETED' | 'FAILED';
+      /**
+       * Expected review timeframe
+       */
+      estimatedReviewTime: string;
+    }
+    export interface LocalInteractionSubmissionDto {
+      /**
+       * Type of interaction content
+       */
+      interactionType: 'text' | 'photo' | 'audio';
+      /**
+       * Text content or base64 encoded file
+       */
+      content: string;
+      /**
+       * Optional latitude for anti-cheat verification
+       */
+      latitude?: number;
+      /**
+       * Optional longitude for anti-cheat verification
+       */
+      longitude?: number;
+    }
     export interface LocationInfoResponseDto {
       /**
        * Location name from Google Places
@@ -2169,12 +2201,20 @@ declare namespace Components {
        * Public URL for the uploaded proof image
        */
       proofUrl: string; // uri
+      /**
+       * Estimated time for admin review of the submission
+       */
+      estimatedReviewTime: string;
     }
     export interface QuestTaskSocialShareResponseDto {
       /**
        * Result message for social share completion
        */
       message: string;
+      /**
+       * Estimated time for admin review of the submission
+       */
+      estimatedReviewTime: string;
     }
     export interface QuestTaskUpdateRequestDto {
       /**
@@ -3069,6 +3109,10 @@ declare namespace Components {
        * Message to the user
        */
       message: string;
+      /**
+       * Estimated time for admin review (only for manual verification tasks)
+       */
+      estimatedReviewTime?: string;
     }
     export interface TaskResponseDto {
       /**
@@ -4215,6 +4259,16 @@ declare namespace Components {
          */
         totalItems: number;
       };
+    }
+    export interface VerifySubmissionRequestDto {
+      /**
+       * Action to take on the submission
+       */
+      action: 'approve' | 'reject';
+      /**
+       * Reason for rejection (required when action is reject)
+       */
+      rejectionReason?: string;
     }
   }
 }
@@ -5462,7 +5516,11 @@ declare namespace Paths {
       export type AcceptVersion = string;
       export type Limit = number;
       export type Page = number;
-      export type TaskType = 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+      export type TaskType =
+        | 'PHOTO_UPLOAD'
+        | 'SHARE_SOCIAL'
+        | 'ANSWER_TEXT'
+        | 'LOCAL_INTERACTION';
       export type XApiKey = string;
       export type XUserId = string;
     }
@@ -6357,6 +6415,44 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerSubmitLocalInteraction {
+    export interface HeaderParameters {
+      'x-user-id': Parameters.XUserId;
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type TaskId = string;
+      export type XApiKey = string;
+      export type XUserId = string;
+    }
+    export interface PathParameters {
+      taskId: Parameters.TaskId;
+    }
+    export type RequestBody = Components.Schemas.LocalInteractionSubmissionDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.LocalInteractionResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerSubmitSelectOptionTask {
     export interface HeaderParameters {
       'x-user-id': Parameters.XUserId;
@@ -7161,6 +7257,7 @@ declare namespace Paths {
     export interface PathParameters {
       id: Parameters.Id;
     }
+    export type RequestBody = Components.Schemas.VerifySubmissionRequestDto;
     namespace Responses {
       export interface $200 {}
       export interface $400 {

@@ -36,6 +36,15 @@ bash tourii-backend/test/security-test.sh    # Linux/Mac
 .\tourii-backend\test\security-test.ps1      # Windows PowerShell
 ```
 
+### Test Database Configuration
+
+Tests use a separate database to protect development data:
+
+- **Development DB**: `localhost:7442/tourii_backend`
+- **Test DB**: `localhost:7443/tourii_backend_test` (configured in .env.test)
+- **Automatic Setup**: Tests automatically run migrations and seeding before execution
+- **Data Isolation**: Complete separation ensures safe testing without affecting development work
+
 ### Code Quality
 
 ```bash
@@ -257,6 +266,17 @@ Implemented comprehensive task management and quest system improvements:
 - **User endpoints updated**: Fixed `/user/me`, `/user/sensitive-info`, and `/checkins` endpoints
 - **DTO implementation**: Created VerifySubmissionRequestDto for admin submission verification endpoint
 - **OpenAPI spec accuracy**: Ensures API consumers receive correct header requirements and body schemas in documentation
+
+### Enhanced Error Handling & Task Management (June 2025)
+
+- **Comprehensive Error Handling**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
+- **R2 Storage Error Types**: Added 5 new error codes (E_TB_035-039) for Cloudflare R2 storage configuration and operation failures
+- **Authentication Security Errors**: Added 2 new error codes (E_TB_040-041) for JWT and encryption configuration requirements
+- **Task Management Enhancement**: Added LOCAL_INTERACTION task type support in admin pending submissions and verification APIs
+- **Complete Error Documentation**: Updated ERROR_CODES.md with 28+ error codes, solutions, and debugging examples
+- **Testing Coverage**: Added comprehensive test suites for R2 storage error handling and local interaction task submissions
+- **Test Database Isolation**: Created separate test environment (.env.test) with port 7443 to protect development data
+- **Consistent API Responses**: Added `estimatedReviewTime` field to all manual verification task submissions for user expectation management
 
 ---
 

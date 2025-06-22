@@ -140,6 +140,44 @@ export const TouriiBackendAppErrorType = {
         message: 'Invalid task configuration - malformed required_action',
         type: ErrorType.BAD_REQUEST,
     },
+    // --- Storage Specific Errors ---
+    E_TB_035: {
+        code: 'E_TB_035',
+        message:
+            'R2 storage endpoint not configured. Set R2_ENDPOINT or R2_ACCOUNT_ID environment variable',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_036: {
+        code: 'E_TB_036',
+        message: 'R2 storage bucket not configured. Set R2_BUCKET environment variable',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_037: {
+        code: 'E_TB_037',
+        message: 'File upload to R2 storage failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_038: {
+        code: 'E_TB_038',
+        message: 'Metadata upload to R2 storage failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_039: {
+        code: 'E_TB_039',
+        message: 'R2 public domain not configured. Set R2_PUBLIC_DOMAIN environment variable',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    // --- Authentication Configuration Errors ---
+    E_TB_040: {
+        code: 'E_TB_040',
+        message: 'JWT_SECRET environment variable is required for security',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_041: {
+        code: 'E_TB_041',
+        message: 'ENCRYPTION_KEY environment variable is required for security',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
         code: 'E_GEO_001',

@@ -2,7 +2,7 @@
 
 _Comprehensive testing documentation for the Tourii Backend platform_
 
-_Last Updated: June 18, 2025_
+_Last Updated: June 22, 2025_
 
 ## 📋 **Table of Contents**
 
@@ -611,6 +611,42 @@ export class TestDataSeeder {
   }
 }
 ```
+
+### **Test Database Configuration**
+
+**Database Isolation for Safe Testing**
+
+Tests use a completely separate database configuration to protect development data:
+
+```bash
+# Development Environment
+DATABASE_URL=postgresql://touriibackenddev:touriibackenddev@localhost:7442/tourii_backend
+
+# Test Environment (.env.test)
+DATABASE_URL=postgresql://touriibackendtest:touriibackendtest@localhost:7443/tourii_backend_test
+```
+
+**Key Benefits:**
+
+- **Data Protection**: Development data is never affected by test runs
+- **Clean State**: Each test run starts with a fresh database state
+- **Parallel Development**: Developers can run tests while working with development database
+- **Realistic Testing**: Full database schema with proper relationships and constraints
+
+**Test Database Setup:**
+
+```bash
+# Automatic test database setup (handled by test scripts)
+pnpm prisma:migrate:test   # Runs migrations on test database
+pnpm test                  # Automatically sets up test DB and runs tests
+```
+
+**Test Data Management:**
+
+- Tests automatically apply migrations before execution
+- Seeding data is isolated per test suite
+- Database state is reset between test runs
+- No shared state between development and testing
 
 ### **Mock Services**
 

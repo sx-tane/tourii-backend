@@ -1,8 +1,12 @@
 import type { UserEntity } from '@app/core/domain/user/user.entity';
-import type { UserRepository, GetAllUsersOptions, GetAllUsersResult } from '@app/core/domain/user/user.repository';
+import type {
+    GetAllUsersOptions,
+    GetAllUsersResult,
+    UserRepository,
+} from '@app/core/domain/user/user.repository';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { TaskStatus, StoryStatus, UserRoleType } from '@prisma/client';
+import { StoryStatus, TaskStatus, UserRoleType } from '@prisma/client';
 import type { UserRelationModel } from 'prisma/relation-model/user-relation-model';
 import { UserMapper } from '../mapper/user.mapper';
 
@@ -37,17 +41,17 @@ export class UserRepositoryDb implements UserRepository {
         user_task_log: {
             where: { status: TaskStatus.COMPLETED },
             take: 10,
-            orderBy: { ins_date_time: 'desc' }
+            orderBy: { ins_date_time: 'desc' },
         },
         user_story_log: {
             where: { status: StoryStatus.COMPLETED },
             take: 10,
-            orderBy: { ins_date_time: 'desc' }
+            orderBy: { ins_date_time: 'desc' },
         },
         user_travel_log: {
             take: 20,
-            orderBy: { ins_date_time: 'desc' }
-        }
+            orderBy: { ins_date_time: 'desc' },
+        },
     };
 
     // Legacy include for backward compatibility
@@ -141,7 +145,7 @@ export class UserRepositoryDb implements UserRepository {
             startDate,
             endDate,
             sortBy = 'registered_at',
-            sortOrder = 'desc'
+            sortOrder = 'desc',
         } = options;
 
         // Ensure reasonable limits
@@ -210,7 +214,9 @@ export class UserRepositoryDb implements UserRepository {
         const totalPages = Math.ceil(totalCount / finalLimit);
 
         return {
-            users: users.map(user => UserMapper.prismaModelToUserEntity(user as UserRelationModel)),
+            users: users.map((user) =>
+                UserMapper.prismaModelToUserEntity(user as UserRelationModel),
+            ),
             totalCount,
             page,
             limit: finalLimit,

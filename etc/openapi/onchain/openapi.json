@@ -1,268 +1,244 @@
 {
-  "openapi": "3.0.0",
-  "paths": {
-    "/health-check": {
-      "get": {
-        "operationId": "TouriiOnchainController_checkHealth",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        },
-        "summary": "Health Check",
-        "tags": [
-          "TouriiOnchain",
-          "Health Check"
-        ]
-      }
-    },
-    "/user-keyring-address": {
-      "get": {
-        "operationId": "TouriiOnchainController_userKeyringAddress",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "500": {
-            "description": "Error"
-          }
-        },
-        "summary": "Get user keyring address",
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/keyring/login": {
-      "post": {
-        "operationId": "TouriiOnchainController_loginUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "400": {
-            "description": "Bad Credentials"
-          }
-        },
-        "summary": "Login user",
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/keyring/register": {
-      "post": {
-        "operationId": "TouriiOnchainController_registerUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "400": {
-            "description": "Bad Credentials"
-          }
-        },
-        "summary": "Register user",
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/keyring/logout": {
-      "post": {
-        "operationId": "TouriiOnchainController_logoutUser",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/send-green": {
-      "post": {
-        "operationId": "TouriiOnchainController_sendGreen",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/send-yellow": {
-      "post": {
-        "operationId": "TouriiOnchainController_sendYellow",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/send-red": {
-      "post": {
-        "operationId": "TouriiOnchainController_sendRed",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/read-state": {
-      "get": {
-        "operationId": "TouriiOnchainController_readState",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TouriiOnchain"
-        ]
-      }
-    },
-    "/api/passport/metadata/{tokenId}": {
-      "get": {
-        "description": "Retrieve dynamic metadata for a Digital Passport NFT by token ID. This endpoint is called by NFT marketplaces and wallets to display passport information.",
-        "operationId": "PassportMetadataController_getMetadata",
-        "parameters": [
-          {
-            "name": "tokenId",
-            "required": true,
-            "in": "path",
-            "description": "The token ID of the Digital Passport NFT",
-            "schema": {
-              "example": "123",
-              "type": "string"
+    "openapi": "3.0.0",
+    "paths": {
+        "/health-check": {
+            "get": {
+                "operationId": "TouriiOnchainController_checkHealth",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "summary": "Health Check",
+                "tags": ["TouriiOnchain", "Health Check"]
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Digital Passport metadata retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "example": "Bonjin Digital Passport #123"
+        },
+        "/user-keyring-address": {
+            "get": {
+                "operationId": "TouriiOnchainController_userKeyringAddress",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     },
-                    "description": {
-                      "type": "string",
-                      "example": "Tourii Digital Passport for alice. This passport grants access to exclusive travel experiences and tracks your journey through Japan's hidden gems."
+                    "500": {
+                        "description": "Error"
+                    }
+                },
+                "summary": "Get user keyring address",
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/keyring/login": {
+            "post": {
+                "operationId": "TouriiOnchainController_loginUser",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     },
-                    "image": {
-                      "type": "string",
-                      "example": "https://assets.tourii.com/passport/bonjin/bonjin.png"
+                    "400": {
+                        "description": "Bad Credentials"
+                    }
+                },
+                "summary": "Login user",
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/keyring/register": {
+            "post": {
+                "operationId": "TouriiOnchainController_registerUser",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     },
-                    "external_url": {
-                      "type": "string",
-                      "example": "https://tourii.com/passport/123"
-                    },
-                    "attributes": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "trait_type",
-                          "value"
-                        ],
-                        "properties": {
-                          "trait_type": {
-                            "type": "string",
-                            "example": "Passport Type"
-                          },
-                          "value": {
-                            "type": "string",
-                            "example": "Bonjin"
-                          },
-                          "display_type": {
-                            "type": "string",
-                            "example": "number"
-                          },
-                          "max_value": {
-                            "type": "number",
-                            "example": 100
-                          }
+                    "400": {
+                        "description": "Bad Credentials"
+                    }
+                },
+                "summary": "Register user",
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/keyring/logout": {
+            "post": {
+                "operationId": "TouriiOnchainController_logoutUser",
+                "parameters": [],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/send-green": {
+            "post": {
+                "operationId": "TouriiOnchainController_sendGreen",
+                "parameters": [],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/send-yellow": {
+            "post": {
+                "operationId": "TouriiOnchainController_sendYellow",
+                "parameters": [],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/send-red": {
+            "post": {
+                "operationId": "TouriiOnchainController_sendRed",
+                "parameters": [],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/read-state": {
+            "get": {
+                "operationId": "TouriiOnchainController_readState",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": ["TouriiOnchain"]
+            }
+        },
+        "/api/passport/metadata/{tokenId}": {
+            "get": {
+                "description": "Retrieve dynamic metadata for a Digital Passport NFT by token ID. This endpoint is called by NFT marketplaces and wallets to display passport information.",
+                "operationId": "PassportMetadataController_getMetadata",
+                "parameters": [
+                    {
+                        "name": "tokenId",
+                        "required": true,
+                        "in": "path",
+                        "description": "The token ID of the Digital Passport NFT",
+                        "schema": {
+                            "example": "123",
+                            "type": "string"
                         }
-                      }
                     }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid version format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "string",
-                      "example": "E_OC_004"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Digital Passport metadata retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Bonjin Digital Passport #123"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Tourii Digital Passport for alice. This passport grants access to exclusive travel experiences and tracks your journey through Japan's hidden gems."
+                                        },
+                                        "image": {
+                                            "type": "string",
+                                            "example": "https://assets.tourii.com/passport/bonjin/bonjin.png"
+                                        },
+                                        "external_url": {
+                                            "type": "string",
+                                            "example": "https://tourii.com/passport/123"
+                                        },
+                                        "attributes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["trait_type", "value"],
+                                                "properties": {
+                                                    "trait_type": {
+                                                        "type": "string",
+                                                        "example": "Passport Type"
+                                                    },
+                                                    "value": {
+                                                        "type": "string",
+                                                        "example": "Bonjin"
+                                                    },
+                                                    "display_type": {
+                                                        "type": "string",
+                                                        "example": "number"
+                                                    },
+                                                    "max_value": {
+                                                        "type": "number",
+                                                        "example": 100
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "Version format is invalid"
+                    "400": {
+                        "description": "Bad Request - Invalid version format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string",
+                                            "example": "E_OC_004"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Version format is invalid"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "BAD_REQUEST"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "type": {
-                      "type": "string",
-                      "example": "BAD_REQUEST"
+                    "404": {
+                        "description": "Digital Passport not found"
                     }
-                  }
-                }
-              }
+                },
+                "summary": "Get Digital Passport Metadata",
+                "tags": ["passport-metadata"]
             }
-          },
-          "404": {
-            "description": "Digital Passport not found"
-          }
-        },
-        "summary": "Get Digital Passport Metadata",
-        "tags": [
-          "passport-metadata"
-        ]
-      }
+        }
+    },
+    "info": {
+        "title": "Tourii Onchain API",
+        "description": "Tourii Onchain API Def",
+        "version": "1.0.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "v1.0.0",
+            "description": ""
+        }
+    ],
+    "servers": [],
+    "components": {
+        "schemas": {}
     }
-  },
-  "info": {
-    "title": "Tourii Onchain API",
-    "description": "Tourii Onchain API Def",
-    "version": "1.0.0",
-    "contact": {}
-  },
-  "tags": [
-    {
-      "name": "v1.0.0",
-      "description": ""
-    }
-  ],
-  "servers": [],
-  "components": {
-    "schemas": {}
-  }
 }

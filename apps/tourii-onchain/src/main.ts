@@ -1,11 +1,11 @@
-import { TouriiCoreLoggingService, getEnv } from '@app/core';
+import fs from 'node:fs';
+import { getEnv, TouriiCoreLoggingService } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import compression from 'compression';
 import { patchNestJsSwagger } from 'nestjs-zod';
-import fs from 'node:fs';
 import { ValidationPipe } from './support/pipe/validation.pipe';
 import { TouriiOnchainModule } from './tourii-onchain.module';
 

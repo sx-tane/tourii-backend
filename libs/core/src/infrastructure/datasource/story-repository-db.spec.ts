@@ -1,7 +1,7 @@
-import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
+import { cleanDb } from '@app/core-test/prisma/clean-db';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { StoryRepositoryDb } from './story-repository-db';
 

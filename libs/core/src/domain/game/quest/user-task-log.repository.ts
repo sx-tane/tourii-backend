@@ -63,7 +63,7 @@ export interface UserTaskLogRepository {
     getPendingSubmissions(options: {
         page: number;
         limit: number;
-        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | 'LOCAL_INTERACTION';
     }): Promise<{
         submissions: Array<{
             userTaskLogId: string;
@@ -92,5 +92,19 @@ export interface UserTaskLogRepository {
         action: 'approve' | 'reject',
         adminUserId: string,
         rejectionReason?: string,
+    ): Promise<void>;
+
+    /***
+     * Submit a local interaction task for verification
+     * @param userId - The user id
+     * @param taskId - The task id
+     * @param interactionType - The interaction type
+     * @param content - The content
+     */
+    submitLocalInteractionTaskForVerification(
+        userId: string,
+        taskId: string,
+        interactionType: 'text' | 'photo' | 'audio',
+        content: string,
     ): Promise<void>;
 }

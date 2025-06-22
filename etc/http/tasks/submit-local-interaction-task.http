@@ -1,0 +1,407 @@
+### Submit Local Interaction Task - Text Content
+
+@baseUrl = http://localhost:4000
+@apiKey = your-api-key-1
+@version = 1.0.0
+@userId = TSU202506-ae8a85-222006-4bdd44-BAAA
+@taskId = TSK202506-d29c1e-222006-c8cfaa-BAAA
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "I interviewed the local temple caretaker and learned that this temple has been active for over 400 years. The community still gathers here every Sunday for traditional ceremonies and meditation sessions. The bell tower was rebuilt in 1965 after earthquake damage.",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Photo Content (Base64 JSON)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "photo",
+  "content": "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigD/2Q==",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Audio Content (Base64 JSON)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "audio",
+  "content": "SUQzBAAAAAAAJFRFTkMAAAASAAADbGF2ZjU4LjQ1LjEwMAD/+xpwAAAAAAAAAAAAAAAAAAAAAAA//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAIAAAHkABDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDY2NjY2NjY2NjY2NjY2NjY2NjhISEhISEhISEhISEhISEhIeHh4eHh4eHh4eHh4eHh4eHh4eqqqqqqqqqqqqqqqqqqqqqqqq1tbW1tbW1tbW1tbW1tbW1tf/7EMQAg8AAAGkAAAAIAAANIAAAAT//2Q==",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### ========================================
+### EASIER FRONTEND APPROACH - FILE UPLOAD
+### Same endpoint, detects content type automatically!
+### ========================================
+
+### Submit Local Interaction Task - Photo Upload (Multipart) - EASY FOR FRONTEND
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+photo
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="germany-allgaeu-fliegenpilz.jpg"
+Content-Type: image/jpeg
+
+< ../sample-files/germany-allgaeu-fliegenpilz.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6762
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.6503
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Audio Upload (Multipart) - EASY FOR FRONTEND
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+audio
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="temple-bells.mp3"
+Content-Type: audio/mpeg
+
+< ../sample-files/temple-bells.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6762
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.6503
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Text via Multipart (if needed)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+text
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="content"
+
+I learned about traditional pottery techniques from Master Tanaka. The clay comes from local mountains and has been used for centuries to create tea ceremony pieces.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6762
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.6503
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Detailed Cultural Interview (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "Today I had the privilege of speaking with Takeshi-san, an 82-year-old local resident whose family has lived in this neighborhood for five generations. He shared fascinating stories about how this area looked before urbanization - there used to be rice paddies where the shopping center now stands. He also told me about the annual festival that brings the whole community together every autumn, where families prepare traditional foods and children learn folk dances that have been passed down for centuries. His grandfather was a craftsman who helped repair the temple roof in 1923 after the Great Kanto Earthquake.",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Marketplace Visit (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "Spent the morning at the local fish market with Yamada-san, a third-generation fishmonger. He taught me how to identify the freshest fish and explained the traditional preparation methods for seasonal specialties. The market has operated in this location since 1952, and many vendors' families have been working here for decades. I learned about the early morning auction process and how seasonal weather affects the daily catch.",
+  "latitude": 35.6658,
+  "longitude": 139.7024
+}
+
+### Submit Local Interaction Task - Traditional Craft Learning (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "Participated in a pottery workshop with Master Sato, who has been creating traditional ceramics for over 30 years. She showed me the ancient techniques for glazing and firing that her teacher passed down to her. The clay comes from a specific mountain region and has unique properties that make it perfect for tea ceremony pieces. I learned about the spiritual aspects of pottery making and how each piece reflects the maker's connection to nature.",
+  "latitude": 35.6586,
+  "longitude": 139.7454
+}
+
+### Submit Local Interaction Task - Local Food Experience (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "Had an incredible home-cooked meal with the Tanaka family, who invited me to experience authentic local cuisine. Grandmother Tanaka taught me to make her family's secret miso soup recipe, which includes ingredients foraged from nearby mountains. We discussed how food traditions have evolved over generations while maintaining their cultural essence. The family shared stories about food rationing during wartime and how community gardens helped neighborhoods survive difficult periods.",
+  "latitude": 35.6785,
+  "longitude": 139.6823
+}
+
+### Submit Local Interaction Task - Photo with Cultural Context
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+photo
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="shrine-ceremony.jpg"
+Content-Type: image/jpeg
+
+< ../sample-files/shrine-ceremony.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6596
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.7006
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Audio Interview Recording
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+audio
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="elder-interview.mp3"
+Content-Type: audio/mpeg
+
+< ../sample-files/elder-interview.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6785
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.6823
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Multi-language Content (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "今日、地元の書道家の田中先生と話をしました。彼は60年以上書道を教えており、多くの外国人学生にも日本の書道文化を伝えています。Today I spoke with Tanaka-sensei, a local calligraphy master who has been teaching for over 60 years. He shared insights about how calligraphy connects mind, body, and spirit in Japanese culture. The art form requires years of practice to master the proper brush techniques and understand the deeper meaning behind each character.",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Empty Text Content (should fail)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Invalid Interaction Type (should fail)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "video",
+  "content": "This should fail because video is not a supported interaction type",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Missing Required Fields (should fail)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "content": "This should fail because interactionType is missing"
+}
+
+### Submit Local Interaction Task - Invalid Task ID (should fail)
+
+POST {{baseUrl}}/tasks/invalid-task-id/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "This should fail due to invalid task ID",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Unauthorized (should fail)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: invalid-api-key
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "This should fail due to invalid API key",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Missing User ID (should fail)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+
+{
+  "interactionType": "text",
+  "content": "This should fail because x-user-id header is missing",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Large Audio File (edge case)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="interactionType"
+
+audio
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="long-interview.mp3"
+Content-Type: audio/mpeg
+
+< ../sample-files/long-interview.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="latitude"
+
+35.6762
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="longitude"
+
+139.6503
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Submit Local Interaction Task - Extremely Long Text (edge case)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "This is an extremely detailed local interaction that tests the system's ability to handle large text submissions. I spent an entire day with the Suzuki family, learning about their traditional tea ceremony practices that have been passed down through seven generations. The matriarch, 94-year-old Suzuki Hanako-san, demonstrated the precise movements and rituals involved in the tea ceremony, explaining the spiritual significance of each gesture. She told me stories about how her grandmother taught her these same movements during World War II, when tea was scarce and the ceremony became even more precious as a connection to cultural identity. The family maintains a traditional tea house in their garden, built in 1887, which has survived earthquakes, fires, and the rapid modernization of Tokyo. Today, they continue to host monthly tea ceremonies for the neighborhood, welcoming both longtime residents and newcomers to experience this beautiful cultural tradition. The afternoon included lessons on proper posture, breathing techniques, and the meditation aspects of tea preparation. Hanako-san emphasized that tea ceremony is not just about serving tea, but about creating a moment of peace and connection between people, regardless of their backgrounds or life circumstances.",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+
+### Submit Local Interaction Task - Special Characters and Emojis (Text)
+
+POST {{baseUrl}}/tasks/{{taskId}}/local-interaction
+Content-Type: application/json
+x-api-key: {{apiKey}}
+accept-version: {{version}}
+x-user-id: {{userId}}
+
+{
+  "interactionType": "text",
+  "content": "🏮 Amazing cultural exchange today! Met with Kenji-san (健二さん) who taught me origami techniques 🎌 Special chars: !@#$%^&*()_+-=[]{}|;':\",./<>? Unicode test: ñáéíóú àèìòù äëïöü çñ 日本語 中文 한국어 العربية Русский 🌸⛩️🗾✨",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}

@@ -400,6 +400,15 @@ Content-Type: image/jpeg
 --boundary--
 ```
 
+**Response:**
+```json
+{
+  "message": "Photo submitted successfully and pending admin verification",
+  "proofUrl": "https://cdn.tourii.xyz/quest-tasks/TSK202506-a1b2c3-141501-d4e5f6-AAAA/TSU202506-a1b2c3-141501-d4e5f6-AAAA/proof.jpg",
+  "estimatedReviewTime": "24-48 hours"
+}
+```
+
 ### Complete Social Sharing Task
 
 Record social media sharing task completion:
@@ -418,6 +427,14 @@ x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
 }
 ```
 
+**Response:**
+```json
+{
+  "message": "Social share submitted successfully and pending admin verification.",
+  "estimatedReviewTime": "24-48 hours"
+}
+```
+
 ### Submit Text Answer Task
 
 Submit response for text-based questions:
@@ -432,6 +449,15 @@ accept-version: 1.0.0
   "taskId": "TSK202506-a1b2c3-141501-d4e5f6-AAAA",
   "answer": "The waterfall represents the eternal flow of time in Japanese folklore",
   "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Text answer submitted successfully and pending admin verification",
+  "estimatedReviewTime": "24-48 hours"
 }
 ```
 
@@ -467,6 +493,34 @@ accept-version: 1.0.0
   "latitude": 33.1234,
   "longitude": 131.5678,
   "userId": "TSU202506-a1b2c3-141501-d4e5f6-AAAA"
+}
+```
+
+### Submit Local Interaction Task
+
+Submit text, photo, or audio content for cultural immersion tasks:
+
+```http
+POST http://localhost:4000/tasks/TSK202506-a1b2c3-141501-d4e5f6-AAAA/local-interaction
+Content-Type: application/json
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: TSU202506-a1b2c3-141501-d4e5f6-AAAA
+
+{
+  "interactionType": "text",
+  "content": "I spoke with the temple keeper about the 400-year history of this shrine. He explained the traditional ceremonies and how the community still gathers here every Sunday.",
+  "latitude": 35.6762,
+  "longitude": 139.6503
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Local interaction submitted successfully and pending admin verification",
+  "status": "ONGOING",
+  "estimatedReviewTime": "24-48 hours"
 }
 ```
 
@@ -902,4 +956,4 @@ GET http://localhost:4000/admin/users?isBanned=true&sortBy=registered_at&sortOrd
 
 ---
 
-_Last Updated: June 21, 2025_
+_Last Updated: June 22, 2025_

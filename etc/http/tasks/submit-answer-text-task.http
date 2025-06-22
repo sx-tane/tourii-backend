@@ -3,8 +3,8 @@
 @baseUrl = http://localhost:4000
 @apiKey = your-api-key-1
 @version = 1.0.0
-@userId = TSU202506-810e69-212336-3e1b94-BAAA
-@taskId = TSK202506-616f9f-221222-65fc57-BAAA
+@userId = TSU202506-ae8a85-222006-4bdd44-BAAA
+@taskId = TSK202506-5d0789-222018-6c45f3-BAAA
 
 POST {{baseUrl}}/tasks/{{taskId}}/answer-text
 Content-Type: application/json

@@ -92,10 +92,12 @@ export interface QuestRepository {
         latitude: number,
         longitude: number,
         radiusKm: number,
-    ): Promise<Array<{
-        touristSpotId: string;
-        distance: number;
-        questId?: string;
-        taskId?: string;
-    }>>;
+    ): Promise<
+        Array<{
+            touristSpotId: string;
+            distance: number;
+            questId?: string;
+            taskId?: string;
+        }>
+    >;
 }

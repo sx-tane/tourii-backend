@@ -1,5 +1,5 @@
-import { MomentType } from './moment-type';
 import type { MomentEntity } from './moment.entity';
+import { MomentType } from './moment-type';
 
 export interface MomentRepository {
     /**

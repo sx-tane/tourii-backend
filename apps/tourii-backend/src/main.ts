@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { TouriiCoreLoggingService, getEnv } from '@app/core';
+import { getEnv, TouriiCoreLoggingService } from '@app/core';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

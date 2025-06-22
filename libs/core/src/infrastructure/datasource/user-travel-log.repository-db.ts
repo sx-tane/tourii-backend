@@ -1,10 +1,10 @@
-import type { 
-    UserTravelLogFilter, 
-    UserTravelLogRepository, 
-    UserTravelLogWithPagination, 
-    CreateUserTravelLogRequest 
-} from '@app/core/domain/user/user-travel-log.repository';
 import type { UserTravelLog } from '@app/core/domain/user/user-travel-log';
+import type {
+    CreateUserTravelLogRequest,
+    UserTravelLogFilter,
+    UserTravelLogRepository,
+    UserTravelLogWithPagination,
+} from '@app/core/domain/user/user-travel-log.repository';
 import { UserMapper } from '@app/core/infrastructure/mapper/user.mapper';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
@@ -17,10 +17,10 @@ export class UserTravelLogRepositoryDb implements UserTravelLogRepository {
     async getUserTravelLogsWithPagination(
         filter: UserTravelLogFilter,
         page: number,
-        limit: number
+        limit: number,
     ): Promise<UserTravelLogWithPagination> {
         const skip = (page - 1) * limit;
-        
+
         // Build where clause based on filters
         const whereClause: Prisma.user_travel_logWhereInput = {
             user_id: filter.userId,

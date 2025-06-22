@@ -1,6 +1,7 @@
 import { DiscordActivityLog } from '@app/core/domain/user/discord-activity-log';
 import { DiscordRewardedRoles } from '@app/core/domain/user/discord-rewarded-roles';
 import { DiscordUserRoles } from '@app/core/domain/user/discord-user-roles';
+import { UserEntity } from '@app/core/domain/user/user.entity';
 import { UserAchievement } from '@app/core/domain/user/user-achievement';
 import { UserInfo } from '@app/core/domain/user/user-info';
 import { UserInviteLog } from '@app/core/domain/user/user-invite-log';
@@ -9,16 +10,15 @@ import { UserOnchainItem } from '@app/core/domain/user/user-onchain-item';
 import { UserStoryLog } from '@app/core/domain/user/user-story-log';
 import { UserTaskLog } from '@app/core/domain/user/user-task-log';
 import { UserTravelLog } from '@app/core/domain/user/user-travel-log';
-import { UserEntity } from '@app/core/domain/user/user.entity';
 import { ContextStorage } from '@app/core/support/context/context-storage';
 import {
+    type discord_activity_log,
+    type discord_rewarded_roles,
+    type discord_user_roles,
     type Prisma,
     TaskStatus,
     TaskType,
     type UserRoleType,
-    type discord_activity_log,
-    type discord_rewarded_roles,
-    type discord_user_roles,
     type user_achievement,
     type user_info,
     type user_invite_log,
@@ -548,6 +548,53 @@ export class UserMapper {
             update: {
                 status: TaskStatus.ONGOING, // Pending verification
                 user_response: textAnswer,
+                completed_at: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+            },
+        };
+    }
+
+    static createUserTaskLogForLocalInteractionPending(
+        userId: string,
+        questId: string,
+        taskId: string,
+        interactionType: 'text' | 'photo' | 'audio',
+        content: string,
+    ): {
+        create: Prisma.user_task_logUncheckedCreateInput;
+        update: Prisma.user_task_logUncheckedUpdateInput;
+    } {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+
+        return {
+            create: {
+                user_id: userId,
+                quest_id: questId,
+                task_id: taskId,
+                status: TaskStatus.ONGOING, // Pending verification
+                action: TaskType.LOCAL_INTERACTION,
+                group_activity_members: [],
+                submission_data: {
+                    interactionType,
+                    content,
+                    submittedAt: now.toISOString(),
+                },
+                completed_at: now,
+                total_magatama_point_awarded: 0,
+                ins_user_id: userId,
+                ins_date_time: now,
+                upd_user_id: userId,
+                upd_date_time: now,
+                request_id: ContextStorage.getStore()?.getRequestId()?.value ?? null,
+            },
+            update: {
+                status: TaskStatus.ONGOING, // Pending verification
+                submission_data: {
+                    interactionType,
+                    content,
+                    submittedAt: now.toISOString(),
+                },
                 completed_at: now,
                 upd_user_id: userId,
                 upd_date_time: now,

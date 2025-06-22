@@ -46,6 +46,10 @@ import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
 } from './model/tourii-request/create/chapter-story-create-request.model';
+import {
+    LocalInteractionSubmissionDto,
+    LocalInteractionSubmissionSchema,
+} from './model/tourii-request/create/local-interaction-request.model';
 import { LoginRequestDto } from './model/tourii-request/create/login-request.model';
 import {
     ModelRouteCreateRequestDto,
@@ -114,6 +118,14 @@ import {
     StoryUpdateRequestSchema,
 } from './model/tourii-request/update/story-update-request.model';
 import {
+    SubmitAnswerTextRequestTaskDto,
+    SubmitAnswerTextTaskRequestSchema,
+    SubmitCheckInTaskRequestDto,
+    SubmitCheckInTaskRequestSchema,
+    SubmitSelectOptionsTaskRequestDto,
+    SubmitSelectOptionTaskRequestSchema,
+} from './model/tourii-request/update/submit-tasks-request.model';
+import {
     TouristSpotUpdateRequestDto,
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
@@ -139,6 +151,10 @@ import {
     HomepageHighlightsResponseDto,
     HomepageHighlightsResponseSchema,
 } from './model/tourii-response/homepage/highlight-response.model';
+import {
+    LocalInteractionResponseDto,
+    LocalInteractionResponseSchema,
+} from './model/tourii-response/local-interaction-response.model';
 import {
     LocationInfoResponseDto,
     LocationInfoResponseSchema,
@@ -191,6 +207,10 @@ import {
     StoryResponseSchema,
 } from './model/tourii-response/story-response.model';
 import {
+    SubmitTaskResponseDto,
+    SubmitTaskResponseSchema,
+} from './model/tourii-response/submit-tasks-response.model';
+import {
     TouristSpotResponseDto,
     TouristSpotResponseSchema,
 } from './model/tourii-response/tourist-spot-response.model';
@@ -204,18 +224,6 @@ import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
 } from './model/tourii-response/user/user-travel-log-list-response.model';
-import {
-    SubmitAnswerTextRequestTaskDto,
-    SubmitAnswerTextTaskRequestSchema,
-    SubmitSelectOptionsTaskRequestDto,
-    SubmitSelectOptionTaskRequestSchema,
-    SubmitCheckInTaskRequestDto,
-    SubmitCheckInTaskRequestSchema,
-} from './model/tourii-request/update/submit-tasks-request.model';
-import {
-    SubmitTaskResponseDto,
-    SubmitTaskResponseSchema,
-} from './model/tourii-response/submit-tasks-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -262,6 +270,8 @@ import {
     HomepageHighlightsResponseDto,
     AdminUserListResponseDto,
     AdminUserQueryDto,
+    LocalInteractionSubmissionDto,
+    LocalInteractionResponseDto,
     VerifySubmissionRequestDto,
 )
 export class TouriiBackendController {
@@ -640,7 +650,7 @@ export class TouriiBackendController {
     @ApiQuery({
         name: 'taskType',
         required: false,
-        enum: ['PHOTO_UPLOAD', 'SHARE_SOCIAL', 'ANSWER_TEXT'],
+        enum: ['PHOTO_UPLOAD', 'SHARE_SOCIAL', 'ANSWER_TEXT', 'LOCAL_INTERACTION'],
         description: 'Filter by task type',
     })
     @ApiResponse({
@@ -653,7 +663,12 @@ export class TouriiBackendController {
     async getPendingSubmissions(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 20,
-        @Query('taskType') taskType: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | undefined,
+        @Query('taskType') taskType:
+            | 'PHOTO_UPLOAD'
+            | 'SHARE_SOCIAL'
+            | 'ANSWER_TEXT'
+            | 'LOCAL_INTERACTION'
+            | undefined,
         @Req() req: Request,
     ) {
         const userId = req.headers['x-user-id'] as string;
@@ -1974,6 +1989,110 @@ export class TouriiBackendController {
             latitude,
             userId,
         );
+    }
+
+    @Post('/tasks/:taskId/local-interaction')
+    @ApiTags('Task')
+    @ApiOperation({
+        summary: 'Submit local interaction task',
+        description:
+            'Submit text, photo, or audio content for local interaction tasks. Supports both JSON (with base64) and multipart file uploads.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
+    @ApiConsumes('application/json', 'multipart/form-data')
+    @ApiBody({
+        description:
+            'Local interaction submission - supports JSON with base64 or multipart file upload',
+        schema: {
+            oneOf: [
+                zodToOpenAPI(LocalInteractionSubmissionSchema),
+                {
+                    type: 'object',
+                    properties: {
+                        interactionType: {
+                            type: 'string',
+                            enum: ['text', 'photo', 'audio'],
+                            description: 'Type of interaction content',
+                        },
+                        content: {
+                            type: 'string',
+                            description: 'Text content (for text type)',
+                        },
+                        file: {
+                            type: 'string',
+                            format: 'binary',
+                            description: 'Photo or audio file (for photo/audio types)',
+                        },
+                        latitude: {
+                            type: 'number',
+                            description: 'Optional latitude for anti-cheat verification',
+                        },
+                        longitude: {
+                            type: 'number',
+                            description: 'Optional longitude for anti-cheat verification',
+                        },
+                    },
+                    required: ['interactionType'],
+                },
+            ],
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Local interaction submitted successfully',
+        type: LocalInteractionResponseDto,
+        schema: zodToOpenAPI(LocalInteractionResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @UseInterceptors(FileInterceptor('file'))
+    async submitLocalInteraction(
+        @Param('taskId') taskId: string,
+        @Body() body: any,
+        @UploadedFile() file: any,
+        @Req() req: Request,
+    ): Promise<LocalInteractionResponseDto> {
+        const userId = req.headers['x-user-id'] as string;
+        if (!userId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        const contentType = req.headers['content-type'] || '';
+        let submission: LocalInteractionSubmissionDto;
+
+        // Handle multipart/form-data (file upload)
+        if (contentType.includes('multipart/form-data')) {
+            if (!file && body.interactionType !== 'text') {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+            }
+
+            if (body.interactionType === 'text') {
+                // Text submission via multipart
+                submission = {
+                    interactionType: 'text',
+                    content: body.content || '',
+                    latitude: body.latitude ? parseFloat(body.latitude) : undefined,
+                    longitude: body.longitude ? parseFloat(body.longitude) : undefined,
+                };
+            } else {
+                // File submission via multipart - convert to base64
+                const base64Content = file.buffer.toString('base64');
+                submission = {
+                    interactionType: body.interactionType,
+                    content: base64Content,
+                    latitude: body.latitude ? parseFloat(body.latitude) : undefined,
+                    longitude: body.longitude ? parseFloat(body.longitude) : undefined,
+                };
+            }
+        } else {
+            // Handle application/json (existing behavior)
+            submission = body as LocalInteractionSubmissionDto;
+        }
+
+        return this.touriiBackendService.submitLocalInteractionTask(taskId, userId, submission);
     }
 
     // ==========================================

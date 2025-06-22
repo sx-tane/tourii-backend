@@ -6,7 +6,10 @@ export interface JwtRepository {
      * @param payload JWT payload object
      * @returns JWT token
      */
-    generateJwtToken<T extends Record<string, unknown>>(payload: T, options?: jwt.SignOptions): string;
+    generateJwtToken<T extends Record<string, unknown>>(
+        payload: T,
+        options?: jwt.SignOptions,
+    ): string;
     /**
      * Get data from JWT token
      * @param token JWT token string

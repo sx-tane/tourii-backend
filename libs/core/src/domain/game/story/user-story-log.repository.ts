@@ -40,7 +40,10 @@ export interface UserStoryLogRepository {
      * @param chapterId chapter identifier
      * @returns story completion result with unlocked quests and rewards
      */
-    completeStoryWithQuestUnlocking(userId: string, chapterId: string): Promise<StoryCompletionResult>;
+    completeStoryWithQuestUnlocking(
+        userId: string,
+        chapterId: string,
+    ): Promise<StoryCompletionResult>;
 
     /**
      * Start story reading (set status to IN_PROGRESS)
@@ -55,7 +58,10 @@ export interface UserStoryLogRepository {
      * @param chapterId chapter identifier
      * @returns current story status and timestamps
      */
-    getStoryProgress(userId: string, chapterId: string): Promise<{
+    getStoryProgress(
+        userId: string,
+        chapterId: string,
+    ): Promise<{
         status: StoryStatus;
         unlockedAt: Date | null;
         finishedAt: Date | null;

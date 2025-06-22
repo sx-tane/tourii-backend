@@ -3234,7 +3234,8 @@
               "enum": [
                 "PHOTO_UPLOAD",
                 "SHARE_SOCIAL",
-                "ANSWER_TEXT"
+                "ANSWER_TEXT",
+                "LOCAL_INTERACTION"
               ],
               "type": "string"
             }
@@ -11748,11 +11749,16 @@
                   "description": "Public URL for the uploaded proof image",
                   "type": "string",
                   "format": "uri"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review of the submission",
+                  "type": "string"
                 }
               },
               "required": [
                 "message",
-                "proofUrl"
+                "proofUrl",
+                "estimatedReviewTime"
               ]
             },
             "content": {
@@ -11876,10 +11882,15 @@
                 "message": {
                   "description": "Result message for social share completion",
                   "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review of the submission",
+                  "type": "string"
                 }
               },
               "required": [
-                "message"
+                "message",
+                "estimatedReviewTime"
               ]
             },
             "content": {
@@ -12145,6 +12156,10 @@
                 "message": {
                   "description": "Message to the user",
                   "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
+                  "type": "string"
                 }
               },
               "required": [
@@ -12271,6 +12286,10 @@
                 },
                 "message": {
                   "description": "Message to the user",
+                  "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
                   "type": "string"
                 }
               },
@@ -12401,6 +12420,10 @@
                 "message": {
                   "description": "Message to the user",
                   "type": "string"
+                },
+                "estimatedReviewTime": {
+                  "description": "Estimated time for admin review (only for manual verification tasks)",
+                  "type": "string"
                 }
               },
               "required": [
@@ -12445,6 +12468,272 @@
           }
         },
         "summary": "Submit checkin task",
+        "tags": [
+          "Task"
+        ]
+      }
+    },
+    "/tasks/{taskId}/local-interaction": {
+      "post": {
+        "description": "Submit text, photo, or audio content for local interaction tasks. Supports both JSON (with base64) and multipart file uploads.",
+        "operationId": "TouriiBackendController_submitLocalInteraction",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "description": "User ID for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Local interaction submission - supports JSON with base64 or multipart file upload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "description": "Type of interaction content",
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ]
+                      },
+                      "content": {
+                        "description": "Text content or base64 encoded file",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Optional latitude for anti-cheat verification",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Optional longitude for anti-cheat verification",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "interactionType",
+                      "content"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ],
+                        "description": "Type of interaction content"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Text content (for text type)"
+                      },
+                      "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Photo or audio file (for photo/audio types)"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "description": "Optional latitude for anti-cheat verification"
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "description": "Optional longitude for anti-cheat verification"
+                      }
+                    },
+                    "required": [
+                      "interactionType"
+                    ]
+                  }
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "description": "Type of interaction content",
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ]
+                      },
+                      "content": {
+                        "description": "Text content or base64 encoded file",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Optional latitude for anti-cheat verification",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Optional longitude for anti-cheat verification",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "interactionType",
+                      "content"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "interactionType": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "photo",
+                          "audio"
+                        ],
+                        "description": "Type of interaction content"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Text content (for text type)"
+                      },
+                      "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Photo or audio file (for photo/audio types)"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "description": "Optional latitude for anti-cheat verification"
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "description": "Optional longitude for anti-cheat verification"
+                      }
+                    },
+                    "required": [
+                      "interactionType"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Local interaction submitted successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Status message",
+                  "type": "string"
+                },
+                "status": {
+                  "description": "Task status after submission",
+                  "type": "string",
+                  "enum": [
+                    "AVAILABLE",
+                    "ONGOING",
+                    "COMPLETED",
+                    "FAILED"
+                  ],
+                  "x-enumNames": [
+                    "AVAILABLE",
+                    "ONGOING",
+                    "COMPLETED",
+                    "FAILED"
+                  ]
+                },
+                "estimatedReviewTime": {
+                  "description": "Expected review timeframe",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message",
+                "status",
+                "estimatedReviewTime"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalInteractionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Submit local interaction task",
         "tags": [
           "Task"
         ]
@@ -17684,11 +17973,16 @@
             "description": "Public URL for the uploaded proof image",
             "type": "string",
             "format": "uri"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review of the submission",
+            "type": "string"
           }
         },
         "required": [
           "message",
-          "proofUrl"
+          "proofUrl",
+          "estimatedReviewTime"
         ]
       },
       "QrScanRequestDto": {
@@ -19046,6 +19340,70 @@
           }
         }
       },
+      "LocalInteractionSubmissionDto": {
+        "type": "object",
+        "properties": {
+          "interactionType": {
+            "description": "Type of interaction content",
+            "type": "string",
+            "enum": [
+              "text",
+              "photo",
+              "audio"
+            ]
+          },
+          "content": {
+            "description": "Text content or base64 encoded file",
+            "type": "string"
+          },
+          "latitude": {
+            "description": "Optional latitude for anti-cheat verification",
+            "type": "number"
+          },
+          "longitude": {
+            "description": "Optional longitude for anti-cheat verification",
+            "type": "number"
+          }
+        },
+        "required": [
+          "interactionType",
+          "content"
+        ]
+      },
+      "LocalInteractionResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Status message",
+            "type": "string"
+          },
+          "status": {
+            "description": "Task status after submission",
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "ONGOING",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "x-enumNames": [
+              "AVAILABLE",
+              "ONGOING",
+              "COMPLETED",
+              "FAILED"
+            ]
+          },
+          "estimatedReviewTime": {
+            "description": "Expected review timeframe",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "status",
+          "estimatedReviewTime"
+        ]
+      },
       "VerifySubmissionRequestDto": {
         "type": "object",
         "properties": {
@@ -19104,10 +19462,15 @@
           "message": {
             "description": "Result message for social share completion",
             "type": "string"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review of the submission",
+            "type": "string"
           }
         },
         "required": [
-          "message"
+          "message",
+          "estimatedReviewTime"
         ]
       },
       "SubmitAnswerTextRequestTaskDto": {
@@ -19131,6 +19494,10 @@
           },
           "message": {
             "description": "Message to the user",
+            "type": "string"
+          },
+          "estimatedReviewTime": {
+            "description": "Estimated time for admin review (only for manual verification tasks)",
             "type": "string"
           }
         },

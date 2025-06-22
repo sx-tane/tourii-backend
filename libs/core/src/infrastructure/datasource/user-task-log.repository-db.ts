@@ -257,10 +257,44 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
         });
     }
 
+    async submitLocalInteractionTaskForVerification(
+        userId: string,
+        taskId: string,
+        interactionType: 'text' | 'photo' | 'audio',
+        content: string,
+    ): Promise<void> {
+        const task = await this.prisma.quest_task.findUnique({
+            where: { quest_task_id: taskId },
+            select: { quest_id: true },
+        });
+        if (!task) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_028);
+        }
+
+        const taskLogData = UserMapper.createUserTaskLogForLocalInteractionPending(
+            userId,
+            task.quest_id,
+            taskId,
+            interactionType,
+            content,
+        );
+
+        await this.prisma.user_task_log.upsert({
+            where: {
+                user_id_quest_id_task_id: {
+                    user_id: userId,
+                    quest_id: task.quest_id,
+                    task_id: taskId,
+                },
+            },
+            ...taskLogData,
+        });
+    }
+
     async getPendingSubmissions(options: {
         page: number;
         limit: number;
-        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT';
+        taskType?: 'PHOTO_UPLOAD' | 'SHARE_SOCIAL' | 'ANSWER_TEXT' | 'LOCAL_INTERACTION';
     }) {
         const offset = (options.page - 1) * options.limit;
 
@@ -268,7 +302,14 @@ export class UserTaskLogRepositoryDb implements UserTaskLogRepository {
             status: TaskStatus.ONGOING,
             action: options.taskType
                 ? { equals: options.taskType as TaskType }
-                : { in: [TaskType.PHOTO_UPLOAD, TaskType.SHARE_SOCIAL, TaskType.ANSWER_TEXT] },
+                : {
+                      in: [
+                          TaskType.PHOTO_UPLOAD,
+                          TaskType.SHARE_SOCIAL,
+                          TaskType.ANSWER_TEXT,
+                          TaskType.LOCAL_INTERACTION,
+                      ],
+                  },
         };
 
         const [submissions, totalCount] = await Promise.all([
