@@ -5,8 +5,8 @@ import {
     UserTravelLogRepository,
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
-import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
+import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -2063,7 +2063,7 @@ export class TouriiBackendService {
             questId: quest.questId ?? '',
             title: quest.questName ?? '',
             imageUrl: quest.questImage ?? null,
-            link: `/v2/quest/${quest.questId}`,
+            link: `/v2/quests/${quest.questId}`,
         }));
 
         return { latestChapter: latestChapterDto, popularQuests: popularQuestsDto };
