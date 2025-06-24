@@ -9,7 +9,7 @@ import type { CartRepository } from '@app/core/domain/ecommerce/cart.repository'
 import type { OrderRepository } from '@app/core/domain/ecommerce/order.repository';
 import type { PaymentRepository } from '@app/core/domain/ecommerce/payment.repository';
 import type { ShopRepository } from '@app/core/domain/ecommerce/shop.repository';
-import type { PerkInventoryRepository } from '@app/core/domain/perks/perk-inventory.repository';
+import type { UserOnchainItemRepository } from '@app/core/domain/user/user-onchain-item.repository';
 import type { PerkReservationRepository } from '@app/core/domain/perks/perk-reservation.repository';
 import type { QRCodeService } from '@app/core/domain/perks/qr-code.service';
 import { MomentType } from '@app/core/domain/feed/moment-type';
@@ -148,8 +148,8 @@ export class TouriiBackendService {
         private readonly shopRepository: ShopRepository,
         @Inject(TouriiBackendConstants.PAYMENT_REPOSITORY_TOKEN)
         private readonly paymentRepository: PaymentRepository,
-        @Inject(TouriiBackendConstants.PERK_INVENTORY_REPOSITORY_TOKEN)
-        private readonly perkInventoryRepository: PerkInventoryRepository,
+        @Inject(TouriiBackendConstants.USER_ONCHAIN_ITEM_REPOSITORY_TOKEN)
+        private readonly userOnchainItemRepository: UserOnchainItemRepository,
         @Inject(TouriiBackendConstants.PERK_RESERVATION_REPOSITORY_TOKEN)
         private readonly perkReservationRepository: PerkReservationRepository,
         @Inject(TouriiBackendConstants.QR_CODE_SERVICE_TOKEN)

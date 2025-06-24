@@ -796,6 +796,24 @@ model user_onchain_item {
   status OnchainItemStatus @default(ACTIVE)
 
   //----
+  // PERK MANAGEMENT FIELDS (for item_type = PERK only)
+  //----
+  /// How the perk was acquired (QUEST, PURCHASE, GIFT) - only for PERK items
+  acquisition_type AcquisitionType? @default(PURCHASE)
+
+  /// Reference to quest_id or order_id that generated this perk - only for PERK items
+  source_id String? @db.VarChar(50)
+
+  /// Number of perk uses available - only for PERK items, default 1
+  quantity Int? @default(1)
+
+  /// When this perk expires and becomes unusable - only for PERK items
+  expiry_date DateTime?
+
+  /// When this perk was acquired - only for PERK items
+  acquired_at DateTime? @default(now())
+
+  //----
   // SYSTEM FIELDS
   //----
   /// Soft delete flag
@@ -821,6 +839,9 @@ model user_onchain_item {
   //----
   /// Relation to the user who owns this item
   user user? @relation(fields: [user_id], references: [user_id])
+
+  /// Reservations made with this onchain perk (only for PERK items)
+  perk_reservations perk_reservation[]
 }
 
 /// User Item Claim Log entity
@@ -2923,111 +2944,6 @@ model user_order_item {
 /// DIGITAL PERKS AND QR REDEMPTION SYSTEM
 ///-----------------------------------------------------------
 
-/// User Perk Inventory entity
-///
-/// Tracks digital perks owned by users, whether acquired through quests,
-/// purchases, or gifts. This replaces physical inventory management with
-/// digital perk ownership tracking.
-///
-/// Each perk has an expiry date and status to manage lifecycle.
-/// Links to the onchain catalog for perk details and metadata.
-///
-/// @namespace DigitalPerks
-/// @author Tourii Team
-model user_perk_inventory {
-  //----
-  // IDENTIFICATION
-  //----
-  /// Unique identifier for the perk UPIYYYYMM-rand1-DDHHMI-rand2-obfCounter
-  ///
-  /// @format custom
-  perk_id String @id @default(dbgenerated("generate_upi_id()")) @db.VarChar(50)
-
-  /// Associated user ID who owns this perk
-  user_id String @db.VarChar(50)
-
-  /// Reference to the onchain item catalog
-  onchain_item_id String @db.VarChar(50)
-
-  //----
-  // ACQUISITION DETAILS
-  //----
-  /// How the user acquired this perk
-  /// 
-  /// | Type     | Description                           |
-  /// |----------|---------------------------------------|
-  /// | QUEST    | Earned through quest completion       |
-  /// | PURCHASE | Bought from the shop                  |
-  /// | GIFT     | Received as gift from another user    |
-  acquisition_type AcquisitionType @default(PURCHASE)
-
-  /// Reference to source (quest_id or order_id) that generated this perk
-  source_id String? @db.VarChar(50)
-
-  /// Number of this perk owned (for stackable perks)
-  quantity Int @default(1)
-
-  /// When this perk expires and becomes unusable
-  expiry_date DateTime?
-
-  //----
-  // STATUS TRACKING
-  //----
-  /// Current status of the perk
-  /// 
-  /// | Status    | Description                          |
-  /// |-----------|--------------------------------------|
-  /// | ACTIVE    | Perk is usable                       |
-  /// | USED      | Perk has been redeemed               |
-  /// | EXPIRED   | Perk expired and cannot be used      |
-  /// | CANCELLED | Perk was cancelled                   |
-  status PerkStatus @default(ACTIVE)
-
-  /// When the perk was acquired
-  acquired_at DateTime @default(now())
-
-  //----
-  // SYSTEM FIELDS
-  //----
-  /// Soft delete flag
-  del_flag Boolean @default(false)
-
-  /// ID of user who created this record
-  ins_user_id String @default("system") @db.VarChar(50)
-
-  /// Timestamp when record was created
-  ins_date_time DateTime @default(now())
-
-  /// ID of user who last updated this record
-  upd_user_id String @default("system") @db.VarChar(50)
-
-  /// Timestamp when record was last updated
-  upd_date_time DateTime @default(now()) @updatedAt
-
-  /// Request correlation ID for tracing
-  request_id String? @db.VarChar(50)
-
-  //----
-  // RELATIONS
-  //----
-  /// Relation to the user who owns this perk
-  user user @relation(fields: [user_id], references: [user_id])
-
-  /// Relation to the perk details in catalog
-  perk_catalog onchain_item_catalog @relation(fields: [onchain_item_id], references: [onchain_item_id])
-
-  /// Reservations made with this perk
-  reservations perk_reservation[]
-
-  //----
-  // DATABASE INDEXES
-  //----
-  @@index([user_id], name: "idx_user_perk_inventory_user")
-  @@index([status], name: "idx_user_perk_inventory_status")
-  @@index([acquisition_type, source_id], name: "idx_user_perk_inventory_acquisition")
-  @@index([expiry_date], name: "idx_user_perk_inventory_expiry")
-}
-
 /// Perk Reservation entity
 ///
 /// Manages booking and scheduling of perk usage. When users want to redeem
@@ -3047,8 +2963,8 @@ model perk_reservation {
   /// @format custom
   reservation_id String @id @default(dbgenerated("generate_upr_id()")) @db.VarChar(50)
 
-  /// Associated perk being reserved
-  perk_id String @db.VarChar(50)
+  /// Associated onchain perk item being reserved
+  user_onchain_item_id String @db.VarChar(255)
 
   /// User making the reservation
   user_id String @db.VarChar(50)
@@ -3123,8 +3039,8 @@ model perk_reservation {
   //----
   // RELATIONS
   //----
-  /// Relation to the perk being reserved
-  perk user_perk_inventory @relation(fields: [perk_id], references: [perk_id])
+  /// Relation to the onchain perk being reserved
+  onchain_perk user_onchain_item @relation(fields: [user_onchain_item_id], references: [user_onchain_item_id])
 
   /// Relation to the user making the reservation
   user user @relation(fields: [user_id], references: [user_id])
@@ -3133,7 +3049,7 @@ model perk_reservation {
   // DATABASE INDEXES
   //----
   @@index([user_id], name: "idx_perk_reservation_user")
-  @@index([perk_id], name: "idx_perk_reservation_perk")
+  @@index([user_onchain_item_id], name: "idx_perk_reservation_onchain_perk")
   @@index([status], name: "idx_perk_reservation_status")
   @@index([reservation_date], name: "idx_perk_reservation_date")
   @@index([qr_expires_at], name: "idx_perk_reservation_qr_expires")

@@ -1,12 +1,12 @@
 import { ReservationStatus } from '@prisma/client';
 import { Entity } from '../entity';
 import type { UserEntity } from '../user/user.entity';
-import type { PerkInventoryEntity } from './perk-inventory.entity';
+import type { UserOnchainItem } from '../user/user-onchain-item';
 import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
 import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
 
 interface PerkReservationProps {
-    perkId: string;
+    userOnchainItemId: string;
     userId: string;
     reservationDate: Date;
     partySize: number;
@@ -24,7 +24,7 @@ interface PerkReservationProps {
     updUserId: string;
     updDateTime: Date;
     requestId?: string;
-    perk?: PerkInventoryEntity;
+    onchainPerk?: UserOnchainItem;
     user?: UserEntity;
 }
 
@@ -37,8 +37,8 @@ export class PerkReservationEntity extends Entity<PerkReservationProps> {
         return this.id;
     }
 
-    get perkId(): string {
-        return this.props.perkId;
+    get userOnchainItemId(): string {
+        return this.props.userOnchainItemId;
     }
 
     get userId(): string {
@@ -109,8 +109,8 @@ export class PerkReservationEntity extends Entity<PerkReservationProps> {
         return this.props.requestId;
     }
 
-    get perk(): PerkInventoryEntity | undefined {
-        return this.props.perk;
+    get onchainPerk(): UserOnchainItem | undefined {
+        return this.props.onchainPerk;
     }
 
     get user(): UserEntity | undefined {
