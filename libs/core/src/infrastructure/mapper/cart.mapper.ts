@@ -40,29 +40,11 @@ export class CartMapper {
         );
     }
 
-    private static prismaUserToUserEntity(prismaUser: any): UserEntity {
-        // Create a minimal user entity for cart relations
-        return new UserEntity(
-            {
-                username: prismaUser.username ?? '',
-                password: '', // Not needed for cart display
-                perksWalletAddress: '',
-                isPremium: false,
-                totalQuestCompleted: 0,
-                totalTravelDistance: 0,
-                role: 'USER' as any,
-                registeredAt: new Date(),
-                discordJoinedAt: new Date(),
-                isBanned: false,
-                delFlag: false,
-                insUserId: '',
-                insDateTime: new Date(),
-                updUserId: '',
-                updDateTime: new Date(),
-                email: prismaUser.email,
-            },
-            prismaUser.user_id,
-        );
+    private static prismaUserToUserEntity(prismaUser: any): UserEntity | undefined {
+        // Return undefined to avoid creating incomplete entities
+        // Cart operations should work with user_id instead of full user entity
+        // This improves type safety and prevents inconsistent data
+        return undefined;
     }
 
     private static prismaProductToOnchainItemCatalog(prismaProduct: any): OnchainItemCatalog {

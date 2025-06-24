@@ -2,6 +2,9 @@ import { OrderStatus } from '@prisma/client';
 import { Entity } from '../entity';
 import type { OrderEntity } from './order.entity';
 import type { OnchainItemCatalog } from '../catalog/onchain-item-catalog.entity';
+import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
+import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
+import { TIME_CONSTANTS, VALIDATION_CONSTANTS } from '../../constants/ecommerce.constants';
 
 interface OrderItemProps {
     orderId: string;
@@ -166,8 +169,13 @@ export class OrderItemEntity extends Entity<OrderItemProps> {
      * Check if item belongs to order
      * @param orderId - Order ID to compare
      * @returns True if belongs to order
+     * @throws TouriiBackendAppException - When order ID is invalid
      */
     belongsToOrder(orderId: string): boolean {
+        if (!orderId || typeof orderId !== 'string' || orderId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ORDER_001);
+        }
+        
         return this.props.orderId === orderId;
     }
 
@@ -175,8 +183,13 @@ export class OrderItemEntity extends Entity<OrderItemProps> {
      * Check if item is for the same product
      * @param productId - Product ID to compare
      * @returns True if same product
+     * @throws TouriiBackendAppException - When product ID is invalid
      */
     isForProduct(productId: string): boolean {
+        if (!productId || typeof productId !== 'string' || productId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_SHOP_001);
+        }
+        
         return this.props.productId === productId;
     }
 
@@ -213,6 +226,6 @@ export class OrderItemEntity extends Entity<OrderItemProps> {
         
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - this.props.fulfilledAt.getTime());
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.ceil(diffTime / TIME_CONSTANTS.DAY);
     }
 }

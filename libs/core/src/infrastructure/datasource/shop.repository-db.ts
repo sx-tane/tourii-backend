@@ -15,6 +15,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { OnchainItemType, RewardType } from '@prisma/client';
 import { ShopMapper } from '../mapper/shop.mapper';
+import { PAGINATION_CONSTANTS, SHOP_CONSTANTS } from '../../constants/ecommerce.constants';
 
 @Injectable()
 export class ShopRepositoryDb implements ShopRepository {
@@ -35,7 +36,7 @@ export class ShopRepositoryDb implements ShopRepository {
             availableOnly = true,
         } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const whereClause: any = {
@@ -119,7 +120,7 @@ export class ShopRepositoryDb implements ShopRepository {
             totalPages,
             filters: {
                 categories,
-                priceRange: { min: 0, max: 1000 }, // Default range - would be calculated from actual prices
+                priceRange: SHOP_CONSTANTS.DEFAULT_PRICE_RANGE, // Default range - would be calculated from actual prices
                 itemTypes: [OnchainItemType.PERK], // Currently only showing perks
             },
         };
@@ -290,7 +291,7 @@ export class ShopRepositoryDb implements ShopRepository {
 
         const isExpired = product.expiryDate ? product.expiryDate < new Date() : false;
         const hasSupplyLimit = product.hasSupplyLimit();
-        const maxQuantityAvailable = hasSupplyLimit ? (product.maxSupply || 0) : 999999;
+        const maxQuantityAvailable = hasSupplyLimit ? (product.maxSupply || 0) : SHOP_CONSTANTS.UNLIMITED_STOCK;
 
         return {
             isAvailable: product.isAvailable() && quantity <= maxQuantityAvailable,
@@ -318,7 +319,7 @@ export class ShopRepositoryDb implements ShopRepository {
     async getLimitedSupplyProducts(options: PaginationOptions): Promise<ProductCatalogResult> {
         const { page = 1, limit = 20, sortBy = 'max_supply', sortOrder = 'asc' } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const whereClause = {
@@ -357,7 +358,7 @@ export class ShopRepositoryDb implements ShopRepository {
             totalPages,
             filters: {
                 categories,
-                priceRange: { min: 0, max: 1000 },
+                priceRange: SHOP_CONSTANTS.DEFAULT_PRICE_RANGE,
                 itemTypes: [OnchainItemType.PERK],
             },
         };

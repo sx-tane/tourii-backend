@@ -14,6 +14,7 @@ import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
 import { OrderMapper } from '../mapper/order.mapper';
+import { PAGINATION_CONSTANTS, TIME_CONSTANTS } from '../../constants/ecommerce.constants';
 
 @Injectable()
 export class OrderRepositoryDb implements OrderRepository {
@@ -148,7 +149,7 @@ export class OrderRepositoryDb implements OrderRepository {
             sortOrder = 'desc',
         } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const whereClause: any = {
@@ -216,7 +217,7 @@ export class OrderRepositoryDb implements OrderRepository {
     async getOrdersByStatus(status: OrderStatus, options: PaginationOptions): Promise<GetOrdersResult> {
         const { page = 1, limit = 20, sortBy = 'order_date', sortOrder = 'desc' } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const orderBy: any = {};
@@ -255,7 +256,7 @@ export class OrderRepositoryDb implements OrderRepository {
     async getOrdersByPaymentStatus(paymentStatus: PaymentStatus, options: PaginationOptions): Promise<GetOrdersResult> {
         const { page = 1, limit = 20, sortBy = 'order_date', sortOrder = 'desc' } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const orderBy: any = {};
@@ -370,7 +371,7 @@ export class OrderRepositoryDb implements OrderRepository {
     async searchOrders(criteria: OrderSearchCriteria, options: PaginationOptions): Promise<GetOrdersResult> {
         const { page = 1, limit = 20, sortBy = 'order_date', sortOrder = 'desc' } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const whereClause: any = {
@@ -444,7 +445,7 @@ export class OrderRepositoryDb implements OrderRepository {
     async getOrdersByDateRange(startDate: Date, endDate: Date, options: PaginationOptions): Promise<GetOrdersResult> {
         const { page = 1, limit = 20, sortBy = 'order_date', sortOrder = 'desc' } = options;
 
-        const finalLimit = Math.min(Math.max(limit, 1), 100);
+        const finalLimit = Math.min(Math.max(limit, PAGINATION_CONSTANTS.MIN_LIMIT), PAGINATION_CONSTANTS.MAX_LIMIT);
         const skip = (page - 1) * finalLimit;
 
         const orderBy: any = {};

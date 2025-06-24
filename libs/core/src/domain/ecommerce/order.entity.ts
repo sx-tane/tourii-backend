@@ -2,6 +2,9 @@ import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { Entity } from '../entity';
 import type { UserEntity } from '../user/user.entity';
 import type { OrderItemEntity } from './order-item.entity';
+import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
+import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
+import { ORDER_CONSTANTS, VALIDATION_CONSTANTS, TIME_CONSTANTS, STATUS_CONSTANTS } from '../../constants/ecommerce.constants';
 
 interface OrderProps {
     userId: string;
@@ -216,18 +219,33 @@ export class OrderEntity extends Entity<OrderProps> {
 
     /**
      * Add fulfillment notes
-     * @param notes - Fulfillment notes
+     * @param notes - Fulfillment notes (max 1000 characters)
+     * @throws TouriiBackendAppException - When notes exceed maximum length
      */
     addFulfillmentNotes(notes: string): void {
+        if (notes && notes.length > VALIDATION_CONSTANTS.MAX_NOTES_LENGTH) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
         this.props.fulfillmentNotes = notes;
         this.props.updDateTime = new Date();
     }
 
     /**
      * Set estimated delivery date
-     * @param date - Estimated delivery date
+     * @param date - Estimated delivery date (must be in the future)
+     * @throws TouriiBackendAppException - When date is invalid
      */
     setEstimatedDeliveryDate(date: Date): void {
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
+        // Estimated delivery should be in the future
+        if (date <= new Date()) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+        
         this.props.estimatedDeliveryDate = date;
         this.props.updDateTime = new Date();
     }
@@ -263,8 +281,13 @@ export class OrderEntity extends Entity<OrderProps> {
      * Check if order belongs to user
      * @param userId - User ID to compare
      * @returns True if belongs to user
+     * @throws TouriiBackendAppException - When user ID is invalid
      */
     belongsToUser(userId: string): boolean {
+        if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+        
         return this.props.userId === userId;
     }
 
@@ -283,6 +306,6 @@ export class OrderEntity extends Entity<OrderProps> {
     getAgeInDays(): number {
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - this.props.orderDate.getTime());
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.ceil(diffTime / TIME_CONSTANTS.DAY);
     }
 }

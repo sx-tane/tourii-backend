@@ -1,6 +1,9 @@
 import { Entity } from '../entity';
 import type { UserEntity } from '../user/user.entity';
 import type { OnchainItemCatalog } from '../catalog/onchain-item-catalog.entity';
+import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
+import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
+import { CART_CONSTANTS, VALIDATION_CONSTANTS } from '../../constants/ecommerce.constants';
 
 interface CartProps {
     userId: string;
@@ -76,22 +79,32 @@ export class CartEntity extends Entity<CartProps> {
 
     /**
      * Update the quantity of the cart item
-     * @param newQuantity - New quantity (must be > 0)
+     * @param newQuantity - New quantity (must be between 1 and 999)
+     * @throws TouriiBackendAppException - When quantity is invalid
      */
     updateQuantity(newQuantity: number): void {
-        if (newQuantity <= 0) {
-            throw new Error('Quantity must be greater than 0');
+        // Validate quantity is a positive integer within allowed range
+        if (!Number.isInteger(newQuantity) || 
+            newQuantity < CART_CONSTANTS.MIN_QUANTITY || 
+            newQuantity > CART_CONSTANTS.MAX_QUANTITY) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_CART_001);
         }
+        
         this.props.quantity = newQuantity;
         this.props.updDateTime = new Date();
     }
 
     /**
      * Calculate total price for this cart item
-     * @param unitPrice - Price per item
+     * @param unitPrice - Price per item (must be >= 0)
      * @returns Total price for this cart item
+     * @throws TouriiBackendAppException - When unit price is invalid
      */
     calculateTotalPrice(unitPrice: number): number {
+        if (typeof unitPrice !== 'number' || unitPrice < 0 || !Number.isFinite(unitPrice)) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ORDER_003);
+        }
+        
         return this.props.quantity * unitPrice;
     }
 
@@ -99,8 +112,13 @@ export class CartEntity extends Entity<CartProps> {
      * Check if cart item is for the same product
      * @param productId - Product ID to compare
      * @returns True if same product
+     * @throws TouriiBackendAppException - When product ID is invalid
      */
     isForProduct(productId: string): boolean {
+        if (!productId || typeof productId !== 'string' || productId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_SHOP_001);
+        }
+        
         return this.props.productId === productId;
     }
 
@@ -108,8 +126,13 @@ export class CartEntity extends Entity<CartProps> {
      * Check if cart item belongs to user
      * @param userId - User ID to compare
      * @returns True if belongs to user
+     * @throws TouriiBackendAppException - When user ID is invalid
      */
     belongsToUser(userId: string): boolean {
+        if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+        
         return this.props.userId === userId;
     }
 }

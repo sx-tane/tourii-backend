@@ -230,6 +230,87 @@ export const TouriiBackendAppErrorType = {
         message: 'Weather API: WEATHER_API_KEY not configured in server environment.',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
+    // --- E-commerce Specific Errors ---
+    E_CART_001: {
+        code: 'E_CART_001',
+        message: 'Invalid cart item quantity. Quantity must be between 1 and 999.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_CART_002: {
+        code: 'E_CART_002',
+        message: 'Cart item not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_CART_003: {
+        code: 'E_CART_003',
+        message: 'Cart is empty.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_CART_004: {
+        code: 'E_CART_004',
+        message: 'Product is already in cart.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_001: {
+        code: 'E_ORDER_001',
+        message: 'Order not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_ORDER_002: {
+        code: 'E_ORDER_002',
+        message: 'Order cannot be cancelled at this stage.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_003: {
+        code: 'E_ORDER_003',
+        message: 'Invalid order amount. Amount must be greater than zero.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_004: {
+        code: 'E_ORDER_004',
+        message: 'Order already exists for this user and products.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_005: {
+        code: 'E_ORDER_005',
+        message: 'Invalid delivery information provided.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_001: {
+        code: 'E_SHOP_001',
+        message: 'Product not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_SHOP_002: {
+        code: 'E_SHOP_002',
+        message: 'Product is out of stock.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_003: {
+        code: 'E_SHOP_003',
+        message: 'Invalid price range. Maximum price must be greater than minimum price.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_004: {
+        code: 'E_SHOP_004',
+        message: 'Invalid pagination parameters. Page and limit must be positive numbers.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_001: {
+        code: 'E_PAYMENT_001',
+        message: 'Payment processing failed.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_002: {
+        code: 'E_PAYMENT_002',
+        message: 'Invalid payment method.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_003: {
+        code: 'E_PAYMENT_003',
+        message: 'Payment amount exceeds limit.',
+        type: ErrorType.BAD_REQUEST,
+    },
 } as const;
 
 type TouriiBackendAppErrorKeys = keyof typeof TouriiBackendAppErrorType;

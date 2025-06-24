@@ -3,6 +3,9 @@ import type { CartRepository } from '@app/core/domain/ecommerce/cart.repository'
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CartMapper } from '../mapper/cart.mapper';
+import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
+import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
+import { CART_CONSTANTS, VALIDATION_CONSTANTS } from '../../constants/ecommerce.constants';
 
 @Injectable()
 export class CartRepositoryDb implements CartRepository {
@@ -32,6 +35,11 @@ export class CartRepositoryDb implements CartRepository {
     };
 
     async getUserCart(userId: string): Promise<CartEntity[]> {
+        // Validate user ID
+        if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
         const cartItems = await this.prisma.user_cart.findMany({
             where: {
                 user_id: userId,
@@ -47,6 +55,18 @@ export class CartRepositoryDb implements CartRepository {
     }
 
     async addToCart(cartItem: CartEntity): Promise<CartEntity> {
+        // Validate cart item
+        if (!cartItem || !cartItem.userId || !cartItem.productId) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
+        }
+
+        // Validate quantity
+        if (!Number.isInteger(cartItem.quantity) || 
+            cartItem.quantity < CART_CONSTANTS.MIN_QUANTITY || 
+            cartItem.quantity > CART_CONSTANTS.MAX_QUANTITY) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_CART_001);
+        }
+
         // Check if item already exists in cart
         const existingItem = await this.prisma.user_cart.findUnique({
             where: {
@@ -59,13 +79,19 @@ export class CartRepositoryDb implements CartRepository {
 
         let result;
         if (existingItem) {
+            // Validate the new total quantity won't exceed maximum
+            const newQuantity = existingItem.quantity + cartItem.quantity;
+            if (newQuantity > CART_CONSTANTS.MAX_QUANTITY) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_CART_001);
+            }
+
             // Update existing item quantity
             result = await this.prisma.user_cart.update({
                 where: {
                     cart_id: existingItem.cart_id,
                 },
                 data: {
-                    quantity: existingItem.quantity + cartItem.quantity,
+                    quantity: newQuantity,
                     upd_date_time: new Date(),
                 },
                 include: this.cartInclude,
@@ -82,6 +108,18 @@ export class CartRepositoryDb implements CartRepository {
     }
 
     async updateCartItemQuantity(cartId: string, quantity: number): Promise<CartEntity> {
+        // Validate cart ID
+        if (!cartId || typeof cartId !== 'string' || cartId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_CART_002);
+        }
+
+        // Validate quantity
+        if (!Number.isInteger(quantity) || 
+            quantity < CART_CONSTANTS.MIN_QUANTITY || 
+            quantity > CART_CONSTANTS.MAX_QUANTITY) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_CART_001);
+        }
+
         const updatedItem = await this.prisma.user_cart.update({
             where: {
                 cart_id: cartId,
