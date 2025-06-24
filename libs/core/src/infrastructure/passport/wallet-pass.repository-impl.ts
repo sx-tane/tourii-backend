@@ -119,26 +119,110 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                     `Using hardcoded mock response for Google pass token ID: ${tokenId}`,
                 );
 
+                // Japanese/brand style mock
                 const mockMetadata = {
-                    name: 'Tourii Digital Passport #123',
-                    description: 'Digital passport for testing purposes',
-                    image: 'https://example.com/passport-image.png',
+                    name: 'デジタルパスポート #123',
+                    description: 'テスト用デジタルパスポート',
                     attributes: [
-                        { trait_type: 'Username', value: 'testuser' },
-                        { trait_type: 'Level', value: 'E-Class Amatsukami' },
-                        { trait_type: 'Passport Type', value: 'Amatsukami' },
+                        { trait_type: 'Username', value: 'テストユーザー' },
+                        { trait_type: 'Level', value: 'Eクラス 天津神' },
+                        { trait_type: 'Passport Type', value: '天津神' },
                         { trait_type: 'Quests Completed', value: 15 },
                         { trait_type: 'Travel Distance', value: 250 },
                         { trait_type: 'Magatama Points', value: 1500 },
-                        { trait_type: 'Premium Status', value: 'Premium' },
+                        { trait_type: 'Premium Status', value: 'プレミアム' },
+                        { trait_type: 'CardType', value: '妖怪' },
+                        { trait_type: 'CardKanji', value: '妖' },
                     ],
                 };
 
-                // Generate QR code token
-                const qrToken = this.jwtRepository.generateQrToken(tokenId, 168); // 7 days
+                // Generate QR code token (mock for testing)
+                const qrToken = `tourii-passport-${tokenId}-${Date.now()}`;
+
+                // Create Google Wallet pass object (Japanese/brand style)
+                const passObject = {
+                    iss: 'test-issuer@tourii.com',
+                    aud: 'google',
+                    typ: 'savetowallet',
+                    payload: {
+                        genericObjects: [
+                            {
+                                id: `tourii.123`,
+                                classId: `tourii.tourii_passport`,
+                                state: 'ACTIVE',
+                                hexBackgroundColor: '#AE3111', // Red
+                                cardTitle: {
+                                    defaultValue: {
+                                        language: 'ja',
+                                        value: '妖怪カード',
+                                    },
+                                },
+                                header: {
+                                    defaultValue: {
+                                        language: 'ja',
+                                        value: '天津神',
+                                    },
+                                },
+                                subheader: {
+                                    defaultValue: {
+                                        language: 'ja',
+                                        value: '妖',
+                                    },
+                                },
+                                textModulesData: [
+                                    {
+                                        id: 'desc',
+                                        header: '説明',
+                                        body: 'テスト用デジタルパスポート',
+                                    },
+                                    {
+                                        id: 'quests',
+                                        header: 'クエスト達成',
+                                        body: String(
+                                            mockMetadata.attributes.find(
+                                                (a) => a.trait_type === 'Quests Completed',
+                                            )?.value || 0,
+                                        ),
+                                    },
+                                    {
+                                        id: 'distance',
+                                        header: '移動距離',
+                                        body: `${Math.floor((mockMetadata.attributes.find((a) => a.trait_type === 'Travel Distance')?.value as number) || 0)} km`,
+                                    },
+                                    {
+                                        id: 'points',
+                                        header: 'マガタマポイント',
+                                        body: String(
+                                            mockMetadata.attributes.find(
+                                                (a) => a.trait_type === 'Magatama Points',
+                                            )?.value || 0,
+                                        ),
+                                    },
+                                    {
+                                        id: 'premium',
+                                        header: 'プレミアムステータス',
+                                        body:
+                                            mockMetadata.attributes.find(
+                                                (a) => a.trait_type === 'Premium Status',
+                                            )?.value || 'スタンダード',
+                                    },
+                                ],
+                                // No logo for now
+                            },
+                        ],
+                    },
+                };
+
+                // Create a mock JWT (not signed)
+                const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString(
+                    'base64url',
+                );
+                const payload = Buffer.from(JSON.stringify(passObject)).toString('base64url');
+                const signature = '';
+                const jwt = `${header}.${payload}.${signature}`;
 
                 // Create Google Pay pass URL (mock)
-                const passUrl = `https://pay.google.com/gp/v/save/${qrToken}`;
+                const passUrl = `https://pay.google.com/gp/v/save/${jwt}`;
 
                 const expiresAt = new Date();
                 expiresAt.setDate(expiresAt.getDate() + 7);
@@ -230,6 +314,15 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             return { userAgent, platform: 'web' };
         }
     }
+
+    // --- APPLE WALLET PRODUCTION SETUP ---
+    // TODO: Apple Wallet Production Setup
+    // - Register for an Apple Developer account and create a Pass Type ID
+    // - Download your Apple Pass certificate (.p12) and add it to your backend securely
+    // - Use a library like `passkit-generator` to sign the .pkpass with your certificate
+    // - Replace the mock signature in createPkpassFile() with a real signature using your Apple certificate
+    // - Add required images (icon.png, logo.png, etc.) to the .pkpass ZIP
+    // - Test the pass on a real device and submit for Apple review if needed
 
     private async createPkpassFile(
         metadata: DigitalPassportMetadata,
@@ -476,6 +569,18 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         }
     }
 
+    // --- GOOGLE WALLET PRODUCTION SETUP ---
+    // TODO: Google Wallet Production Setup
+    // - Register as a Google Wallet Issuer in the Google Pay & Wallet Console
+    // - Create a Service Account and download the private key JSON
+    // - Register your pass class (e.g., tourii_passport) in the Google Wallet console
+    // - Use the service account to sign the JWT in createGooglePassJwt()
+    // - Replace the mock JWT (alg: 'none') with a real signed JWT (alg: 'RS256')
+    // - Add your logo and any images as HTTPS URLs in the pass object
+    // - Use the real issuerId and classId in the pass object
+    // - Test the Save to Google Wallet link on a real device
+    // --- END GOOGLE WALLET PRODUCTION SETUP ---
+
     private createGooglePassObject(
         metadata: DigitalPassportMetadata,
         qrToken: string,
@@ -562,6 +667,9 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
     }
 
     private createGooglePassJwt(passObject: any): string {
+        // ...
+        // TODO: Sign the JWT with your Google service account for production (alg: 'RS256')
+        // --- END GOOGLE WALLET PRODUCTION SETUP ---
         // In a real implementation, this would be properly signed with Google credentials
         // For now, we'll create a basic JWT structure
         const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString(
