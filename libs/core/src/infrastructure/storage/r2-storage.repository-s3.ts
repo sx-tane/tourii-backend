@@ -117,6 +117,14 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
         }
     }
 
+    async uploadPassportPdf(pdf: Buffer, key: string): Promise<string> {
+        return this.uploadProof(pdf, key, 'application/pdf');
+    }
+
+    async uploadWalletPass(pass: Buffer, key: string, contentType: string): Promise<string> {
+        return this.uploadProof(pass, key, contentType);
+    }
+
     generatePublicUrl(key: string): string {
         const customDomain = this.config.get<string>('R2_PUBLIC_DOMAIN')?.replace(/\/$/, '');
 

@@ -1,4 +1,4 @@
-import { JwtRepository } from '@app/core/domain/auth/jwt.repository';
+import { JwtRepository, QrCodePayload } from '@app/core/domain/auth/jwt.repository';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
@@ -27,6 +27,43 @@ export class JwtRepositoryAuth implements JwtRepository {
         try {
             return jwt.verify(token, this.secretKey) as T;
         } catch (_error) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_002);
+        }
+    }
+
+    generateQrToken(tokenId: string, expirationHours = 24): string {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = now + (expirationHours * 60 * 60);
+
+        const payload: QrCodePayload = {
+            tokenId,
+            type: 'passport_verification',
+            issuedAt: now,
+            expiresAt
+        };
+
+        return this.generateJwtToken(payload, {
+            expiresIn: `${expirationHours}h`
+        });
+    }
+
+    verifyQrToken(qrToken: string): QrCodePayload {
+        try {
+            const payload = this.dataFromToken<QrCodePayload>(qrToken);
+            
+            // Validate payload structure
+            if (!payload.tokenId || payload.type !== 'passport_verification') {
+                throw new Error('Invalid QR token structure');
+            }
+
+            // Check expiration
+            const now = Math.floor(Date.now() / 1000);
+            if (payload.expiresAt && payload.expiresAt < now) {
+                throw new Error('QR token has expired');
+            }
+
+            return payload;
+        } catch (error) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_002);
         }
     }

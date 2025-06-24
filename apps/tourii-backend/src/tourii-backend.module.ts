@@ -2,6 +2,7 @@ import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repo
 import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
+import { JwtRepositoryAuth } from '@app/core/infrastructure/authentication/jwt-repository-auth';
 import { DigitalPassportRepositoryFake } from '@app/core/infrastructure/blockchain/digital-passport.repository.fake';
 import { GroupQuestRepositoryDb } from '@app/core/infrastructure/datasource/group-quest.repository-db';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
@@ -14,6 +15,9 @@ import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/us
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/user-travel-log.repository-db';
 import { LocationTrackingServiceImpl } from '@app/core/infrastructure/location/location-tracking.service-impl';
+import { PassportPdfRepositoryImpl } from '@app/core/infrastructure/passport/passport-pdf.repository-impl';
+import { WalletPassRepositoryImpl } from '@app/core/infrastructure/passport/wallet-pass.repository-impl';
+import { PassportMetadataRepositoryImpl } from '@app/core/infrastructure/passport/passport-metadata.repository-impl';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
@@ -33,9 +37,15 @@ import {
 } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PassportGenerationController } from './controller/passport-generation.controller';
+import { WalletIntegrationController } from './controller/wallet-integration.controller';
+import { PassportVerificationController } from './controller/passport-verification.controller';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
+import { PassportPdfService } from './service/passport-pdf.service';
+import { WalletPassService } from './service/wallet-pass.service';
+import { PassportVerificationService } from './service/passport-verification.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -91,7 +101,13 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         }),
     ],
     // Register controllers that handle HTTP requests
-    controllers: [TouriiBackendController, TestController],
+    controllers: [
+        TouriiBackendController, 
+        TestController, 
+        PassportGenerationController, 
+        WalletIntegrationController, 
+        PassportVerificationController
+    ],
     // Register services and providers
     providers: [
         Logger, // Logging service
@@ -102,6 +118,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendHttpService, // HTTP client service
         GroupQuestGateway,
         CachingService,
+        // New passport services
+        PassportPdfService,
+        WalletPassService,
+        PassportVerificationService,
         HttpAdapterHost, // HTTP adapter
         {
             provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,
@@ -182,6 +202,23 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.TASK_REPOSITORY_TOKEN,
             useClass: TaskRepositoryDb,
+        },
+        // New passport repositories
+        {
+            provide: TouriiBackendConstants.PASSPORT_PDF_REPOSITORY_TOKEN,
+            useClass: PassportPdfRepositoryImpl,
+        },
+        {
+            provide: TouriiBackendConstants.WALLET_PASS_REPOSITORY_TOKEN,
+            useClass: WalletPassRepositoryImpl,
+        },
+        {
+            provide: TouriiBackendConstants.JWT_REPOSITORY_TOKEN,
+            useClass: JwtRepositoryAuth,
+        },
+        {
+            provide: TouriiBackendConstants.PASSPORT_METADATA_REPOSITORY_TOKEN,
+            useClass: PassportMetadataRepositoryImpl,
         },
     ],
 })
