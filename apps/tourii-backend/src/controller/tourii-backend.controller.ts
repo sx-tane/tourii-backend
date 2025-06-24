@@ -435,16 +435,22 @@ export class TouriiBackendController {
     @Get('/user/me')
     @ApiTags('User')
     @ApiOperation({
-        summary: "Get current user's basic profile",
-        description: "Retrieve authenticated user's profile information.",
+        summary: "Get current user's profile with optional dashboard stats",
+        description: "Retrieve authenticated user's profile information with optional dashboard statistics for enhanced user experience.",
     })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'x-user-id', description: 'User ID for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({
+        name: 'include',
+        required: false,
+        type: String,
+        description: 'Include additional data: "stats" for dashboard statistics',
+    })
     // TODO: Replace header-based userId retrieval with proper auth guard
     @ApiResponse({
         status: 200,
-        description: 'Current user basic profile',
+        description: 'Current user profile with optional dashboard statistics',
         type: UserResponseDto,
         schema: zodToOpenAPI(UserResponseSchema),
     })
@@ -452,14 +458,15 @@ export class TouriiBackendController {
     @ApiUnauthorizedResponse()
     @ApiInvalidVersionResponse()
     @ApiUserNotFoundResponse()
-    async me(@Req() req: Request): Promise<UserResponseDto> {
+    async me(@Req() req: Request, @Query('include') include?: string): Promise<UserResponseDto> {
         const userId = req.headers['x-user-id'] as string; // TODO: extract from auth token
 
         if (!userId) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
 
-        return this.touriiBackendService.getUserProfile(userId);
+        const includeStats = include?.includes('stats') || false;
+        return this.touriiBackendService.getUserProfile(userId, includeStats);
     }
 
     @Get('/checkins')

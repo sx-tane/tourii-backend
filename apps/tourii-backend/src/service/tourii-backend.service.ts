@@ -29,6 +29,7 @@ import { LocationTrackingService } from '@app/core/domain/location/location-trac
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
+import { CachingService } from '@app/core/provider/caching.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -134,6 +135,7 @@ export class TouriiBackendService {
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
         private readonly locationTrackingService: LocationTrackingService,
         private readonly groupQuestGateway: GroupQuestGateway,
+        private readonly cachingService: CachingService,
     ) {}
 
     // ==========================================
@@ -228,16 +230,70 @@ export class TouriiBackendService {
     }
 
     /**
-     * Get user profile
+     * Get user profile with optional dashboard statistics
      * @param userId User ID
-     * @returns User profile response DTO
+     * @param includeStats Whether to include dashboard statistics
+     * @returns User profile response DTO with optional dashboard stats
      */
-    async getUserProfile(userId: string): Promise<UserResponseDto> {
+    async getUserProfile(userId: string, includeStats = false): Promise<UserResponseDto> {
         const user = await this.userRepository.getUserInfoByUserId(userId);
         if (!user) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
         }
-        return UserResultBuilder.userToDto(user);
+
+        const dto = UserResultBuilder.userToDto(user);
+
+        if (includeStats) {
+            // Use caching for dashboard statistics with 5-minute TTL
+            const cacheKey = `user:${userId}:dashboard-stats`;
+            const dashboardStats = await this.cachingService.getOrSet(
+                cacheKey,
+                async () => {
+                    // Calculate dashboard statistics based on admin aggregation logic
+                    const totalMagatamaPoints = user.userTaskLogs
+                        ?.filter((log) => log.status === 'COMPLETED')
+                        .reduce((sum, log) => sum + (log.totalMagatamaPointAwarded || 0), 0) || 0;
+
+                    // Find current reading progress
+                    const lastReadingActivity = user.userStoryLogs
+                        ?.filter((log) => log.status === 'IN_PROGRESS')
+                        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0];
+
+                    // Get active quests count by looking for in-progress quest task logs
+                    const activeQuestIds = new Set(
+                        user.userTaskLogs
+                            ?.filter((log) => log.status === 'IN_PROGRESS')
+                            .map((log) => log.questId)
+                            .filter(Boolean)
+                    );
+
+                    return {
+                        achievementCount: user.userAchievements?.length || 0,
+                        completedQuestsCount: user.totalQuestCompleted || 0,
+                        completedStoriesCount:
+                            user.userStoryLogs?.filter((log) => log.status === 'COMPLETED').length || 0,
+                        totalCheckinsCount: user.userTravelLogs?.length || 0,
+                        totalMagatamaPoints,
+                        activeQuestsCount: activeQuestIds.size,
+                        readingProgress: lastReadingActivity
+                            ? {
+                                  currentChapterId: lastReadingActivity.storyChapterId,
+                                  currentChapterTitle: lastReadingActivity.storyChapterTitle || undefined,
+                                  completionPercentage: lastReadingActivity.currentProgress || 0,
+                              }
+                            : undefined,
+                    };
+                },
+                300 // 5-minute TTL
+            );
+
+            return {
+                ...dto,
+                dashboardStats,
+            };
+        }
+
+        return dto;
     }
 
     /**
