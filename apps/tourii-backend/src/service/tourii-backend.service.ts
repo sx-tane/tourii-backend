@@ -5,6 +5,10 @@ import {
     UserTravelLogRepository,
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
+import type { CartRepository } from '@app/core/domain/ecommerce/cart.repository';
+import type { OrderRepository } from '@app/core/domain/ecommerce/order.repository';
+import type { PaymentRepository } from '@app/core/domain/ecommerce/payment.repository';
+import type { ShopRepository } from '@app/core/domain/ecommerce/shop.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
@@ -133,6 +137,14 @@ export class TouriiBackendService {
         private readonly userTravelLogRepository: UserTravelLogRepository,
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
         private readonly locationTrackingService: LocationTrackingService,
+        @Inject(TouriiBackendConstants.CART_REPOSITORY_TOKEN)
+        private readonly cartRepository: CartRepository,
+        @Inject(TouriiBackendConstants.ORDER_REPOSITORY_TOKEN)
+        private readonly orderRepository: OrderRepository,
+        @Inject(TouriiBackendConstants.SHOP_REPOSITORY_TOKEN)
+        private readonly shopRepository: ShopRepository,
+        @Inject(TouriiBackendConstants.PAYMENT_REPOSITORY_TOKEN)
+        private readonly paymentRepository: PaymentRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -2265,5 +2277,264 @@ export class TouriiBackendService {
             magatama_point_awarded: result.magatama_point_awarded,
             completed_at: new Date().toISOString(),
         };
+    }
+
+    // ==========================================
+    // ECOMMERCE & SHOP METHODS
+    // ==========================================
+
+    /**
+     * Get product catalog with optional filtering
+     * @param page Page number for pagination
+     * @param limit Items per page
+     * @param category Optional category filter
+     */
+    async getProductCatalog(page: number = 1, limit: number = 10, category?: string) {
+        return await this.shopRepository.getProducts({ page, limit, category });
+    }
+
+    /**
+     * Get product details by ID
+     * @param productId Product ID
+     */
+    async getProductById(productId: string) {
+        return await this.shopRepository.getProductById(productId);
+    }
+
+    /**
+     * Add item to user's cart
+     * @param userId User ID
+     * @param productId Product ID
+     * @param quantity Quantity to add
+     */
+    async addToCart(userId: string, productId: string, quantity: number = 1) {
+        // Validate product exists and is available
+        const product = await this.shopRepository.getProductById(productId);
+        if (!product || !product.isAvailable) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Product not found or unavailable',
+            );
+        }
+
+        return await this.cartRepository.addItem(userId, productId, quantity);
+    }
+
+    /**
+     * Get user's cart contents
+     * @param userId User ID
+     */
+    async getCart(userId: string) {
+        return await this.cartRepository.getCartByUserId(userId);
+    }
+
+    /**
+     * Update cart item quantity
+     * @param userId User ID
+     * @param cartId Cart item ID
+     * @param quantity New quantity
+     */
+    async updateCartItem(userId: string, cartId: string, quantity: number) {
+        return await this.cartRepository.updateItemQuantity(cartId, quantity);
+    }
+
+    /**
+     * Remove item from cart
+     * @param userId User ID
+     * @param cartId Cart item ID
+     */
+    async removeFromCart(userId: string, cartId: string) {
+        return await this.cartRepository.removeItem(cartId);
+    }
+
+    /**
+     * Clear user's entire cart
+     * @param userId User ID
+     */
+    async clearCart(userId: string) {
+        return await this.cartRepository.clearCart(userId);
+    }
+
+    /**
+     * Checkout cart and create order
+     * @param userId User ID
+     * @param checkoutData Checkout information
+     */
+    async checkout(userId: string, checkoutData: any) {
+        // Get cart contents
+        const cart = await this.cartRepository.getCartByUserId(userId);
+        if (!cart || cart.length === 0) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Cart is empty',
+            );
+        }
+
+        // Calculate totals
+        const subtotal = cart.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+        const taxAmount = subtotal * 0.08; // 8% tax
+        const shippingAmount = 0; // Digital products - no shipping
+        const totalAmount = subtotal + taxAmount + shippingAmount;
+
+        // Create order
+        const order = await this.orderRepository.createOrder({
+            userId,
+            items: cart.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                productName: item.productName,
+                productDescription: item.productDescription,
+                productImageUrl: item.productImageUrl,
+            })),
+            subtotalAmount: subtotal,
+            taxAmount,
+            shippingAmount,
+            totalAmount,
+            currency: 'USD',
+            paymentMethod: checkoutData.paymentMethod,
+            customerEmail: checkoutData.customerEmail,
+            customerPhone: checkoutData.customerPhone,
+            billingAddress: checkoutData.billingAddress,
+            shippingAddress: checkoutData.shippingAddress,
+            customerNotes: checkoutData.customerNotes,
+        });
+
+        // Process payment
+        const paymentResult = await this.paymentRepository.processPayment({
+            orderId: order.orderId!,
+            amount: totalAmount,
+            currency: 'USD',
+            paymentMethod: checkoutData.paymentMethod,
+            paymentMethodData: checkoutData.paymentMethodData,
+            customerEmail: checkoutData.customerEmail,
+        });
+
+        // Update order with payment information
+        await this.orderRepository.updatePaymentStatus(
+            order.orderId!,
+            paymentResult.status,
+            paymentResult.transactionId,
+        );
+
+        // Clear cart after successful order
+        if (paymentResult.status === 'COMPLETED') {
+            await this.cartRepository.clearCart(userId);
+        }
+
+        return {
+            order,
+            paymentIntent: paymentResult.paymentIntent,
+            estimatedReviewTime: paymentResult.requiresManualReview ? '24 hours' : undefined,
+        };
+    }
+
+    /**
+     * Get user's order history
+     * @param userId User ID
+     * @param page Page number
+     * @param limit Items per page
+     */
+    async getOrderHistory(userId: string, page: number = 1, limit: number = 10) {
+        return await this.orderRepository.getOrdersByUserId(userId, { page, limit });
+    }
+
+    /**
+     * Get order details by ID
+     * @param userId User ID
+     * @param orderId Order ID
+     */
+    async getOrderById(userId: string, orderId: string) {
+        return await this.orderRepository.getOrderById(orderId);
+    }
+
+    /**
+     * Cancel an order (if eligible)
+     * @param userId User ID
+     * @param orderId Order ID
+     */
+    async cancelOrder(userId: string, orderId: string) {
+        const order = await this.orderRepository.getOrderById(orderId);
+        if (!order || order.userId !== userId) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order not found',
+            );
+        }
+
+        if (!order.canBeCancelled()) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order cannot be cancelled at this stage',
+            );
+        }
+
+        // Process cancellation through payment provider
+        await this.paymentRepository.cancelPayment(order.paymentTransactionId!);
+
+        // Update order status
+        return await this.orderRepository.updateOrderStatus(orderId, 'CANCELLED');
+    }
+
+    /**
+     * Request refund for an order
+     * @param userId User ID
+     * @param orderId Order ID
+     * @param reason Refund reason
+     */
+    async requestRefund(userId: string, orderId: string, reason: string) {
+        const order = await this.orderRepository.getOrderById(orderId);
+        if (!order || order.userId !== userId) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order not found',
+            );
+        }
+
+        if (!order.canBeRefunded()) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order is not eligible for refund',
+            );
+        }
+
+        // Process refund through payment provider
+        const refundResult = await this.paymentRepository.refundPayment({
+            transactionId: order.paymentTransactionId!,
+            amount: order.totalAmount,
+            reason,
+        });
+
+        // Update order status
+        await this.orderRepository.updateOrderStatus(orderId, 'REFUNDED');
+
+        return refundResult;
+    }
+
+    /**
+     * Get shop analytics and metrics
+     * @param startDate Start date for analytics
+     * @param endDate End date for analytics
+     */
+    async getShopAnalytics(startDate: Date, endDate: Date) {
+        return await this.shopRepository.getAnalytics(startDate, endDate);
+    }
+
+    /**
+     * Get popular products
+     * @param limit Number of products to return
+     */
+    async getPopularProducts(limit: number = 5) {
+        return await this.shopRepository.getPopularProducts(limit);
+    }
+
+    /**
+     * Search products by keyword
+     * @param query Search query
+     * @param page Page number
+     * @param limit Items per page
+     */
+    async searchProducts(query: string, page: number = 1, limit: number = 10) {
+        return await this.shopRepository.searchProducts(query, { page, limit });
     }
 }
