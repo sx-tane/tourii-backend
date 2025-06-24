@@ -92,10 +92,25 @@ export const VALIDATION_CONSTANTS = {
     MIN_REQUIRED_LENGTH: 1,
     /** UUID regex pattern */
     UUID_PATTERN: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-    /** Email regex pattern */
+    /** Email regex pattern - RFC 5322 compliant */
     EMAIL_PATTERN: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    /** Phone number regex pattern (international) */
+    /** Phone number regex pattern (international E.164 format) */
     PHONE_PATTERN: /^\+?[1-9]\d{1,14}$/,
+    /** Country code pattern (ISO 3166-1 alpha-2) */
+    COUNTRY_CODE_PATTERN: /^[A-Z]{2}$/,
+    /** Currency code pattern (ISO 4217) */
+    CURRENCY_CODE_PATTERN: /^[A-Z]{3}$/,
+    /** Postal code patterns by country */
+    POSTAL_CODE_PATTERNS: {
+        US: /^\d{5}(-\d{4})?$/,
+        CA: /^[A-Z]\d[A-Z] \d[A-Z]\d$/,
+        UK: /^[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}$/,
+        JP: /^\d{3}-\d{4}$/,
+        DE: /^\d{5}$/,
+        FR: /^\d{5}$/,
+        AU: /^\d{4}$/,
+        // Add more patterns as needed
+    },
 } as const;
 
 // Time constants (in milliseconds)

@@ -2,9 +2,11 @@ import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { Entity } from '../entity';
 import type { UserEntity } from '../user/user.entity';
 import type { OrderItemEntity } from './order-item.entity';
+import type { BillingAddressInterface, ShippingAddressInterface } from './types/address.types';
 import { TouriiBackendAppException } from '../../support/exception/tourii-backend-app-exception';
 import { TouriiBackendAppErrorType } from '../../support/exception/tourii-backend-app-error-type';
 import { ORDER_CONSTANTS, VALIDATION_CONSTANTS, TIME_CONSTANTS, STATUS_CONSTANTS } from '../../constants/ecommerce.constants';
+import { validateEmail, validatePhone, validateCurrency, validateBillingAddress, validateShippingAddress, validateOrderAmount } from './utils/validation.utils';
 
 interface OrderProps {
     userId: string;
@@ -27,8 +29,8 @@ interface OrderProps {
     estimatedDeliveryDate?: Date;
     customerEmail?: string;
     customerPhone?: string;
-    billingAddress?: any;
-    shippingAddress?: any;
+    billingAddress?: BillingAddressInterface;
+    shippingAddress?: ShippingAddressInterface;
     customerNotes?: string;
     delFlag: boolean;
     insUserId: string;
@@ -129,11 +131,11 @@ export class OrderEntity extends Entity<OrderProps> {
         return this.props.customerPhone;
     }
 
-    get billingAddress(): any {
+    get billingAddress(): BillingAddressInterface | undefined {
         return this.props.billingAddress;
     }
 
-    get shippingAddress(): any {
+    get shippingAddress(): ShippingAddressInterface | undefined {
         return this.props.shippingAddress;
     }
 
@@ -171,6 +173,81 @@ export class OrderEntity extends Entity<OrderProps> {
 
     get orderItems(): OrderItemEntity[] | undefined {
         return this.props.orderItems;
+    }
+
+    /**
+     * Set and validate customer email
+     * @param email - Customer email address
+     * @throws TouriiBackendAppException - When email format is invalid
+     */
+    setCustomerEmail(email: string): void {
+        validateEmail(email);
+        this.props.customerEmail = email.trim();
+        this.props.updDateTime = new Date();
+    }
+
+    /**
+     * Set and validate customer phone
+     * @param phone - Customer phone number (international format)
+     * @throws TouriiBackendAppException - When phone format is invalid
+     */
+    setCustomerPhone(phone: string): void {
+        validatePhone(phone);
+        this.props.customerPhone = phone.trim();
+        this.props.updDateTime = new Date();
+    }
+
+    /**
+     * Set and validate currency
+     * @param currency - Currency code (ISO 4217)
+     * @throws TouriiBackendAppException - When currency is not supported
+     */
+    setCurrency(currency: string): void {
+        validateCurrency(currency);
+        this.props.currency = currency.toUpperCase();
+        this.props.updDateTime = new Date();
+    }
+
+    /**
+     * Set and validate billing address
+     * @param address - Billing address information
+     * @throws TouriiBackendAppException - When address is invalid
+     */
+    setBillingAddress(address: BillingAddressInterface): void {
+        validateBillingAddress(address);
+        this.props.billingAddress = address;
+        this.props.updDateTime = new Date();
+    }
+
+    /**
+     * Set and validate shipping address
+     * @param address - Shipping address information
+     * @throws TouriiBackendAppException - When address is invalid
+     */
+    setShippingAddress(address: ShippingAddressInterface): void {
+        validateShippingAddress(address);
+        this.props.shippingAddress = address;
+        this.props.updDateTime = new Date();
+    }
+
+    /**
+     * Validate order amounts
+     * @throws TouriiBackendAppException - When any amount is invalid
+     */
+    validateOrderAmounts(): void {
+        validateOrderAmount(this.props.subtotalAmount);
+        validateOrderAmount(this.props.totalAmount);
+        
+        // Validate that tax and shipping amounts are not negative
+        if (this.props.taxAmount < 0 || this.props.shippingAmount < 0 || this.props.paymentFees < 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ORDER_003);
+        }
+
+        // Validate that total equals subtotal + tax + shipping
+        const calculatedTotal = this.props.subtotalAmount + this.props.taxAmount + this.props.shippingAmount;
+        if (Math.abs(calculatedTotal - this.props.totalAmount) > 0.01) { // Allow for small rounding differences
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ORDER_003);
+        }
     }
 
     /**
