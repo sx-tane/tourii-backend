@@ -350,8 +350,12 @@ describe('OrderEntity', () => {
         });
 
         it('should update payment status without transaction ID', () => {
-            // Create fresh order entity to ensure no transaction ID from previous tests
-            const freshOrder = new OrderEntity(validProps);
+            // Create fresh order entity with clean props to ensure no transaction ID from previous tests
+            const freshProps = {
+                ...validProps,
+                paymentTransactionId: undefined, // Explicitly ensure no transaction ID
+            };
+            const freshOrder = new OrderEntity(freshProps);
             freshOrder.updatePaymentStatus(PaymentStatus.FAILED);
             
             expect(freshOrder.paymentStatus).toBe(PaymentStatus.FAILED);
