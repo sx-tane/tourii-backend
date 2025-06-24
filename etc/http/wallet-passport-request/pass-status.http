@@ -1,0 +1,5 @@
+### Check Pass Status
+# Check the status of wallet passes for a given token ID
+GET http://localhost:4000/api/wallet/status/123
+accept-version: 1.0.0
+x-api-key: your-api-key-2 

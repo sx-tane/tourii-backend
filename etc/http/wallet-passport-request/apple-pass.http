@@ -1,0 +1,10 @@
+### Generate Apple Wallet Pass
+# Generates a .pkpass file for Apple Wallet with passport achievements and QR code
+POST http://localhost:4000/api/wallet/apple/pass
+Content-Type: application/json
+accept-version: 1.0.0
+x-api-key: your-api-key-2
+
+{
+  "tokenId": "123"
+} 

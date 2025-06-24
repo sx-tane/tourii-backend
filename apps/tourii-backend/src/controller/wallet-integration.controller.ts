@@ -1,27 +1,27 @@
-import { WalletPassService, WalletPassResult, BothWalletPassesResult } from '../service/wallet-pass.service';
 import {
+    Body,
     Controller,
     Get,
-    Post,
-    Param,
-    Req,
-    Res,
-    Body,
     HttpException,
     HttpStatus,
     Logger,
+    Param,
+    Post,
+    Query,
+    Req,
+    Res,
     UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import {
+    BothWalletPassesResult,
+    WalletPassResult,
+    WalletPassService,
+} from '../service/wallet-pass.service';
 
 interface UpdatePassRequest {
-    tokenId: string;
-    platform: 'apple' | 'google';
-}
-
-interface RevokePassRequest {
     tokenId: string;
     platform: 'apple' | 'google';
 }
@@ -37,7 +37,8 @@ export class WalletIntegrationController {
     @Post('apple/pass')
     @ApiOperation({
         summary: 'Generate Apple Wallet Pass',
-        description: 'Generate a .pkpass file for Apple Wallet with passport achievements and QR code',
+        description:
+            'Generate a .pkpass file for Apple Wallet with passport achievements and QR code',
     })
     @ApiBody({
         schema: {
@@ -51,29 +52,108 @@ export class WalletIntegrationController {
     @ApiResponse({
         status: 201,
         description: 'Apple Wallet pass generated successfully',
-        schema: {
-            type: 'object',
-            properties: {
-                tokenId: { type: 'string', example: '123' },
-                platform: { type: 'string', example: 'apple' },
-                downloadUrl: { type: 'string', example: 'https://assets.tourii.com/passports/apple/123_1640995200000.pkpass' },
-                redirectUrl: { type: 'string', example: 'https://assets.tourii.com/passports/apple/123_1640995200000.pkpass' },
-                expiresAt: { type: 'string', format: 'date-time', example: '2024-01-08T12:00:00.000Z' },
+        content: {
+            'application/vnd.apple.pkpass': {
+                schema: {
+                    type: 'string',
+                    format: 'binary',
+                },
             },
         },
     })
-    async generateApplePass(@Body() body: { tokenId: string }): Promise<WalletPassResult> {
+    async generateApplePass(
+        @Body() body: { tokenId: string },
+        @Res() res: Response,
+    ): Promise<void> {
         try {
             this.logger.log(`Generating Apple Wallet pass for token ID: ${body.tokenId}`);
-            
+
             const result = await this.walletPassService.generateApplePass(body.tokenId);
-            
-            this.logger.log(`Apple Wallet pass generated successfully for token ID: ${body.tokenId}`);
-            return result;
+
+            if (!result.passBuffer) {
+                throw new HttpException(
+                    'Failed to generate pass buffer',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
+
+            // Set headers for .pkpass file download
+            res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="tourii-passport-${body.tokenId}.pkpass"`,
+            );
+            res.setHeader('Content-Length', result.passBuffer.length);
+
+            // Send the binary .pkpass file
+            res.send(result.passBuffer);
+
+            this.logger.log(
+                `Apple Wallet pass generated and sent successfully for token ID: ${body.tokenId}`,
+            );
         } catch (error) {
             this.logger.error(`Failed to generate Apple pass for token ID ${body.tokenId}:`, error);
             throw new HttpException(
                 `Failed to generate Apple Wallet pass`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Get('apple/pass')
+    @ApiOperation({
+        summary: 'Download Apple Wallet Pass',
+        description: 'Download the .pkpass file for Apple Wallet',
+    })
+    @ApiQuery({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Apple Wallet pass file downloaded successfully',
+        content: {
+            'application/vnd.apple.pkpass': {
+                schema: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    async downloadApplePass(
+        @Query('tokenId') tokenId: string,
+        @Res() res: Response,
+    ): Promise<void> {
+        try {
+            this.logger.log(`Downloading Apple Wallet pass for token ID: ${tokenId}`);
+
+            const result = await this.walletPassService.generateApplePass(tokenId);
+
+            if (!result.passBuffer) {
+                throw new HttpException(
+                    'Failed to generate pass buffer',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
+
+            // Set headers for .pkpass file download
+            res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="tourii-passport-${tokenId}.pkpass"`,
+            );
+            res.setHeader('Content-Length', result.passBuffer.length);
+
+            // Send the binary .pkpass file
+            res.send(result.passBuffer);
+
+            this.logger.log(`Apple Wallet pass downloaded successfully for token ID: ${tokenId}`);
+        } catch (error) {
+            this.logger.error(`Failed to download Apple pass for token ID ${tokenId}:`, error);
+            throw new HttpException(
+                `Failed to download Apple Wallet pass`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -102,20 +182,27 @@ export class WalletIntegrationController {
                 tokenId: { type: 'string', example: '123' },
                 platform: { type: 'string', example: 'google' },
                 redirectUrl: { type: 'string', example: 'https://pay.google.com/gp/v/save/...' },
-                expiresAt: { type: 'string', format: 'date-time', example: '2024-01-08T12:00:00.000Z' },
+                expiresAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2024-01-08T12:00:00.000Z',
+                },
             },
         },
     })
     async generateGooglePass(@Body() body: { tokenId: string }): Promise<WalletPassResult> {
         try {
             this.logger.log(`Generating Google Pay pass for token ID: ${body.tokenId}`);
-            
+
             const result = await this.walletPassService.generateGooglePass(body.tokenId);
-            
+
             this.logger.log(`Google Pay pass generated successfully for token ID: ${body.tokenId}`);
             return result;
         } catch (error) {
-            this.logger.error(`Failed to generate Google pass for token ID ${body.tokenId}:`, error);
+            this.logger.error(
+                `Failed to generate Google pass for token ID ${body.tokenId}:`,
+                error,
+            );
             throw new HttpException(
                 `Failed to generate Google Pay pass`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -126,7 +213,8 @@ export class WalletIntegrationController {
     @Get('auto/:tokenId')
     @ApiOperation({
         summary: 'Auto-Generate Platform-Specific Pass',
-        description: 'Automatically detect device platform (iOS/Android) and generate appropriate wallet pass',
+        description:
+            'Automatically detect device platform (iOS/Android) and generate appropriate wallet pass',
     })
     @ApiParam({
         name: 'tokenId',
@@ -137,14 +225,19 @@ export class WalletIntegrationController {
         status: 200,
         description: 'Platform-specific pass generated successfully',
     })
-    async generateAutoPass(@Param('tokenId') tokenId: string, @Req() req: Request): Promise<WalletPassResult> {
+    async generateAutoPass(
+        @Param('tokenId') tokenId: string,
+        @Req() req: Request,
+    ): Promise<WalletPassResult> {
         try {
             this.logger.log(`Auto-generating wallet pass for token ID: ${tokenId}`);
-            
+
             const userAgent = req.headers['user-agent'] || '';
             const result = await this.walletPassService.generateAutoPass(tokenId, userAgent);
-            
-            this.logger.log(`Auto-generated ${result.platform} pass successfully for token ID: ${tokenId}`);
+
+            this.logger.log(
+                `Auto-generated ${result.platform} pass successfully for token ID: ${tokenId}`,
+            );
             return result;
         } catch (error) {
             this.logger.error(`Failed to auto-generate pass for token ID ${tokenId}:`, error);
@@ -197,9 +290,9 @@ export class WalletIntegrationController {
     async generateBothPasses(@Param('tokenId') tokenId: string): Promise<BothWalletPassesResult> {
         try {
             this.logger.log(`Generating both wallet passes for token ID: ${tokenId}`);
-            
+
             const result = await this.walletPassService.generateBothPasses(tokenId);
-            
+
             this.logger.log(`Both wallet passes generated successfully for token ID: ${tokenId}`);
             return result;
         } catch (error) {
@@ -233,73 +326,20 @@ export class WalletIntegrationController {
     async updatePass(@Body() body: UpdatePassRequest): Promise<WalletPassResult> {
         try {
             this.logger.log(`Updating ${body.platform} pass for token ID: ${body.tokenId}`);
-            
+
             const result = await this.walletPassService.updatePass(body.tokenId, body.platform);
-            
-            this.logger.log(`${body.platform} pass updated successfully for token ID: ${body.tokenId}`);
+
+            this.logger.log(
+                `${body.platform} pass updated successfully for token ID: ${body.tokenId}`,
+            );
             return result;
         } catch (error) {
-            this.logger.error(`Failed to update ${body.platform} pass for token ID ${body.tokenId}:`, error);
+            this.logger.error(
+                `Failed to update ${body.platform} pass for token ID ${body.tokenId}:`,
+                error,
+            );
             throw new HttpException(
                 `Failed to update wallet pass`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
-    }
-
-    @Post('revoke/:tokenId')
-    @ApiOperation({
-        summary: 'Revoke Wallet Pass Access',
-        description: 'Revoke wallet pass access for security incidents or user requests',
-    })
-    @ApiParam({
-        name: 'tokenId',
-        description: 'The token ID of the Digital Passport NFT',
-        example: '123',
-    })
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                platform: { type: 'string', enum: ['apple', 'google'], example: 'apple' },
-            },
-            required: ['platform'],
-        },
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Wallet pass revoked successfully',
-        schema: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean', example: true },
-                tokenId: { type: 'string', example: '123' },
-                platform: { type: 'string', example: 'apple' },
-                revokedAt: { type: 'string', format: 'date-time' },
-            },
-        },
-    })
-    async revokePass(
-        @Param('tokenId') tokenId: string,
-        @Body() body: { platform: 'apple' | 'google' },
-    ): Promise<{ success: boolean; tokenId: string; platform: string; revokedAt: Date }> {
-        try {
-            this.logger.log(`Revoking ${body.platform} pass for token ID: ${tokenId}`);
-            
-            const success = await this.walletPassService.revokePass(tokenId, body.platform);
-            
-            this.logger.log(`${body.platform} pass revocation ${success ? 'successful' : 'failed'} for token ID: ${tokenId}`);
-            
-            return {
-                success,
-                tokenId,
-                platform: body.platform,
-                revokedAt: new Date(),
-            };
-        } catch (error) {
-            this.logger.error(`Failed to revoke ${body.platform} pass for token ID ${tokenId}:`, error);
-            throw new HttpException(
-                `Failed to revoke wallet pass`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -336,9 +376,9 @@ export class WalletIntegrationController {
     }> {
         try {
             this.logger.log(`Checking pass status for token ID: ${tokenId}`);
-            
+
             const status = await this.walletPassService.getPassStatus(tokenId);
-            
+
             return {
                 tokenId,
                 apple: status.apple,
@@ -367,7 +407,10 @@ export class WalletIntegrationController {
         schema: {
             type: 'object',
             properties: {
-                userAgent: { type: 'string', example: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)...' },
+                userAgent: {
+                    type: 'string',
+                    example: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)...',
+                },
                 platform: { type: 'string', enum: ['ios', 'android', 'web'], example: 'ios' },
                 recommendedWallet: { type: 'string', enum: ['apple', 'google'], example: 'apple' },
             },
@@ -381,9 +424,9 @@ export class WalletIntegrationController {
         try {
             const userAgent = req.headers['user-agent'] || '';
             const deviceInfo = this.walletPassService.detectPlatform(userAgent);
-            
+
             const recommendedWallet = deviceInfo.platform === 'ios' ? 'apple' : 'google';
-            
+
             return {
                 userAgent: deviceInfo.userAgent,
                 platform: deviceInfo.platform,
@@ -391,10 +434,7 @@ export class WalletIntegrationController {
             };
         } catch (error) {
             this.logger.error(`Failed to detect platform:`, error);
-            throw new HttpException(
-                `Failed to detect platform`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new HttpException(`Failed to detect platform`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

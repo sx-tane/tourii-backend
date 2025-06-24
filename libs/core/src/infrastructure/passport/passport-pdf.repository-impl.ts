@@ -1,5 +1,6 @@
 import { PassportPdfData, PassportPdfRepository } from '@app/core/domain/passport/passport-pdf.repository';
 import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
+import { DigitalPassportMetadata, PassportAttribute } from '@app/core/domain/passport/digital-passport-metadata';
 import { JwtRepository } from '@app/core/domain/auth/jwt.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
@@ -88,13 +89,13 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         }
     }
 
-    private async generatePdfFromTemplate(metadata: any, qrCodeDataUrl: string, tokenId: string): Promise<Buffer> {
+    private async generatePdfFromTemplate(metadata: DigitalPassportMetadata, qrCodeDataUrl: string, tokenId: string): Promise<Buffer> {
         let browser: puppeteer.Browser | null = null;
 
         try {
             // Launch browser
             browser = await puppeteer.launch({
-                headless: 'new',
+                headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
 
@@ -125,7 +126,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         }
     }
 
-    private generateHtmlTemplate(metadata: any, qrCodeDataUrl: string, tokenId: string): string {
+    private generateHtmlTemplate(metadata: DigitalPassportMetadata, qrCodeDataUrl: string, tokenId: string): string {
         const issueDate = new Date().toLocaleDateString();
         
         return `
@@ -339,7 +340,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                         <h2>${metadata.name}</h2>
                         
                         <div class="attribute-grid">
-                            ${metadata.attributes.map(attr => `
+                            ${metadata.attributes.map((attr: PassportAttribute) => `
                                 <div class="attribute">
                                     <div class="attribute-label">${attr.trait_type}</div>
                                     <div class="attribute-value">${attr.value}${attr.display_type === 'number' ? '' : ''}</div>
@@ -359,15 +360,15 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                             <div class="achievements-title">🏆 Travel Achievements</div>
                             <div class="achievement-stats">
                                 <div class="stat-item">
-                                    <div class="stat-number">${metadata.attributes.find(a => a.trait_type === 'Quests Completed')?.value || 0}</div>
+                                    <div class="stat-number">${metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Quests Completed')?.value || 0}</div>
                                     <div class="stat-label">Quests</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-number">${Math.floor(metadata.attributes.find(a => a.trait_type === 'Travel Distance')?.value || 0)}</div>
+                                    <div class="stat-number">${Math.floor(metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Travel Distance')?.value as number || 0)}</div>
                                     <div class="stat-label">Kilometers</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-number">${metadata.attributes.find(a => a.trait_type === 'Magatama Points')?.value || 0}</div>
+                                    <div class="stat-number">${metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Magatama Points')?.value || 0}</div>
                                     <div class="stat-label">Points</div>
                                 </div>
                             </div>

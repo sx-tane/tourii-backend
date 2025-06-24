@@ -1,0 +1,5 @@
+### Auto-Generate Platform-Specific Pass
+# Automatically detect device platform (iOS/Android) and generate appropriate wallet pass
+GET http://localhost:4000/api/wallet/auto/123
+accept-version: 1.0.0
+x-api-key: your-api-key-2 

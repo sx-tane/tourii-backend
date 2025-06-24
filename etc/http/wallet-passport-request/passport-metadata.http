@@ -1,0 +1,5 @@
+### Get Passport Metadata
+# Retrieve passport metadata (existing endpoint from onchain service)
+GET http://localhost:4000/api/passport/123
+accept-version: 1.0.0
+x-api-key: your-api-key-2

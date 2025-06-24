@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 
-export interface QrCodePayload {
+export interface QrCodePayload extends Record<string, unknown> {
     tokenId: string;
     type: 'passport_verification';
     issuedAt: number;

@@ -46,6 +46,7 @@ import { GroupQuestGateway } from './group-quest/group-quest.gateway';
 import { PassportPdfService } from './service/passport-pdf.service';
 import { WalletPassService } from './service/wallet-pass.service';
 import { PassportVerificationService } from './service/passport-verification.service';
+import { PassportMetadataService } from '../../tourii-onchain/src/service/passport-metadata.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -122,6 +123,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         PassportPdfService,
         WalletPassService,
         PassportVerificationService,
+        PassportMetadataService,
         HttpAdapterHost, // HTTP adapter
         {
             provide: TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN,

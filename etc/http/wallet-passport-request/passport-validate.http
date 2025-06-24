@@ -1,0 +1,5 @@
+### Validate Token ID
+# Check if a token ID exists and is valid for passport generation
+GET http://localhost:4000/api/passport/validate/123
+accept-version: 1.0.0
+x-api-key: your-api-key-2

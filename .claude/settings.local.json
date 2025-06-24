@@ -48,7 +48,9 @@
       "Bash(PGPASSWORD=touriibackenddev psql -h localhost -p 7442 -U touriibackenddev -d tourii_backend -c \"INSERT INTO user_task_log (user_task_log_id, user_id, quest_id, task_id, status, action, user_response, completed_at, ins_user_id, ins_date_time, upd_user_id, upd_date_time, group_activity_members, total_magatama_point_awarded, del_flag) VALUES ('UTL202506-test-123456-text-001', 'TSU202506-c2a35a-141639-9589c4-BAAA', 'QST202506-f4869c-141501-dbae3f-BAAA', 'TSK202506-689f0d-141504-c54ed3-BAAA', 'ONGOING', 'ANSWER_TEXT', 'This is my detailed answer to the question', NOW(), 'TSU202506-c2a35a-141639-9589c4-BAAA', NOW(), 'TSU202506-c2a35a-141639-9589c4-BAAA', NOW(), '{}', 0, false);\")",
       "Bash(mkdir:*)",
       "Bash(git add:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm ls:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

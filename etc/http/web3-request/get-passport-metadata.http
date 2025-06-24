@@ -1,7 +1,7 @@
 ### Get Digital Passport Metadata by Token ID
 # @name getPassportMetadata
 
-GET http://localhost:4001/api/passport/metadata/1
+GET http://localhost:4000/api/passport/metadata/1
 x-api-key: your-api-key-2
 accept-version: 1.0.0
 Content-Type: application/json 

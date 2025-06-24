@@ -1,7 +1,5 @@
-import { WalletPassRepository, DeviceInfo } from '@app/core/domain/passport/wallet-pass.repository';
+import { DeviceInfo, WalletPassRepository } from '@app/core/domain/passport/wallet-pass.repository';
 import { R2StorageRepository } from '@app/core/domain/storage/r2-storage.repository';
-import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 export interface WalletPassResult {
@@ -10,6 +8,7 @@ export interface WalletPassResult {
     downloadUrl?: string;
     redirectUrl: string;
     expiresAt: Date;
+    passBuffer?: Buffer;
 }
 
 export interface BothWalletPassesResult {
@@ -35,20 +34,13 @@ export class WalletPassService {
 
             const passData = await this.walletPassRepository.generateApplePass(tokenId);
 
-            // Upload pass to R2 for download
-            const key = `passports/apple/${tokenId}_${Date.now()}.pkpass`;
-            const downloadUrl = await this.r2StorageRepository.uploadWalletPass(
-                passData.passBuffer,
-                key,
-                'application/vnd.apple.pkpass'
-            );
-
+            // Return the pass with buffer for direct download
             return {
                 tokenId,
                 platform: 'apple',
-                downloadUrl,
-                redirectUrl: downloadUrl,
-                expiresAt: passData.expiresAt
+                redirectUrl: passData.passUrl,
+                expiresAt: passData.expiresAt,
+                passBuffer: passData.passBuffer,
             };
         } catch (error) {
             this.logger.error(`Failed to generate Apple pass for token ID ${tokenId}:`, error);
@@ -66,7 +58,7 @@ export class WalletPassService {
                 tokenId,
                 platform: 'google',
                 redirectUrl: passData.passUrl,
-                expiresAt: passData.expiresAt
+                expiresAt: passData.expiresAt,
             };
         } catch (error) {
             this.logger.error(`Failed to generate Google pass for token ID ${tokenId}:`, error);
@@ -76,7 +68,9 @@ export class WalletPassService {
 
     async generateAutoPass(tokenId: string, userAgent: string): Promise<WalletPassResult> {
         try {
-            this.logger.log(`Auto-generating wallet pass for token ID: ${tokenId}, User-Agent: ${userAgent}`);
+            this.logger.log(
+                `Auto-generating wallet pass for token ID: ${tokenId}, User-Agent: ${userAgent}`,
+            );
 
             const deviceInfo = this.walletPassRepository.detectPlatform(userAgent);
             const passData = await this.walletPassRepository.generateAutoPass(tokenId, deviceInfo);
@@ -87,7 +81,7 @@ export class WalletPassService {
                 const downloadUrl = await this.r2StorageRepository.uploadWalletPass(
                     passData.passBuffer,
                     key,
-                    'application/vnd.apple.pkpass'
+                    'application/vnd.apple.pkpass',
                 );
 
                 return {
@@ -95,14 +89,14 @@ export class WalletPassService {
                     platform: 'apple',
                     downloadUrl,
                     redirectUrl: downloadUrl,
-                    expiresAt: passData.expiresAt
+                    expiresAt: passData.expiresAt,
                 };
             } else {
                 return {
                     tokenId,
                     platform: 'google',
                     redirectUrl: passData.passUrl,
-                    expiresAt: passData.expiresAt
+                    expiresAt: passData.expiresAt,
                 };
             }
         } catch (error) {
@@ -117,13 +111,13 @@ export class WalletPassService {
 
             const [appleResult, googleResult] = await Promise.all([
                 this.generateApplePass(tokenId),
-                this.generateGooglePass(tokenId)
+                this.generateGooglePass(tokenId),
             ]);
 
             return {
                 tokenId,
                 apple: appleResult,
-                google: googleResult
+                google: googleResult,
             };
         } catch (error) {
             this.logger.error(`Failed to generate both passes for token ID ${tokenId}:`, error);
@@ -166,12 +160,12 @@ export class WalletPassService {
             // For now, we'll assume passes can be generated if token is valid
             const [appleValid, googleValid] = await Promise.all([
                 this.validateToken(tokenId),
-                this.validateToken(tokenId)
+                this.validateToken(tokenId),
             ]);
 
             return {
                 apple: appleValid,
-                google: googleValid
+                google: googleValid,
             };
         } catch (error) {
             this.logger.error(`Failed to get pass status for token ID ${tokenId}:`, error);
@@ -184,7 +178,7 @@ export class WalletPassService {
             // Validate by trying to generate metadata
             await this.walletPassRepository.generateApplePass(tokenId);
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }

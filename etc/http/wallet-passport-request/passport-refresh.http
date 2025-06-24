@@ -1,0 +1,5 @@
+### Refresh Passport with New Achievements
+# Regenerate passport PDF with updated user achievements and progress
+POST http://localhost:4000/api/passport/refresh/123
+accept-version: 1.0.0
+x-api-key: your-api-key-2

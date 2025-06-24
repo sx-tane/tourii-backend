@@ -1,0 +1,10 @@
+### Revoke Wallet Pass Access
+# Revoke wallet pass access for security incidents or user requests
+POST http://localhost:4000/api/wallet/revoke/123
+Content-Type: application/json
+accept-version: 1.0.0
+x-api-key: your-api-key-2
+
+{
+  "platform": "apple"
+} 

@@ -26,7 +26,7 @@ export class PassportGenerationController {
         private readonly passportMetadataService: PassportMetadataService,
     ) {}
 
-    @Post('generate')
+    @Post('generate/:tokenId')
     @ApiOperation({
         summary: 'Generate Digital Passport PDF',
         description: 'Generate a professional PDF passport document with user achievements and QR code verification. Uploads to cloud storage and returns download URL.',
