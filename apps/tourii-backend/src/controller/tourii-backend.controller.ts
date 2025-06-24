@@ -465,7 +465,11 @@ export class TouriiBackendController {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
 
-        const includeStats = include?.includes('stats') || false;
+        // Validate and parse include parameter with supported values
+        const validIncludes = ['stats'];
+        const includeStats = include 
+            ? include.split(',').some(val => validIncludes.includes(val.trim().toLowerCase()))
+            : false;
         return this.touriiBackendService.getUserProfile(userId, includeStats);
     }
 
