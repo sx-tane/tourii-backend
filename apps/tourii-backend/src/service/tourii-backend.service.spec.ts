@@ -25,6 +25,9 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
     let service: TouriiBackendService;
     let cachingService: CachingService;
     let userRepository: UserRepository;
+    let userStoryLogRepository: UserStoryLogRepository;
+    let userTaskLogRepository: UserTaskLogRepository;
+    let module: TestingModule;
 
     // Mock user data for testing
     const mockUserId = 'test-user-id';
@@ -47,7 +50,7 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
     };
 
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
+        module = await Test.createTestingModule({
             providers: [
                 TouriiBackendService,
                 {
@@ -143,6 +146,8 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
         service = module.get<TouriiBackendService>(TouriiBackendService);
         cachingService = module.get<CachingService>(CachingService);
         userRepository = module.get<UserRepository>(TouriiBackendConstants.USER_REPOSITORY_TOKEN);
+        userStoryLogRepository = module.get<UserStoryLogRepository>(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN);
+        userTaskLogRepository = module.get<UserTaskLogRepository>(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN);
     });
 
     describe('getUserProfile with dashboard stats', () => {
@@ -252,10 +257,9 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
     describe('cache invalidation', () => {
         it('should invalidate dashboard cache after story completion', async () => {
             // Arrange
-            const userStoryLogRepo = module.get<UserStoryLogRepository>(TouriiBackendConstants.USER_STORY_LOG_REPOSITORY_TOKEN);
             const mockResult = { success: true };
             
-            jest.spyOn(userStoryLogRepo, 'completeStoryWithQuestUnlocking').mockResolvedValue(mockResult as any);
+            jest.spyOn(userStoryLogRepository, 'completeStoryWithQuestUnlocking').mockResolvedValue(mockResult as any);
             jest.spyOn(cachingService, 'invalidate').mockResolvedValue();
 
             // Act
@@ -267,11 +271,10 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should invalidate dashboard cache after task approval', async () => {
             // Arrange
-            const userTaskLogRepo = module.get<UserTaskLogRepository>(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN);
             const mockTaskLog = { userId: mockUserId };
             
-            jest.spyOn(userTaskLogRepo, 'getUserTaskLog').mockResolvedValue(mockTaskLog as any);
-            jest.spyOn(userTaskLogRepo, 'verifySubmission').mockResolvedValue();
+            jest.spyOn(userTaskLogRepository, 'getUserTaskLog').mockResolvedValue(mockTaskLog as any);
+            jest.spyOn(userTaskLogRepository, 'verifySubmission').mockResolvedValue();
             jest.spyOn(cachingService, 'invalidate').mockResolvedValue();
 
             // Act
@@ -283,11 +286,10 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should not invalidate cache when task is rejected', async () => {
             // Arrange
-            const userTaskLogRepo = module.get<UserTaskLogRepository>(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN);
             const mockTaskLog = { userId: mockUserId };
             
-            jest.spyOn(userTaskLogRepo, 'getUserTaskLog').mockResolvedValue(mockTaskLog as any);
-            jest.spyOn(userTaskLogRepo, 'verifySubmission').mockResolvedValue();
+            jest.spyOn(userTaskLogRepository, 'getUserTaskLog').mockResolvedValue(mockTaskLog as any);
+            jest.spyOn(userTaskLogRepository, 'verifySubmission').mockResolvedValue();
             jest.spyOn(cachingService, 'invalidate').mockResolvedValue();
 
             // Act
@@ -299,10 +301,9 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should invalidate dashboard cache after QR scan completion', async () => {
             // Arrange
-            const userTaskLogRepo = module.get<UserTaskLogRepository>(TouriiBackendConstants.USER_TASK_LOG_REPOSITORY_TOKEN);
             const mockResult = { questId: 'quest-id', magatama_point_awarded: 100 };
             
-            jest.spyOn(userTaskLogRepo, 'completeQrScanTask').mockResolvedValue(mockResult as any);
+            jest.spyOn(userTaskLogRepository, 'completeQrScanTask').mockResolvedValue(mockResult as any);
             jest.spyOn(cachingService, 'invalidate').mockResolvedValue();
 
             // Act
