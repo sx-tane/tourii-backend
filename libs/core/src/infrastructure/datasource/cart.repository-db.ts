@@ -226,13 +226,29 @@ export class CartRepositoryDb implements CartRepository {
     }
 
     async getCartValue(userId: string): Promise<number> {
-        // Note: This would require price information from onchain_item_catalog
-        // For now, returning 0 as prices aren't stored in catalog
-        // This method would need to be enhanced when pricing is added
-        return 0;
+        // Validate user ID
+        if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
+        // Use SQL aggregation for better performance
+        // This query joins cart items with catalog to get prices and calculates total
+        const result = await this.prisma.$queryRaw<[{ total_value: number | null }]>`
+            SELECT COALESCE(SUM(uc.quantity * COALESCE(oic.price, 0)), 0) as total_value
+            FROM user_cart uc 
+            LEFT JOIN onchain_item_catalog oic ON uc.product_id = oic.onchain_item_id
+            WHERE uc.user_id = ${userId} AND uc.del_flag = false
+        `;
+
+        return Number(result[0]?.total_value || 0);
     }
 
     async validateCartAvailability(userId: string): Promise<string[]> {
+        // Validate user ID
+        if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+        }
+
         const cartItems = await this.prisma.user_cart.findMany({
             where: {
                 user_id: userId,
