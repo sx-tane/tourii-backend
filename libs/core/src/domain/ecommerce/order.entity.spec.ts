@@ -286,7 +286,7 @@ describe('OrderEntity', () => {
 
     describe('getAgeInDays', () => {
         it('should calculate age correctly for recent order', () => {
-            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const oneDayAgo = new Date(Date.now() - 23 * 60 * 60 * 1000); // 23 hours to ensure Math.ceil gives 1
             const order = new OrderEntity({
                 ...validProps,
                 orderDate: oneDayAgo,
@@ -350,10 +350,12 @@ describe('OrderEntity', () => {
         });
 
         it('should update payment status without transaction ID', () => {
-            orderEntity.updatePaymentStatus(PaymentStatus.FAILED);
+            // Create fresh order entity to ensure no transaction ID from previous tests
+            const freshOrder = new OrderEntity(validProps);
+            freshOrder.updatePaymentStatus(PaymentStatus.FAILED);
             
-            expect(orderEntity.paymentStatus).toBe(PaymentStatus.FAILED);
-            expect(orderEntity.paymentTransactionId).toBeUndefined();
+            expect(freshOrder.paymentStatus).toBe(PaymentStatus.FAILED);
+            expect(freshOrder.paymentTransactionId).toBeUndefined();
         });
 
         it('should automatically update order status when payment completed', () => {
