@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Passport & Wallet Integration Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .result pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .platform-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .wallet-buttons {
+            display: none;
+            margin-top: 20px;
+        }
+        .wallet-buttons.show {
+            display: block;
+        }
+        .apple-btn {
+            background: linear-gradient(135deg, #000000 0%, #434343 100%);
+        }
+        .google-btn {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Digital Passport & Wallet Test</h1>
+        
+        <div class="form-group">
+            <label for="baseUrl">API Base URL:</label>
+            <input type="url" id="baseUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+        </div>
+        
+        <div class="form-group">
+            <label for="tokenId">Token ID:</label>
+            <input type="text" id="tokenId" value="123" placeholder="Enter NFT Token ID (e.g., 123)">
+        </div>
+
+        <div class="button-grid">
+            <!-- Passport Generation -->
+            <button class="btn-primary" onclick="validateToken()">🔍 Validate Token</button>
+            <button class="btn-primary" onclick="generatePassport()">📄 Generate Passport PDF</button>
+            <button class="btn-primary" onclick="previewPassport()">👁️ Preview Passport</button>
+            
+            <!-- Platform Detection -->
+            <button class="btn-info" onclick="detectPlatform()">📱 Detect Platform</button>
+            <button class="btn-info" onclick="autoGeneratePass()">🚀 Auto Generate Pass</button>
+            
+            <!-- Wallet Integration -->
+            <button class="btn-success apple-btn" onclick="generateApplePass()">🍎 Apple Wallet</button>
+            <button class="btn-success google-btn" onclick="generateGooglePass()">🤖 Google Pay</button>
+            <button class="btn-warning" onclick="generateBothPasses()">🎯 Both Platforms</button>
+        </div>
+
+        <div class="wallet-buttons" id="walletButtons">
+            <h3>Quick Wallet Actions:</h3>
+            <div class="button-grid">
+                <button class="btn-info" onclick="checkPassStatus()">📊 Check Pass Status</button>
+                <button class="btn-warning" onclick="updatePass('apple')">🔄 Update Apple Pass</button>
+                <button class="btn-warning" onclick="updatePass('google')">🔄 Update Google Pass</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing request...</p>
+        </div>
+
+        <div class="platform-info" id="platformInfo" style="display: none;">
+            <h3>Platform Information</h3>
+            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+            <p><strong>Detected Platform:</strong> <span id="detectedPlatform"></span></p>
+            <p><strong>Recommended Wallet:</strong> <span id="recommendedWallet"></span></p>
+        </div>
+
+        <div class="result" id="result" style="display: none;">
+            <h3>API Response</h3>
+            <pre id="responseData"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value || 'http://localhost:3000';
+        }
+
+        function getTokenId() {
+            return document.getElementById('tokenId').value || '123';
+        }
+
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showResult(data, title = 'API Response') {
+            const resultDiv = document.getElementById('result');
+            const responseData = document.getElementById('responseData');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.querySelector('h3').textContent = title;
+            responseData.textContent = JSON.stringify(data, null, 2);
+            
+            // Show wallet buttons after successful generation
+            if (data.tokenId || data.apple || data.google) {
+                document.getElementById('walletButtons').classList.add('show');
+            }
+        }
+
+        function showError(error, title = 'Error') {
+            showResult({ error: error.message || error }, title);
+        }
+
+        // API Functions
+        async function apiRequest(method, endpoint, body = null) {
+            const url = `${getBaseUrl()}${endpoint}`;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            console.log(`${method} ${url}`, body || '');
+            
+            try {
+                showLoading(true);
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Request failed'}`);
+                }
+                
+                return data;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Passport Functions
+        async function validateToken() {
+            try {
+                const data = await apiRequest('GET', `/api/passport/validate/${getTokenId()}`);
+                showResult(data, 'Token Validation');
+            } catch (error) {
+                showError(error, 'Token Validation Error');
+            }
+        }
+
+        async function generatePassport() {
+            try {
+                // Note: This endpoint might need to be POST /api/passport/generate/:tokenId
+                const data = await apiRequest('POST', `/api/passport/generate/${getTokenId()}`);
+                showResult(data, 'Passport Generation');
+                
+                if (data.downloadUrl) {
+                    // Auto-open PDF in new tab
+                    window.open(data.downloadUrl, '_blank');
+                }
+            } catch (error) {
+                showError(error, 'Passport Generation Error');
+            }
+        }
+
+        async function previewPassport() {
+            try {
+                const url = `${getBaseUrl()}/api/passport/preview/${getTokenId()}`;
+                window.open(url, '_blank');
+                showResult({ message: 'Preview opened in new tab', url }, 'Preview Passport');
+            } catch (error) {
+                showError(error, 'Preview Error');
+            }
+        }
+
+        // Platform Detection
+        async function detectPlatform() {
+            try {
+                const data = await apiRequest('GET', '/api/wallet/detect-platform');
+                
+                // Update platform info display
+                document.getElementById('platformInfo').style.display = 'block';
+                document.getElementById('userAgent').textContent = data.userAgent;
+                document.getElementById('detectedPlatform').textContent = data.platform;
+                document.getElementById('recommendedWallet').textContent = data.recommendedWallet;
+                
+                showResult(data, 'Platform Detection');
+            } catch (error) {
+                showError(error, 'Platform Detection Error');
+            }
+        }
+
+        async function autoGeneratePass() {
+            try {
+                const data = await apiRequest('GET', `/api/wallet/auto/${getTokenId()}`);
+                showResult(data, 'Auto-Generated Pass');
+                
+                if (data.redirectUrl) {
+                    // Auto-open wallet pass
+                    window.open(data.redirectUrl, '_blank');
+                }
+            } catch (error) {
+                showError(error, 'Auto-Generate Error');
+            }
+        }
+
+        // Wallet Functions
+        async function generateApplePass() {
+            try {
+                const data = await apiRequest('POST', '/api/wallet/apple/pass', { tokenId: getTokenId() });
+                showResult(data, 'Apple Wallet Pass');
+                
+                if (data.redirectUrl) {
+                    // Auto-open Apple Wallet
+                    window.open(data.redirectUrl, '_blank');
+                }
+            } catch (error) {
+                showError(error, 'Apple Wallet Error');
+            }
+        }
+
+        async function generateGooglePass() {
+            try {
+                const data = await apiRequest('POST', '/api/wallet/google/pass', { tokenId: getTokenId() });
+                showResult(data, 'Google Pay Pass');
+                
+                if (data.redirectUrl) {
+                    // Auto-open Google Pay
+                    window.open(data.redirectUrl, '_blank');
+                }
+            } catch (error) {
+                showError(error, 'Google Pay Error');
+            }
+        }
+
+        async function generateBothPasses() {
+            try {
+                const data = await apiRequest('GET', `/api/wallet/both/${getTokenId()}`);
+                showResult(data, 'Both Platform Passes');
+                
+                // Auto-open both wallet passes
+                if (data.apple && data.apple.redirectUrl) {
+                    setTimeout(() => window.open(data.apple.redirectUrl, '_blank'), 500);
+                }
+                if (data.google && data.google.redirectUrl) {
+                    setTimeout(() => window.open(data.google.redirectUrl, '_blank'), 1000);
+                }
+            } catch (error) {
+                showError(error, 'Both Platforms Error');
+            }
+        }
+
+        // Status & Update Functions
+        async function checkPassStatus() {
+            try {
+                const data = await apiRequest('GET', `/api/wallet/status/${getTokenId()}`);
+                showResult(data, 'Pass Status');
+            } catch (error) {
+                showError(error, 'Status Check Error');
+            }
+        }
+
+        async function updatePass(platform) {
+            try {
+                const data = await apiRequest('POST', '/api/wallet/update', { 
+                    tokenId: getTokenId(), 
+                    platform 
+                });
+                showResult(data, `${platform.charAt(0).toUpperCase() + platform.slice(1)} Pass Update`);
+            } catch (error) {
+                showError(error, `${platform} Update Error`);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-detect platform on load
+            detectPlatform();
+        });
+    </script>
+</body>
+</html>
