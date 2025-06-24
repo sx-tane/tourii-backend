@@ -99,6 +99,7 @@ import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-bui
 @Injectable()
 export class TouriiBackendService {
     private readonly logger = new Logger(TouriiBackendService.name);
+    private static readonly DASHBOARD_STATS_TTL_SECONDS = 300; // 5-minute TTL for dashboard statistics cache
     constructor(
         @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
@@ -257,7 +258,11 @@ export class TouriiBackendService {
                     // Find current reading progress
                     const lastReadingActivity = user.userStoryLogs
                         ?.filter((log) => log.status === 'IN_PROGRESS')
-                        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0];
+                        .sort((a, b) => {
+                            const aDate = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+                            const bDate = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+                            return bDate - aDate;
+                        })[0];
 
                     // Get active quests count by looking for in-progress quest task logs
                     const activeQuestIds = new Set(
@@ -284,7 +289,7 @@ export class TouriiBackendService {
                             : undefined,
                     };
                 },
-                300 // 5-minute TTL
+                TouriiBackendService.DASHBOARD_STATS_TTL_SECONDS
             );
 
             return {
