@@ -1,5 +1,5 @@
 ### Verify QR Code
 # Verify a passport using QR code data. Alias for standard verification endpoint.
-GET http://localhost:4000/api/verify/qr/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6IjEyMyIsImlhdCI6MTY0MDk5NTIwMCwiZXhwIjoxNjQwOTk4ODAwfQ.example_signature
+GET http://localhost:4000/api/verify/qr/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbklkIjoiYm9iIiwidHlwZSI6InBhc3Nwb3J0X3ZlcmlmaWNhdGlvbiIsImlzc3VlZEF0IjoxNzUwODU4MjQ3LCJleHBpcmVzQXQiOjE3NTA4NTgzMDcuMTIsImlhdCI6MTc1MDg1ODI0NywiZXhwIjoxNzUwODU4MzA3fQ.-u5rhemJnpP9uW_fGtWa8NoJWGZ8gIDBC37kOXOLb_8
 accept-version: 1.0.0
 x-api-key: your-api-key-2

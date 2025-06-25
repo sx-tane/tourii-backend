@@ -53,13 +53,13 @@ export class JwtRepositoryAuth implements JwtRepository {
 
             // Validate payload structure
             if (!payload.tokenId || payload.type !== 'passport_verification') {
-                throw new Error('Invalid QR token structure');
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_045);
             }
 
             // Check expiration
             const now = Math.floor(Date.now() / 1000);
             if (payload.expiresAt && payload.expiresAt < now) {
-                throw new Error('QR token has expired');
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_046);
             }
 
             return payload;

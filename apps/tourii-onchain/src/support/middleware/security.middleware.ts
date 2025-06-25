@@ -1,8 +1,10 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cors from 'cors';
 import { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
+import { TouriiOnchainAppErrorType } from '../exception/tourii-onchain-app-error-type';
+import { TouriiOnchainAppException } from '../exception/tourii-onchain-app-exception';
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
@@ -14,8 +16,12 @@ export class SecurityMiddleware implements NestMiddleware {
             const apiKey = req.header('x-api-key');
             const validApiKeys = this.configService.get<string>('API_KEYS')?.split(',') || [];
 
-            if (!apiKey || !validApiKeys.includes(apiKey)) {
-                throw new UnauthorizedException('Invalid or missing API key');
+            if (!apiKey) {
+                throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_010);
+            }
+            
+            if (!validApiKeys.includes(apiKey)) {
+                throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_011);
             }
 
             // Apply Helmet for security headers

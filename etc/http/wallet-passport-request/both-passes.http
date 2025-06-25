@@ -1,5 +1,5 @@
 ### Generate Both Platform Passes
 # Generate both Apple Wallet and Google Pay passes simultaneously
-GET http://localhost:4000/api/wallet/both/123
+GET http://localhost:4000/api/passport/bob/wallet/both
 accept-version: 1.0.0
 x-api-key: your-api-key-2

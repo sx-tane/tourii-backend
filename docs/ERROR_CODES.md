@@ -229,6 +229,14 @@ openssl rand -hex 32     # For ENCRYPTION_KEY
 | **E_TB_032** | Task already completed                               | 400         | Attempting to complete finished task | Check task completion status     |
 | **E_TB_033** | Invalid task configuration - malformed required_action | 400         | Task has invalid configuration      | Contact administrator            |
 
+### 🔐 JWT & Token Validation
+
+| Code         | Message                    | HTTP Status | When It Occurs              | Solution                     |
+| ------------ | -------------------------- | ----------- | --------------------------- | ---------------------------- |
+| **E_TB_045** | Invalid QR token structure | 400         | QR token format is invalid  | Use properly formatted token |
+| **E_TB_046** | QR token has expired       | 400         | QR token past expiration    | Generate new QR token        |
+| **E_TB_047** | Request validation failed  | 400         | Request body validation error | Fix request data format      |
+
 **Example:**
 
 ```bash
@@ -400,4 +408,4 @@ try {
 
 ---
 
-_Last Updated: June 18, 2025_
+_Last Updated: June 26, 2025_

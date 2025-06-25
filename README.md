@@ -113,12 +113,14 @@ graph TB
 - **🗺️ Smart Route Planning**: AI-powered tourist route optimization with **cost-optimized Google Places API (85-90% cost reduction)**
 - **🎮 Gamified Quests**: Location-based challenges with QR scan verification, photo uploads, and social sharing tasks
 - **🎫 Digital Passport NFTs**: Blockchain-verified travel credentials on Vara Network
+- **📱 Digital Wallet Integration**: Apple Wallet & Google Pay pass generation with QR verification
 - **⚡ Real-time Features**: WebSocket-based live interactions with Redis caching
 - **🌍 Weather Integration**: Location-aware weather data with intelligent fallback
 - **📊 Advanced Analytics**: User behavior and content performance metrics
 - **👑 Admin Management**: Comprehensive user analytics with pagination, filtering, and task verification
-- **🛡️ Enterprise Security**: Production-ready security with comprehensive input validation
+- **🛡️ Enterprise Security**: Production-ready security with comprehensive input validation and 30+ error codes
 - **⚡ Performance Optimized**: Database indexes, N+1 query elimination, granular cache invalidation
+- **🔧 Enhanced Exception Handling**: Centralized error management with TouriiBackendAppException
 
 ---
 
@@ -234,6 +236,15 @@ API_KEYS=<comma-separated-api-keys>           # REQUIRED - Strong random keys
 GOOGLE_MAPS_API_KEY=your_google_maps_key
 GOOGLE_PLACES_API_KEY=your_google_places_key  # New Places API for 85-90% cost reduction
 OPEN_WEATHER_API_KEY=your_weather_api_key
+
+# 📱 WALLET INTEGRATION (NEW)
+GOOGLE_WALLET_ISSUER_ID=your_google_wallet_issuer_id
+GOOGLE_WALLET_CLASS_ID=tourii-passport
+GOOGLE_WALLET_KEY_PATH=path/to/service-account-key.json
+APPLE_WALLET_CERT_PATH=path/to/apple-cert.p12
+APPLE_WALLET_CERT_PASSWORD=your_cert_password
+WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS=17520   # 2 years for wallet passes
+PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS=24     # 24h for PDF security
 
 # Cache Configuration (Performance Optimized)
 LOCATION_CACHE_TTL_SECONDS=86400              # 24-hour cache for location data
@@ -412,6 +423,19 @@ All endpoints require these headers:
 | `GET`  | `/admin/users`                        | Get all users with pagination & filters |
 | `GET`  | `/admin/pending-submissions`          | Get pending task submissions (photo, social, text, local interaction) |
 | `POST` | `/admin/submissions/:id/verify`       | Approve/reject task submissions      |
+
+#### 📱 Digital Wallet Integration (NEW)
+
+| Method | Endpoint                                | Description                        |
+| ------ | --------------------------------------- | ---------------------------------- |
+| `GET`  | `/api/passport/:tokenId/wallet/apple`  | Generate Apple Wallet pass        |
+| `GET`  | `/api/passport/:tokenId/wallet/google` | Generate Google Pay pass          |
+| `GET`  | `/api/passport/:tokenId/wallet/both`   | Generate both platform passes     |
+| `POST` | `/api/passport/:tokenId/wallet/update` | Update existing wallet passes     |
+| `GET`  | `/api/verify/stats/:tokenId?`           | Get verification statistics        |
+| `GET`  | `/api/passport/:tokenId/generate`      | Generate PDF passport             |
+| `GET`  | `/api/passport/:tokenId/download`      | Download PDF passport             |
+| `GET`  | `/api/passport/:tokenId/preview`       | Preview PDF passport              |
 
 #### 📱 Moments & Dashboard
 
@@ -632,6 +656,24 @@ License: [MIT](LICENSE)
 
 ## 🚀 **Recent Achievements (June 2025)**
 
+### **📱 Digital Passport & Wallet Integration System**
+- **Apple Wallet Integration**: Complete .pkpass generation with certificate handling and secure QR verification
+- **Google Wallet Integration**: Production-ready Google Pay pass generation with service account authentication
+- **Unified API**: 8+ new endpoints for cross-platform wallet pass generation, updates, and verification
+- **QR Token Architecture**: Dual-tier expiration system (24h for PDF security, 2 years for wallet passes)
+- **Enhanced Mock Testing**: 6+ user personas (alice, bob, charlie, etc.) with diverse attributes for development testing
+- **Domain Architecture**: Implemented `GooglePassObject` interface in domain layer following DDD principles
+- **Certificate Security**: Secure handling of Apple Wallet certificates and Google service account keys
+- **Real-time Analytics**: Individual token and global verification statistics with comprehensive tracking
+
+### **🔧 Exception Handling & Code Quality**
+- **Systematic Error Standardization**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
+- **Enhanced Error Coverage**: 30+ error codes with comprehensive documentation and solutions
+- **JWT & Token Validation**: Added specialized error handling for QR tokens (E_TB_045-047)
+- **Request Validation**: Improved input validation with consistent error responses (E_TB_047, E_OC_047)
+- **Logging Optimization**: Removed 10+ unnecessary success logs, preserved essential error and operational logging
+- **Architecture Compliance**: Enhanced DDD compliance with proper separation of concerns
+
 ### **🎯 Enhanced Task Management System**
 - **QR Code Scanning**: Implemented secure QR code verification for location-based tasks with robust validation
 - **Social Media Integration**: Added comprehensive social sharing task completion with multi-platform verification
@@ -670,4 +712,4 @@ License: [MIT](LICENSE)
 
 ---
 
-_Last Updated: June 22, 2025_
+_Last Updated: June 26, 2025_

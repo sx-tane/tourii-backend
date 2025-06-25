@@ -1,5 +1,5 @@
 ### Generate Digital Passport PDF
 # Generate a professional PDF passport document with user achievements and QR code verification
-POST http://localhost:4000/api/passport/generate/123
+POST http://localhost:4000/api/passport/generate/bob
 accept-version: 1.0.0
 x-api-key: your-api-key-2

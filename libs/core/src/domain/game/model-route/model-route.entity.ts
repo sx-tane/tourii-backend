@@ -91,6 +91,7 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
     /**
      * Extracts valid pairs of storyChapterId and touristSpotId
      * from the touristSpotList for updating purposes.
+     * Excludes spots where storyChapterId is "No" (indicating no linking desired).
      * @returns Array of { storyChapterId, touristSpotId } pairs
      */
     getValidChapterSpotPairs(): { storyChapterId: string; touristSpotId: string }[] {
@@ -99,7 +100,7 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
         }
 
         return this.props.touristSpotList
-            .filter((spot) => spot.storyChapterId && spot.touristSpotId) // Ensure IDs are present
+            .filter((spot) => spot.storyChapterId && spot.storyChapterId !== "No" && spot.touristSpotId) // Ensure IDs are present and exclude "No" values
             .map((spot) => ({
                 storyChapterId: spot.storyChapterId as string,
                 touristSpotId: spot.touristSpotId as string,

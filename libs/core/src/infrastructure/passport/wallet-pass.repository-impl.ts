@@ -3,6 +3,7 @@ import {
     DigitalPassportMetadata,
     PassportAttribute,
 } from '@app/core/domain/passport/digital-passport-metadata';
+import { GooglePassObject } from '@app/core/domain/passport/google-wallet-types';
 import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
 import {
     DeviceInfo,
@@ -19,6 +20,7 @@ import { GoogleWalletRepositoryApi } from './google-wallet.repository-api';
 @Injectable()
 export class WalletPassRepositoryImpl implements WalletPassRepository {
     private readonly logger = new Logger(WalletPassRepositoryImpl.name);
+    private readonly walletPassQrTokenExpirationHours: number;
 
     constructor(
         @Inject('PASSPORT_METADATA_REPOSITORY_TOKEN')
@@ -30,7 +32,11 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         private readonly googleWalletRepositoryApi: GoogleWalletRepositoryApi,
         @Inject('APPLE_WALLET_REPOSITORY_TOKEN')
         private readonly appleWalletRepositoryApi: AppleWalletRepositoryApi,
-    ) {}
+    ) {
+        // Default to 17520 hours (2 years) if not configured
+        this.walletPassQrTokenExpirationHours =
+            this.config.get<number>('WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS') || 17520;
+    }
 
     async generateApplePass(tokenId: string): Promise<WalletPassData> {
         try {
@@ -38,25 +44,11 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
 
             // TODO: Remove this hardcoded mock and implement proper metadata generation
             // This is a temporary solution for testing without database setup
-            if (tokenId === '123') {
+            if (this.isMockTokenId(tokenId)) {
                 this.logger.log(`Using hardcoded mock response for token ID: ${tokenId}`);
 
-                const mockMetadata = {
-                    name: 'デジタルパスポート #123',
-                    description: 'テスト用デジタルパスポート',
-                    image: 'https://example.com/passport-image.png',
-                    attributes: [
-                        { trait_type: 'Username', value: 'テストユーザー' },
-                        { trait_type: 'Level', value: 'Eクラス 天津神' },
-                        { trait_type: 'Passport Type', value: '天津神' },
-                        { trait_type: 'Quests Completed', value: 15 },
-                        { trait_type: 'Travel Distance', value: 250 },
-                        { trait_type: 'Magatama Points', value: 1500 },
-                        { trait_type: 'Premium Status', value: 'プレミアム' },
-                        { trait_type: 'CardType', value: '妖怪' },
-                        { trait_type: 'CardKanji', value: '妖' },
-                    ],
-                };
+                // Get mock metadata based on token ID
+                const mockMetadata = this.getMockMetadata(tokenId);
 
                 // Generate QR code token (mock for testing)
                 const qrToken = `tourii-passport-${tokenId}-${Date.now()}`;
@@ -88,7 +80,10 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             const metadata = await this.passportMetadataRepository.generateMetadata(tokenId);
 
             // Generate QR code token
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, 168); // 7 days
+            const qrToken = this.jwtRepository.generateQrToken(
+                tokenId,
+                this.walletPassQrTokenExpirationHours,
+            );
 
             // Create pass using AppleWalletRepositoryApi
             const passBuffer = await this.appleWalletRepositoryApi.createPkpassFile(
@@ -119,48 +114,22 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         try {
             this.logger.log(`Generating Google Pay pass for token ID: ${tokenId}`);
 
-            // Check for required Google Wallet configurations
-            const requiredConfigs = [
-                'GOOGLE_WALLET_ISSUER_ID',
-                'GOOGLE_WALLET_CLASS_ID',
-                'GOOGLE_WALLET_KEY_PATH',
-            ];
-
-            for (const configKey of requiredConfigs) {
-                if (!this.config.get(configKey)) {
-                    this.logger.error(`Missing required Google Wallet configuration: ${configKey}`);
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
-                }
-            }
-
-            if (tokenId === '123') {
+            // TODO: Remove this hardcoded mock and implement proper metadata generation
+            // This is a temporary solution for testing without database setup
+            if (this.isMockTokenId(tokenId)) {
                 this.logger.log(
                     `Using hardcoded mock response for Google pass token ID: ${tokenId}`,
                 );
 
-                // Japanese/brand style mock
-                const mockMetadata = {
-                    name: 'デジタルパスポート #123',
-                    description: 'テスト用デジタルパスポート',
-                    attributes: [
-                        { trait_type: 'Username', value: 'テストユーザー' },
-                        { trait_type: 'Level', value: 'Eクラス 天津神' },
-                        { trait_type: 'Passport Type', value: '天津神' },
-                        { trait_type: 'Quests Completed', value: 15 },
-                        { trait_type: 'Travel Distance', value: 250 },
-                        { trait_type: 'Magatama Points', value: 1500 },
-                        { trait_type: 'Premium Status', value: 'プレミアム' },
-                        { trait_type: 'CardType', value: '妖怪' },
-                        { trait_type: 'CardKanji', value: '妖' },
-                    ],
-                };
+                // Get mock metadata based on token ID
+                const mockMetadata = this.getMockMetadata(tokenId);
 
                 // Build the pass object for Google Wallet
                 const passObject = {
                     genericObjects: [
                         {
-                            id: `tourii.123`,
-                            classId: `tourii.tourii_passport`,
+                            id: `${this.config.get('GOOGLE_WALLET_ISSUER_ID')}.${this.config.get('GOOGLE_WALLET_CLASS_ID')}_${tokenId}`,
+                            classId: `${this.config.get('GOOGLE_WALLET_ISSUER_ID')}.${this.config.get('GOOGLE_WALLET_CLASS_ID')}`,
                             state: 'ACTIVE',
                             hexBackgroundColor: '#AE3111', // Red
                             cardTitle: {
@@ -211,32 +180,75 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                                         )?.value || 'スタンダード',
                                 },
                             ],
+                            barcode: {
+                                type: 'QR_CODE',
+                                value: this.jwtRepository.generateQrToken(
+                                    tokenId,
+                                    this.walletPassQrTokenExpirationHours,
+                                ),
+                                renderEncoding: 'UTF_8',
+                                alternateText: `Tourii Passport ${tokenId}`,
+                            },
                         },
                     ],
                 };
 
-                // --- Use GoogleWalletRepositoryApi for JWT and Save URL ---
+                // --- Use real Google Wallet API with mock data ---
+                this.logger.log(
+                    `Step 1: Creating class template for issuer: ${this.config.get('GOOGLE_WALLET_ISSUER_ID')}, class: ${this.config.get('GOOGLE_WALLET_CLASS_ID')}`,
+                );
+
+                // First ensure the class exists with minimal template
+                const classTemplate = {
+                    id: `${this.config.get('GOOGLE_WALLET_ISSUER_ID')}.${this.config.get('GOOGLE_WALLET_CLASS_ID')}`,
+                };
+
+                this.logger.log(
+                    `Step 2: Skipping class creation (assuming it exists): ${classTemplate.id}`,
+                );
+                // Skip class creation since you created it manually
+                // await this.googleWalletRepositoryApi.ensureClassExists(classTemplate);
+
+                this.logger.log(`Step 3: Creating signed JWT`);
                 const jwt = this.googleWalletRepositoryApi.createSignedJwt(passObject);
+
+                this.logger.log(`Step 4: Getting save URL`);
                 const passUrl = this.googleWalletRepositoryApi.getSaveUrl(jwt);
-                // ---------------------------------------------------------
 
                 // No expiration for static passes
                 const expiresAt = new Date('2099-12-31T23:59:59Z');
 
                 return {
                     tokenId,
-                    passBuffer: Buffer.from(JSON.stringify(mockMetadata)), // Mock buffer
+                    passBuffer: Buffer.from(JSON.stringify(passObject)), // Mock pass object as buffer
                     passUrl,
                     platform: 'google',
                     expiresAt,
                 };
+                // -----------------------------------------------
+            }
+
+            // Check for required Google Wallet configurations
+            const issuerId = this.config.get('GOOGLE_WALLET_ISSUER_ID');
+            const classId = this.config.get('GOOGLE_WALLET_CLASS_ID');
+            const keyPath = this.config.get('GOOGLE_WALLET_KEY_PATH');
+            const serviceAccountJson = this.config.get('GOOGLE_WALLET_SERVICE_ACCOUNT_JSON');
+
+            if (!issuerId || !classId || (!keyPath && !serviceAccountJson)) {
+                this.logger.error(
+                    'Missing required Google Wallet configuration: ISSUER_ID, CLASS_ID, and either KEY_PATH or SERVICE_ACCOUNT_JSON',
+                );
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_035);
             }
 
             // For non-mock, use real metadata and GoogleWalletRepositoryApi
             const metadata = await this.passportMetadataRepository.generateMetadata(tokenId);
 
             // Generate QR token for the pass
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, 168); // 7 days
+            const qrToken = this.jwtRepository.generateQrToken(
+                tokenId,
+                this.walletPassQrTokenExpirationHours,
+            );
 
             // Build pass object using the createGooglePassObject method
             const passObject = this.createGooglePassObject(metadata, qrToken, tokenId);
@@ -256,7 +268,7 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             };
         } catch (error) {
             this.logger.error(`Failed to generate Google pass for token ID ${tokenId}:`, error);
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+            throw error; // Throw original error to see what's failing
         }
     }
 
@@ -330,20 +342,23 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         metadata: DigitalPassportMetadata,
         qrToken: string,
         tokenId: string,
-    ): any {
+    ): GooglePassObject {
         const issuerId = this.config.get('GOOGLE_WALLET_ISSUER_ID') || 'tourii';
         const classId = this.config.get('GOOGLE_WALLET_CLASS_ID') || 'tourii_passport';
 
         // Extract attributes for easier access
-        const username =
-            metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Username')
-                ?.value || 'Unknown';
-        const level =
+        // const username = String(
+        //     metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Username')
+        //         ?.value || 'Unknown'
+        // );
+        const level = String(
             metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Level')?.value ||
-            'Unknown';
-        const premiumStatus =
+                'Unknown',
+        );
+        const premiumStatus = String(
             metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Premium Status')
-                ?.value || 'Standard';
+                ?.value || 'Standard',
+        );
 
         // Return the pass object in the format expected by GoogleWalletRepositoryApi
         return {
@@ -355,6 +370,8 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                     barcode: {
                         type: 'QR_CODE',
                         value: qrToken,
+                        renderEncoding: 'UTF_8',
+                        alternateText: `Tourii Passport ${tokenId}`,
                     },
                     cardTitle: {
                         defaultValue: {
@@ -377,7 +394,7 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                     subheader: {
                         defaultValue: {
                             language: 'en-US',
-                            value: username,
+                            value: tokenId,
                         },
                     },
                     textModulesData: [
@@ -413,5 +430,129 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                 },
             ],
         };
+    }
+
+    /**
+     * Check if token ID is a mock/test token
+     */
+    private isMockTokenId(tokenId: string): boolean {
+        const mockTokenIds = [
+            '123',
+            '456',
+            '789',
+            'test-user-1',
+            'test-user-2',
+            'test-user-3',
+            'alice',
+            'bob',
+            'charlie',
+        ];
+        return mockTokenIds.includes(tokenId);
+    }
+
+    /**
+     * Get mock metadata based on token ID
+     */
+    private getMockMetadata(tokenId: string): DigitalPassportMetadata {
+        const mockProfiles: Record<string, DigitalPassportMetadata> = {
+            '123': {
+                name: 'デジタルパスポート #123',
+                description: 'テスト用デジタルパスポート',
+                image: 'https://example.com/passport-image.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'テストユーザー' },
+                    { trait_type: 'Level', value: 'Eクラス 天津神' },
+                    { trait_type: 'Passport Type', value: '天津神' },
+                    { trait_type: 'Quests Completed', value: 15 },
+                    { trait_type: 'Travel Distance', value: 250 },
+                    { trait_type: 'Magatama Points', value: 1500 },
+                    { trait_type: 'Premium Status', value: 'プレミアム' },
+                    { trait_type: 'CardType', value: '妖怪' },
+                    { trait_type: 'CardKanji', value: '妖' },
+                ],
+            },
+            '456': {
+                name: 'Digital Passport #456',
+                description: 'Advanced Traveler Profile',
+                image: 'https://example.com/passport-image-456.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'AdvancedUser' },
+                    { trait_type: 'Level', value: 'S級 国津神' },
+                    { trait_type: 'Passport Type', value: '国津神' },
+                    { trait_type: 'Quests Completed', value: 42 },
+                    { trait_type: 'Travel Distance', value: 1250 },
+                    { trait_type: 'Magatama Points', value: 8500 },
+                    { trait_type: 'Premium Status', value: 'Premium Plus' },
+                    { trait_type: 'CardType', value: '神' },
+                    { trait_type: 'CardKanji', value: '神' },
+                ],
+            },
+            '789': {
+                name: 'パスポート #789',
+                description: '初心者向けデジタルパスポート',
+                image: 'https://example.com/passport-image-789.png',
+                attributes: [
+                    { trait_type: 'Username', value: '初心者さん' },
+                    { trait_type: 'Level', value: 'F級 地神' },
+                    { trait_type: 'Passport Type', value: '地神' },
+                    { trait_type: 'Quests Completed', value: 3 },
+                    { trait_type: 'Travel Distance', value: 25 },
+                    { trait_type: 'Magatama Points', value: 150 },
+                    { trait_type: 'Premium Status', value: 'スタンダード' },
+                    { trait_type: 'CardType', value: '人' },
+                    { trait_type: 'CardKanji', value: '人' },
+                ],
+            },
+            alice: {
+                name: "Alice's Travel Pass",
+                description: 'Explorer and Adventure Seeker',
+                image: 'https://example.com/alice-passport.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'Alice Explorer' },
+                    { trait_type: 'Level', value: 'A級 山神' },
+                    { trait_type: 'Passport Type', value: '山神' },
+                    { trait_type: 'Quests Completed', value: 28 },
+                    { trait_type: 'Travel Distance', value: 875 },
+                    { trait_type: 'Magatama Points', value: 4200 },
+                    { trait_type: 'Premium Status', value: 'Premium' },
+                    { trait_type: 'CardType', value: '精霊' },
+                    { trait_type: 'CardKanji', value: '精' },
+                ],
+            },
+            bob: {
+                name: "Bob's Digital ID",
+                description: 'Tech Enthusiast Traveler',
+                image: 'https://example.com/bob-passport.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'Bob TechGuru' },
+                    { trait_type: 'Level', value: 'B級 水神' },
+                    { trait_type: 'Passport Type', value: '水神' },
+                    { trait_type: 'Quests Completed', value: 19 },
+                    { trait_type: 'Travel Distance', value: 640 },
+                    { trait_type: 'Magatama Points', value: 2800 },
+                    { trait_type: 'Premium Status', value: 'Standard' },
+                    { trait_type: 'CardType', value: '龍' },
+                    { trait_type: 'CardKanji', value: '龍' },
+                ],
+            },
+            'test-user-1': {
+                name: 'Test User Alpha',
+                description: 'Development Testing Profile',
+                image: 'https://example.com/test-passport-1.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'TestAlpha' },
+                    { trait_type: 'Level', value: 'C級 火神' },
+                    { trait_type: 'Passport Type', value: '火神' },
+                    { trait_type: 'Quests Completed', value: 12 },
+                    { trait_type: 'Travel Distance', value: 380 },
+                    { trait_type: 'Magatama Points', value: 1950 },
+                    { trait_type: 'Premium Status', value: 'Standard' },
+                    { trait_type: 'CardType', value: '鳥' },
+                    { trait_type: 'CardKanji', value: '鳥' },
+                ],
+            },
+        };
+
+        return mockProfiles[tokenId] || mockProfiles['123']; // Fallback to default
     }
 }

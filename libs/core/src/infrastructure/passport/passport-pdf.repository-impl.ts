@@ -18,6 +18,7 @@ import * as QRCode from 'qrcode';
 @Injectable()
 export class PassportPdfRepositoryImpl implements PassportPdfRepository {
     private readonly logger = new Logger(PassportPdfRepositoryImpl.name);
+    private readonly pdfQrTokenExpirationHours: number;
 
     constructor(
         @Inject('PASSPORT_METADATA_REPOSITORY_TOKEN')
@@ -25,14 +26,52 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         @Inject('JWT_REPOSITORY_TOKEN')
         private readonly jwtRepository: JwtRepository,
         private readonly config: ConfigService,
-    ) {}
+    ) {
+        // Default to 24 hours if not configured
+        this.pdfQrTokenExpirationHours = this.config.get<number>('PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS') || 24;
+    }
 
     async generatePdf(tokenId: string): Promise<PassportPdfData> {
         try {
             this.logger.log(`Generating PDF passport for token ID: ${tokenId}`);
 
+            // TODO: Remove this hardcoded mock and implement proper metadata generation
+            // This is a temporary solution for testing without database setup
+            if (this.isMockTokenId(tokenId)) {
+                this.logger.log(`Using hardcoded mock response for PDF passport token ID: ${tokenId}`);
+
+                // Generate QR code token for mock
+                const qrToken = this.jwtRepository.generateQrToken(tokenId, this.pdfQrTokenExpirationHours);
+
+                // Generate QR code image
+                const qrCodeDataUrl = await QRCode.toDataURL(qrToken, {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF',
+                    },
+                });
+
+                // Get mock metadata based on token ID
+                const mockMetadata = this.getMockMetadata(tokenId);
+
+                // Generate PDF with mock data
+                const pdfBuffer = await this.generatePdfFromTemplate(mockMetadata, qrCodeDataUrl, tokenId);
+
+                const expiresAt = new Date();
+                expiresAt.setHours(expiresAt.getHours() + 24);
+
+                return {
+                    tokenId,
+                    pdfBuffer,
+                    qrCode: qrToken,
+                    expiresAt,
+                };
+            }
+
             // Generate QR code token
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, 24);
+            const qrToken = this.jwtRepository.generateQrToken(tokenId, this.pdfQrTokenExpirationHours);
 
             // Generate QR code image
             const qrCodeDataUrl = await QRCode.toDataURL(qrToken, {
@@ -51,7 +90,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
             const pdfBuffer = await this.generatePdfFromTemplate(metadata, qrCodeDataUrl, tokenId);
 
             const expiresAt = new Date();
-            expiresAt.setHours(expiresAt.getHours() + 24);
+            expiresAt.setHours(expiresAt.getHours() + this.pdfQrTokenExpirationHours);
 
             return {
                 tokenId,
@@ -90,7 +129,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         try {
             await this.passportMetadataRepository.generateMetadata(tokenId);
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -407,5 +446,119 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         </body>
         </html>
         `;
+    }
+
+    /**
+     * Check if token ID is a mock/test token
+     */
+    private isMockTokenId(tokenId: string): boolean {
+        const mockTokenIds = ['123', '456', '789', 'test-user-1', 'test-user-2', 'test-user-3', 'alice', 'bob', 'charlie'];
+        return mockTokenIds.includes(tokenId);
+    }
+
+    /**
+     * Get mock metadata based on token ID
+     */
+    private getMockMetadata(tokenId: string): DigitalPassportMetadata {
+        const mockProfiles: Record<string, DigitalPassportMetadata> = {
+            '123': {
+                name: 'デジタルパスポート #123',
+                description: 'テスト用デジタルパスポート',
+                image: 'https://example.com/passport-image.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'テストユーザー' },
+                    { trait_type: 'Level', value: 'Eクラス 天津神' },
+                    { trait_type: 'Passport Type', value: '天津神' },
+                    { trait_type: 'Quests Completed', value: 15 },
+                    { trait_type: 'Travel Distance', value: 250 },
+                    { trait_type: 'Magatama Points', value: 1500 },
+                    { trait_type: 'Premium Status', value: 'プレミアム' },
+                    { trait_type: 'CardType', value: '妖怪' },
+                    { trait_type: 'CardKanji', value: '妖' },
+                ],
+            },
+            '456': {
+                name: 'Digital Passport #456',
+                description: 'Advanced Traveler Profile',
+                image: 'https://example.com/passport-image-456.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'AdvancedUser' },
+                    { trait_type: 'Level', value: 'S級 国津神' },
+                    { trait_type: 'Passport Type', value: '国津神' },
+                    { trait_type: 'Quests Completed', value: 42 },
+                    { trait_type: 'Travel Distance', value: 1250 },
+                    { trait_type: 'Magatama Points', value: 8500 },
+                    { trait_type: 'Premium Status', value: 'Premium Plus' },
+                    { trait_type: 'CardType', value: '神' },
+                    { trait_type: 'CardKanji', value: '神' },
+                ],
+            },
+            '789': {
+                name: 'パスポート #789',
+                description: '初心者向けデジタルパスポート',
+                image: 'https://example.com/passport-image-789.png',
+                attributes: [
+                    { trait_type: 'Username', value: '初心者さん' },
+                    { trait_type: 'Level', value: 'F級 地神' },
+                    { trait_type: 'Passport Type', value: '地神' },
+                    { trait_type: 'Quests Completed', value: 3 },
+                    { trait_type: 'Travel Distance', value: 25 },
+                    { trait_type: 'Magatama Points', value: 150 },
+                    { trait_type: 'Premium Status', value: 'スタンダード' },
+                    { trait_type: 'CardType', value: '人' },
+                    { trait_type: 'CardKanji', value: '人' },
+                ],
+            },
+            'alice': {
+                name: 'Alice\'s Travel Pass',
+                description: 'Explorer and Adventure Seeker',
+                image: 'https://example.com/alice-passport.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'Alice Explorer' },
+                    { trait_type: 'Level', value: 'A級 山神' },
+                    { trait_type: 'Passport Type', value: '山神' },
+                    { trait_type: 'Quests Completed', value: 28 },
+                    { trait_type: 'Travel Distance', value: 875 },
+                    { trait_type: 'Magatama Points', value: 4200 },
+                    { trait_type: 'Premium Status', value: 'Premium' },
+                    { trait_type: 'CardType', value: '精霊' },
+                    { trait_type: 'CardKanji', value: '精' },
+                ],
+            },
+            'bob': {
+                name: 'Bob\'s Digital ID',
+                description: 'Tech Enthusiast Traveler',
+                image: 'https://example.com/bob-passport.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'Bob TechGuru' },
+                    { trait_type: 'Level', value: 'B級 水神' },
+                    { trait_type: 'Passport Type', value: '水神' },
+                    { trait_type: 'Quests Completed', value: 19 },
+                    { trait_type: 'Travel Distance', value: 640 },
+                    { trait_type: 'Magatama Points', value: 2800 },
+                    { trait_type: 'Premium Status', value: 'Standard' },
+                    { trait_type: 'CardType', value: '龍' },
+                    { trait_type: 'CardKanji', value: '龍' },
+                ],
+            },
+            'test-user-1': {
+                name: 'Test User Alpha',
+                description: 'Development Testing Profile',
+                image: 'https://example.com/test-passport-1.png',
+                attributes: [
+                    { trait_type: 'Username', value: 'TestAlpha' },
+                    { trait_type: 'Level', value: 'C級 火神' },
+                    { trait_type: 'Passport Type', value: '火神' },
+                    { trait_type: 'Quests Completed', value: 12 },
+                    { trait_type: 'Travel Distance', value: 380 },
+                    { trait_type: 'Magatama Points', value: 1950 },
+                    { trait_type: 'Premium Status', value: 'Standard' },
+                    { trait_type: 'CardType', value: '鳥' },
+                    { trait_type: 'CardKanji', value: '鳥' },
+                ],
+            },
+        };
+
+        return mockProfiles[tokenId] || mockProfiles['123']; // Fallback to default
     }
 }

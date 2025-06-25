@@ -1,5 +1,0 @@
-### Detect Device Platform
-# Detect the client device platform (iOS/Android/Web) from User-Agent
-GET http://localhost:4000/api/wallet/detect-platform
-accept-version: 1.0.0
-x-api-key: your-api-key-2 

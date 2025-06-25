@@ -1,5 +1,5 @@
 ### Download Passport PDF
 # Generate and directly download passport PDF (generates on-demand)
-POST http://localhost:4000/api/passport/download/123
+POST http://localhost:4000/api/passport/download/bob
 accept-version: 1.0.0
 x-api-key: your-api-key-2

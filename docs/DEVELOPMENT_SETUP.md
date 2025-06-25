@@ -209,6 +209,98 @@ pnpm format
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
+## 📱 Wallet Integration Setup (NEW)
+
+### Apple Wallet Setup
+
+1. **Get Apple Developer Account** (Required for production)
+2. **Create Pass Type ID** in Apple Developer Portal
+3. **Generate Certificate**:
+   ```bash
+   # Download certificate from Apple Developer Portal
+   # Convert to .p12 format and place in project root
+   # DO NOT commit to version control
+   ```
+4. **Configure Environment Variables**:
+   ```bash
+   APPLE_WALLET_CERT_PATH=path/to/apple-cert.p12
+   APPLE_WALLET_CERT_PASSWORD=your-secure-password
+   ```
+
+### Google Wallet Setup
+
+1. **Create Google Cloud Project**:
+   - Go to https://console.cloud.google.com/
+   - Create new project or select existing
+   - Enable Google Wallet API
+
+2. **Create Service Account**:
+   ```bash
+   # In Google Cloud Console:
+   # IAM & Admin → Service Accounts → Create Service Account
+   # Grant "Wallet Objects Admin" role
+   # Download JSON key file
+   ```
+
+3. **Configure Environment Variables**:
+   ```bash
+   GOOGLE_WALLET_ISSUER_ID=your-google-wallet-issuer-id
+   GOOGLE_WALLET_CLASS_ID=tourii-passport
+   GOOGLE_WALLET_KEY_PATH=path/to/service-account-key.json
+   ```
+
+4. **Security Setup**:
+   ```bash
+   # Set proper file permissions
+   chmod 600 path/to/service-account-key.json
+   chmod 600 path/to/apple-cert.p12
+   
+   # Add to .gitignore
+   echo "*.p12" >> .gitignore
+   echo "*service-account*.json" >> .gitignore
+   ```
+
+### QR Token Configuration
+
+```bash
+# Set token expiration times
+WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS=17520  # 2 years for wallet passes
+PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS=24    # 24h for PDF security
+```
+
+### Test Wallet Integration
+
+```bash
+# Test Apple Wallet pass generation
+curl "http://localhost:4000/api/passport/alice/wallet/apple" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+
+# Test Google Wallet pass generation  
+curl "http://localhost:4000/api/passport/bob/wallet/google" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+
+# Test both platforms
+curl "http://localhost:4000/api/passport/charlie/wallet/both" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+```
+
+### Mock Testing System
+
+The system includes enhanced mock data for development:
+
+**Available Mock Token IDs:**
+- `123` - Japanese Test User (E級 天津神)
+- `456` - Advanced User (S級 国津神) 
+- `789` - Beginner (F級 地神)
+- `alice` - Explorer (A級 山神)
+- `bob` - Tech Enthusiast (B級 水神)
+- `charlie` - Adventurer (C級 火神)
+
+**No authentication required** for testing these mock personas!
+
 ---
 
 ## 🐛 Common Issues & Fixes
@@ -418,4 +510,4 @@ The HTTP test files use `your-api-key-1` by default.
 
 ---
 
-_Last Updated: June 18, 2025_
+_Last Updated: June 26, 2025_

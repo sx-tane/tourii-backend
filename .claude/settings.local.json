@@ -52,7 +52,16 @@
       "Bash(npm ls:*)",
       "Bash(true)",
       "Bash(mv:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "Bash(pkill:*)",
+      "Bash(openssl genrsa:*)",
+      "Bash(openssl:*)",
+      "Bash(ss:*)",
+      "Bash(python3:*)",
+      "Bash(npx puppeteer browsers:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo apt install:*)",
+      "WebFetch(domain:developers.google.com)"
     ],
     "deny": []
   }

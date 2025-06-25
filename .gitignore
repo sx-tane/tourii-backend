@@ -39,6 +39,11 @@ lerna-debug.log*
 /.env
 .env.test
 
+# Google Wallet Service Account Keys
+google-wallet-key.json
+resounding-hope-251100-*.json
+*-service-account*.json
+
 # Docker
 etc/docker/db/postgresql/data/*
 etc/docker/db/postgresql/test-data/*

@@ -83,6 +83,30 @@ pnpm update:openapi               # Regenerate OpenAPI spec and types
 pnpm docs:api                     # Build API documentation HTML
 ```
 
+### Wallet Integration Testing
+
+```bash
+# Apple Wallet Pass Testing
+curl "http://localhost:4000/api/passport/alice/wallet/apple" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+
+# Google Wallet Pass Testing  
+curl "http://localhost:4000/api/passport/bob/wallet/google" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+
+# Both Platform Passes
+curl "http://localhost:4000/api/passport/charlie/wallet/both" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+
+# QR Code Verification
+curl "http://localhost:4000/api/verify/stats/alice" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+```
+
 ## High-Level Architecture
 
 ### Monorepo Structure
@@ -97,9 +121,15 @@ This is a NestJS monorepo with two main applications:
 The architecture follows Domain-Driven Design principles with clear separation:
 
 - **Domain Layer** (`libs/core/src/domain/`): Core business entities and repository interfaces
+  - New: `GooglePassObject` interface for wallet integration type definitions
+  - Centralized passport and authentication types
 - **Infrastructure Layer** (`libs/core/src/infrastructure/`): Implementations of repositories (API, DB, blockchain)
+  - Enhanced: Wallet pass repositories with Apple/Google integration
+  - Improved: Exception handling standardization across all repositories
 - **Application Layer** (`apps/*/src/service/`): Business logic and use cases
+  - Enhanced: Wallet pass generation and verification services
 - **Interface Layer** (`apps/*/src/controller/`): HTTP controllers and DTOs
+  - New: Wallet pass generation endpoints with comprehensive validation
 
 ### Repository Pattern
 
@@ -128,9 +158,13 @@ Security and API middleware are applied in order:
 
 Centralized error handling with custom exception types:
 
-- `TouriiBackendAppException`: Application-specific errors
-- `AppError`: Base error class with error codes
+- `TouriiBackendAppException`: Application-specific errors with standardized metadata
+- `TouriiOnchainAppException`: Onchain service-specific errors
+- `AppError`: Base error class with error codes and type safety
 - Global error interceptor formats responses consistently
+- **30+ Error Codes**: Comprehensive error classification with solutions (E_TB_000-047, E_GEO_001-005, etc.)
+- **JWT & Token Validation**: Specialized error handling for QR tokens and authentication (E_TB_045-047)
+- **Request Validation**: Enhanced input validation with detailed error responses (E_TB_047, E_OC_047)
 
 ### Authentication & Authorization
 
@@ -147,6 +181,18 @@ Multi-provider authentication system:
 - **Sails.js**: Smart contract interface framework
 - **Ethers.js**: For EVM-compatible operations
 - Digital Passport NFT minting on user registration
+
+### Digital Passport & Wallet Integration
+
+Comprehensive wallet integration system for mobile digital passports:
+
+- **Apple Wallet Integration**: Native .pkpass generation with certificates and QR verification
+- **Google Wallet Integration**: Service account-based pass generation with JWT authentication
+- **Unified API**: Single endpoints for cross-platform wallet pass generation
+- **QR Token System**: Two-tier expiration (24h for PDF, 2 years for wallet passes)
+- **Mock Testing System**: Enhanced mock data with multiple user personas for development
+- **Domain-Driven Design**: Centralized `GooglePassObject` interface in domain layer
+- **Certificate Management**: Secure handling of Apple Wallet certificates and Google service accounts
 
 ### Caching Strategy
 
@@ -272,12 +318,33 @@ Implemented comprehensive task management and quest system improvements:
 - **Comprehensive Error Handling**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
 - **R2 Storage Error Types**: Added 5 new error codes (E_TB_035-039) for Cloudflare R2 storage configuration and operation failures
 - **Authentication Security Errors**: Added 2 new error codes (E_TB_040-041) for JWT and encryption configuration requirements
+- **JWT & Token Validation**: Added 3 new error codes (E_TB_045-047) for QR token structure and validation failures
 - **Task Management Enhancement**: Added LOCAL_INTERACTION task type support in admin pending submissions and verification APIs
-- **Complete Error Documentation**: Updated ERROR_CODES.md with 28+ error codes, solutions, and debugging examples
+- **Complete Error Documentation**: Updated ERROR_CODES.md with 30+ error codes, solutions, and debugging examples
 - **Testing Coverage**: Added comprehensive test suites for R2 storage error handling and local interaction task submissions
 - **Test Database Isolation**: Created separate test environment (.env.test) with port 7443 to protect development data
 - **Consistent API Responses**: Added `estimatedReviewTime` field to all manual verification task submissions for user expectation management
 
+### Digital Passport & Wallet Integration System (June 2025)
+
+- **Apple Wallet Integration**: Complete .pkpass generation with certificate handling and QR verification
+- **Google Wallet Integration**: Service account-based pass generation with JWT authentication and real Google API
+- **Unified Wallet API**: 8+ new endpoints for cross-platform wallet pass generation and management
+- **QR Token Architecture**: Two-tier expiration system (24h for PDF security, 2 years for wallet convenience)
+- **Enhanced Mock Testing**: 6+ user personas (alice, bob, charlie, etc.) with diverse attributes for comprehensive testing
+- **Domain Type Architecture**: Centralized `GooglePassObject` interface following DDD principles
+- **Certificate Security**: Secure handling of Apple Wallet certificates and Google service account keys
+- **Verification Analytics**: Real-time verification statistics for individual tokens and global metrics
+- **Production-Ready Setup**: Complete documentation and configuration guides for both wallet platforms
+
+### Code Quality & Architecture Improvements (June 2025)
+
+- **Exception Standardization**: Systematic replacement of generic HTTP exceptions with application-specific errors
+- **Logging Optimization**: Removed 10+ unnecessary success logs, preserved essential error and operational logging
+- **Architecture Compliance**: Enhanced DDD compliance with proper domain layer interfaces
+- **Type Safety**: Improved TypeScript usage with centralized interface definitions
+- **Validation Pipeline**: Enhanced request validation with consistent error responses across all services
+
 ---
 
-_Last Updated: June 22, 2025_
+_Last Updated: June 26, 2025_

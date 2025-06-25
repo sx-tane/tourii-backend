@@ -1,4 +1,5 @@
 import { UserEntity } from '@app/core/domain/user/user.entity';
+import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import {
@@ -35,7 +36,6 @@ import {
 import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
-import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
     ApiDefaultBadRequestResponse,
@@ -47,7 +47,6 @@ import {
     AuthSignupRequestDto,
     AuthSignupRequestSchema,
 } from './model/tourii-request/create/auth-signup-request.model';
-import { BatchVerificationRequestDto } from './model/tourii-request/passport/batch-verification-request.model';
 import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
@@ -91,14 +90,15 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
-import {
-    WalletPassGenerateRequestDto,
-    WalletPassUpdateRequestDto,
-} from './model/tourii-request/passport/wallet-pass-request.model';
 import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
 import { QuestListQueryDto } from './model/tourii-request/fetch/quest-fetch-request.model';
+import { BatchVerificationRequestDto } from './model/tourii-request/passport/batch-verification-request.model';
+import {
+    WalletPassGenerateRequestDto,
+    WalletPassUpdateRequestDto,
+} from './model/tourii-request/passport/wallet-pass-request.model';
 import {
     ChapterProgressRequestDto,
     ChapterProgressRequestSchema,
@@ -186,6 +186,11 @@ import {
     VerificationStatsDto,
 } from './model/tourii-response/passport/passport-verification-response.model';
 import {
+    BothWalletPassesResultDto,
+    PassStatusDto,
+    WalletPassResultDto,
+} from './model/tourii-response/passport/wallet-pass-response.model';
+import {
     QrScanResponseDto,
     QrScanResponseSchema,
 } from './model/tourii-response/qr-scan-response.model';
@@ -241,11 +246,6 @@ import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
 } from './model/tourii-response/user/user-travel-log-list-response.model';
-import {
-    BothWalletPassesResultDto,
-    PassStatusDto,
-    WalletPassResultDto,
-} from './model/tourii-response/passport/wallet-pass-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -2219,7 +2219,6 @@ export class TouriiBackendController {
 
             const result = await this.touriiBackendService.generateAndUploadPdf(tokenId);
 
-            this.logger.log(`PDF generated successfully for token ID: ${tokenId}`);
             return {
                 ...result,
                 expiresAt: result.expiresAt.toISOString(),
@@ -2227,43 +2226,11 @@ export class TouriiBackendController {
         } catch (error) {
             this.logger.error(`Failed to generate PDF for token ID ${tokenId}:`, error);
 
-            if (error instanceof HttpException) {
+            if (error instanceof TouriiBackendAppException) {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to generate PDF for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
-    }
-
-    @Get('api/passport/:tokenId')
-    @ApiOperation({
-        summary: 'Get Passport Metadata',
-        description: 'Retrieve passport metadata (existing endpoint from onchain service)',
-    })
-    @ApiParam({
-        name: 'tokenId',
-        description: 'The token ID of the Digital Passport NFT',
-        example: '123',
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Passport metadata retrieved successfully',
-    })
-    async getPassportMetadata(@Param('tokenId') tokenId: string) {
-        try {
-            this.logger.log(`Fetching metadata for passport token ID: ${tokenId}`);
-            // Note: This uses the separate PassportMetadataService from onchain
-            // We'll need to inject this service separately or move this logic
-            throw new HttpException(
-                'Not implemented in consolidated controller',
-                HttpStatus.NOT_IMPLEMENTED,
-            );
-        } catch (error) {
-            this.logger.error(`Failed to get metadata for token ID ${tokenId}:`, error);
-            throw error;
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_042);
         }
     }
 
@@ -2287,7 +2254,6 @@ export class TouriiBackendController {
 
             const result = await this.touriiBackendService.refreshPdf(tokenId);
 
-            this.logger.log(`Passport refreshed successfully for token ID: ${tokenId}`);
             return result;
         } catch (error) {
             this.logger.error(`Failed to refresh passport for token ID ${tokenId}:`, error);
@@ -2332,7 +2298,6 @@ export class TouriiBackendController {
 
             res.send(pdfBuffer);
 
-            this.logger.log(`Preview generated successfully for token ID: ${tokenId}`);
         } catch (error) {
             this.logger.error(`Failed to generate preview for token ID ${tokenId}:`, error);
             throw error;
@@ -2375,13 +2340,11 @@ export class TouriiBackendController {
 
             res.send(pdfBuffer);
 
-            this.logger.log(`PDF downloaded successfully for token ID: ${tokenId}`);
         } catch (error) {
             this.logger.error(`Failed to download PDF for token ID ${tokenId}:`, error);
             throw error;
         }
     }
-
 
     // ==========================================
     // PASSPORT VERIFICATION METHODS
@@ -2409,36 +2372,26 @@ export class TouriiBackendController {
     async verifyPassport(
         @Param('verificationCode') verificationCode: string,
     ): Promise<VerificationResultDto> {
-        try {
-            this.logger.log(
-                `Verifying passport with code: ${verificationCode.substring(0, 20)}...`,
-            );
+        this.logger.log(`Verifying passport with code: ${verificationCode.substring(0, 20)}...`);
 
-            const result = await this.touriiBackendService.verifyPassport(verificationCode);
+        // Service method already handles all errors gracefully and returns a standardized result
+        const result = await this.touriiBackendService.verifyPassport(verificationCode);
 
-            this.logger.log(
-                `Verification ${result.valid ? 'successful' : 'failed'} for token ID: ${result.tokenId}`,
-            );
-            return {
-                ...result,
-                verifiedAt: result.verifiedAt.toISOString(),
-                expiresAt: result.expiresAt?.toISOString(),
-                passportData: result.passportData ? {
-                    ...result.passportData,
-                    registeredAt: result.passportData.registeredAt.toISOString(),
-                } : undefined,
-            };
-        } catch (error) {
-            this.logger.error(`Verification failed:`, error);
+        this.logger.log(
+            `Verification ${result.valid ? 'successful' : 'failed'} for token ID: ${result.tokenId}`,
+        );
 
-            // Don't throw HTTP exceptions for verification failures - return failed result instead
-            return {
-                valid: false,
-                tokenId: 'unknown',
-                verifiedAt: (ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()).toISOString(),
-                error: 'Verification failed',
-            };
-        }
+        return {
+            ...result,
+            verifiedAt: result.verifiedAt.toISOString(),
+            expiresAt: result.expiresAt?.toISOString(),
+            passportData: result.passportData
+                ? {
+                      ...result.passportData,
+                      registeredAt: result.passportData.registeredAt.toISOString(),
+                  }
+                : undefined,
+        };
     }
 
     @Post('api/verify/batch')
@@ -2471,19 +2424,21 @@ export class TouriiBackendController {
             );
             return {
                 ...result,
-                results: result.results.map(r => ({
+                results: result.results.map((r) => ({
                     ...r,
                     verifiedAt: r.verifiedAt.toISOString(),
                     expiresAt: r.expiresAt?.toISOString(),
-                    passportData: r.passportData ? {
-                        ...r.passportData,
-                        registeredAt: r.passportData.registeredAt.toISOString(),
-                    } : undefined,
+                    passportData: r.passportData
+                        ? {
+                              ...r.passportData,
+                              registeredAt: r.passportData.registeredAt.toISOString(),
+                          }
+                        : undefined,
                 })),
             };
         } catch (error) {
             this.logger.error(`Batch verification failed:`, error);
-            throw new HttpException('Batch verification failed', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_043);
         }
     }
 
@@ -2519,10 +2474,12 @@ export class TouriiBackendController {
                 ...result,
                 verifiedAt: result.verifiedAt.toISOString(),
                 expiresAt: result.expiresAt?.toISOString(),
-                passportData: result.passportData ? {
-                    ...result.passportData,
-                    registeredAt: result.passportData.registeredAt.toISOString(),
-                } : undefined,
+                passportData: result.passportData
+                    ? {
+                          ...result.passportData,
+                          registeredAt: result.passportData.registeredAt.toISOString(),
+                      }
+                    : undefined,
             };
         } catch (error) {
             this.logger.error(`QR verification failed:`, error);
@@ -2530,7 +2487,9 @@ export class TouriiBackendController {
             return {
                 valid: false,
                 tokenId: 'unknown',
-                verifiedAt: (ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()).toISOString(),
+                verifiedAt: (
+                    ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()
+                ).toISOString(),
                 error: 'QR code verification failed',
             };
         }
@@ -2576,10 +2535,7 @@ export class TouriiBackendController {
                 `Failed to get verification stats${tokenId ? ` for token ID: ${tokenId}` : ' (global)'}:`,
                 error,
             );
-            throw new HttpException(
-                'Failed to retrieve verification statistics',
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_000);
         }
     }
 
@@ -2615,7 +2571,6 @@ export class TouriiBackendController {
 
             const result = await this.touriiBackendService.generateApplePass(tokenId);
 
-            this.logger.log(`Apple Wallet pass generated successfully for token ID: ${tokenId}`);
             return {
                 ...result,
                 expiresAt: result.expiresAt.toISOString(),
@@ -2630,10 +2585,7 @@ export class TouriiBackendController {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to generate Apple Wallet pass for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_044);
         }
     }
 
@@ -2667,7 +2619,6 @@ export class TouriiBackendController {
 
             const result = await this.touriiBackendService.generateGooglePass(tokenId);
 
-            this.logger.log(`Google Pay pass generated successfully for token ID: ${tokenId}`);
             return {
                 ...result,
                 expiresAt: result.expiresAt.toISOString(),
@@ -2679,10 +2630,7 @@ export class TouriiBackendController {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to generate Google Pay pass for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_044);
         }
     }
 
@@ -2716,7 +2664,6 @@ export class TouriiBackendController {
 
             const result = await this.touriiBackendService.generateBothPasses(tokenId);
 
-            this.logger.log(`Both wallet passes generated successfully for token ID: ${tokenId}`);
             return {
                 ...result,
                 apple: {
@@ -2738,10 +2685,7 @@ export class TouriiBackendController {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to generate both wallet passes for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_044);
         }
     }
 
@@ -2779,9 +2723,11 @@ export class TouriiBackendController {
                 `Updating ${updateRequest.platform} wallet pass for token ID: ${tokenId}`,
             );
 
-            const result = await this.touriiBackendService.updatePass(tokenId, updateRequest.platform);
+            const result = await this.touriiBackendService.updatePass(
+                tokenId,
+                updateRequest.platform,
+            );
 
-            this.logger.log(`Wallet pass updated successfully for token ID: ${tokenId}`);
             return {
                 ...result,
                 expiresAt: result.expiresAt.toISOString(),
@@ -2793,10 +2739,7 @@ export class TouriiBackendController {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to update wallet pass for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_044);
         }
     }
 

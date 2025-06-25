@@ -1,6 +1,6 @@
 import { DigitalPassportMetadata } from '@app/core/domain/passport/digital-passport-metadata';
 import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { TouriiOnchainAppErrorType } from '../support/exception/tourii-onchain-app-error-type';
 import { TouriiOnchainAppException } from '../support/exception/tourii-onchain-app-exception';
 import { TouriiOnchainConstants } from '../tourii-onchain.constant';
@@ -28,9 +28,7 @@ export class PassportMetadataService {
             if (error instanceof TouriiOnchainAppException) {
                 const apiAppError = error.getResponse() as { code: string };
                 if (apiAppError.code === TouriiOnchainAppErrorType.E_OC_001.code) {
-                    throw new NotFoundException(
-                        `Digital Passport with token ID ${tokenId} not found`,
-                    );
+                    throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_001);
                 }
             }
 

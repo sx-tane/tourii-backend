@@ -114,7 +114,12 @@ libs/core/src/domain/
 │   ├── quest/                  # Quest & Task Management
 │   └── model-route/            # Travel Routes & Tourist Spots
 ├── geo/                        # Location & Weather Services
-├── passport/                   # Digital Passport & NFT Metadata
+├── passport/                   # Digital Passport & Wallet Integration
+│   ├── digital-passport-metadata.ts      # NFT Metadata Definitions
+│   ├── passport-metadata.repository.ts   # Metadata Repository Interface
+│   ├── passport-pdf.repository.ts        # PDF Generation Interface
+│   ├── wallet-pass.repository.ts         # Wallet Pass Repository Interface
+│   └── google-wallet-types.ts           # Google Wallet Domain Types
 ├── storage/                    # File Upload & Management
 └── vara/                       # Blockchain Integration
 ```
@@ -346,7 +351,7 @@ GET /admin/pending-submissions      # Get pending task verifications
 POST /admin/submissions/{id}/verify # Approve/reject task submissions
 ```
 
-### 5. Digital Passport System
+### 5. Digital Passport & Wallet Integration System
 
 **Progression Levels:**
 ```
@@ -358,6 +363,75 @@ BONJIN (Base) → E_CLASS → D_CLASS → C_CLASS → B_CLASS → A_CLASS → S_
 - **AMATSUKAMI**: Celestial deity passport
 - **KUNITSUKAMI**: Earthly deity passport
 - **YOKAI**: Supernatural being passport
+
+#### Wallet Integration Architecture
+
+**Multi-Platform Wallet Support:**
+```mermaid
+graph TB
+    subgraph "Wallet Generation API"
+        UNIFIED[Unified Wallet API<br/>passport/:tokenId/wallet]
+        APPLE[Apple Wallet Service<br/>.pkpass Generation]
+        GOOGLE[Google Wallet Service<br/>JWT Authentication]
+        BOTH[Cross-Platform Generator<br/>Simultaneous Generation]
+    end
+
+    subgraph "Domain Layer"
+        TYPES[GooglePassObject Interface<br/>Domain Type Definitions]
+        REPO[WalletPassRepository<br/>Interface Contract]
+    end
+
+    subgraph "Infrastructure Layer"
+        APPLE_REPO[AppleWalletRepositoryApi<br/>Certificate Handling]
+        GOOGLE_REPO[GoogleWalletRepositoryApi<br/>Service Account Auth]
+        JWT_REPO[JwtRepository<br/>QR Token Generation]
+    end
+
+    subgraph "External Services"
+        APPLE_API[Apple Wallet<br/>PassKit Framework]
+        GOOGLE_API[Google Wallet API<br/>REST API Integration]
+    end
+
+    UNIFIED --> APPLE
+    UNIFIED --> GOOGLE
+    UNIFIED --> BOTH
+    
+    APPLE --> TYPES
+    GOOGLE --> TYPES
+    
+    TYPES --> REPO
+    REPO --> APPLE_REPO
+    REPO --> GOOGLE_REPO
+    REPO --> JWT_REPO
+    
+    APPLE_REPO --> APPLE_API
+    GOOGLE_REPO --> GOOGLE_API
+```
+
+**QR Token Architecture:**
+- **Two-Tier Expiration System**: 
+  - Wallet passes: 2 years (long-term mobile use)
+  - PDF documents: 24 hours (security for printed materials)
+- **JWT-based Verification**: Secure token generation and validation
+- **Cross-Platform Consistency**: Same QR tokens work across all formats
+
+**Apple Wallet Integration:**
+- **Certificate Management**: Secure .p12 certificate handling
+- **PassKit Framework**: Native .pkpass file generation
+- **Design Consistency**: Japanese-themed passport styling
+- **QR Integration**: Embedded verification tokens
+
+**Google Wallet Integration:**
+- **Service Account Authentication**: Production-ready API access
+- **Real Google API**: Live integration with Google Wallet services
+- **Pass Class Management**: Centralized class definitions
+- **Domain Architecture**: `GooglePassObject` interface in domain layer
+
+**Mock Testing System:**
+- **Multiple User Personas**: 6+ test profiles (alice, bob, charlie, 123, 456, 789)
+- **Diverse Attributes**: Different levels, quest completion, travel distance
+- **Consistent Data**: Same mock data across all formats (PDF, Apple, Google)
+- **Development Ready**: No authentication required for testing
 
 ### 5. Location Intelligence
 
@@ -412,6 +486,41 @@ BONJIN (Base) → E_CLASS → D_CLASS → C_CLASS → B_CLASS → A_CLASS → S_
 - **Security Headers**: Helmet.js implementation
 - **HTTPS Enforcement**: SSL/TLS in production
 - **Environment Separation**: Distinct configs per environment
+
+### Exception Handling & Error Management
+
+**Centralized Error System:**
+- **TouriiBackendAppException**: Standardized application errors with metadata
+- **TouriiOnchainAppException**: Blockchain service-specific errors
+- **30+ Error Codes**: Comprehensive error classification (E_TB_000-047, E_GEO_001-005, etc.)
+- **JWT & Token Validation**: Specialized QR token error handling (E_TB_045-047)
+- **Request Validation**: Enhanced input validation errors (E_TB_047, E_OC_047)
+
+**Error Handling Architecture:**
+```mermaid
+graph TB
+    REQUEST[API Request] --> VALIDATION[Request Validation]
+    VALIDATION --> |Valid| BUSINESS[Business Logic]
+    VALIDATION --> |Invalid| VALIDATION_ERROR[E_TB_047: Validation Error]
+    
+    BUSINESS --> JWT[JWT Processing]
+    JWT --> |Valid| SUCCESS[Success Response]
+    JWT --> |Invalid Structure| JWT_ERROR[E_TB_045: Invalid Token Structure]
+    JWT --> |Expired| EXPIRE_ERROR[E_TB_046: Token Expired]
+    
+    BUSINESS --> |Exception| APP_ERROR[TouriiBackendAppException]
+    APP_ERROR --> ERROR_RESPONSE[Standardized Error Response]
+    
+    VALIDATION_ERROR --> ERROR_RESPONSE
+    JWT_ERROR --> ERROR_RESPONSE
+    EXPIRE_ERROR --> ERROR_RESPONSE
+```
+
+**Security Benefits:**
+- **No Information Leakage**: Standardized error messages prevent sensitive data exposure
+- **Consistent Debugging**: Structured error codes enable faster issue resolution
+- **Audit Trail**: All errors logged with request IDs for security monitoring
+- **Type Safety**: Compile-time error checking prevents runtime security issues
 
 ---
 
@@ -616,4 +725,4 @@ R2_BUCKET=tourii-production
 
 ---
 
-_Last Updated: June 20, 2025_
+_Last Updated: June 26, 2025_

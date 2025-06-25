@@ -1,5 +1,5 @@
 ### Generate Passport Preview
 # Generate a preview PDF without uploading to storage (for testing/preview purposes)
-GET http://localhost:4000/api/passport/preview/123
+GET http://localhost:4000/api/passport/preview/bob
 accept-version: 1.0.0
 x-api-key: your-api-key-2

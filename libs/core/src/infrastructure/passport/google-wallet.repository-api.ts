@@ -14,20 +14,29 @@ export class GoogleWalletRepositoryApi {
 
     constructor(private readonly config: ConfigService) {
         // --- GOOGLE WALLET PRODUCTION SETUP ---
-        // Use ConfigService for all config/env values
-        const keyPath =
-            this.config.get<string>('GOOGLE_WALLET_KEY_PATH') || 'google-wallet-key.json';
-        this.credentials = JSON.parse(readFileSync(keyPath, 'utf8'));
-        this.issuerId = this.config.get<string>('GOOGLE_WALLET_ISSUER_ID') || 'your-issuer-id';
-        this.classId = this.config.get<string>('GOOGLE_WALLET_CLASS_ID') || 'your-class-id';
+        // Try environment variable first, then fall back to file path
+        const serviceAccountJson = this.config.get<string>('GOOGLE_WALLET_SERVICE_ACCOUNT_JSON');
+        
+        if (serviceAccountJson) {
+            // Use JSON from environment variable
+            this.credentials = JSON.parse(serviceAccountJson);
+        } else {
+            // Fall back to file path method
+            const keyPath = this.config.get<string>('GOOGLE_WALLET_KEY_PATH') || 'google-wallet-key.json';
+            this.credentials = JSON.parse(readFileSync(keyPath, 'utf8'));
+        }
+        
+        this.issuerId = this.config.get<string>('GOOGLE_WALLET_ISSUER_ID') || '3388000000022196539';
+        this.classId = this.config.get<string>('GOOGLE_WALLET_CLASS_ID') || 'tourii_passport';
         this.walletApi = google.walletobjects({ version: 'v1', auth: this.credentials });
         // --- END GOOGLE WALLET PRODUCTION SETUP ---
     }
 
     async ensureClassExists(classTemplate: any) {
         try {
-            // Try to get the class
-            await this.walletApi.genericclass.get({ resourceId: this.classId });
+            // Try to get the class using the full class ID from template
+            const fullClassId = classTemplate.id || `${this.issuerId}.${this.classId}`;
+            await this.walletApi.genericclass.get({ resourceId: fullClassId });
         } catch (err: any) {
             if (err.code === 404) {
                 // Class does not exist, create it

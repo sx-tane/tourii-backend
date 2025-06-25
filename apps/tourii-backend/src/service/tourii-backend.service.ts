@@ -1022,7 +1022,27 @@ export class TouriiBackendService {
     async updateTouristSpot(
         touristSpot: TouristSpotUpdateRequestDto,
     ): Promise<TouristSpotResponseDto> {
-        // 1. Standardize tourist spot name using Google Places API (if provided)
+        // 1. Get existing tourist spot to check for storyChapterId transition
+        let existingTouristSpot: TouristSpot | undefined;
+        try {
+            // Get the existing tourist spot by querying all model routes that contain it
+            const modelRoutes = await this.modelRouteRepository.getModelRoutes();
+            for (const route of modelRoutes) {
+                if (route.touristSpotList) {
+                    const spot = route.touristSpotList.find(
+                        (s: TouristSpot) => s.touristSpotId === touristSpot.touristSpotId,
+                    );
+                    if (spot) {
+                        existingTouristSpot = spot;
+                        break;
+                    }
+                }
+            }
+        } catch (error) {
+            Logger.warn(`Failed to fetch existing tourist spot: ${error}`);
+        }
+
+        // 2. Standardize tourist spot name using Google Places API (if provided)
         let standardizedTouristSpot = touristSpot;
         let geoInfo: GeoInfo | undefined;
         if (touristSpot.touristSpotName) {
@@ -1059,21 +1079,34 @@ export class TouriiBackendService {
             standardizedTouristSpot = { ...touristSpot, touristSpotName: standardizedSpotName };
         }
 
-        // 2. Update tourist spot with standardized name and geo information
+        // 3. Update tourist spot with standardized name and geo information
         const updated = await this.modelRouteRepository.updateTouristSpot(
             TouristSpotUpdateRequestBuilder.dtoToTouristSpot(standardizedTouristSpot, geoInfo),
         );
 
-        if (updated.touristSpotId && updated.storyChapterId) {
+        // 4. Handle story chapter linking based on storyChapterId changes
+        const oldStoryChapterId = existingTouristSpot?.storyChapterId;
+        const newStoryChapterId = updated.storyChapterId;
+        
+        // Check if we're transitioning from "No" to a valid chapter ID, or updating to a new valid chapter
+        const shouldUpdateChapterLink = updated.touristSpotId && 
+            newStoryChapterId && 
+            newStoryChapterId !== "No" && 
+            (oldStoryChapterId === "No" || oldStoryChapterId !== newStoryChapterId);
+
+        if (shouldUpdateChapterLink) {
+            Logger.log(
+                `Story chapter transition detected for tourist spot ${updated.touristSpotId}: "${oldStoryChapterId}" → "${newStoryChapterId}"`,
+            );
             await this.updateStoryChaptersWithTouristSpotIds([
                 {
-                    storyChapterId: updated.storyChapterId,
+                    storyChapterId: newStoryChapterId,
                     touristSpotId: updated.touristSpotId,
                 },
             ]);
         }
 
-        // 3. Validate tourist spot name before proceeding with geo/weather lookups
+        // 5. Validate tourist spot name before proceeding with geo/weather lookups
         if (!updated.touristSpotName || updated.touristSpotName.trim() === '') {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001);
         }
@@ -2455,12 +2488,13 @@ export class TouriiBackendService {
 
             const passData = await this.walletPassRepository.generateGooglePass(tokenId);
 
-            // Return the Google Pay save URL
+            // Return the Google Pay save URL and pass buffer
             return {
                 tokenId,
                 platform: 'google',
                 redirectUrl: passData.passUrl,
                 expiresAt: passData.expiresAt,
+                passBuffer: passData.passBuffer,
             };
         } catch (error) {
             this.logger.error(`Failed to generate Google pass for token ID ${tokenId}:`, error);

@@ -64,7 +64,6 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             await this.s3Client.send(command);
 
             const publicUrl = this.generatePublicUrl(key);
-            this.logger.log(`File uploaded successfully to R2: ${publicUrl}`);
 
             return publicUrl;
         } catch (error) {
@@ -102,7 +101,6 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             await this.s3Client.send(command);
 
             const publicUrl = this.generatePublicUrl(key);
-            this.logger.log(`Metadata uploaded successfully to R2: ${publicUrl}`);
 
             return publicUrl;
         } catch (error) {

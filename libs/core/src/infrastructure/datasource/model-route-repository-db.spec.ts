@@ -401,4 +401,186 @@ describe('ModelRouteRepositoryDb', () => {
         const names = spots.map((s) => s.touristSpotName).sort();
         expect(names).toEqual(['Spot 1', 'Spot 2']);
     });
+
+    it('getValidChapterSpotPairs filters out "No" storyChapterId values', () => {
+        const baseDate = new Date('2024-01-01T00:00:00.000Z');
+        
+        const modelRoute = new ModelRouteEntity(
+            {
+                storyId: 'story123',
+                routeName: 'Test Route',
+                touristSpotList: [
+                    new TouristSpot({
+                        touristSpotId: 'spot1',
+                        storyChapterId: 'chapter1',
+                        touristSpotName: 'Valid Spot 1',
+                        touristSpotDesc: 'desc',
+                        latitude: 0,
+                        longitude: 0,
+                        insUserId: 'system',
+                        updUserId: 'system',
+                        insDateTime: baseDate,
+                        updDateTime: baseDate,
+                    }),
+                    new TouristSpot({
+                        touristSpotId: 'spot2',
+                        storyChapterId: 'No', // Should be filtered out
+                        touristSpotName: 'Spot with No Chapter',
+                        touristSpotDesc: 'desc',
+                        latitude: 0,
+                        longitude: 0,
+                        insUserId: 'system',
+                        updUserId: 'system',
+                        insDateTime: baseDate,
+                        updDateTime: baseDate,
+                    }),
+                    new TouristSpot({
+                        touristSpotId: 'spot3',
+                        storyChapterId: 'chapter3',
+                        touristSpotName: 'Valid Spot 3',
+                        touristSpotDesc: 'desc',
+                        latitude: 0,
+                        longitude: 0,
+                        insUserId: 'system',
+                        updUserId: 'system',
+                        insDateTime: baseDate,
+                        updDateTime: baseDate,
+                    }),
+                    new TouristSpot({
+                        touristSpotId: 'spot4',
+                        storyChapterId: '', // Should be filtered out (empty string)
+                        touristSpotName: 'Spot with Empty Chapter',
+                        touristSpotDesc: 'desc',
+                        latitude: 0,
+                        longitude: 0,
+                        insUserId: 'system',
+                        updUserId: 'system',
+                        insDateTime: baseDate,
+                        updDateTime: baseDate,
+                    }),
+                ],
+                insUserId: 'system',
+                updUserId: 'system',
+                insDateTime: baseDate,
+                updDateTime: baseDate,
+            },
+            'route123',
+        );
+
+        const validPairs = modelRoute.getValidChapterSpotPairs();
+
+        // Only spots with valid (non-"No", non-empty) storyChapterId should be included
+        expect(validPairs).toHaveLength(2);
+        expect(validPairs).toEqual([
+            { storyChapterId: 'chapter1', touristSpotId: 'spot1' },
+            { storyChapterId: 'chapter3', touristSpotId: 'spot3' },
+        ]);
+    });
+
+    it('updateTouristSpot handles storyChapterId transition from "No" to valid chapter', async () => {
+        const baseDate = new Date('2024-01-01T00:00:00.000Z');
+
+        // Create story and route
+        const story = await prisma.story.create({
+            data: {
+                saga_name: 'Transition Saga',
+                saga_desc: 'Saga for transition test',
+                order: 1,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        const route = await prisma.model_route.create({
+            data: {
+                story_id: story.story_id,
+                route_name: 'Transition Route',
+                recommendation: [],
+                region: 'Test Region',
+                region_latitude: 0,
+                region_longitude: 0,
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+                ins_date_time: baseDate,
+                upd_date_time: baseDate,
+            },
+        });
+
+        // Create a story chapter for linking
+        const chapter = await prisma.story_chapter.create({
+            data: {
+                story_id: story.story_id,
+                tourist_spot_id: 'transition_spot_1',
+                story_chapter_id: 'transition_chapter_1',
+                chapter_title: 'Transition Chapter',
+                chapter_number: '1',
+                chapter_desc: 'A chapter for transition testing',
+                chapter_image: 'image.jpg',
+                character_name_list: [],
+                real_world_image: 'real.jpg',
+                chapter_video_url: 'video.mp4',
+                chapter_video_mobile_url: 'mobile.mp4',
+                chapter_pdf_url: 'doc.pdf',
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+            },
+        });
+
+        // Create tourist spot with "No" storyChapterId initially
+        const spot = await prisma.tourist_spot.create({
+            data: {
+                tourist_spot_id: 'transition_spot_1',
+                model_route_id: route.model_route_id,
+                story_chapter_id: 'No', // Initially set to "No"
+                tourist_spot_name: 'Transition Spot',
+                tourist_spot_desc: 'A spot for testing transitions',
+                latitude: 35.6762,
+                longitude: 139.6503,
+                tourist_spot_hashtag: ['#transition', '#test'],
+                ins_user_id: 'system',
+                upd_user_id: 'system',
+                ins_date_time: baseDate,
+                upd_date_time: baseDate,
+            },
+        });
+
+        // Verify initial state - spot should have "No" chapter
+        expect(spot.story_chapter_id).toBe('No');
+
+        // Update tourist spot to link to valid story chapter
+        const updatedSpotEntity = new TouristSpot({
+            touristSpotId: spot.tourist_spot_id,
+            storyChapterId: chapter.story_chapter_id, // Transition from "No" to valid chapter
+            touristSpotName: 'Updated Transition Spot',
+            touristSpotDesc: 'Updated description',
+            latitude: 35.6762,
+            longitude: 139.6503,
+            updUserId: 'tester',
+            updDateTime: new Date(),
+        });
+
+        const updatedSpot = await repository.updateTouristSpot(updatedSpotEntity);
+
+        // Verify the update
+        expect(updatedSpot.touristSpotName).toBe('Updated Transition Spot');
+        expect(updatedSpot.storyChapterId).toBe(chapter.story_chapter_id);
+
+        // Verify in database
+        const dbSpot = await prisma.tourist_spot.findUnique({
+            where: { tourist_spot_id: spot.tourist_spot_id },
+        });
+        expect(dbSpot?.story_chapter_id).toBe(chapter.story_chapter_id);
+        expect(dbSpot?.tourist_spot_name).toBe('Updated Transition Spot');
+
+        // Test the filtering logic with the updated spot
+        const modelRoute = await repository.getModelRouteByModelRouteId(route.model_route_id);
+        const validPairs = modelRoute.getValidChapterSpotPairs();
+
+        // Should now include the transitioned spot
+        expect(validPairs).toHaveLength(1);
+        expect(validPairs[0]).toEqual({
+            storyChapterId: chapter.story_chapter_id,
+            touristSpotId: spot.tourist_spot_id,
+        });
+    });
 });

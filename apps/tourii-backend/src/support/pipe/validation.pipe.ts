@@ -1,6 +1,8 @@
-import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -17,14 +19,10 @@ export class ValidationPipe implements PipeTransform<any> {
         });
 
         if (errors.length > 0) {
-            const messages = errors.map((error) => ({
-                property: error.property,
-                constraints: error.constraints,
-            }));
-            throw new BadRequestException({
-                message: 'Validation failed',
-                errors: messages,
-            });
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_047,
+                { statusCode: 400 }
+            );
         }
 
         return object;
