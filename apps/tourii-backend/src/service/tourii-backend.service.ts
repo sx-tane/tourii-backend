@@ -29,6 +29,7 @@ import { LocationTrackingService } from '@app/core/domain/location/location-trac
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
+import { CachingService } from '@app/core/provider/caching.service';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -134,6 +135,7 @@ export class TouriiBackendService {
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
         private readonly locationTrackingService: LocationTrackingService,
         private readonly groupQuestGateway: GroupQuestGateway,
+        private readonly cachingService: CachingService,
     ) {}
 
     // ==========================================
@@ -228,16 +230,31 @@ export class TouriiBackendService {
     }
 
     /**
-     * Get user profile
+     * Get user profile with optional dashboard statistics
      * @param userId User ID
-     * @returns User profile response DTO
+     * @param includeStats Whether to include dashboard statistics
+     * @returns User profile response DTO with optional dashboard stats
      */
-    async getUserProfile(userId: string): Promise<UserResponseDto> {
+    async getUserProfile(userId: string, includeStats = false): Promise<UserResponseDto> {
         const user = await this.userRepository.getUserInfoByUserId(userId);
         if (!user) {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
         }
-        return UserResultBuilder.userToDto(user);
+
+        const dto = UserResultBuilder.userToDto(user);
+
+        if (includeStats) {
+            // Dashboard statistics are now calculated and cached in the repository layer
+            // Domain logic has been moved to the User Entity for better architecture
+            const dashboardStats = user.getDashboardStats();
+
+            return {
+                ...dto,
+                dashboardStats,
+            };
+        }
+
+        return dto;
     }
 
     /**
@@ -251,6 +268,21 @@ export class TouriiBackendService {
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
         }
         return UserResultBuilder.userSensitiveInfoToDto(user);
+    }
+
+    /**
+     * Invalidate dashboard statistics cache for a user
+     * Called when user activities change (quest completion, story progress, travel logs, etc.)
+     * @param userId User ID whose dashboard cache should be invalidated
+     */
+    private async invalidateUserDashboardCache(userId: string): Promise<void> {
+        const cacheKey = `user:${userId}:dashboard-stats`;
+        try {
+            await this.cachingService.invalidate(cacheKey);
+            this.logger.debug(`Invalidated dashboard cache for user ${userId}`);
+        } catch (error) {
+            this.logger.warn(`Failed to invalidate dashboard cache for user ${userId}: ${error.message}`);
+        }
     }
 
     /**
@@ -592,7 +624,12 @@ export class TouriiBackendService {
         userId: string,
         chapterId: string,
     ): Promise<StoryCompletionResult> {
-        return await this.userStoryLogRepository.completeStoryWithQuestUnlocking(userId, chapterId);
+        const result = await this.userStoryLogRepository.completeStoryWithQuestUnlocking(userId, chapterId);
+        
+        // Invalidate dashboard cache as story completion affects completedStoriesCount and totalMagatamaPoints
+        await this.invalidateUserDashboardCache(userId);
+        
+        return result;
     }
 
     /**
@@ -2125,12 +2162,21 @@ export class TouriiBackendService {
         adminUserId: string,
         rejectionReason?: string,
     ) {
+        // Get the task log to extract userId for cache invalidation
+        const taskLog = await this.userTaskLogRepository.getUserTaskLog(userTaskLogId);
+        const userId = taskLog?.userId;
+
         await this.userTaskLogRepository.verifySubmission(
             userTaskLogId,
             action,
             adminUserId,
             rejectionReason,
         );
+
+        // Invalidate dashboard cache if task was approved (affects totalMagatamaPoints and completion counts)
+        if (action === 'approve' && userId) {
+            await this.invalidateUserDashboardCache(userId);
+        }
 
         return {
             success: true,
@@ -2256,6 +2302,9 @@ export class TouriiBackendService {
             taskId,
             scannedCode,
         );
+
+        // Invalidate dashboard cache as QR task completion affects totalMagatamaPoints and activeQuestsCount
+        await this.invalidateUserDashboardCache(userId);
 
         return {
             success: true,

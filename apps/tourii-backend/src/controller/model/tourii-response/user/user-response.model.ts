@@ -67,6 +67,27 @@ export const UserResponseSchema = z.object({
         .optional()
         .describe('Discord rewarded roles'),
     userInviteLogs: UserInviteLogResponseSchema.array().optional().describe('User invite logs'),
+
+    // Dashboard summary statistics for enhanced user experience
+    dashboardStats: z
+        .object({
+            achievementCount: z.number().describe('Total achievements earned'),
+            completedQuestsCount: z.number().describe('Completed quests count'),
+            completedStoriesCount: z.number().describe('Stories completed'),
+            totalCheckinsCount: z.number().describe('Total check-ins'),
+            totalMagatamaPoints: z.number().describe('Total magatama points earned'),
+            activeQuestsCount: z.number().describe('Currently active quests'),
+            readingProgress: z
+                .object({
+                    currentChapterId: z.string().optional().describe('Current reading chapter ID'),
+                    currentChapterTitle: z.string().optional().describe('Current chapter title'),
+                    completionPercentage: z.number().optional().describe('Reading completion percentage'),
+                })
+                .optional()
+                .describe('Current reading progress'),
+        })
+        .optional()
+        .describe('Dashboard statistics for user experience'),
 });
 
 export class UserResponseDto extends createZodDto(UserResponseSchema) {}
