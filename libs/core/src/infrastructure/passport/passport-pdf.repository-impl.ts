@@ -1,7 +1,13 @@
-import { PassportPdfData, PassportPdfRepository } from '@app/core/domain/passport/passport-pdf.repository';
-import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
-import { DigitalPassportMetadata, PassportAttribute } from '@app/core/domain/passport/digital-passport-metadata';
 import { JwtRepository } from '@app/core/domain/auth/jwt.repository';
+import {
+    DigitalPassportMetadata,
+    PassportAttribute,
+} from '@app/core/domain/passport/digital-passport-metadata';
+import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
+import {
+    PassportPdfData,
+    PassportPdfRepository,
+} from '@app/core/domain/passport/passport-pdf.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -27,15 +33,15 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
 
             // Generate QR code token
             const qrToken = this.jwtRepository.generateQrToken(tokenId, 24);
-            
+
             // Generate QR code image
             const qrCodeDataUrl = await QRCode.toDataURL(qrToken, {
                 width: 200,
                 margin: 2,
                 color: {
                     dark: '#000000',
-                    light: '#FFFFFF'
-                }
+                    light: '#FFFFFF',
+                },
             });
 
             // Get passport metadata
@@ -51,7 +57,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                 tokenId,
                 pdfBuffer,
                 qrCode: qrToken,
-                expiresAt
+                expiresAt,
             };
         } catch (error) {
             this.logger.error(`Failed to generate PDF for token ID ${tokenId}:`, error);
@@ -66,7 +72,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
             // Generate temporary QR code for preview
             const tempQrCode = await QRCode.toDataURL(`preview-${tokenId}`, {
                 width: 200,
-                margin: 2
+                margin: 2,
             });
 
             // Get passport metadata
@@ -89,14 +95,18 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         }
     }
 
-    private async generatePdfFromTemplate(metadata: DigitalPassportMetadata, qrCodeDataUrl: string, tokenId: string): Promise<Buffer> {
+    private async generatePdfFromTemplate(
+        metadata: DigitalPassportMetadata,
+        qrCodeDataUrl: string,
+        tokenId: string,
+    ): Promise<Buffer> {
         let browser: puppeteer.Browser | null = null;
 
         try {
             // Launch browser
             browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
 
             const page = await browser.newPage();
@@ -106,7 +116,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
 
             // Set content and generate PDF
             await page.setContent(html, { waitUntil: 'networkidle0' });
-            
+
             const pdfBuffer = await page.pdf({
                 format: 'A4',
                 printBackground: true,
@@ -114,8 +124,8 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                     top: '20px',
                     right: '20px',
                     bottom: '20px',
-                    left: '20px'
-                }
+                    left: '20px',
+                },
             });
 
             return Buffer.from(pdfBuffer);
@@ -126,9 +136,13 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         }
     }
 
-    private generateHtmlTemplate(metadata: DigitalPassportMetadata, qrCodeDataUrl: string, tokenId: string): string {
+    private generateHtmlTemplate(
+        metadata: DigitalPassportMetadata,
+        qrCodeDataUrl: string,
+        tokenId: string,
+    ): string {
         const issueDate = new Date().toLocaleDateString();
-        
+
         return `
         <!DOCTYPE html>
         <html>
@@ -340,12 +354,16 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                         <h2>${metadata.name}</h2>
                         
                         <div class="attribute-grid">
-                            ${metadata.attributes.map((attr: PassportAttribute) => `
+                            ${metadata.attributes
+                                .map(
+                                    (attr: PassportAttribute) => `
                                 <div class="attribute">
                                     <div class="attribute-label">${attr.trait_type}</div>
                                     <div class="attribute-value">${attr.value}${attr.display_type === 'number' ? '' : ''}</div>
                                 </div>
-                            `).join('')}
+                            `,
+                                )
+                                .join('')}
                             <div class="attribute">
                                 <div class="attribute-label">Issue Date</div>
                                 <div class="attribute-value">${issueDate}</div>
@@ -364,7 +382,7 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                                     <div class="stat-label">Quests</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-number">${Math.floor(metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Travel Distance')?.value as number || 0)}</div>
+                                    <div class="stat-number">${Math.floor((metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Travel Distance')?.value as number) || 0)}</div>
                                     <div class="stat-label">Kilometers</div>
                                 </div>
                                 <div class="stat-item">

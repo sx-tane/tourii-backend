@@ -50,7 +50,9 @@
       "Bash(git add:*)",
       "mcp__ide__getDiagnostics",
       "Bash(npm ls:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(mv:*)",
+      "Bash(unzip:*)"
     ],
     "deny": []
   }

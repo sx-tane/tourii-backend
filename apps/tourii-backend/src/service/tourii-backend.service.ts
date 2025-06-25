@@ -5,8 +5,9 @@ import {
     UserTravelLogRepository,
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
-import { MomentType } from '@app/core/domain/feed/moment-type';
+import { JwtRepository, QrCodePayload } from '@app/core/domain/auth/jwt.repository';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
+import { MomentType } from '@app/core/domain/feed/moment-type';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -27,6 +28,9 @@ import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
 import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
+import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
+import { PassportPdfRepository } from '@app/core/domain/passport/passport-pdf.repository';
+import { DeviceInfo, WalletPassRepository } from '@app/core/domain/passport/wallet-pass.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
@@ -80,6 +84,72 @@ import type { UserTravelLogListResponseDto } from '../controller/model/tourii-re
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
+
+// Passport service interfaces
+export interface PassportPdfResult {
+    tokenId: string;
+    downloadUrl: string;
+    qrCode: string;
+    expiresAt: Date;
+}
+
+export interface WalletPassResult {
+    tokenId: string;
+    platform: 'apple' | 'google';
+    downloadUrl?: string;
+    redirectUrl: string;
+    expiresAt: Date;
+    passBuffer?: Buffer;
+}
+
+export interface BothWalletPassesResult {
+    tokenId: string;
+    apple: WalletPassResult;
+    google: WalletPassResult;
+}
+
+export interface VerificationResult {
+    valid: boolean;
+    tokenId: string;
+    verifiedAt: Date;
+    expiresAt?: Date;
+    passportData?: {
+        username: string;
+        level: string;
+        passportType: string;
+        questsCompleted: number;
+        travelDistance: number;
+        magatamaPoints: number;
+        registeredAt: Date;
+    };
+    error?: string;
+}
+
+export interface BatchVerificationRequest {
+    tokens: string[];
+}
+
+export interface BatchVerificationResult {
+    results: VerificationResult[];
+    summary: {
+        total: number;
+        valid: number;
+        invalid: number;
+    };
+}
+
+export interface VerificationStats {
+    tokenId?: string;
+    totalVerifications: number;
+    todayVerifications: number;
+    lastVerified?: Date;
+    popularPassports?: {
+        tokenId: string;
+        username: string;
+        verificationCount: number;
+    }[];
+}
+
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
@@ -133,6 +203,14 @@ export class TouriiBackendService {
         private readonly userTravelLogRepository: UserTravelLogRepository,
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
         private readonly locationTrackingService: LocationTrackingService,
+        @Inject(TouriiBackendConstants.PASSPORT_PDF_REPOSITORY_TOKEN)
+        private readonly passportPdfRepository: PassportPdfRepository,
+        @Inject(TouriiBackendConstants.WALLET_PASS_REPOSITORY_TOKEN)
+        private readonly walletPassRepository: WalletPassRepository,
+        @Inject(TouriiBackendConstants.JWT_REPOSITORY_TOKEN)
+        private readonly jwtRepository: JwtRepository,
+        @Inject(TouriiBackendConstants.PASSPORT_METADATA_REPOSITORY_TOKEN)
+        private readonly passportMetadataRepository: PassportMetadataRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -2265,5 +2343,342 @@ export class TouriiBackendService {
             magatama_point_awarded: result.magatama_point_awarded,
             completed_at: new Date().toISOString(),
         };
+    }
+
+    // ==========================================
+    // PASSPORT METHODS
+    // ==========================================
+
+    // ---------- PDF Passport Methods ----------
+    async generateAndUploadPdf(tokenId: string): Promise<PassportPdfResult> {
+        try {
+            this.logger.log(`Generating and uploading PDF for token ID: ${tokenId}`);
+
+            // Validate token ID
+            const isValid = await this.passportPdfRepository.validateTokenId(tokenId);
+            if (!isValid) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+            }
+
+            // Generate PDF
+            const pdfData = await this.passportPdfRepository.generatePdf(tokenId);
+
+            // Upload to R2 storage
+            const uploadKey = `${tokenId}-${Date.now()}.pdf`;
+            const downloadUrl = await this.r2StorageRepository.uploadPassportPdf(
+                pdfData.pdfBuffer,
+                uploadKey,
+            );
+
+            return {
+                tokenId,
+                downloadUrl,
+                qrCode: pdfData.qrCode,
+                expiresAt: pdfData.expiresAt,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to generate and upload PDF for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async generatePdfPreview(tokenId: string): Promise<Buffer> {
+        try {
+            this.logger.log(`Generating PDF preview for token ID: ${tokenId}`);
+
+            // Validate token ID
+            const isValid = await this.passportPdfRepository.validateTokenId(tokenId);
+            if (!isValid) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+            }
+
+            // Generate PDF
+            const pdfData = await this.passportPdfRepository.generatePdf(tokenId);
+            return pdfData.pdfBuffer;
+        } catch (error) {
+            this.logger.error(`Failed to generate PDF preview for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async downloadPdf(tokenId: string): Promise<Buffer> {
+        try {
+            this.logger.log(`Downloading PDF for token ID: ${tokenId}`);
+
+            // Validate token ID
+            const isValid = await this.passportPdfRepository.validateTokenId(tokenId);
+            if (!isValid) {
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+            }
+
+            // Generate PDF on-demand
+            const pdfData = await this.passportPdfRepository.generatePdf(tokenId);
+            return pdfData.pdfBuffer;
+        } catch (error) {
+            this.logger.error(`Failed to download PDF for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async validateToken(tokenId: string): Promise<boolean> {
+        return this.passportPdfRepository.validateTokenId(tokenId);
+    }
+
+    async refreshPdf(tokenId: string): Promise<PassportPdfResult> {
+        return this.generateAndUploadPdf(tokenId);
+    }
+
+    // ---------- Wallet Pass Methods ----------
+    async generateApplePass(tokenId: string): Promise<WalletPassResult> {
+        try {
+            this.logger.log(`Generating Apple Wallet pass for token ID: ${tokenId}`);
+
+            const passData = await this.walletPassRepository.generateApplePass(tokenId);
+
+            // Return the pass with buffer for direct download
+            return {
+                tokenId,
+                platform: 'apple',
+                redirectUrl: passData.passUrl,
+                expiresAt: passData.expiresAt,
+                passBuffer: passData.passBuffer,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to generate Apple pass for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async generateGooglePass(tokenId: string): Promise<WalletPassResult> {
+        try {
+            this.logger.log(`Generating Google Pay pass for token ID: ${tokenId}`);
+
+            const passData = await this.walletPassRepository.generateGooglePass(tokenId);
+
+            // Return the Google Pay save URL
+            return {
+                tokenId,
+                platform: 'google',
+                redirectUrl: passData.passUrl,
+                expiresAt: passData.expiresAt,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to generate Google pass for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async generateAutoPass(tokenId: string, userAgent: string): Promise<WalletPassResult> {
+        try {
+            this.logger.log(`Auto-generating wallet pass for token ID: ${tokenId}`);
+
+            const deviceInfo = this.walletPassRepository.detectPlatform(userAgent);
+            const passData = await this.walletPassRepository.generateAutoPass(tokenId, deviceInfo);
+
+            // Upload Apple passes to R2 for download
+            if (passData.platform === 'apple' && passData.passBuffer) {
+                const uploadKey = `${tokenId}-apple-${Date.now()}.pkpass`;
+                const downloadUrl = await this.r2StorageRepository.uploadWalletPass(
+                    passData.passBuffer,
+                    uploadKey,
+                    'application/vnd.apple.pkpass',
+                );
+
+                return {
+                    tokenId,
+                    platform: 'apple',
+                    downloadUrl,
+                    redirectUrl: passData.passUrl,
+                    expiresAt: passData.expiresAt,
+                    passBuffer: passData.passBuffer,
+                };
+            }
+
+            return {
+                tokenId,
+                platform: passData.platform as 'apple' | 'google',
+                redirectUrl: passData.passUrl,
+                expiresAt: passData.expiresAt,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to auto-generate pass for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async generateBothPasses(tokenId: string): Promise<BothWalletPassesResult> {
+        try {
+            this.logger.log(`Generating both wallet passes for token ID: ${tokenId}`);
+
+            const [appleData, googleData] = await Promise.all([
+                this.walletPassRepository.generateApplePass(tokenId),
+                this.walletPassRepository.generateGooglePass(tokenId),
+            ]);
+
+            const apple: WalletPassResult = {
+                tokenId,
+                platform: 'apple',
+                redirectUrl: appleData.passUrl,
+                expiresAt: appleData.expiresAt,
+                passBuffer: appleData.passBuffer,
+            };
+
+            const google: WalletPassResult = {
+                tokenId,
+                platform: 'google',
+                redirectUrl: googleData.passUrl,
+                expiresAt: googleData.expiresAt,
+            };
+
+            return { tokenId, apple, google };
+        } catch (error) {
+            this.logger.error(`Failed to generate both passes for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    async updatePass(tokenId: string, platform: 'apple' | 'google'): Promise<WalletPassResult> {
+        if (platform === 'apple') {
+            return this.generateApplePass(tokenId);
+        } else {
+            return this.generateGooglePass(tokenId);
+        }
+    }
+
+    async revokePass(tokenId: string, platform: 'apple' | 'google'): Promise<boolean> {
+        try {
+            this.logger.log(`Revoking ${platform} pass for token ID: ${tokenId}`);
+            return await this.walletPassRepository.revokePass(tokenId, platform);
+        } catch (error) {
+            this.logger.error(`Failed to revoke ${platform} pass for token ID ${tokenId}:`, error);
+            return false;
+        }
+    }
+
+    detectPlatform(userAgent: string): DeviceInfo {
+        return this.walletPassRepository.detectPlatform(userAgent);
+    }
+
+    async getPassStatus(tokenId: string): Promise<{ apple: boolean; google: boolean }> {
+        try {
+            // For now, return both as available - could be extended with actual status checking
+            return { apple: true, google: true };
+        } catch (error) {
+            this.logger.error(`Failed to get pass status for token ID ${tokenId}:`, error);
+            return { apple: false, google: false };
+        }
+    }
+
+    // ---------- Passport Verification Methods ----------
+    async verifyPassport(verificationCode: string): Promise<VerificationResult> {
+        try {
+            this.logger.log(
+                `Verifying passport with code: ${verificationCode.substring(0, 10)}...`,
+            );
+
+            // Decode and verify JWT token
+            const payload: QrCodePayload = this.jwtRepository.verifyQrToken(verificationCode);
+
+            if (!payload || !payload.tokenId) {
+                return {
+                    valid: false,
+                    tokenId: '',
+                    verifiedAt: new Date(),
+                    error: 'Invalid or expired verification code',
+                };
+            }
+
+            // Get passport metadata
+            const metadata = await this.passportMetadataRepository.generateMetadata(
+                payload.tokenId,
+            );
+
+            // Extract passport data
+            const passportData = {
+                username:
+                    (metadata.attributes.find((a) => a.trait_type === 'Username')
+                        ?.value as string) || 'Unknown',
+                level:
+                    (metadata.attributes.find((a) => a.trait_type === 'Level')?.value as string) ||
+                    'Unknown',
+                passportType:
+                    (metadata.attributes.find((a) => a.trait_type === 'Passport Type')
+                        ?.value as string) || 'Standard',
+                questsCompleted:
+                    (metadata.attributes.find((a) => a.trait_type === 'Quests Completed')
+                        ?.value as number) || 0,
+                travelDistance:
+                    (metadata.attributes.find((a) => a.trait_type === 'Travel Distance')
+                        ?.value as number) || 0,
+                magatamaPoints:
+                    (metadata.attributes.find((a) => a.trait_type === 'Magatama Points')
+                        ?.value as number) || 0,
+                registeredAt: new Date(), // Would come from actual user data
+            };
+
+            // TODO: Update verification stats in database
+
+            return {
+                valid: true,
+                tokenId: payload.tokenId,
+                verifiedAt: new Date(),
+                expiresAt: new Date((payload['exp'] as number) * 1000),
+                passportData,
+            };
+        } catch (error) {
+            this.logger.error('Failed to verify passport:', error);
+            return {
+                valid: false,
+                tokenId: '',
+                verifiedAt: new Date(),
+                error: (error as Error).message || 'Verification failed',
+            };
+        }
+    }
+
+    async batchVerifyPassports(
+        request: BatchVerificationRequest,
+    ): Promise<BatchVerificationResult> {
+        try {
+            this.logger.log(`Batch verifying ${request.tokens.length} passports`);
+
+            const results = await Promise.all(
+                request.tokens.map((token) => this.verifyPassport(token)),
+            );
+
+            const summary = {
+                total: results.length,
+                valid: results.filter((r) => r.valid).length,
+                invalid: results.filter((r) => !r.valid).length,
+            };
+
+            return { results, summary };
+        } catch (error) {
+            this.logger.error('Failed to batch verify passports:', error);
+            throw error;
+        }
+    }
+
+    async verifyQrCode(qrCode: string): Promise<VerificationResult> {
+        return this.verifyPassport(qrCode);
+    }
+
+    async getVerificationStats(tokenId?: string): Promise<VerificationStats> {
+        try {
+            this.logger.log(`Getting verification stats${tokenId ? ` for token ${tokenId}` : ''}`);
+
+            // TODO: Implement actual stats from database
+            // For now, return mock data
+            return {
+                tokenId,
+                totalVerifications: 0,
+                todayVerifications: 0,
+                lastVerified: undefined,
+                popularPassports: [],
+            };
+        } catch (error) {
+            this.logger.error('Failed to get verification stats:', error);
+            throw error;
+        }
     }
 }

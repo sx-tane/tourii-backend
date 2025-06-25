@@ -7,12 +7,15 @@ import {
     Delete,
     Get,
     Headers,
+    HttpException,
     HttpStatus,
+    Logger,
     Param,
     ParseFloatPipe,
     Post,
     Query,
     Req,
+    Res,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -23,14 +26,16 @@ import {
     ApiExtraModels,
     ApiHeader,
     ApiOperation,
+    ApiParam,
     ApiQuery,
     ApiResponse,
     ApiTags,
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { QuestType, StoryStatus } from '@prisma/client';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
+import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
     ApiDefaultBadRequestResponse,
@@ -42,6 +47,7 @@ import {
     AuthSignupRequestDto,
     AuthSignupRequestSchema,
 } from './model/tourii-request/create/auth-signup-request.model';
+import { BatchVerificationRequestDto } from './model/tourii-request/passport/batch-verification-request.model';
 import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
@@ -85,6 +91,10 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import {
+    WalletPassGenerateRequestDto,
+    WalletPassUpdateRequestDto,
+} from './model/tourii-request/passport/wallet-pass-request.model';
 import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
@@ -168,6 +178,13 @@ import {
     MomentListResponseSchema,
     MomentResponseDto,
 } from './model/tourii-response/moment-response.model';
+import { PassportPdfResponseDto } from './model/tourii-response/passport/passport-pdf-response.model';
+import {
+    BatchVerificationResultDto,
+    PassportDataDto,
+    VerificationResultDto,
+    VerificationStatsDto,
+} from './model/tourii-response/passport/passport-verification-response.model';
 import {
     QrScanResponseDto,
     QrScanResponseSchema,
@@ -224,6 +241,11 @@ import {
     UserTravelLogListResponseDto,
     UserTravelLogListResponseSchema,
 } from './model/tourii-response/user/user-travel-log-list-response.model';
+import {
+    BothWalletPassesResultDto,
+    PassStatusDto,
+    WalletPassResultDto,
+} from './model/tourii-response/passport/wallet-pass-response.model';
 
 @Controller()
 @ApiExtraModels(
@@ -273,8 +295,22 @@ import {
     LocalInteractionSubmissionDto,
     LocalInteractionResponseDto,
     VerifySubmissionRequestDto,
+    // Passport-related DTOs
+    BatchVerificationRequestDto,
+    WalletPassGenerateRequestDto,
+    WalletPassUpdateRequestDto,
+    PassportPdfResponseDto,
+    VerificationResultDto,
+    BatchVerificationResultDto,
+    VerificationStatsDto,
+    PassportDataDto,
+    WalletPassResultDto,
+    BothWalletPassesResultDto,
+    PassStatusDto,
 )
 export class TouriiBackendController {
+    private readonly logger = new Logger(TouriiBackendController.name);
+
     constructor(private readonly touriiBackendService: TouriiBackendService) {}
 
     // ==========================================
@@ -2148,5 +2184,650 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
         return this.touriiBackendService.getHomepageHighlights();
+    }
+
+    // ==========================================
+    // PASSPORT PDF GENERATION METHODS
+    // ==========================================
+
+    @Post('api/passport/generate/:tokenId')
+    @ApiOperation({
+        summary: 'Generate Digital Passport PDF',
+        description:
+            'Generate a professional PDF passport document with user achievements and QR code verification. Uploads to cloud storage and returns download URL.',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'Passport PDF generated and uploaded successfully',
+        type: PassportPdfResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @ApiResponse({
+        status: 404,
+        description: 'Passport not found',
+    })
+    async generatePdf(@Param('tokenId') tokenId: string): Promise<PassportPdfResponseDto> {
+        try {
+            this.logger.log(`Generating PDF passport for token ID: ${tokenId}`);
+
+            const result = await this.touriiBackendService.generateAndUploadPdf(tokenId);
+
+            this.logger.log(`PDF generated successfully for token ID: ${tokenId}`);
+            return {
+                ...result,
+                expiresAt: result.expiresAt.toISOString(),
+            };
+        } catch (error) {
+            this.logger.error(`Failed to generate PDF for token ID ${tokenId}:`, error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new HttpException(
+                `Failed to generate PDF for token ID ${tokenId}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Get('api/passport/:tokenId')
+    @ApiOperation({
+        summary: 'Get Passport Metadata',
+        description: 'Retrieve passport metadata (existing endpoint from onchain service)',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Passport metadata retrieved successfully',
+    })
+    async getPassportMetadata(@Param('tokenId') tokenId: string) {
+        try {
+            this.logger.log(`Fetching metadata for passport token ID: ${tokenId}`);
+            // Note: This uses the separate PassportMetadataService from onchain
+            // We'll need to inject this service separately or move this logic
+            throw new HttpException(
+                'Not implemented in consolidated controller',
+                HttpStatus.NOT_IMPLEMENTED,
+            );
+        } catch (error) {
+            this.logger.error(`Failed to get metadata for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    @Post('api/passport/refresh/:tokenId')
+    @ApiOperation({
+        summary: 'Refresh Passport with New Achievements',
+        description: 'Regenerate passport PDF with updated user achievements and progress',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Passport refreshed successfully',
+    })
+    async refreshPassport(@Param('tokenId') tokenId: string): Promise<any> {
+        try {
+            this.logger.log(`Refreshing passport for token ID: ${tokenId}`);
+
+            const result = await this.touriiBackendService.refreshPdf(tokenId);
+
+            this.logger.log(`Passport refreshed successfully for token ID: ${tokenId}`);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to refresh passport for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    @Get('api/passport/preview/:tokenId')
+    @ApiOperation({
+        summary: 'Generate Passport Preview',
+        description:
+            'Generate a preview PDF without uploading to storage (for testing/preview purposes)',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Preview PDF generated successfully',
+        content: {
+            'application/pdf': {
+                schema: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    async generatePreview(@Param('tokenId') tokenId: string, @Res() res: Response): Promise<void> {
+        try {
+            this.logger.log(`Generating preview for token ID: ${tokenId}`);
+
+            const pdfBuffer = await this.touriiBackendService.generatePdfPreview(tokenId);
+
+            res.set({
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `inline; filename="passport-preview-${tokenId}.pdf"`,
+                'Content-Length': pdfBuffer.length.toString(),
+            });
+
+            res.send(pdfBuffer);
+
+            this.logger.log(`Preview generated successfully for token ID: ${tokenId}`);
+        } catch (error) {
+            this.logger.error(`Failed to generate preview for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+    @Post('api/passport/download/:tokenId')
+    @ApiOperation({
+        summary: 'Download Passport PDF',
+        description: 'Generate and directly download passport PDF (generates on-demand)',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'PDF downloaded successfully',
+        content: {
+            'application/pdf': {
+                schema: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    async downloadPdf(@Param('tokenId') tokenId: string, @Res() res: Response): Promise<void> {
+        try {
+            this.logger.log(`Downloading PDF for token ID: ${tokenId}`);
+
+            const pdfBuffer = await this.touriiBackendService.downloadPdf(tokenId);
+
+            res.set({
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="tourii-passport-${tokenId}.pdf"`,
+                'Content-Length': pdfBuffer.length.toString(),
+            });
+
+            res.send(pdfBuffer);
+
+            this.logger.log(`PDF downloaded successfully for token ID: ${tokenId}`);
+        } catch (error) {
+            this.logger.error(`Failed to download PDF for token ID ${tokenId}:`, error);
+            throw error;
+        }
+    }
+
+
+    // ==========================================
+    // PASSPORT VERIFICATION METHODS
+    // ==========================================
+
+    @Get('api/verify/:verificationCode')
+    @ApiOperation({
+        summary: 'Verify Passport Token',
+        description:
+            'Verify a passport verification token (from QR code or manual entry). Public endpoint requiring no authentication.',
+    })
+    @ApiParam({
+        name: 'verificationCode',
+        description: 'The verification token (JWT) from QR code or manual entry',
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Verification completed (check valid field for result)',
+        type: VerificationResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async verifyPassport(
+        @Param('verificationCode') verificationCode: string,
+    ): Promise<VerificationResultDto> {
+        try {
+            this.logger.log(
+                `Verifying passport with code: ${verificationCode.substring(0, 20)}...`,
+            );
+
+            const result = await this.touriiBackendService.verifyPassport(verificationCode);
+
+            this.logger.log(
+                `Verification ${result.valid ? 'successful' : 'failed'} for token ID: ${result.tokenId}`,
+            );
+            return {
+                ...result,
+                verifiedAt: result.verifiedAt.toISOString(),
+                expiresAt: result.expiresAt?.toISOString(),
+                passportData: result.passportData ? {
+                    ...result.passportData,
+                    registeredAt: result.passportData.registeredAt.toISOString(),
+                } : undefined,
+            };
+        } catch (error) {
+            this.logger.error(`Verification failed:`, error);
+
+            // Don't throw HTTP exceptions for verification failures - return failed result instead
+            return {
+                valid: false,
+                tokenId: 'unknown',
+                verifiedAt: (ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()).toISOString(),
+                error: 'Verification failed',
+            };
+        }
+    }
+
+    @Post('api/verify/batch')
+    @ApiOperation({
+        summary: 'Batch Verify Multiple Passports',
+        description:
+            'Verify multiple passport tokens at once. Useful for bulk verification scenarios.',
+    })
+    @ApiBody({
+        type: BatchVerificationRequestDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Batch verification completed',
+        type: BatchVerificationResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async batchVerifyPassports(
+        @Body() request: BatchVerificationRequestDto,
+    ): Promise<BatchVerificationResultDto> {
+        try {
+            this.logger.log(`Batch verifying ${request.tokens.length} tokens`);
+
+            const result = await this.touriiBackendService.batchVerifyPassports(request);
+
+            this.logger.log(
+                `Batch verification completed: ${result.summary.valid}/${result.summary.total} valid`,
+            );
+            return {
+                ...result,
+                results: result.results.map(r => ({
+                    ...r,
+                    verifiedAt: r.verifiedAt.toISOString(),
+                    expiresAt: r.expiresAt?.toISOString(),
+                    passportData: r.passportData ? {
+                        ...r.passportData,
+                        registeredAt: r.passportData.registeredAt.toISOString(),
+                    } : undefined,
+                })),
+            };
+        } catch (error) {
+            this.logger.error(`Batch verification failed:`, error);
+            throw new HttpException('Batch verification failed', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Get('api/verify/qr/:qrCode')
+    @ApiOperation({
+        summary: 'Verify QR Code',
+        description:
+            'Verify a passport using QR code data. Alias for standard verification endpoint.',
+    })
+    @ApiParam({
+        name: 'qrCode',
+        description: 'The QR code data (JWT token)',
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'QR code verification completed',
+        type: VerificationResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async verifyQrCode(@Param('qrCode') qrCode: string): Promise<VerificationResultDto> {
+        try {
+            this.logger.log(`Verifying QR code: ${qrCode.substring(0, 20)}...`);
+
+            const result = await this.touriiBackendService.verifyQrCode(qrCode);
+
+            this.logger.log(
+                `QR verification ${result.valid ? 'successful' : 'failed'} for token ID: ${result.tokenId}`,
+            );
+            return {
+                ...result,
+                verifiedAt: result.verifiedAt.toISOString(),
+                expiresAt: result.expiresAt?.toISOString(),
+                passportData: result.passportData ? {
+                    ...result.passportData,
+                    registeredAt: result.passportData.registeredAt.toISOString(),
+                } : undefined,
+            };
+        } catch (error) {
+            this.logger.error(`QR verification failed:`, error);
+
+            return {
+                valid: false,
+                tokenId: 'unknown',
+                verifiedAt: (ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()).toISOString(),
+                error: 'QR code verification failed',
+            };
+        }
+    }
+
+    @Get('api/verify/stats/:tokenId?')
+    @ApiOperation({
+        summary: 'Get Verification Statistics',
+        description:
+            'Get verification statistics for a specific token ID or global stats if no token ID provided',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID to get stats for (optional)',
+        required: false,
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Verification statistics retrieved successfully',
+        type: VerificationStatsDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getVerificationStats(@Param('tokenId') tokenId?: string): Promise<VerificationStatsDto> {
+        try {
+            this.logger.log(
+                `Getting verification stats${tokenId ? ` for token ID: ${tokenId}` : ' (global)'}`,
+            );
+
+            const stats = await this.touriiBackendService.getVerificationStats(tokenId);
+
+            this.logger.log(
+                `Statistics retrieved successfully${tokenId ? ` for token ID: ${tokenId}` : ' (global)'}`,
+            );
+            return {
+                ...stats,
+                lastVerified: stats.lastVerified?.toISOString(),
+            };
+        } catch (error) {
+            this.logger.error(
+                `Failed to get verification stats${tokenId ? ` for token ID: ${tokenId}` : ' (global)'}:`,
+                error,
+            );
+            throw new HttpException(
+                'Failed to retrieve verification statistics',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    // ==========================================
+    // WALLET PASS METHODS
+    // ==========================================
+
+    @Get('api/passport/:tokenId/wallet/apple')
+    @ApiOperation({
+        summary: 'Generate Apple Wallet Pass',
+        description: 'Generate Apple Wallet pass (.pkpass file) for Digital Passport NFT',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Apple Wallet pass generated successfully',
+        type: WalletPassResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @ApiResponse({
+        status: 404,
+        description: 'Passport not found',
+    })
+    async generateAppleWalletPass(@Param('tokenId') tokenId: string): Promise<WalletPassResultDto> {
+        try {
+            this.logger.log(`Generating Apple Wallet pass for token ID: ${tokenId}`);
+
+            const result = await this.touriiBackendService.generateApplePass(tokenId);
+
+            this.logger.log(`Apple Wallet pass generated successfully for token ID: ${tokenId}`);
+            return {
+                ...result,
+                expiresAt: result.expiresAt.toISOString(),
+            };
+        } catch (error) {
+            this.logger.error(
+                `Failed to generate Apple Wallet pass for token ID ${tokenId}:`,
+                error,
+            );
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new HttpException(
+                `Failed to generate Apple Wallet pass for token ID ${tokenId}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Get('api/passport/:tokenId/wallet/google')
+    @ApiOperation({
+        summary: 'Generate Google Pay Pass',
+        description: 'Generate Google Pay pass for Digital Passport NFT',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Google Pay pass generated successfully',
+        type: WalletPassResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @ApiResponse({
+        status: 404,
+        description: 'Passport not found',
+    })
+    async generateGoogleWalletPass(
+        @Param('tokenId') tokenId: string,
+    ): Promise<WalletPassResultDto> {
+        try {
+            this.logger.log(`Generating Google Pay pass for token ID: ${tokenId}`);
+
+            const result = await this.touriiBackendService.generateGooglePass(tokenId);
+
+            this.logger.log(`Google Pay pass generated successfully for token ID: ${tokenId}`);
+            return {
+                ...result,
+                expiresAt: result.expiresAt.toISOString(),
+            };
+        } catch (error) {
+            this.logger.error(`Failed to generate Google Pay pass for token ID ${tokenId}:`, error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new HttpException(
+                `Failed to generate Google Pay pass for token ID ${tokenId}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Get('api/passport/:tokenId/wallet/both')
+    @ApiOperation({
+        summary: 'Generate Both Wallet Passes',
+        description: 'Generate both Apple Wallet and Google Pay passes for Digital Passport NFT',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Both wallet passes generated successfully',
+        type: BothWalletPassesResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @ApiResponse({
+        status: 404,
+        description: 'Passport not found',
+    })
+    async generateBothWalletPasses(
+        @Param('tokenId') tokenId: string,
+    ): Promise<BothWalletPassesResultDto> {
+        try {
+            this.logger.log(`Generating both wallet passes for token ID: ${tokenId}`);
+
+            const result = await this.touriiBackendService.generateBothPasses(tokenId);
+
+            this.logger.log(`Both wallet passes generated successfully for token ID: ${tokenId}`);
+            return {
+                ...result,
+                apple: {
+                    ...result.apple,
+                    expiresAt: result.apple.expiresAt.toISOString(),
+                },
+                google: {
+                    ...result.google,
+                    expiresAt: result.google.expiresAt.toISOString(),
+                },
+            };
+        } catch (error) {
+            this.logger.error(
+                `Failed to generate both wallet passes for token ID ${tokenId}:`,
+                error,
+            );
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new HttpException(
+                `Failed to generate both wallet passes for token ID ${tokenId}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Post('api/passport/:tokenId/wallet/update')
+    @ApiOperation({
+        summary: 'Update Wallet Pass',
+        description: 'Update an existing wallet pass for a specific platform',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID of the Digital Passport NFT',
+        example: '123',
+    })
+    @ApiBody({
+        type: WalletPassUpdateRequestDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Wallet pass updated successfully',
+        type: WalletPassResultDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    @ApiResponse({
+        status: 404,
+        description: 'Passport not found',
+    })
+    async updateWalletPass(
+        @Param('tokenId') tokenId: string,
+        @Body() updateRequest: WalletPassUpdateRequestDto,
+    ): Promise<WalletPassResultDto> {
+        try {
+            this.logger.log(
+                `Updating ${updateRequest.platform} wallet pass for token ID: ${tokenId}`,
+            );
+
+            const result = await this.touriiBackendService.updatePass(tokenId, updateRequest.platform);
+
+            this.logger.log(`Wallet pass updated successfully for token ID: ${tokenId}`);
+            return {
+                ...result,
+                expiresAt: result.expiresAt.toISOString(),
+            };
+        } catch (error) {
+            this.logger.error(`Failed to update wallet pass for token ID ${tokenId}:`, error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new HttpException(
+                `Failed to update wallet pass for token ID ${tokenId}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    @Get('api/passport/validate/:tokenId')
+    @ApiOperation({
+        summary: 'Validate Token ID',
+        description: 'Check if a token ID exists and is valid for passport generation',
+    })
+    @ApiParam({
+        name: 'tokenId',
+        description: 'The token ID to validate',
+        example: '123',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Token validation result',
+        type: PassStatusDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async validateTokenStatus(@Param('tokenId') tokenId: string): Promise<PassStatusDto> {
+        try {
+            this.logger.log(`Validating token ID: ${tokenId}`);
+
+            const valid = await this.touriiBackendService.validateToken(tokenId);
+
+            return { valid, tokenId };
+        } catch (error) {
+            this.logger.error(`Failed to validate token ID ${tokenId}:`, error);
+            return { valid: false, tokenId };
+        }
     }
 }

@@ -33,24 +33,24 @@ export class JwtRepositoryAuth implements JwtRepository {
 
     generateQrToken(tokenId: string, expirationHours = 24): string {
         const now = Math.floor(Date.now() / 1000);
-        const expiresAt = now + (expirationHours * 60 * 60);
+        const expiresAt = now + expirationHours * 60 * 60;
 
         const payload: QrCodePayload = {
             tokenId,
             type: 'passport_verification',
             issuedAt: now,
-            expiresAt
+            expiresAt,
         };
 
         return this.generateJwtToken(payload, {
-            expiresIn: `${expirationHours}h`
+            expiresIn: `${expirationHours}h`,
         });
     }
 
     verifyQrToken(qrToken: string): QrCodePayload {
         try {
             const payload = this.dataFromToken<QrCodePayload>(qrToken);
-            
+
             // Validate payload structure
             if (!payload.tokenId || payload.type !== 'passport_verification') {
                 throw new Error('Invalid QR token structure');

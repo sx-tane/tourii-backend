@@ -21,7 +21,7 @@ export interface WalletPassRepository {
 
     /**
      * Generate Google Pay pass
-     * @param tokenId - The passport token ID  
+     * @param tokenId - The passport token ID
      * @returns Google Pay pass data
      */
     generateGooglePass(tokenId: string): Promise<WalletPassData>;

@@ -15,9 +15,11 @@ import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/us
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/user-travel-log.repository-db';
 import { LocationTrackingServiceImpl } from '@app/core/infrastructure/location/location-tracking.service-impl';
+import { AppleWalletRepositoryApi } from '@app/core/infrastructure/passport/apple-wallet.repository-api';
+import { GoogleWalletRepositoryApi } from '@app/core/infrastructure/passport/google-wallet.repository-api';
+import { PassportMetadataRepositoryImpl } from '@app/core/infrastructure/passport/passport-metadata.repository-impl';
 import { PassportPdfRepositoryImpl } from '@app/core/infrastructure/passport/passport-pdf.repository-impl';
 import { WalletPassRepositoryImpl } from '@app/core/infrastructure/passport/wallet-pass.repository-impl';
-import { PassportMetadataRepositoryImpl } from '@app/core/infrastructure/passport/passport-metadata.repository-impl';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
@@ -37,16 +39,10 @@ import {
 } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { PassportGenerationController } from './controller/passport-generation.controller';
-import { WalletIntegrationController } from './controller/wallet-integration.controller';
-import { PassportVerificationController } from './controller/passport-verification.controller';
+import { PassportMetadataService } from '../../tourii-onchain/src/service/passport-metadata.service';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
-import { PassportPdfService } from './service/passport-pdf.service';
-import { WalletPassService } from './service/wallet-pass.service';
-import { PassportVerificationService } from './service/passport-verification.service';
-import { PassportMetadataService } from '../../tourii-onchain/src/service/passport-metadata.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -102,13 +98,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         }),
     ],
     // Register controllers that handle HTTP requests
-    controllers: [
-        TouriiBackendController, 
-        TestController, 
-        PassportGenerationController, 
-        WalletIntegrationController, 
-        PassportVerificationController
-    ],
+    controllers: [TouriiBackendController, TestController],
     // Register services and providers
     providers: [
         Logger, // Logging service
@@ -119,10 +109,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendHttpService, // HTTP client service
         GroupQuestGateway,
         CachingService,
-        // New passport services
-        PassportPdfService,
-        WalletPassService,
-        PassportVerificationService,
+        // Passport metadata service (onchain)
         PassportMetadataService,
         HttpAdapterHost, // HTTP adapter
         {
@@ -221,6 +208,14 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.PASSPORT_METADATA_REPOSITORY_TOKEN,
             useClass: PassportMetadataRepositoryImpl,
+        },
+        {
+            provide: TouriiBackendConstants.APPLE_WALLET_REPOSITORY_TOKEN,
+            useClass: AppleWalletRepositoryApi,
+        },
+        {
+            provide: TouriiBackendConstants.GOOGLE_WALLET_REPOSITORY_TOKEN,
+            useClass: GoogleWalletRepositoryApi,
         },
     ],
 })

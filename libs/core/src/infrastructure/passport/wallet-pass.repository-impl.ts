@@ -13,8 +13,7 @@ import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-ba
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
-import JSZip from 'jszip';
+import { AppleWalletRepositoryApi } from './apple-wallet.repository-api';
 import { GoogleWalletRepositoryApi } from './google-wallet.repository-api';
 
 @Injectable()
@@ -27,7 +26,10 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         @Inject('JWT_REPOSITORY_TOKEN')
         private readonly jwtRepository: JwtRepository,
         private readonly config: ConfigService,
+        @Inject('GOOGLE_WALLET_REPOSITORY_TOKEN')
         private readonly googleWalletRepositoryApi: GoogleWalletRepositoryApi,
+        @Inject('APPLE_WALLET_REPOSITORY_TOKEN')
+        private readonly appleWalletRepositoryApi: AppleWalletRepositoryApi,
     ) {}
 
     async generateApplePass(tokenId: string): Promise<WalletPassData> {
@@ -59,8 +61,8 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                 // Generate QR code token (mock for testing)
                 const qrToken = `tourii-passport-${tokenId}-${Date.now()}`;
 
-                // Create pass
-                const passBuffer = await this.createPkpassFile(
+                // Create pass using AppleWalletRepositoryApi
+                const passBuffer = await this.appleWalletRepositoryApi.createPkpassFile(
                     mockMetadata,
                     qrToken,
                     tokenId,
@@ -68,10 +70,10 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                 );
 
                 // Generate download URL
-                const passUrl = `${this.config.get('BASE_URL')}/api/wallet/apple/pass?tokenId=${tokenId}`;
+                const passUrl = this.appleWalletRepositoryApi.getDownloadUrl(tokenId);
 
-                const expiresAt = new Date();
-                expiresAt.setDate(expiresAt.getDate() + 7);
+                // No expiration for static passes
+                const expiresAt = new Date('2099-12-31T23:59:59Z');
 
                 return {
                     tokenId,
@@ -88,14 +90,17 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             // Generate QR code token
             const qrToken = this.jwtRepository.generateQrToken(tokenId, 168); // 7 days
 
-            // Create pass
-            const passBuffer = await this.createPkpassFile(metadata, qrToken, tokenId);
+            // Create pass using AppleWalletRepositoryApi
+            const passBuffer = await this.appleWalletRepositoryApi.createPkpassFile(
+                metadata,
+                qrToken,
+                tokenId,
+            );
 
             // Generate download URL
-            const passUrl = `${this.config.get('BASE_URL')}/api/wallet/apple/pass?tokenId=${tokenId}`;
+            const passUrl = this.appleWalletRepositoryApi.getDownloadUrl(tokenId);
 
             const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 7);
 
             return {
                 tokenId,
@@ -113,6 +118,20 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
     async generateGooglePass(tokenId: string): Promise<WalletPassData> {
         try {
             this.logger.log(`Generating Google Pay pass for token ID: ${tokenId}`);
+
+            // Check for required Google Wallet configurations
+            const requiredConfigs = [
+                'GOOGLE_WALLET_ISSUER_ID',
+                'GOOGLE_WALLET_CLASS_ID',
+                'GOOGLE_WALLET_KEY_PATH',
+            ];
+
+            for (const configKey of requiredConfigs) {
+                if (!this.config.get(configKey)) {
+                    this.logger.error(`Missing required Google Wallet configuration: ${configKey}`);
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_004);
+                }
+            }
 
             if (tokenId === '123') {
                 this.logger.log(
@@ -169,27 +188,19 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                                     body: 'テスト用デジタルパスポート',
                                 },
                                 {
-                                    id: 'quests',
-                                    header: 'クエスト達成',
-                                    body: String(
-                                        mockMetadata.attributes.find(
-                                            (a) => a.trait_type === 'Quests Completed',
-                                        )?.value || 0,
-                                    ),
+                                    id: 'status',
+                                    header: 'ステータス',
+                                    body: 'デジタルパスポート保有者',
                                 },
                                 {
-                                    id: 'distance',
-                                    header: '移動距離',
-                                    body: `${Math.floor((mockMetadata.attributes.find((a) => a.trait_type === 'Travel Distance')?.value as number) || 0)} km`,
+                                    id: 'type',
+                                    header: 'タイプ',
+                                    body: '旅行者パス',
                                 },
                                 {
-                                    id: 'points',
-                                    header: 'マガタマポイント',
-                                    body: String(
-                                        mockMetadata.attributes.find(
-                                            (a) => a.trait_type === 'Magatama Points',
-                                        )?.value || 0,
-                                    ),
+                                    id: 'network',
+                                    header: 'ネットワーク',
+                                    body: 'Vara Network',
                                 },
                                 {
                                     id: 'premium',
@@ -209,8 +220,8 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                 const passUrl = this.googleWalletRepositoryApi.getSaveUrl(jwt);
                 // ---------------------------------------------------------
 
-                const expiresAt = new Date();
-                expiresAt.setDate(expiresAt.getDate() + 7);
+                // No expiration for static passes
+                const expiresAt = new Date('2099-12-31T23:59:59Z');
 
                 return {
                     tokenId,
@@ -223,20 +234,22 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
 
             // For non-mock, use real metadata and GoogleWalletRepositoryApi
             const metadata = await this.passportMetadataRepository.generateMetadata(tokenId);
-            // Build passObject from metadata as above (omitted for brevity)
-            // ...
-            // const jwt = this.googleWalletRepositoryApi.createSignedJwt(passObject);
-            // const passUrl = this.googleWalletRepositoryApi.getSaveUrl(jwt);
-            // ...
 
-            // For now, fallback to old logic for non-mock
+            // Generate QR token for the pass
             const qrToken = this.jwtRepository.generateQrToken(tokenId, 168); // 7 days
-            const passUrl = `https://pay.google.com/gp/v/save/${qrToken}`;
+
+            // Build pass object using the createGooglePassObject method
+            const passObject = this.createGooglePassObject(metadata, qrToken, tokenId);
+
+            // Use GoogleWalletRepositoryApi for JWT signing and URL generation
+            const jwt = this.googleWalletRepositoryApi.createSignedJwt(passObject);
+            const passUrl = this.googleWalletRepositoryApi.getSaveUrl(jwt);
+
             const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 7);
+
             return {
                 tokenId,
-                passBuffer: Buffer.from(JSON.stringify(metadata)),
+                passBuffer: Buffer.from(JSON.stringify(passObject)),
                 passUrl,
                 platform: 'google',
                 expiresAt,
@@ -301,260 +314,6 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         }
     }
 
-    // --- APPLE WALLET PRODUCTION SETUP ---
-    // TODO: Apple Wallet Production Setup
-    // - Register for an Apple Developer account and create a Pass Type ID
-    // - Download your Apple Pass certificate (.p12) and add it to your backend securely
-    // - Use a library like `passkit-generator` to sign the .pkpass with your certificate
-    // - Replace the mock signature in createPkpassFile() with a real signature using your Apple certificate
-    // - Add required images (icon.png, logo.png, etc.) to the .pkpass ZIP
-    // - Test the pass on a real device and submit for Apple review if needed
-
-    private async createPkpassFile(
-        metadata: DigitalPassportMetadata,
-        qrToken: string,
-        tokenId: string,
-        japaneseStyle = false,
-    ): Promise<Buffer> {
-        try {
-            const zip = new JSZip();
-
-            // Use Japanese style and color palette if requested
-            const passData = japaneseStyle
-                ? {
-                      description: metadata.description,
-                      formatVersion: 1,
-                      organizationName: 'トゥーリ',
-                      passTypeIdentifier:
-                          this.config.get('APPLE_PASS_TYPE_ID') || 'pass.com.tourii.passport',
-                      serialNumber: tokenId,
-                      teamIdentifier: this.config.get('APPLE_TEAM_ID') || 'TOURII',
-                      voided: false,
-                      barcode: {
-                          message: qrToken,
-                          format: 'PKBarcodeFormatQR',
-                          messageEncoding: 'iso-8859-1',
-                      },
-                      barcodes: [
-                          {
-                              message: qrToken,
-                              format: 'PKBarcodeFormatQR',
-                              messageEncoding: 'iso-8859-1',
-                          },
-                      ],
-                      generic: {
-                          headerFields: [
-                              {
-                                  key: 'header',
-                                  label: '妖怪',
-                                  value: '妖',
-                              },
-                          ],
-                          primaryFields: [
-                              {
-                                  key: 'type',
-                                  label: '天津神',
-                                  value: '国',
-                              },
-                          ],
-                          secondaryFields: [
-                              {
-                                  key: 'desc',
-                                  label: '妖怪',
-                                  value: '妖',
-                              },
-                          ],
-                          auxiliaryFields: [
-                              {
-                                  key: 'quests',
-                                  label: 'クエスト達成',
-                                  value: String(
-                                      metadata.attributes.find(
-                                          (a) => a.trait_type === 'Quests Completed',
-                                      )?.value || 0,
-                                  ),
-                              },
-                              {
-                                  key: 'distance',
-                                  label: '移動距離',
-                                  value: `${Math.floor((metadata.attributes.find((a) => a.trait_type === 'Travel Distance')?.value as number) || 0)} km`,
-                              },
-                          ],
-                          backFields: [
-                              {
-                                  key: 'tokenId',
-                                  label: 'トークンID',
-                                  value: tokenId,
-                              },
-                              {
-                                  key: 'points',
-                                  label: 'マガタマポイント',
-                                  value: String(
-                                      metadata.attributes.find(
-                                          (a) => a.trait_type === 'Magatama Points',
-                                      )?.value || 0,
-                                  ),
-                              },
-                              {
-                                  key: 'premium',
-                                  label: 'プレミアムステータス',
-                                  value:
-                                      metadata.attributes.find(
-                                          (a) => a.trait_type === 'Premium Status',
-                                      )?.value || 'スタンダード',
-                              },
-                          ],
-                      },
-                      backgroundColor: '#AE3111', // Red
-                      foregroundColor: '#E3E3DC', // Warm Grey
-                      labelColor: '#B6AD33', // Mustard
-                  }
-                : {
-                      description: metadata.description,
-                      formatVersion: 1,
-                      organizationName: 'Tourii',
-                      passTypeIdentifier:
-                          this.config.get('APPLE_PASS_TYPE_ID') || 'pass.com.tourii.passport',
-                      serialNumber: tokenId,
-                      teamIdentifier: this.config.get('APPLE_TEAM_ID') || 'TOURII',
-                      voided: false,
-                      barcode: {
-                          message: qrToken,
-                          format: 'PKBarcodeFormatQR',
-                          messageEncoding: 'iso-8859-1',
-                      },
-                      barcodes: [
-                          {
-                              message: qrToken,
-                              format: 'PKBarcodeFormatQR',
-                              messageEncoding: 'iso-8859-1',
-                          },
-                      ],
-                      generic: {
-                          headerFields: [
-                              {
-                                  key: 'header',
-                                  label: 'TOURII',
-                                  value: 'Digital Passport',
-                              },
-                          ],
-                          primaryFields: [
-                              {
-                                  key: 'name',
-                                  label: 'Passport Holder',
-                                  value:
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) => a.trait_type === 'Username',
-                                      )?.value || 'Unknown',
-                              },
-                          ],
-                          secondaryFields: [
-                              {
-                                  key: 'level',
-                                  label: 'Level',
-                                  value:
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) => a.trait_type === 'Level',
-                                      )?.value || 'Unknown',
-                              },
-                              {
-                                  key: 'type',
-                                  label: 'Type',
-                                  value:
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) =>
-                                              a.trait_type === 'Passport Type',
-                                      )?.value || 'Unknown',
-                              },
-                          ],
-                          auxiliaryFields: [
-                              {
-                                  key: 'quests',
-                                  label: 'Quests Completed',
-                                  value: String(
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) =>
-                                              a.trait_type === 'Quests Completed',
-                                      )?.value || 0,
-                                  ),
-                              },
-                              {
-                                  key: 'distance',
-                                  label: 'Travel Distance',
-                                  value: `${Math.floor((metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Travel Distance')?.value as number) || 0)} km`,
-                              },
-                          ],
-                          backFields: [
-                              {
-                                  key: 'tokenId',
-                                  label: 'Token ID',
-                                  value: tokenId,
-                              },
-                              {
-                                  key: 'points',
-                                  label: 'Magatama Points',
-                                  value: String(
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) =>
-                                              a.trait_type === 'Magatama Points',
-                                      )?.value || 0,
-                                  ),
-                              },
-                              {
-                                  key: 'premium',
-                                  label: 'Premium Status',
-                                  value:
-                                      metadata.attributes.find(
-                                          (a: PassportAttribute) =>
-                                              a.trait_type === 'Premium Status',
-                                      )?.value || 'Standard',
-                              },
-                          ],
-                      },
-                      backgroundColor: 'rgb(103, 126, 234)',
-                      foregroundColor: 'rgb(255, 255, 255)',
-                      labelColor: 'rgb(200, 200, 200)',
-                  };
-
-            // Add pass.json to zip
-            zip.file('pass.json', JSON.stringify(passData, null, 2));
-
-            // Create manifest.json (list of all files in the pass)
-            const manifestData = {
-                'pass.json': crypto
-                    .createHash('sha1')
-                    .update(JSON.stringify(passData, null, 2))
-                    .digest('hex'),
-            };
-
-            // Add manifest.json to zip
-            zip.file('manifest.json', JSON.stringify(manifestData, null, 2));
-
-            // Create signature (mock signature for testing)
-            // In production, this should be signed with Apple's certificate
-            const manifestString = JSON.stringify(manifestData, null, 2);
-            const signature = crypto
-                .createHmac('sha256', 'mock-secret-key')
-                .update(manifestString)
-                .digest('base64');
-
-            // Add signature to zip
-            zip.file('signature', signature);
-
-            // Generate the .pkpass file as a buffer
-            const pkpassBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-
-            this.logger.log(
-                `Generated .pkpass file for token ID ${tokenId}, size: ${pkpassBuffer.length} bytes`,
-            );
-
-            return pkpassBuffer;
-        } catch (error) {
-            this.logger.error('Error creating .pkpass file:', error);
-            throw error;
-        }
-    }
-
     // --- GOOGLE WALLET PRODUCTION SETUP ---
     // TODO: Google Wallet Production Setup
     // - Register as a Google Wallet Issuer in the Google Pay & Wallet Console
@@ -572,100 +331,87 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         qrToken: string,
         tokenId: string,
     ): any {
-        const issuerEmail = this.config.get('GOOGLE_WALLET_ISSUER_EMAIL');
-        const issuerId = this.config.get('GOOGLE_WALLET_ISSUER_ID');
+        const issuerId = this.config.get('GOOGLE_WALLET_ISSUER_ID') || 'tourii';
+        const classId = this.config.get('GOOGLE_WALLET_CLASS_ID') || 'tourii_passport';
 
+        // Extract attributes for easier access
+        const username =
+            metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Username')
+                ?.value || 'Unknown';
+        const level =
+            metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Level')?.value ||
+            'Unknown';
+        const premiumStatus =
+            metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Premium Status')
+                ?.value || 'Standard';
+
+        // Return the pass object in the format expected by GoogleWalletRepositoryApi
         return {
-            iss: issuerEmail,
-            aud: 'google',
-            typ: 'savetowallet',
-            payload: {
-                genericObjects: [
-                    {
-                        id: `${issuerId}.${tokenId}`,
-                        classId: `${issuerId}.tourii_passport`,
-                        state: 'ACTIVE',
-                        barcode: {
-                            type: 'QR_CODE',
-                            value: qrToken,
+            genericObjects: [
+                {
+                    id: `${issuerId}.${tokenId}`,
+                    classId: `${issuerId}.${classId}`,
+                    state: 'ACTIVE',
+                    barcode: {
+                        type: 'QR_CODE',
+                        value: qrToken,
+                    },
+                    cardTitle: {
+                        defaultValue: {
+                            language: 'en-US',
+                            value: 'Tourii Digital Passport',
                         },
-                        cardTitle: {
-                            defaultValue: {
-                                language: 'en-US',
-                                value: 'Tourii Digital Passport',
-                            },
-                        },
-                        subheader: {
-                            defaultValue: {
-                                language: 'en-US',
-                                value:
-                                    metadata.attributes.find(
-                                        (a: PassportAttribute) => a.trait_type === 'Username',
-                                    )?.value || 'Unknown',
-                            },
-                        },
-                        header: {
-                            defaultValue: {
-                                language: 'en-US',
-                                value:
-                                    metadata.attributes.find(
-                                        (a: PassportAttribute) => a.trait_type === 'Level',
-                                    )?.value || 'Unknown',
-                            },
-                        },
-                        textModulesData: [
+                        translatedValues: [
                             {
-                                id: 'quests',
-                                header: 'Quests Completed',
-                                body: String(
-                                    metadata.attributes.find(
-                                        (a: PassportAttribute) =>
-                                            a.trait_type === 'Quests Completed',
-                                    )?.value || 0,
-                                ),
-                            },
-                            {
-                                id: 'distance',
-                                header: 'Travel Distance',
-                                body: `${Math.floor((metadata.attributes.find((a: PassportAttribute) => a.trait_type === 'Travel Distance')?.value as number) || 0)} km`,
-                            },
-                            {
-                                id: 'points',
-                                header: 'Magatama Points',
-                                body: String(
-                                    metadata.attributes.find(
-                                        (a: PassportAttribute) =>
-                                            a.trait_type === 'Magatama Points',
-                                    )?.value || 0,
-                                ),
+                                language: 'ja',
+                                value: 'トゥーリデジタルパスポート',
                             },
                         ],
-                        hexBackgroundColor: '#677EEA',
-                        logo: {
-                            sourceUri: {
-                                uri: 'https://assets.tourii.com/logo.png',
-                            },
+                    },
+                    header: {
+                        defaultValue: {
+                            language: 'en-US',
+                            value: level,
                         },
                     },
-                ],
-            },
+                    subheader: {
+                        defaultValue: {
+                            language: 'en-US',
+                            value: username,
+                        },
+                    },
+                    textModulesData: [
+                        {
+                            id: 'status',
+                            header: 'Status',
+                            body: 'Digital Passport Holder',
+                        },
+                        {
+                            id: 'category',
+                            header: 'Category',
+                            body: 'Traveler Pass',
+                        },
+                        {
+                            id: 'network',
+                            header: 'Network',
+                            body: 'Vara Network',
+                        },
+                        {
+                            id: 'premium',
+                            header: 'Premium Status',
+                            body: premiumStatus,
+                        },
+                    ],
+                    hexBackgroundColor: '#677EEA',
+                    logo: {
+                        sourceUri: {
+                            uri:
+                                this.config.get('GOOGLE_WALLET_LOGO_URL') ||
+                                'https://assets.tourii.com/logo.png',
+                        },
+                    },
+                },
+            ],
         };
-    }
-
-    private createGooglePassJwt(passObject: any): string {
-        // ...
-        // TODO: Sign the JWT with your Google service account for production (alg: 'RS256')
-        // --- END GOOGLE WALLET PRODUCTION SETUP ---
-        // In a real implementation, this would be properly signed with Google credentials
-        // For now, we'll create a basic JWT structure
-        const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString(
-            'base64url',
-        );
-        const payload = Buffer.from(JSON.stringify(passObject)).toString('base64url');
-
-        // Note: This should be properly signed with Google credentials in production
-        const signature = 'signature-placeholder';
-
-        return `${header}.${payload}.${signature}`;
     }
 }

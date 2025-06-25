@@ -123,8 +123,10 @@ export class SecurityMiddleware implements NestMiddleware {
                         }
 
                         // Split CORS_ORIGIN by comma to handle multiple origins
-                        const allowedOrigins = allowedOrigin.split(',').map((o: string) => o.trim());
-                        
+                        const allowedOrigins = allowedOrigin
+                            .split(',')
+                            .map((o: string) => o.trim());
+
                         // Check each allowed origin
                         for (const allowed of allowedOrigins) {
                             // Convert wildcard domain to regex pattern
@@ -133,7 +135,7 @@ export class SecurityMiddleware implements NestMiddleware {
                             let pattern = allowed.replace(/\*/g, '.*');
                             pattern = pattern.replace(/\./g, '\\.');
                             pattern = pattern.replace(/\\\.\\\*/g, '.*');
-                            
+
                             const regex = new RegExp(`^${pattern}$`);
 
                             if (regex.test(origin)) {
@@ -141,7 +143,7 @@ export class SecurityMiddleware implements NestMiddleware {
                                 return;
                             }
                         }
-                        
+
                         // No origin matched - send error
                         callback(new Error('Not allowed by CORS'));
                     },
