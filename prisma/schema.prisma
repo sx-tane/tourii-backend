@@ -510,8 +510,6 @@ model user {
   /// User's order history
   orders user_order[]
 
-  /// User's onchain items (NFTs, perks, digital passports)
-  onchain_items user_onchain_item[]
 
   /// User's perk reservations
   perk_reservations perk_reservation[]
