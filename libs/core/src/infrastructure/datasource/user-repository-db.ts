@@ -4,6 +4,7 @@ import type {
     GetAllUsersResult,
     UserRepository,
 } from '@app/core/domain/user/user.repository';
+import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { StoryStatus, TaskStatus, UserRoleType } from '@prisma/client';
@@ -12,7 +13,14 @@ import { UserMapper } from '../mapper/user.mapper';
 
 @Injectable()
 export class UserRepositoryDb implements UserRepository {
-    constructor(private prisma: PrismaService) {}
+    // Cache configuration
+    private static readonly USER_CACHE_PREFIX = 'user';
+    private static readonly CACHE_TTL_SECONDS = 300; // 5 minutes to match dashboard stats TTL
+
+    constructor(
+        private prisma: PrismaService,
+        private cachingService: CachingService,
+    ) {}
 
     // Complete include pattern matching UserRelationModel
     // Basic user info for authentication and profile
@@ -67,14 +75,42 @@ export class UserRepositoryDb implements UserRepository {
     }
 
     async getUserInfoByUserId(userId: string): Promise<UserEntity | undefined> {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                user_id: userId,
-            },
-            include: this.userInclude,
-        });
+        const cacheKey = `${UserRepositoryDb.USER_CACHE_PREFIX}:${userId}:full`;
+        
+        const fetchUserFn = async (): Promise<UserEntity | undefined> => {
+            const user = await this.prisma.user.findFirst({
+                where: {
+                    user_id: userId,
+                },
+                include: this.userInclude,
+            });
 
-        return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
+            return user ? UserMapper.prismaModelToUserEntity(user as UserRelationModel) : undefined;
+        };
+
+        try {
+            return await this.cachingService.getOrSet<UserEntity | undefined>(
+                cacheKey,
+                fetchUserFn,
+                UserRepositoryDb.CACHE_TTL_SECONDS,
+            );
+        } catch (error) {
+            // If caching fails, fallback to direct database call
+            return await fetchUserFn();
+        }
+    }
+
+    /**
+     * Invalidates cached user data when user activities change
+     * Should be called after quest completion, story completion, etc.
+     */
+    async invalidateUserCache(userId: string): Promise<void> {
+        try {
+            const cacheKey = `${UserRepositoryDb.USER_CACHE_PREFIX}:${userId}:full`;
+            await this.cachingService.delete(cacheKey);
+        } catch (error) {
+            // Silently handle cache deletion failures
+        }
     }
 
     async getUserByUsername(username: string): Promise<UserEntity | undefined> {

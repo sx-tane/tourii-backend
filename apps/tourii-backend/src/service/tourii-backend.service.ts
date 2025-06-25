@@ -99,7 +99,6 @@ import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-bui
 @Injectable()
 export class TouriiBackendService {
     private readonly logger = new Logger(TouriiBackendService.name);
-    private static readonly DASHBOARD_STATS_TTL_SECONDS = 300; // 5-minute TTL for dashboard statistics cache
     constructor(
         @Inject(TouriiBackendConstants.USER_REPOSITORY_TOKEN)
         private readonly userRepository: UserRepository,
@@ -245,53 +244,9 @@ export class TouriiBackendService {
         const dto = UserResultBuilder.userToDto(user);
 
         if (includeStats) {
-            // Use caching for dashboard statistics with 5-minute TTL
-            const cacheKey = `user:${userId}:dashboard-stats`;
-            const dashboardStats = await this.cachingService.getOrSet(
-                cacheKey,
-                async () => {
-                    // Calculate dashboard statistics based on admin aggregation logic
-                    const totalMagatamaPoints = user.userTaskLogs
-                        ?.filter((log) => log.status === 'COMPLETED')
-                        .reduce((sum, log) => sum + (log.totalMagatamaPointAwarded || 0), 0) || 0;
-
-                    // Find current reading progress
-                    const lastReadingActivity = user.userStoryLogs
-                        ?.filter((log) => log.status === 'IN_PROGRESS')
-                        .sort((a, b) => {
-                            const aDate = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-                            const bDate = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-                            return bDate - aDate;
-                        })[0];
-
-                    // Get active quests count by looking for in-progress quest task logs
-                    // Note: This counts unique quests with at least one in-progress task, not total active tasks
-                    const activeQuestIds = new Set(
-                        user.userTaskLogs
-                            ?.filter((log) => log.status === 'IN_PROGRESS')
-                            .map((log) => log.questId)
-                            .filter(Boolean)
-                    );
-
-                    return {
-                        achievementCount: user.userAchievements?.length || 0,
-                        completedQuestsCount: user.totalQuestCompleted || 0,
-                        completedStoriesCount:
-                            user.userStoryLogs?.filter((log) => log.status === 'COMPLETED').length || 0,
-                        totalCheckinsCount: user.userTravelLogs?.length || 0,
-                        totalMagatamaPoints,
-                        activeQuestsCount: activeQuestIds.size, // Count of unique quests with active tasks
-                        readingProgress: lastReadingActivity
-                            ? {
-                                  currentChapterId: lastReadingActivity.storyChapterId,
-                                  currentChapterTitle: lastReadingActivity.storyChapterTitle || undefined,
-                                  completionPercentage: lastReadingActivity.currentProgress || 0,
-                              }
-                            : undefined,
-                    };
-                },
-                TouriiBackendService.DASHBOARD_STATS_TTL_SECONDS
-            );
+            // Dashboard statistics are now calculated and cached in the repository layer
+            // Domain logic has been moved to the User Entity for better architecture
+            const dashboardStats = user.getDashboardStats();
 
             return {
                 ...dto,
