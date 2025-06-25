@@ -20,6 +20,8 @@ import { TaskRepository } from '@app/core/domain/game/quest/task.repository';
 import { UserTravelLogRepository } from '@app/core/domain/user/user-travel-log.repository';
 import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
+import { UserEntity } from '@app/core/domain/user/user.entity';
+import { UserRoleType, StoryStatus, TaskStatus } from '@prisma/client';
 
 describe('TouriiBackendService - Dashboard Statistics', () => {
     let service: TouriiBackendService;
@@ -31,23 +33,102 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
     // Mock user data for testing
     const mockUserId = 'test-user-id';
-    const mockUser = {
-        userId: mockUserId,
-        username: 'testuser',
-        email: 'test@example.com',
-        totalQuestCompleted: 5,
-        userAchievements: [{ id: '1' }, { id: '2' }],
-        userTaskLogs: [
-            { status: 'COMPLETED', totalMagatamaPointAwarded: 100, questId: 'quest1' },
-            { status: 'COMPLETED', totalMagatamaPointAwarded: 50, questId: 'quest2' },
-            { status: 'IN_PROGRESS', questId: 'quest3' }
-        ],
-        userStoryLogs: [
-            { status: 'COMPLETED' },
-            { status: 'IN_PROGRESS', updatedAt: new Date(), storyChapterId: 'chapter1', storyChapterTitle: 'Chapter 1', currentProgress: 75 }
-        ],
-        userTravelLogs: [{ id: '1' }, { id: '2' }, { id: '3' }]
-    };
+    const createMockUser = () => new UserEntity(
+        {
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'hashed-password',
+            perksWalletAddress: '0x123456789',
+            isPremium: false,
+            totalQuestCompleted: 5,
+            totalTravelDistance: 0,
+            role: UserRoleType.USER,
+            registeredAt: new Date(),
+            discordJoinedAt: new Date(),
+            isBanned: false,
+            delFlag: false,
+            insUserId: 'system',
+            insDateTime: new Date(),
+            updUserId: 'system',
+            updDateTime: new Date(),
+            userAchievements: [
+                { id: '1', userId: mockUserId, achievementId: 'ach1', awardedAt: new Date() } as any,
+                { id: '2', userId: mockUserId, achievementId: 'ach2', awardedAt: new Date() } as any
+            ],
+            userTaskLogs: [
+                { 
+                    id: 'task1', 
+                    status: TaskStatus.COMPLETED, 
+                    totalMagatamaPointAwarded: 100, 
+                    questId: 'quest1',
+                    userId: mockUserId,
+                    taskId: 'task1'
+                } as any,
+                { 
+                    id: 'task2', 
+                    status: TaskStatus.COMPLETED, 
+                    totalMagatamaPointAwarded: 50, 
+                    questId: 'quest2',
+                    userId: mockUserId,
+                    taskId: 'task2'
+                } as any,
+                { 
+                    id: 'task3', 
+                    status: TaskStatus.ONGOING, 
+                    questId: 'quest3',
+                    userId: mockUserId,
+                    taskId: 'task3'
+                } as any
+            ],
+            userStoryLogs: [
+                { 
+                    id: 'story1', 
+                    status: StoryStatus.COMPLETED,
+                    userId: mockUserId,
+                    storyChapterId: 'completed-chapter'
+                } as any,
+                { 
+                    id: 'story2', 
+                    status: StoryStatus.IN_PROGRESS, 
+                    updDateTime: new Date(), 
+                    storyChapterId: 'chapter1',
+                    userId: mockUserId
+                } as any
+            ],
+            userTravelLogs: [
+                { id: '1', userId: mockUserId } as any, 
+                { id: '2', userId: mockUserId } as any, 
+                { id: '3', userId: mockUserId } as any
+            ]
+        },
+        mockUserId
+    );
+
+    const createEmptyMockUser = () => new UserEntity(
+        {
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'hashed-password',
+            perksWalletAddress: '0x123456789',
+            isPremium: false,
+            totalQuestCompleted: 0,
+            totalTravelDistance: 0,
+            role: UserRoleType.USER,
+            registeredAt: new Date(),
+            discordJoinedAt: new Date(),
+            isBanned: false,
+            delFlag: false,
+            insUserId: 'system',
+            insDateTime: new Date(),
+            updUserId: 'system',
+            updDateTime: new Date(),
+            userAchievements: [],
+            userTaskLogs: [],
+            userStoryLogs: [],
+            userTravelLogs: []
+        },
+        mockUserId
+    );
 
     beforeEach(async () => {
         module = await Test.createTestingModule({
@@ -153,7 +234,8 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
     describe('getUserProfile with dashboard stats', () => {
         it('should calculate dashboard statistics correctly', async () => {
             // Arrange
-            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser as any);
+            const mockUser = createMockUser();
+            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser);
             
             const expectedStats = {
                 achievementCount: 2,
@@ -164,8 +246,8 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
                 activeQuestsCount: 1, // unique quests with in-progress tasks
                 readingProgress: {
                     currentChapterId: 'chapter1',
-                    currentChapterTitle: 'Chapter 1',
-                    completionPercentage: 75,
+                    currentChapterTitle: undefined, // Not stored in user_story_log table
+                    completionPercentage: undefined, // Not stored in user_story_log table
                 },
             };
 
@@ -187,7 +269,8 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should use cached dashboard statistics when available', async () => {
             // Arrange
-            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser as any);
+            const mockUser = createMockUser();
+            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser);
             
             const cachedStats = {
                 achievementCount: 10,
@@ -210,7 +293,8 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should not include dashboard stats when not requested', async () => {
             // Arrange
-            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser as any);
+            const mockUser = createMockUser();
+            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(mockUser);
 
             // Act
             const result = await service.getUserProfile(mockUserId, false);
@@ -222,18 +306,9 @@ describe('TouriiBackendService - Dashboard Statistics', () => {
 
         it('should handle users with no activity gracefully', async () => {
             // Arrange
-            const emptyUser = {
-                userId: mockUserId,
-                username: 'testuser',
-                email: 'test@example.com',
-                totalQuestCompleted: 0,
-                userAchievements: null,
-                userTaskLogs: null,
-                userStoryLogs: null,
-                userTravelLogs: null
-            };
+            const emptyUser = createEmptyMockUser();
 
-            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(emptyUser as any);
+            jest.spyOn(userRepository, 'getUserInfoByUserId').mockResolvedValue(emptyUser);
             jest.spyOn(cachingService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
                 return await fetchFn();
             });
