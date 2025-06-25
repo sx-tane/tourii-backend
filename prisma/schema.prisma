@@ -510,8 +510,8 @@ model user {
   /// User's order history
   orders user_order[]
 
-  /// User's digital perk inventory
-  perk_inventory user_perk_inventory[]
+  /// User's onchain items (NFTs, perks, digital passports)
+  onchain_items user_onchain_item[]
 
   /// User's perk reservations
   perk_reservations perk_reservation[]
@@ -839,6 +839,9 @@ model user_onchain_item {
   //----
   /// Relation to the user who owns this item
   user user? @relation(fields: [user_id], references: [user_id])
+
+  /// Catalog entry for this onchain item
+  catalog onchain_item_catalog? @relation(fields: [onchain_item_id], references: [onchain_item_id])
 
   /// Reservations made with this onchain perk (only for PERK items)
   perk_reservations perk_reservation[]
@@ -2294,8 +2297,8 @@ model onchain_item_catalog {
   /// Order items referencing this product
   order_items user_order_item[]
 
-  /// Perk inventory items referencing this catalog item
-  perk_inventory user_perk_inventory[]
+  /// Onchain items using this catalog entry
+  onchain_items user_onchain_item[]
 }
 
 /// Level Requirement Master entity
