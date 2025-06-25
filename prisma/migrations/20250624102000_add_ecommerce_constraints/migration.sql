@@ -14,10 +14,10 @@ ALTER TABLE "user_cart" ADD CONSTRAINT "check_cart_quantity_positive"
 
 -- Add check constraints for user_order table
 ALTER TABLE "user_order" ADD CONSTRAINT "check_order_amounts_positive" 
-    CHECK ("subtotal_amount" > 0 AND "total_amount" > 0 AND "tax_amount" >= 0 AND "shipping_amount" >= 0 AND "payment_fees" >= 0);
+    CHECK ("subtotal_amount" > 0 AND "total_amount" > 0 AND "tax_amount" >= 0 AND "payment_fees" >= 0);
 
 ALTER TABLE "user_order" ADD CONSTRAINT "check_order_total_calculation" 
-    CHECK ("total_amount" = "subtotal_amount" + "tax_amount" + "shipping_amount");
+    CHECK ("total_amount" = "subtotal_amount" + "tax_amount");
 
 ALTER TABLE "user_order" ADD CONSTRAINT "check_currency_format" 
     CHECK ("currency" ~ '^[A-Z]{3}$');

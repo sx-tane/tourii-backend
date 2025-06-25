@@ -478,7 +478,7 @@ model user {
   user_info user_info?
 
   /// User's blockchain items
-  user_onchain_item user_onchain_item[]
+  user_onchain_item user_onchain_item[] @relation("UserOnchainItems")
 
   /// History of item claims
   user_item_claim_log user_item_claim_log[]
@@ -836,13 +836,25 @@ model user_onchain_item {
   // RELATIONS
   //----
   /// Relation to the user who owns this item
-  user user? @relation(fields: [user_id], references: [user_id])
+  user user? @relation("UserOnchainItems", fields: [user_id], references: [user_id])
 
   /// Catalog entry for this onchain item
-  catalog onchain_item_catalog? @relation(fields: [onchain_item_id], references: [onchain_item_id])
+  catalog onchain_item_catalog? @relation("CatalogOnchainItems", fields: [onchain_item_id], references: [onchain_item_id])
 
   /// Reservations made with this onchain perk (only for PERK items)
   perk_reservations perk_reservation[]
+
+  //----
+  // DATABASE CONSTRAINTS AND INDEXES
+  //----
+  /// Business logic constraints
+  @@check([item_type != "PERK" || expiry_date == null || expiry_date > acquired_at], name: "check_perk_expiry_future")
+  
+  /// Performance indexes for perk management
+  @@index([user_id, item_type, status], name: "idx_onchain_item_user_perk_active", where: "item_type = 'PERK' AND del_flag = false")
+  @@index([item_type, status], name: "idx_onchain_item_type_status")
+  @@index([expiry_date], name: "idx_onchain_item_expiry")
+  @@index([acquisition_type, source_id], name: "idx_onchain_item_acquisition")
 }
 
 /// User Item Claim Log entity
@@ -2296,7 +2308,7 @@ model onchain_item_catalog {
   order_items user_order_item[]
 
   /// Onchain items using this catalog entry
-  onchain_items user_onchain_item[]
+  onchain_items user_onchain_item[] @relation("CatalogOnchainItems")
 }
 
 /// Level Requirement Master entity
@@ -3047,13 +3059,18 @@ model perk_reservation {
   user user @relation(fields: [user_id], references: [user_id])
 
   //----
-  // DATABASE INDEXES
+  // DATABASE CONSTRAINTS AND INDEXES
   //----
+  /// Business logic constraints
+  @@check([party_size > 0 && party_size <= 20], name: "check_valid_party_size")
+  
+  /// Performance indexes
   @@index([user_id], name: "idx_perk_reservation_user")
   @@index([user_onchain_item_id], name: "idx_perk_reservation_onchain_perk")
   @@index([status], name: "idx_perk_reservation_status")
   @@index([reservation_date], name: "idx_perk_reservation_date")
   @@index([qr_expires_at], name: "idx_perk_reservation_qr_expires")
+  @@index([user_id, reservation_date], name: "idx_perk_reservation_upcoming", where: "status IN ('PENDING', 'CONFIRMED') AND del_flag = false")
 }
 
 /// Memory Wall View combining travel, quest, and story logs.
