@@ -131,6 +131,17 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                             id: `${this.config.get('GOOGLE_WALLET_ISSUER_ID')}.${this.config.get('GOOGLE_WALLET_CLASS_ID')}_${tokenId}`,
                             classId: `${this.config.get('GOOGLE_WALLET_ISSUER_ID')}.${this.config.get('GOOGLE_WALLET_CLASS_ID')}`,
                             state: 'ACTIVE',
+                            logo: {
+                                sourceUri: {
+                                    uri: this.config.get('GOOGLE_WALLET_LOGO_URL') || 'https://assets.tourii.com/logo.png',
+                                },
+                                contentDescription: {
+                                    defaultValue: {
+                                        language: 'en-US',
+                                        value: 'Tourii Logo',
+                                    },
+                                },
+                            },
                             hexBackgroundColor: '#AE3111', // Red
                             cardTitle: {
                                 defaultValue: {

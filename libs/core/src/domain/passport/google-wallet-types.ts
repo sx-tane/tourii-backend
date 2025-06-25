@@ -41,6 +41,12 @@ export interface GooglePassObject {
             sourceUri: {
                 uri: string;
             };
+            contentDescription?: {
+                defaultValue: {
+                    language: string;
+                    value: string;
+                };
+            };
         };
     }>;
 }
