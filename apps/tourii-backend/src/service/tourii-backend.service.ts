@@ -859,7 +859,7 @@ export class TouriiBackendService {
         const touristSpotEntityInstance = ModelRouteCreateRequestBuilder.dtoToTouristSpot(
             [modifiedDto],
             [touristSpotGeoInfo], // Pass the fetched geo info
-            storyEntity,
+            touristSpotDto.storyChapterId ? storyEntity : null,
             'admin', // Assuming 'admin' for insUserId
         )[0];
 
@@ -1089,11 +1089,10 @@ export class TouriiBackendService {
         const oldStoryChapterId = existingTouristSpot?.storyChapterId;
         const newStoryChapterId = updated.storyChapterId;
         
-        // Check if we're transitioning from "No" to a valid chapter ID, or updating to a new valid chapter
+        // Check if we're transitioning from null/undefined to a valid chapter ID, or updating to a new valid chapter
         const shouldUpdateChapterLink = updated.touristSpotId && 
             newStoryChapterId && 
-            newStoryChapterId !== "No" && 
-            (oldStoryChapterId === "No" || oldStoryChapterId !== newStoryChapterId);
+            (!oldStoryChapterId || oldStoryChapterId !== newStoryChapterId);
 
         if (shouldUpdateChapterLink) {
             Logger.log(

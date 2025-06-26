@@ -24,7 +24,7 @@ export class ModelRouteCreateRequestBuilder {
         return dto.map((spotDto) => {
             const matchingGeoInfo = geoInfoMap.get(spotDto.touristSpotName);
 
-            const storyChapterLink = storyEntity 
+            const storyChapterLink = storyEntity && spotDto.storyChapterId
                 ? `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}` 
                 : null;
 

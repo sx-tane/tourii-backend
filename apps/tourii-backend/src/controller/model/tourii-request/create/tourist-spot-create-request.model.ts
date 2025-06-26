@@ -7,7 +7,7 @@ export const ImageSetSchema = z.object({
 });
 
 export const TouristSpotCreateRequestSchema = z.object({
-    storyChapterId: z.string().describe('Unique identifier for the story chapter. Use "No" to skip story chapter linking.'),
+    storyChapterId: z.string().optional().describe('Unique identifier for the story chapter. Leave undefined to skip story chapter linking.'),
     touristSpotName: z.string().describe('Name of the tourist spot'),
     touristSpotDesc: z.string().describe('Description of the tourist spot'),
     bestVisitTime: z.string().describe('Best visit time of the tourist spot'),
