@@ -15,6 +15,7 @@ import {
     ApiDefaultBadRequestResponse,
     ApiInvalidVersionResponse,
 } from '../support/decorators/api-error-responses.decorator';
+import { AiRouteRecommendationMapper } from './mapper/ai-route-recommendation.mapper';
 import {
     AiRouteRecommendationRequestDto,
     AiRouteRecommendationRequestSchema,
@@ -126,48 +127,12 @@ export class AiRouteRecommendationController {
                 userId,
             });
 
-            // Transform to response DTO
-            const response: AiRouteRecommendationResponseDto = {
-                generatedRoutes: result.generatedRoutes.map((route) => ({
-                    modelRouteId: route.modelRoute.modelRouteId || '',
-                    routeName: route.modelRoute.routeName || '',
-                    regionDesc: route.modelRoute.regionDesc || '',
-                    recommendations: route.modelRoute.recommendation || [],
-                    region: route.modelRoute.region || '',
-                    regionLatitude: route.modelRoute.regionLatitude || 0,
-                    regionLongitude: route.modelRoute.regionLongitude || 0,
-                    estimatedDuration: route.aiContent.estimatedDuration,
-                    confidenceScore: route.aiContent.confidenceScore,
-                    spotCount: route.metadata.spotCount,
-                    averageDistance: route.cluster.averageDistance,
-                    touristSpots: route.cluster.spots.map((spot) => ({
-                        touristSpotId: spot.touristSpotId || '',
-                        touristSpotName: spot.touristSpotName || '',
-                        touristSpotDesc: spot.touristSpotDesc,
-                        latitude: spot.latitude || 0,
-                        longitude: spot.longitude || 0,
-                        touristSpotHashtag: spot.touristSpotHashtag || [],
-                        matchedKeywords: this.findMatchedKeywords(
-                            spot.touristSpotHashtag || [],
-                            request.keywords,
-                        ),
-                    })),
-                    metadata: {
-                        sourceKeywords: route.metadata.sourceKeywords,
-                        generatedAt: route.metadata.generatedAt.toISOString(),
-                        algorithm: route.metadata.algorithm,
-                        aiGenerated: true,
-                    },
-                })),
-                summary: {
-                    ...result.summary,
-                    aiAvailable: this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
-                },
-                message:
-                    result.generatedRoutes.length > 0
-                        ? `Successfully generated ${result.generatedRoutes.length} AI route recommendations`
-                        : 'No matching tourist spots found for the given keywords',
-            };
+            // Transform to response DTO using dedicated mapper
+            const response = AiRouteRecommendationMapper.toResponseDto(
+                result,
+                request.keywords,
+                this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
+            );
 
             this.logger.log('AI route recommendation completed', {
                 routesGenerated: result.generatedRoutes.length,
@@ -203,15 +168,5 @@ export class AiRouteRecommendationController {
         // TODO: Implement proper rate limiting with Redis
         // For now, this is a placeholder
         this.logger.debug(`Rate limit check for user: ${userId}`);
-    }
-
-    /**
-     * Finds which keywords matched the tourist spot hashtags
-     */
-    private findMatchedKeywords(hashtags: string[], keywords: string[]): string[] {
-        const normalizedHashtags = hashtags.map((h) => h.toLowerCase());
-        return keywords.filter((keyword) =>
-            normalizedHashtags.some((tag) => tag.includes(keyword.toLowerCase())),
-        );
     }
 }

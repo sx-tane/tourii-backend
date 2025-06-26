@@ -223,18 +223,28 @@ export const TouriiBackendAppErrorType = {
     },
     E_TB_050: {
         code: 'E_TB_050',
-        message: 'Geographic clustering failed',
-        type: ErrorType.INTERNAL_SERVER_ERROR,
+        message: 'AI route recommendation validation failed',
+        type: ErrorType.BAD_REQUEST,
     },
     E_TB_051: {
         code: 'E_TB_051',
-        message: 'Invalid clustering parameters',
-        type: ErrorType.BAD_REQUEST,
+        message: 'No tourist spots found matching criteria',
+        type: ErrorType.NOT_FOUND,
     },
     E_TB_052: {
         code: 'E_TB_052',
-        message: 'AI route generation rate limit exceeded',
-        type: ErrorType.BAD_REQUEST,
+        message: 'Geographic clustering failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_053: {
+        code: 'E_TB_053',
+        message: 'AI content generation service unavailable',
+        type: ErrorType.SERVICE_UNAVAILABLE,
+    },
+    E_TB_054: {
+        code: 'E_TB_054',
+        message: 'Route creation failed during database operation',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
     },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {

@@ -72,7 +72,11 @@
       "Bash(kill:*)",
       "Bash(docker-compose up:*)",
       "Bash(npx prisma migrate:*)",
-      "Bash(git remote get-url:*)"
+      "Bash(git remote get-url:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }
