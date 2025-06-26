@@ -850,7 +850,7 @@ model user_onchain_item {
   /// Business logic validation handled in domain entities (UserOnchainItemEntity)
   
   /// Performance indexes for perk management
-  @@index([user_id, item_type, status], name: "idx_onchain_item_user_perk_active", where: "item_type = 'PERK' AND del_flag = false")
+  @@index([user_id, item_type, status], name: "idx_onchain_item_user_perk_active")
   @@index([item_type, status], name: "idx_onchain_item_type_status")
   @@index([expiry_date], name: "idx_onchain_item_expiry")
   @@index([acquisition_type, source_id], name: "idx_onchain_item_acquisition")
@@ -3068,7 +3068,7 @@ model perk_reservation {
   @@index([status], name: "idx_perk_reservation_status")
   @@index([reservation_date], name: "idx_perk_reservation_date")
   @@index([qr_expires_at], name: "idx_perk_reservation_qr_expires")
-  @@index([user_id, reservation_date], name: "idx_perk_reservation_upcoming", where: "status IN ('PENDING', 'CONFIRMED') AND del_flag = false")
+  @@index([user_id, reservation_date], name: "idx_perk_reservation_upcoming")
 }
 
 /// Memory Wall View combining travel, quest, and story logs.
