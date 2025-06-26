@@ -847,8 +847,7 @@ model user_onchain_item {
   //----
   // DATABASE CONSTRAINTS AND INDEXES
   //----
-  /// Business logic constraints
-  @@check([item_type != "PERK" || expiry_date == null || expiry_date > acquired_at], name: "check_perk_expiry_future")
+  /// Business logic validation handled in domain entities (UserOnchainItemEntity)
   
   /// Performance indexes for perk management
   @@index([user_id, item_type, status], name: "idx_onchain_item_user_perk_active", where: "item_type = 'PERK' AND del_flag = false")
@@ -3061,8 +3060,7 @@ model perk_reservation {
   //----
   // DATABASE CONSTRAINTS AND INDEXES
   //----
-  /// Business logic constraints
-  @@check([party_size > 0 && party_size <= 20], name: "check_valid_party_size")
+  /// Business logic validation handled in domain entities (PerkReservationEntity)
   
   /// Performance indexes
   @@index([user_id], name: "idx_perk_reservation_user")
