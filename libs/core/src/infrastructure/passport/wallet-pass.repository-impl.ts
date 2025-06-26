@@ -28,7 +28,7 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
     private static readonly FAR_FUTURE_DATE = '2099-12-31T23:59:59Z';
     private static readonly DEFAULT_PASS_COLOR = '#677EEA';
     private static readonly DEFAULT_LOGO_URL = 'https://assets.tourii.com/logo.png';
-    
+
     // Configuration keys
     private static readonly CONFIG_KEYS = {
         WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS: 'WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS',
@@ -38,7 +38,6 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         GOOGLE_WALLET_SERVICE_ACCOUNT_JSON: 'GOOGLE_WALLET_SERVICE_ACCOUNT_JSON',
         GOOGLE_WALLET_LOGO_URL: 'GOOGLE_WALLET_LOGO_URL',
     } as const;
-
 
     constructor(
         @Inject('PASSPORT_METADATA_REPOSITORY_TOKEN')
@@ -55,8 +54,9 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
     ) {
         // Default to 2 years if not configured
         this.walletPassQrTokenExpirationHours =
-            this.config.get<number>(WalletPassRepositoryImpl.CONFIG_KEYS.WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS) || 
-            WalletPassRepositoryImpl.DEFAULT_PASS_EXPIRATION_HOURS;
+            this.config.get<number>(
+                WalletPassRepositoryImpl.CONFIG_KEYS.WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS,
+            ) || WalletPassRepositoryImpl.DEFAULT_PASS_EXPIRATION_HOURS;
     }
 
     async generateApplePass(tokenId: string): Promise<WalletPassData> {
@@ -168,9 +168,16 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
      */
     private async generateProductionApplePass(tokenId: string): Promise<WalletPassData> {
         const metadata = await this.passportMetadataRepository.generateMetadata(tokenId);
-        const qrToken = this.jwtRepository.generateQrToken(tokenId, this.walletPassQrTokenExpirationHours);
+        const qrToken = this.jwtRepository.generateQrToken(
+            tokenId,
+            this.walletPassQrTokenExpirationHours,
+        );
 
-        const passBuffer = await this.appleWalletRepositoryApi.createPkpassFile(metadata, qrToken, tokenId);
+        const passBuffer = await this.appleWalletRepositoryApi.createPkpassFile(
+            metadata,
+            qrToken,
+            tokenId,
+        );
         const passUrl = this.appleWalletRepositoryApi.getDownloadUrl(tokenId);
         const expiresAt = new Date();
 
@@ -185,7 +192,10 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
 
         try {
             const mockMetadata = this.mockPassportDataService.getMockMetadata(tokenId);
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, this.walletPassQrTokenExpirationHours);
+            const qrToken = this.jwtRepository.generateQrToken(
+                tokenId,
+                this.walletPassQrTokenExpirationHours,
+            );
 
             // Ensure Google Wallet class exists before creating pass
             await this.ensureGoogleWalletClassExists();
@@ -198,32 +208,35 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             const expiresAt = new Date(WalletPassRepositoryImpl.FAR_FUTURE_DATE);
 
             return this.createWalletPassData(
-                tokenId, 
-                Buffer.from(JSON.stringify(passObject)), 
-                passUrl, 
-                'google', 
-                expiresAt
+                tokenId,
+                Buffer.from(JSON.stringify(passObject)),
+                passUrl,
+                'google',
+                expiresAt,
             );
         } catch (error) {
             this.logger.error(`Google Wallet API error for token ${tokenId}:`, error);
-            
+
             // Fallback: Return a working demo URL with proper structure
             const mockMetadata = this.mockPassportDataService.getMockMetadata(tokenId);
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, this.walletPassQrTokenExpirationHours);
+            const qrToken = this.jwtRepository.generateQrToken(
+                tokenId,
+                this.walletPassQrTokenExpirationHours,
+            );
             const passObject = this.createGooglePassObject(mockMetadata, qrToken, tokenId);
-            
+
             // Create a demo URL that doesn't rely on Google Wallet API
             const demoUrl = `https://developers.google.com/wallet/generic/resources/demos#tourii-passport-${tokenId}`;
             const expiresAt = new Date(WalletPassRepositoryImpl.FAR_FUTURE_DATE);
 
             this.logger.warn(`Falling back to demo URL for token ${tokenId}: ${demoUrl}`);
-            
+
             return this.createWalletPassData(
-                tokenId, 
-                Buffer.from(JSON.stringify(passObject)), 
-                demoUrl, 
-                'google', 
-                expiresAt
+                tokenId,
+                Buffer.from(JSON.stringify(passObject)),
+                demoUrl,
+                'google',
+                expiresAt,
             );
         }
     }
@@ -235,7 +248,10 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         this.validateGoogleWalletConfiguration();
 
         const metadata = await this.passportMetadataRepository.generateMetadata(tokenId);
-        const qrToken = this.jwtRepository.generateQrToken(tokenId, this.walletPassQrTokenExpirationHours);
+        const qrToken = this.jwtRepository.generateQrToken(
+            tokenId,
+            this.walletPassQrTokenExpirationHours,
+        );
 
         // Ensure Google Wallet class exists before creating pass
         await this.ensureGoogleWalletClassExists();
@@ -246,11 +262,11 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         const expiresAt = new Date();
 
         return this.createWalletPassData(
-            tokenId, 
-            Buffer.from(JSON.stringify(passObject)), 
-            passUrl, 
-            'google', 
-            expiresAt
+            tokenId,
+            Buffer.from(JSON.stringify(passObject)),
+            passUrl,
+            'google',
+            expiresAt,
         );
     }
 
@@ -258,10 +274,18 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
      * Validate Google Wallet configuration
      */
     private validateGoogleWalletConfiguration(): void {
-        const issuerId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID);
-        const classId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID);
-        const keyPath = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_KEY_PATH);
-        const serviceAccountJson = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_SERVICE_ACCOUNT_JSON);
+        const issuerId = this.config.get(
+            WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID,
+        );
+        const classId = this.config.get(
+            WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID,
+        );
+        const keyPath = this.config.get(
+            WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_KEY_PATH,
+        );
+        const serviceAccountJson = this.config.get(
+            WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_SERVICE_ACCOUNT_JSON,
+        );
 
         if (!issuerId || !classId || (!keyPath && !serviceAccountJson)) {
             this.logger.error(
@@ -303,23 +327,30 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
      */
     private async ensureGoogleWalletClassExists(): Promise<void> {
         try {
-            const issuerId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID) || 'tourii';
-            const classId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID) || 'tourii_passport';
-            
+            const issuerId =
+                this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID) ||
+                'tourii';
+            const classId =
+                this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID) ||
+                'tourii_passport';
+
             // Simple class template that Google Wallet will accept
             const classTemplate = {
                 id: `${issuerId}.${classId}`,
                 issuerName: 'Tourii Digital Passport',
                 reviewStatus: 'UNDER_REVIEW',
                 allowMultipleUsersPerObject: false,
-                multipleDevicesAndHoldersAllowedStatus: 'ONE_USER_ALL_DEVICES'
+                multipleDevicesAndHoldersAllowedStatus: 'ONE_USER_ALL_DEVICES',
             };
 
             this.logger.log(`Ensuring Google Wallet class exists: ${classTemplate.id}`);
             await this.googleWalletRepositoryApi.ensureClassExists(classTemplate);
             this.logger.log(`Google Wallet class confirmed: ${classTemplate.id}`);
         } catch (error) {
-            this.logger.warn('Google Wallet class creation failed, continuing with pass generation:', error);
+            this.logger.warn(
+                'Google Wallet class creation failed, continuing with pass generation:',
+                error,
+            );
             // Don't throw error - let the pass generation proceed even if class creation fails
             // Google Wallet might accept the pass even without explicit class creation
         }
@@ -342,14 +373,29 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
         qrToken: string,
         tokenId: string,
     ): GooglePassObject {
-        const issuerId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID) || 'tourii';
-        const classId = this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID) || 'tourii_passport';
+        const issuerId =
+            this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_ISSUER_ID) ||
+            'tourii';
+        const classId =
+            this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_CLASS_ID) ||
+            'tourii_passport';
 
         // Extract attributes using the mock service utility method
-        const level = this.mockPassportDataService.extractAttributeValue(metadata.attributes, 'Level', 'Unknown');
-        const premiumStatus = this.mockPassportDataService.extractAttributeValue(metadata.attributes, 'Premium Status', 'Standard');
-        const username = this.mockPassportDataService.extractAttributeValue(metadata.attributes, 'Username', tokenId);
-
+        const level = this.mockPassportDataService.extractAttributeValue(
+            metadata.attributes,
+            'Level',
+            'Unknown',
+        );
+        const premiumStatus = this.mockPassportDataService.extractAttributeValue(
+            metadata.attributes,
+            'Premium Status',
+            'Standard',
+        );
+        const username = this.mockPassportDataService.extractAttributeValue(
+            metadata.attributes,
+            'Username',
+            tokenId,
+        );
 
         // Return the pass object in the format expected by GoogleWalletRepositoryApi
         return {
@@ -419,8 +465,9 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
                     logo: {
                         sourceUri: {
                             uri:
-                                this.config.get(WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_LOGO_URL) ||
-                                WalletPassRepositoryImpl.DEFAULT_LOGO_URL,
+                                this.config.get(
+                                    WalletPassRepositoryImpl.CONFIG_KEYS.GOOGLE_WALLET_LOGO_URL,
+                                ) || WalletPassRepositoryImpl.DEFAULT_LOGO_URL,
                         },
                         contentDescription: {
                             defaultValue: {
@@ -433,5 +480,4 @@ export class WalletPassRepositoryImpl implements WalletPassRepository {
             ],
         };
     }
-
 }

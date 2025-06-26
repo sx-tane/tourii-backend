@@ -231,4 +231,109 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         await this.cachingService.clearAll();
         return true;
     }
+
+    async getAllTouristSpots(): Promise<TouristSpot[]> {
+        const cacheKey = 'all_tourist_spots';
+
+        const rawTouristSpots = await this.cachingService.getOrSet<tourist_spot[]>(
+            cacheKey,
+            async () => {
+                return await this.prisma.tourist_spot.findMany({
+                    where: {
+                        del_flag: false,
+                    },
+                    orderBy: {
+                        ins_date_time: 'desc',
+                    },
+                });
+            },
+            DEFAULT_CACHE_TTL_SECONDS,
+        );
+
+        if (!rawTouristSpots) {
+            this.logger.warn(
+                'getAllTouristSpots: Failed to fetch tourist spots, returning empty array',
+            );
+            return [];
+        }
+
+        // Map to entities
+        return rawTouristSpots.map((spot) => ModelRouteMapper.touristSpotToEntity([spot])[0]);
+    }
+
+    async findTouristSpotsByHashtags(
+        hashtags: string[],
+        mode: 'all' | 'any',
+        region?: string,
+    ): Promise<TouristSpot[]> {
+        const normalizedHashtags = hashtags.map((h) => h.toLowerCase());
+        const cacheKey = `tourist_spots_hashtags:${normalizedHashtags.sort().join(',')}:${mode}:${region || 'all'}`;
+
+        const rawTouristSpots = await this.cachingService.getOrSet<tourist_spot[]>(
+            cacheKey,
+            async () => {
+                // Build where clause for hashtag matching
+                let hashtagCondition;
+                if (mode === 'all') {
+                    // All hashtags must be present
+                    hashtagCondition = {
+                        tourist_spot_hashtag: {
+                            hasEvery: normalizedHashtags,
+                        },
+                    };
+                } else {
+                    // Any hashtag can match
+                    hashtagCondition = {
+                        tourist_spot_hashtag: {
+                            hasSome: normalizedHashtags,
+                        },
+                    };
+                }
+
+                // Build complete where clause
+                const whereClause: any = {
+                    del_flag: false,
+                    ...hashtagCondition,
+                };
+
+                // Add region filter if provided
+                if (region) {
+                    whereClause.model_route = {
+                        region: {
+                            equals: region,
+                            mode: 'insensitive',
+                        },
+                    };
+                }
+
+                // Fetch from database
+                const rawSpots = await this.prisma.tourist_spot.findMany({
+                    where: whereClause,
+                    include: {
+                        model_route: true, // Include model route for region filtering
+                    },
+                    orderBy: {
+                        ins_date_time: 'desc',
+                    },
+                });
+
+                // Return cacheable data (without the include)
+                return rawSpots.map((spot) => {
+                    const { model_route, ...spotData } = spot;
+                    return spotData;
+                });
+            },
+            DEFAULT_CACHE_TTL_SECONDS,
+        );
+
+        if (!rawTouristSpots) {
+            this.logger.warn(
+                'findTouristSpotsByHashtags: Failed to fetch tourist spots, returning empty array',
+            );
+            return [];
+        }
+
+        // Map to entities
+        return rawTouristSpots.map((spot) => ModelRouteMapper.touristSpotToEntity([spot])[0]);
+    }
 }

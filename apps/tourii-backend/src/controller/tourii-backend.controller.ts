@@ -2297,7 +2297,6 @@ export class TouriiBackendController {
             });
 
             res.send(pdfBuffer);
-
         } catch (error) {
             this.logger.error(`Failed to generate preview for token ID ${tokenId}:`, error);
             throw error;
@@ -2339,7 +2338,6 @@ export class TouriiBackendController {
             });
 
             res.send(pdfBuffer);
-
         } catch (error) {
             this.logger.error(`Failed to download PDF for token ID ${tokenId}:`, error);
             throw error;

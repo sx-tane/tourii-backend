@@ -94,7 +94,17 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
      * Check if token ID is a mock/test token
      */
     private isMockTokenId(tokenId: string): boolean {
-        const mockTokenIds = ['123', '456', '789', 'test-user-1', 'test-user-2', 'test-user-3', 'alice', 'bob', 'charlie'];
+        const mockTokenIds = [
+            '123',
+            '456',
+            '789',
+            'test-user-1',
+            'test-user-2',
+            'test-user-3',
+            'alice',
+            'bob',
+            'charlie',
+        ];
         return mockTokenIds.includes(tokenId);
     }
 
@@ -151,8 +161,8 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
                     { trait_type: 'CardKanji', value: '人' },
                 ],
             },
-            'alice': {
-                name: 'Alice\'s Travel Pass',
+            alice: {
+                name: "Alice's Travel Pass",
                 description: 'Explorer and Adventure Seeker',
                 image: 'https://example.com/alice-passport.png',
                 attributes: [
@@ -167,8 +177,8 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
                     { trait_type: 'CardKanji', value: '精' },
                 ],
             },
-            'bob': {
-                name: 'Bob\'s Digital ID',
+            bob: {
+                name: "Bob's Digital ID",
                 description: 'Tech Enthusiast Traveler',
                 image: 'https://example.com/bob-passport.png',
                 attributes: [

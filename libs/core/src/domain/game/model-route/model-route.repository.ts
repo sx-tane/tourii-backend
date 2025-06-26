@@ -62,4 +62,23 @@ export interface ModelRouteRepository {
      * @param touristSpotId Tourist spot ID
      */
     deleteTouristSpot(touristSpotId: string): Promise<boolean>;
+
+    /**
+     * Get all tourist spots for AI recommendation processing
+     * @returns All TouristSpot entities
+     */
+    getAllTouristSpots(): Promise<TouristSpot[]>;
+
+    /**
+     * Find tourist spots by hashtags for AI route generation
+     * @param hashtags Array of hashtags to match
+     * @param mode Matching mode - 'all' requires all hashtags, 'any' requires any hashtag
+     * @param region Optional region filter
+     * @returns TouristSpot entities matching the criteria
+     */
+    findTouristSpotsByHashtags(
+        hashtags: string[],
+        mode: 'all' | 'any',
+        region?: string,
+    ): Promise<TouristSpot[]>;
 }

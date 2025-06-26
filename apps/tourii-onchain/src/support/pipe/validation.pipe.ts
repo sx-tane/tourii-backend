@@ -19,10 +19,9 @@ export class ValidationPipe implements PipeTransform<any> {
         });
 
         if (errors.length > 0) {
-            throw new TouriiOnchainAppException(
-                TouriiOnchainAppErrorType.E_OC_047,
-                { statusCode: 400 }
-            );
+            throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_047, {
+                statusCode: 400,
+            });
         }
 
         return object;

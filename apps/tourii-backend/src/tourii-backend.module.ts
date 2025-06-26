@@ -41,9 +41,11 @@ import {
 import { redisStore } from 'cache-manager-redis-store';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PassportMetadataService } from '../../tourii-onchain/src/service/passport-metadata.service';
+import { AiRouteRecommendationController } from './controller/ai-route-recommendation.controller';
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
+import { AiRouteRecommendationService } from './service/ai-route-recommendation.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -99,7 +101,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         }),
     ],
     // Register controllers that handle HTTP requests
-    controllers: [TouriiBackendController, TestController],
+    controllers: [TouriiBackendController, TestController, AiRouteRecommendationController],
     // Register services and providers
     providers: [
         Logger, // Logging service
@@ -108,6 +110,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendLoggingService, // Custom logging
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
+        AiRouteRecommendationService, // AI route recommendation service
         GroupQuestGateway,
         CachingService,
         // Passport metadata service (onchain)

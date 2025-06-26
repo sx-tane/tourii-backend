@@ -5,7 +5,10 @@ import { TouristSpotResponseSchema, WeatherInfoSchema } from './tourist-spot-res
 
 export const ModelRouteResponseSchema = z.object({
     modelRouteId: z.string().describe('Unique identifier for the model route'),
-    storyId: z.string().optional().describe('Unique identifier for the story (optional for standalone routes)'),
+    storyId: z
+        .string()
+        .optional()
+        .describe('Unique identifier for the story (optional for standalone routes)'),
     routeName: z.string().describe('Name of the model route'),
     region: z.string().describe('Region of the model route'),
     regionDesc: z.string().describe('Description of the region'),

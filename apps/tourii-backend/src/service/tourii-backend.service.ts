@@ -6,8 +6,8 @@ import {
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { JwtRepository, QrCodePayload } from '@app/core/domain/auth/jwt.repository';
-import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
+import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -757,7 +757,9 @@ export class TouriiBackendService {
 
         // Fetch story entity only if storyId is provided
         const [storyEntity, touristSpotGeoInfoList, regionInfo] = await Promise.all([
-            modelRoute.storyId ? this.storyRepository.getStoryById(modelRoute.storyId) : Promise.resolve(null),
+            modelRoute.storyId
+                ? this.storyRepository.getStoryById(modelRoute.storyId)
+                : Promise.resolve(null),
             this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
                 standardizedNames,
                 standardizedAddresses, // Pass addresses for enhanced accuracy

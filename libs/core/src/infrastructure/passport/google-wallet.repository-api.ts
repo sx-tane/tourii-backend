@@ -16,16 +16,17 @@ export class GoogleWalletRepositoryApi {
         // --- GOOGLE WALLET PRODUCTION SETUP ---
         // Try environment variable first, then fall back to file path
         const serviceAccountJson = this.config.get<string>('GOOGLE_WALLET_SERVICE_ACCOUNT_JSON');
-        
+
         if (serviceAccountJson) {
             // Use JSON from environment variable
             this.credentials = JSON.parse(serviceAccountJson);
         } else {
             // Fall back to file path method
-            const keyPath = this.config.get<string>('GOOGLE_WALLET_KEY_PATH') || 'google-wallet-key.json';
+            const keyPath =
+                this.config.get<string>('GOOGLE_WALLET_KEY_PATH') || 'google-wallet-key.json';
             this.credentials = JSON.parse(readFileSync(keyPath, 'utf8'));
         }
-        
+
         this.issuerId = this.config.get<string>('GOOGLE_WALLET_ISSUER_ID') || '3388000000022942524';
         this.classId = this.config.get<string>('GOOGLE_WALLET_CLASS_ID') || 'tourii_passport';
         this.walletApi = google.walletobjects({ version: 'v1', auth: this.credentials });

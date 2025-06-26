@@ -383,6 +383,67 @@ Available Mock Token IDs for wallet testing:
 
 **No authentication required** for testing these mock personas!
 
+### AI Route Recommendation Testing
+
+Test the new AI-powered route recommendation system:
+
+```bash
+# Generate AI route recommendations by keywords
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["animation", "scenery"],
+    "mode": "any",
+    "proximityRadiusKm": 50,
+    "maxRoutes": 3
+  }'
+
+# Search with specific region and stricter matching
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["traditional", "culture"],
+    "mode": "all",
+    "region": "Kanto",
+    "minSpotsPerCluster": 3,
+    "maxSpotsPerCluster": 6
+  }'
+
+# Generate with user context (enables rate limiting)
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "x-user-id: alice" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["food", "nightlife"],
+    "mode": "any",
+    "maxRoutes": 2
+  }'
+```
+
+**What it does:**
+- **Finds tourist spots** matching your keywords in their hashtags
+- **Clusters nearby spots** geographically (within 50km by default)
+- **Uses AI (GPT)** to generate route names, descriptions, and themes
+- **Creates new model routes** with AI-generated content in the database
+- **Returns both** the new routes and the tourist spots they contain
+
+**Environment Setup for AI Features:**
+```bash
+# Optional - for AI content generation (otherwise uses fallback)
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini  # Cost-effective model
+
+# Rate limiting for AI features
+THROTTLE_TTL=60000  # 1 minute
+THROTTLE_LIMIT=10   # 10 requests per minute
+```
+
 ---
 
 _Last Updated: June 26, 2025_

@@ -1,8 +1,8 @@
+import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
+import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
-import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -19,10 +19,9 @@ export class ValidationPipe implements PipeTransform<any> {
         });
 
         if (errors.length > 0) {
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_047,
-                { statusCode: 400 }
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_047, {
+                statusCode: 400,
+            });
         }
 
         return object;
