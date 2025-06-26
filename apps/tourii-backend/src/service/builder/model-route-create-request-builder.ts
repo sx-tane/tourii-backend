@@ -11,7 +11,7 @@ export class ModelRouteCreateRequestBuilder {
     static dtoToTouristSpot(
         dto: TouristSpotCreateRequestDto[],
         geoInfoList: GeoInfo[],
-        storyEntity: StoryEntity,
+        storyEntity: StoryEntity | null,
         insUserId: string,
     ): TouristSpot[] {
         const geoInfoMap = new Map<string, GeoInfo>();
@@ -24,7 +24,9 @@ export class ModelRouteCreateRequestBuilder {
         return dto.map((spotDto) => {
             const matchingGeoInfo = geoInfoMap.get(spotDto.touristSpotName);
 
-            const storyChapterLink = `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}`;
+            const storyChapterLink = storyEntity 
+                ? `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}` 
+                : null;
 
             if (!matchingGeoInfo) {
                 Logger.warn(
@@ -66,14 +68,14 @@ export class ModelRouteCreateRequestBuilder {
 
     static dtoToModelRoute(
         dto: ModelRouteCreateRequestDto,
-        storyEntity: StoryEntity,
+        storyEntity: StoryEntity | null,
         touristSpotGeoInfoList: GeoInfo[],
         regionInfo: GeoInfo,
         insUserId: string,
     ): ModelRouteEntity {
         return new ModelRouteEntity(
             {
-                storyId: storyEntity.id,
+                storyId: storyEntity?.id || null,
                 routeName: dto.routeName,
                 region: dto.region,
                 regionDesc: dto.regionDesc,

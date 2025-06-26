@@ -755,8 +755,9 @@ export class TouriiBackendService {
             .map((spot) => spot.address)
             .filter((addr): addr is string => !!addr);
 
+        // Fetch story entity only if storyId is provided
         const [storyEntity, touristSpotGeoInfoList, regionInfo] = await Promise.all([
-            this.storyRepository.getStoryById(modelRoute.storyId),
+            modelRoute.storyId ? this.storyRepository.getStoryById(modelRoute.storyId) : Promise.resolve(null),
             this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
                 standardizedNames,
                 standardizedAddresses, // Pass addresses for enhanced accuracy
