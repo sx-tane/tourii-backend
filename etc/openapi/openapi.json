@@ -5686,7 +5686,7 @@
                 "type": "object",
                 "properties": {
                   "storyId": {
-                    "description": "Unique identifier for the story",
+                    "description": "Unique identifier for the story (optional for standalone routes)",
                     "type": "string"
                   },
                   "routeName": {
@@ -5719,7 +5719,7 @@
                       "type": "object",
                       "properties": {
                         "storyChapterId": {
-                          "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                          "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                           "type": "string"
                         },
                         "touristSpotName": {
@@ -5768,7 +5768,6 @@
                         }
                       },
                       "required": [
-                        "storyChapterId",
                         "touristSpotName",
                         "touristSpotDesc",
                         "bestVisitTime",
@@ -5778,7 +5777,6 @@
                   }
                 },
                 "required": [
-                  "storyId",
                   "routeName",
                   "region",
                   "regionDesc",
@@ -5801,7 +5799,7 @@
                   "type": "string"
                 },
                 "storyId": {
-                  "description": "Unique identifier for the story",
+                  "description": "Unique identifier for the story (optional for standalone routes)",
                   "type": "string"
                 },
                 "routeName": {
@@ -5951,7 +5949,6 @@
                     },
                     "required": [
                       "touristSpotId",
-                      "storyChapterId",
                       "touristSpotName",
                       "touristSpotDesc",
                       "bestVisitTime",
@@ -6013,7 +6010,6 @@
               },
               "required": [
                 "modelRouteId",
-                "storyId",
                 "routeName",
                 "region",
                 "regionDesc",
@@ -6102,7 +6098,7 @@
                     "type": "string"
                   },
                   "storyId": {
-                    "description": "Unique identifier for the story",
+                    "description": "Unique identifier for the story (optional for standalone routes)",
                     "type": "string"
                   },
                   "routeName": {
@@ -6252,7 +6248,6 @@
                       },
                       "required": [
                         "touristSpotId",
-                        "storyChapterId",
                         "touristSpotName",
                         "touristSpotDesc",
                         "bestVisitTime",
@@ -6314,7 +6309,6 @@
                 },
                 "required": [
                   "modelRouteId",
-                  "storyId",
                   "routeName",
                   "region",
                   "regionDesc",
@@ -6413,7 +6407,7 @@
                 "type": "object",
                 "properties": {
                   "storyChapterId": {
-                    "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                    "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                     "type": "string"
                   },
                   "touristSpotName": {
@@ -6462,7 +6456,6 @@
                   }
                 },
                 "required": [
-                  "storyChapterId",
                   "touristSpotName",
                   "touristSpotDesc",
                   "bestVisitTime",
@@ -6588,7 +6581,6 @@
               },
               "required": [
                 "touristSpotId",
-                "storyChapterId",
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
@@ -6673,7 +6665,7 @@
                 "type": "object",
                 "properties": {
                   "storyId": {
-                    "description": "Unique identifier for the story",
+                    "description": "Unique identifier for the story (optional for standalone routes)",
                     "type": "string"
                   },
                   "routeName": {
@@ -6706,7 +6698,7 @@
                       "type": "object",
                       "properties": {
                         "storyChapterId": {
-                          "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                          "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                           "type": "string"
                         },
                         "touristSpotName": {
@@ -6767,7 +6759,6 @@
                         }
                       },
                       "required": [
-                        "storyChapterId",
                         "touristSpotName",
                         "touristSpotDesc",
                         "bestVisitTime",
@@ -6792,7 +6783,6 @@
                   }
                 },
                 "required": [
-                  "storyId",
                   "routeName",
                   "region",
                   "regionDesc",
@@ -6818,7 +6808,7 @@
                   "type": "string"
                 },
                 "storyId": {
-                  "description": "Unique identifier for the story",
+                  "description": "Unique identifier for the story (optional for standalone routes)",
                   "type": "string"
                 },
                 "routeName": {
@@ -6968,7 +6958,6 @@
                     },
                     "required": [
                       "touristSpotId",
-                      "storyChapterId",
                       "touristSpotName",
                       "touristSpotDesc",
                       "bestVisitTime",
@@ -7030,7 +7019,6 @@
               },
               "required": [
                 "modelRouteId",
-                "storyId",
                 "routeName",
                 "region",
                 "regionDesc",
@@ -7117,7 +7105,7 @@
                 "type": "object",
                 "properties": {
                   "storyChapterId": {
-                    "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                    "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                     "type": "string"
                   },
                   "touristSpotName": {
@@ -7178,7 +7166,6 @@
                   }
                 },
                 "required": [
-                  "storyChapterId",
                   "touristSpotName",
                   "touristSpotDesc",
                   "bestVisitTime",
@@ -7307,7 +7294,6 @@
               },
               "required": [
                 "touristSpotId",
-                "storyChapterId",
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
@@ -7649,7 +7635,6 @@
                 },
                 "required": [
                   "touristSpotId",
-                  "storyChapterId",
                   "touristSpotName",
                   "touristSpotDesc",
                   "bestVisitTime",
@@ -7748,7 +7733,7 @@
                   "type": "string"
                 },
                 "storyId": {
-                  "description": "Unique identifier for the story",
+                  "description": "Unique identifier for the story (optional for standalone routes)",
                   "type": "string"
                 },
                 "routeName": {
@@ -7898,7 +7883,6 @@
                     },
                     "required": [
                       "touristSpotId",
-                      "storyChapterId",
                       "touristSpotName",
                       "touristSpotDesc",
                       "bestVisitTime",
@@ -7960,7 +7944,6 @@
               },
               "required": [
                 "modelRouteId",
-                "storyId",
                 "routeName",
                 "region",
                 "regionDesc",
@@ -8573,7 +8556,6 @@
                         },
                         "required": [
                           "touristSpotId",
-                          "storyChapterId",
                           "touristSpotName",
                           "touristSpotDesc",
                           "bestVisitTime",
@@ -9112,7 +9094,6 @@
                   },
                   "required": [
                     "touristSpotId",
-                    "storyChapterId",
                     "touristSpotName",
                     "touristSpotDesc",
                     "bestVisitTime",
@@ -9530,7 +9511,6 @@
                   },
                   "required": [
                     "touristSpotId",
-                    "storyChapterId",
                     "touristSpotName",
                     "touristSpotDesc",
                     "bestVisitTime",
@@ -10036,7 +10016,6 @@
                     },
                     "required": [
                       "touristSpotId",
-                      "storyChapterId",
                       "touristSpotName",
                       "touristSpotDesc",
                       "bestVisitTime",
@@ -10981,7 +10960,6 @@
                   },
                   "required": [
                     "touristSpotId",
-                    "storyChapterId",
                     "touristSpotName",
                     "touristSpotDesc",
                     "bestVisitTime",
@@ -14316,7 +14294,7 @@
         "type": "object",
         "properties": {
           "storyId": {
-            "description": "Unique identifier for the story",
+            "description": "Unique identifier for the story (optional for standalone routes)",
             "type": "string"
           },
           "routeName": {
@@ -14349,7 +14327,7 @@
               "type": "object",
               "properties": {
                 "storyChapterId": {
-                  "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                  "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                   "type": "string"
                 },
                 "touristSpotName": {
@@ -14398,7 +14376,6 @@
                 }
               },
               "required": [
-                "storyChapterId",
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
@@ -14408,7 +14385,6 @@
           }
         },
         "required": [
-          "storyId",
           "routeName",
           "region",
           "regionDesc",
@@ -14421,7 +14397,7 @@
         "type": "object",
         "properties": {
           "storyChapterId": {
-            "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+            "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
             "type": "string"
           },
           "touristSpotName": {
@@ -14470,7 +14446,6 @@
           }
         },
         "required": [
-          "storyChapterId",
           "touristSpotName",
           "touristSpotDesc",
           "bestVisitTime",
@@ -14706,7 +14681,7 @@
         "type": "object",
         "properties": {
           "storyId": {
-            "description": "Unique identifier for the story",
+            "description": "Unique identifier for the story (optional for standalone routes)",
             "type": "string"
           },
           "routeName": {
@@ -14739,7 +14714,7 @@
               "type": "object",
               "properties": {
                 "storyChapterId": {
-                  "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+                  "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
                   "type": "string"
                 },
                 "touristSpotName": {
@@ -14800,7 +14775,6 @@
                 }
               },
               "required": [
-                "storyChapterId",
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
@@ -14825,7 +14799,6 @@
           }
         },
         "required": [
-          "storyId",
           "routeName",
           "region",
           "regionDesc",
@@ -14841,7 +14814,7 @@
         "type": "object",
         "properties": {
           "storyChapterId": {
-            "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
+            "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
             "type": "string"
           },
           "touristSpotName": {
@@ -14902,7 +14875,6 @@
           }
         },
         "required": [
-          "storyChapterId",
           "touristSpotName",
           "touristSpotDesc",
           "bestVisitTime",
@@ -15393,7 +15365,7 @@
             "type": "string"
           },
           "storyId": {
-            "description": "Unique identifier for the story",
+            "description": "Unique identifier for the story (optional for standalone routes)",
             "type": "string"
           },
           "routeName": {
@@ -15543,7 +15515,6 @@
               },
               "required": [
                 "touristSpotId",
-                "storyChapterId",
                 "touristSpotName",
                 "touristSpotDesc",
                 "bestVisitTime",
@@ -15605,7 +15576,6 @@
         },
         "required": [
           "modelRouteId",
-          "storyId",
           "routeName",
           "region",
           "regionDesc",
@@ -15730,7 +15700,6 @@
         },
         "required": [
           "touristSpotId",
-          "storyChapterId",
           "touristSpotName",
           "touristSpotDesc",
           "bestVisitTime",
@@ -16040,7 +16009,6 @@
                   },
                   "required": [
                     "touristSpotId",
-                    "storyChapterId",
                     "touristSpotName",
                     "touristSpotDesc",
                     "bestVisitTime",
@@ -16398,7 +16366,6 @@
             },
             "required": [
               "touristSpotId",
-              "storyChapterId",
               "touristSpotName",
               "touristSpotDesc",
               "bestVisitTime",

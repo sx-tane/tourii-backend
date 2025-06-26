@@ -763,7 +763,7 @@ erDiagram
 }
 "model_route" {
   String(255) model_route_id PK
-  String story_id FK
+  String story_id FK "nullable"
   String(255) route_name
   Json recommendation
   String(255) region
@@ -781,7 +781,7 @@ erDiagram
 "tourist_spot" {
   String(255) tourist_spot_id PK
   String model_route_id FK
-  String story_chapter_id
+  String story_chapter_id "nullable"
   String(255) tourist_spot_name
   String tourist_spot_desc
   Float latitude
@@ -840,7 +840,7 @@ erDiagram
   String request_id "nullable"
 }
 "story_chapter" }o--|| "story" : story
-"model_route" }o--|| "story" : story
+"model_route" }o--o| "story" : story
 "tourist_spot" }o--|| "model_route" : model_route
 "quest" }o--|| "tourist_spot" : tourist_spot
 "quest_task" }o--|| "quest" : quest
@@ -923,7 +923,7 @@ guiding users through a sequence of locations that tell a connected story.
 
 **Properties**
   - `model_route_id`: Unique identifier for the travel route MRTYYYYMM-rand1-DDHHMI-rand2-obfCounter
-  - `story_id`: ID of the parent story
+  - `story_id`: ID of the parent story (nullable for standalone routes)
   - `route_name`: Name of the travel route
   - `recommendation`
     > List of recommendations for this route

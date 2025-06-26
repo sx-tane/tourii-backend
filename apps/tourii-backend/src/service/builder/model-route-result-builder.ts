@@ -45,7 +45,7 @@ export class ModelRouteResultBuilder {
     ): ModelRouteResponseDto {
         return {
             modelRouteId: modelRoute.modelRouteId ?? '',
-            storyId: modelRoute.storyId ?? '',
+            storyId: modelRoute.storyId,
             routeName: modelRoute.routeName ?? '',
             region: modelRoute.region ?? '',
             regionDesc: modelRoute.regionDesc ?? '',

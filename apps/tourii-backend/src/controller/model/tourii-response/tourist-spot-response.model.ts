@@ -11,7 +11,7 @@ export const WeatherInfoSchema = z.object({
 
 export const TouristSpotResponseSchema = z.object({
     touristSpotId: z.string().describe('Unique identifier for the tourist spot'),
-    storyChapterId: z.string().describe('Unique identifier for the story chapter'),
+    storyChapterId: z.string().optional().describe('Unique identifier for the story chapter'),
     touristSpotName: z.string().describe('Name of the tourist spot'),
     touristSpotDesc: z.string().describe('Description of the tourist spot'),
     bestVisitTime: z.string().describe('Best visit time of the tourist spot'),

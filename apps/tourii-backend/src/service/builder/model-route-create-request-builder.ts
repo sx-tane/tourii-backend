@@ -11,7 +11,7 @@ export class ModelRouteCreateRequestBuilder {
     static dtoToTouristSpot(
         dto: TouristSpotCreateRequestDto[],
         geoInfoList: GeoInfo[],
-        storyEntity: StoryEntity,
+        storyEntity: StoryEntity | null,
         insUserId: string,
     ): TouristSpot[] {
         const geoInfoMap = new Map<string, GeoInfo>();
@@ -24,7 +24,9 @@ export class ModelRouteCreateRequestBuilder {
         return dto.map((spotDto) => {
             const matchingGeoInfo = geoInfoMap.get(spotDto.touristSpotName);
 
-            const storyChapterLink = `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}`;
+            const storyChapterLink = storyEntity && spotDto.storyChapterId
+                ? `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}` 
+                : null;
 
             if (!matchingGeoInfo) {
                 Logger.warn(
@@ -37,7 +39,7 @@ export class ModelRouteCreateRequestBuilder {
                     bestVisitTime: spotDto.bestVisitTime,
                     touristSpotHashtag: spotDto.touristSpotHashtag,
                     imageSet: spotDto.imageSet ?? undefined,
-                    storyChapterLink: storyChapterLink,
+                    storyChapterLink: storyChapterLink ?? undefined,
                     updUserId: insUserId,
                     updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 });
@@ -50,7 +52,7 @@ export class ModelRouteCreateRequestBuilder {
                 latitude: matchingGeoInfo.latitude,
                 longitude: matchingGeoInfo.longitude,
                 address: matchingGeoInfo.formattedAddress,
-                storyChapterLink: storyChapterLink,
+                storyChapterLink: storyChapterLink ?? undefined,
                 bestVisitTime: spotDto.bestVisitTime,
                 touristSpotHashtag: spotDto.touristSpotHashtag,
                 imageSet: spotDto.imageSet ?? undefined,
@@ -66,14 +68,14 @@ export class ModelRouteCreateRequestBuilder {
 
     static dtoToModelRoute(
         dto: ModelRouteCreateRequestDto,
-        storyEntity: StoryEntity,
+        storyEntity: StoryEntity | null,
         touristSpotGeoInfoList: GeoInfo[],
         regionInfo: GeoInfo,
         insUserId: string,
     ): ModelRouteEntity {
         return new ModelRouteEntity(
             {
-                storyId: storyEntity.id,
+                storyId: storyEntity?.id || undefined,
                 routeName: dto.routeName,
                 region: dto.region,
                 regionDesc: dto.regionDesc,

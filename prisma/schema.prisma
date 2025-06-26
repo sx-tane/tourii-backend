@@ -1676,8 +1676,8 @@ model model_route {
   /// @format custom
   model_route_id String @id @default(dbgenerated("generate_model_route_id()")) @db.VarChar(255)
 
-  /// ID of the parent story
-  story_id String
+  /// ID of the parent story (nullable for standalone routes)
+  story_id String?
 
   //----
   // ROUTE DETAILS
@@ -1732,8 +1732,8 @@ model model_route {
   //----
   // RELATIONS
   //----
-  /// Parent story that contains this route
-  story story @relation(fields: [story_id], references: [story_id])
+  /// Parent story that contains this route (optional for standalone routes)
+  story story? @relation(fields: [story_id], references: [story_id])
 
   /// Tourist spots located along this route
   tourist_spot tourist_spot[]
@@ -1765,7 +1765,7 @@ model tourist_spot {
   model_route_id String
 
   /// ID of the associated story chapter
-  story_chapter_id String
+  story_chapter_id String?
 
   //----
   // LOCATION DETAILS
