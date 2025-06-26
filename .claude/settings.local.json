@@ -70,7 +70,8 @@
       "Bash(ss:*)",
       "Bash(npx tsc:*)",
       "Bash(kill:*)",
-      "Bash(docker-compose up:*)"
+      "Bash(docker-compose up:*)",
+      "Bash(npx prisma migrate:*)"
     ],
     "deny": []
   }

@@ -7,7 +7,7 @@ export class ModelRouteMapper {
     static prismaModelToTouristSpotEntity(prismaModel: tourist_spot): TouristSpot {
         return new TouristSpot({
             touristSpotId: prismaModel.tourist_spot_id,
-            storyChapterId: prismaModel.story_chapter_id,
+            storyChapterId: prismaModel.story_chapter_id ?? undefined,
             touristSpotName: prismaModel.tourist_spot_name,
             touristSpotDesc: prismaModel.tourist_spot_desc,
             latitude: prismaModel.latitude,
@@ -95,7 +95,7 @@ export class ModelRouteMapper {
         modelRouteEntity: ModelRouteEntity,
     ): Prisma.model_routeUncheckedCreateInput {
         return {
-            story_id: modelRouteEntity.storyId ?? '',
+            story_id: modelRouteEntity.storyId,
             route_name: modelRouteEntity.routeName ?? '',
             region: modelRouteEntity.region ?? '',
             region_desc: modelRouteEntity.regionDesc,
@@ -160,7 +160,7 @@ export class ModelRouteMapper {
     static prismaModelToModelRouteEntity(prismaModel: ModelRouteRelationModel): ModelRouteEntity {
         return new ModelRouteEntity(
             {
-                storyId: prismaModel.story_id,
+                storyId: prismaModel.story_id ?? undefined,
                 routeName: prismaModel.route_name,
                 region: prismaModel.region,
                 regionDesc: prismaModel.region_desc ?? undefined,

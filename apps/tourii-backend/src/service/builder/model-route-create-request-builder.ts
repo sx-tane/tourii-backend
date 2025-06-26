@@ -39,7 +39,7 @@ export class ModelRouteCreateRequestBuilder {
                     bestVisitTime: spotDto.bestVisitTime,
                     touristSpotHashtag: spotDto.touristSpotHashtag,
                     imageSet: spotDto.imageSet ?? undefined,
-                    storyChapterLink: storyChapterLink,
+                    storyChapterLink: storyChapterLink ?? undefined,
                     updUserId: insUserId,
                     updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 });
@@ -52,7 +52,7 @@ export class ModelRouteCreateRequestBuilder {
                 latitude: matchingGeoInfo.latitude,
                 longitude: matchingGeoInfo.longitude,
                 address: matchingGeoInfo.formattedAddress,
-                storyChapterLink: storyChapterLink,
+                storyChapterLink: storyChapterLink ?? undefined,
                 bestVisitTime: spotDto.bestVisitTime,
                 touristSpotHashtag: spotDto.touristSpotHashtag,
                 imageSet: spotDto.imageSet ?? undefined,
@@ -75,7 +75,7 @@ export class ModelRouteCreateRequestBuilder {
     ): ModelRouteEntity {
         return new ModelRouteEntity(
             {
-                storyId: storyEntity?.id || null,
+                storyId: storyEntity?.id || undefined,
                 routeName: dto.routeName,
                 region: dto.region,
                 regionDesc: dto.regionDesc,

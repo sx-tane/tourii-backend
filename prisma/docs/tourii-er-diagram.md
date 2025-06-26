@@ -470,7 +470,7 @@ EVENT EVENT
 
   "model_route" {
     String model_route_id "🗝️"
-    String story_id 
+    String story_id "❓"
     String route_name 
     Json recommendation 
     String region 
@@ -490,7 +490,7 @@ EVENT EVENT
   "tourist_spot" {
     String tourist_spot_id "🗝️"
     String model_route_id 
-    String story_chapter_id 
+    String story_chapter_id "❓"
     String tourist_spot_name 
     String tourist_spot_desc 
     Float latitude 
@@ -671,7 +671,7 @@ EVENT EVENT
     "story" o{--}o "story_chapter" : "story_chapter"
     "story" o{--}o "model_route" : "model_route"
     "story_chapter" o|--|| "story" : "story"
-    "model_route" o|--|| "story" : "story"
+    "model_route" o|--|o "story" : "story"
     "model_route" o{--}o "tourist_spot" : "tourist_spot"
     "tourist_spot" o|--|| "model_route" : "model_route"
     "tourist_spot" o{--}o "quest" : "quest"
