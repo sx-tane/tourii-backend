@@ -187,6 +187,42 @@ ADMIN ADMIN
 EVENT EVENT
         }
     
+
+
+        OrderStatus {
+            PENDING PENDING
+PAID PAID
+PROCESSING PROCESSING
+FULFILLED FULFILLED
+COMPLETED COMPLETED
+CANCELLED CANCELLED
+REFUNDED REFUNDED
+FAILED FAILED
+        }
+    
+
+
+        PaymentMethod {
+            STRIPE STRIPE
+PAYPAL PAYPAL
+APPLE_PAY APPLE_PAY
+GOOGLE_PAY GOOGLE_PAY
+CREDIT_CARD CREDIT_CARD
+CRYPTO CRYPTO
+MAGATAMA_POINTS MAGATAMA_POINTS
+        }
+    
+
+
+        PaymentStatus {
+            PENDING PENDING
+COMPLETED COMPLETED
+FAILED FAILED
+CANCELLED CANCELLED
+REFUNDED REFUNDED
+REQUIRES_ACTION REQUIRES_ACTION
+        }
+    
   "id_sequence" {
     String key "🗝️"
     String ts_prefix 
@@ -621,6 +657,78 @@ EVENT EVENT
     }
   
 
+  "user_cart" {
+    String cart_id "🗝️"
+    String user_id 
+    String product_id 
+    Int quantity 
+    DateTime added_at 
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "user_order" {
+    String order_id "🗝️"
+    String user_id 
+    OrderStatus order_status 
+    Decimal subtotal_amount 
+    Decimal tax_amount 
+    Decimal shipping_amount 
+    Decimal total_amount 
+    String currency 
+    PaymentMethod payment_method 
+    PaymentStatus payment_status 
+    String payment_transaction_id "❓"
+    Decimal payment_fees 
+    DateTime order_date 
+    DateTime payment_completed_at "❓"
+    DateTime processing_started_at "❓"
+    DateTime fulfilled_at "❓"
+    DateTime completed_at "❓"
+    String fulfillment_notes "❓"
+    DateTime estimated_delivery_date "❓"
+    String customer_email "❓"
+    String customer_phone "❓"
+    Json billing_address "❓"
+    Json shipping_address "❓"
+    String customer_notes "❓"
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
+  "user_order_item" {
+    String order_item_id "🗝️"
+    String order_id 
+    String product_id 
+    Int quantity 
+    Decimal unit_price 
+    Decimal total_price 
+    String product_name 
+    String product_description "❓"
+    String product_image_url "❓"
+    DateTime fulfilled_at "❓"
+    String blockchain_txn_hash "❓"
+    OrderStatus item_status 
+    String fulfillment_notes "❓"
+    Boolean del_flag 
+    String ins_user_id 
+    DateTime ins_date_time 
+    String upd_user_id 
+    DateTime upd_date_time 
+    String request_id "❓"
+    }
+  
+
   "moment_view" {
     String id "🗝️"
     String user_id 
@@ -644,6 +752,8 @@ EVENT EVENT
     "user" o{--}o "discord_user_roles" : "discord_user_roles"
     "user" o{--}o "discord_rewarded_roles" : "discord_rewarded_roles"
     "user" o{--}o "user_invite_log" : "user_invite_log"
+    "user" o{--}o "user_cart" : "cart_items"
+    "user" o{--}o "user_order" : "orders"
     "user_achievement" o|--|| "AchievementType" : "enum:achievement_type"
     "user_achievement" o|--|| "user" : "user"
     "user_info" o|--|o "PassportType" : "enum:user_digital_passport_type"
@@ -684,7 +794,19 @@ EVENT EVENT
     "quest_task" o|--|| "quest" : "quest"
     "onchain_item_catalog" o|--|| "OnchainItemType" : "enum:item_type"
     "onchain_item_catalog" o|--|| "BlockchainType" : "enum:blockchain_type"
+    "onchain_item_catalog" o{--}o "user_cart" : "cart_items"
+    "onchain_item_catalog" o{--}o "user_order_item" : "order_items"
     "level_requirement_master" o|--|| "LevelType" : "enum:level"
     "discord_roles" o{--}o "discord_user_roles" : "discord_user_roles"
     "kendama_random_range" o|--|| "KendamaSeason" : "enum:season"
+    "user_cart" o|--|| "user" : "user"
+    "user_cart" o|--|| "onchain_item_catalog" : "product"
+    "user_order" o|--|| "OrderStatus" : "enum:order_status"
+    "user_order" o|--|| "PaymentMethod" : "enum:payment_method"
+    "user_order" o|--|| "PaymentStatus" : "enum:payment_status"
+    "user_order" o|--|| "user" : "user"
+    "user_order" o{--}o "user_order_item" : "order_items"
+    "user_order_item" o|--|| "OrderStatus" : "enum:item_status"
+    "user_order_item" o|--|| "user_order" : "order"
+    "user_order_item" o|--|| "onchain_item_catalog" : "product"
 ```

@@ -3,10 +3,13 @@ import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
 import { EncryptionRepositoryAuth } from '@app/core/infrastructure/authentication/encryption-repository-auth';
 import { DigitalPassportRepositoryFake } from '@app/core/infrastructure/blockchain/digital-passport.repository.fake';
+import { CartRepositoryDb } from '@app/core/infrastructure/datasource/cart.repository-db';
 import { GroupQuestRepositoryDb } from '@app/core/infrastructure/datasource/group-quest.repository-db';
 import { ModelRouteRepositoryDb } from '@app/core/infrastructure/datasource/model-route-repository-db';
 import { MomentRepositoryDb } from '@app/core/infrastructure/datasource/moment.repository-db';
+import { OrderRepositoryDb } from '@app/core/infrastructure/datasource/order.repository-db';
 import { QuestRepositoryDb } from '@app/core/infrastructure/datasource/quest-repository-db';
+import { ShopRepositoryDb } from '@app/core/infrastructure/datasource/shop.repository-db';
 import { StoryRepositoryDb } from '@app/core/infrastructure/datasource/story-repository-db';
 import { TaskRepositoryDb } from '@app/core/infrastructure/datasource/task-repository-db';
 import { UserRepositoryDb } from '@app/core/infrastructure/datasource/user-repository-db';
@@ -14,6 +17,7 @@ import { UserStoryLogRepositoryDb } from '@app/core/infrastructure/datasource/us
 import { UserTaskLogRepositoryDb } from '@app/core/infrastructure/datasource/user-task-log.repository-db';
 import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/user-travel-log.repository-db';
 import { LocationTrackingServiceImpl } from '@app/core/infrastructure/location/location-tracking.service-impl';
+import { PaymentRepositoryMock } from '@app/core/infrastructure/payment/payment.repository-mock';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
@@ -182,6 +186,22 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.TASK_REPOSITORY_TOKEN,
             useClass: TaskRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.CART_REPOSITORY_TOKEN,
+            useClass: CartRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.ORDER_REPOSITORY_TOKEN,
+            useClass: OrderRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.SHOP_REPOSITORY_TOKEN,
+            useClass: ShopRepositoryDb,
+        },
+        {
+            provide: TouriiBackendConstants.PAYMENT_REPOSITORY_TOKEN,
+            useClass: PaymentRepositoryMock,
         },
     ],
 })

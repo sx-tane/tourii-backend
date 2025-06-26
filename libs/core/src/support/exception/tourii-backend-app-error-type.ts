@@ -230,6 +230,184 @@ export const TouriiBackendAppErrorType = {
         message: 'Weather API: WEATHER_API_KEY not configured in server environment.',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
+    // --- E-commerce Specific Errors ---
+    E_CART_001: {
+        code: 'E_CART_001',
+        message: 'Invalid cart item quantity. Quantity must be between 1 and 999.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_CART_002: {
+        code: 'E_CART_002',
+        message: 'Cart item not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_CART_003: {
+        code: 'E_CART_003',
+        message: 'Cart is empty.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_CART_004: {
+        code: 'E_CART_004',
+        message: 'Product is already in cart.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_001: {
+        code: 'E_ORDER_001',
+        message: 'Order not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_ORDER_002: {
+        code: 'E_ORDER_002',
+        message: 'Order cannot be cancelled at this stage.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_003: {
+        code: 'E_ORDER_003',
+        message: 'Invalid order amount. Amount must be greater than zero.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_004: {
+        code: 'E_ORDER_004',
+        message: 'Order already exists for this user and products.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_ORDER_005: {
+        code: 'E_ORDER_005',
+        message: 'Invalid delivery information provided.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_001: {
+        code: 'E_SHOP_001',
+        message: 'Product not found.',
+        type: ErrorType.NOT_FOUND,
+    },
+    E_SHOP_002: {
+        code: 'E_SHOP_002',
+        message: 'Product is out of stock.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_003: {
+        code: 'E_SHOP_003',
+        message: 'Invalid price range. Maximum price must be greater than minimum price.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_SHOP_004: {
+        code: 'E_SHOP_004',
+        message: 'Invalid pagination parameters. Page and limit must be positive numbers.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_001: {
+        code: 'E_PAYMENT_001',
+        message: 'Payment processing failed.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_002: {
+        code: 'E_PAYMENT_002',
+        message: 'Invalid payment method.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PAYMENT_003: {
+        code: 'E_PAYMENT_003',
+        message: 'Payment amount exceeds limit.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    // --- Digital Perks Specific Errors ---
+    E_PERK_001: {
+        code: 'E_PERK_001',
+        message: 'Perk cannot be used in current state.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_002: {
+        code: 'E_PERK_002',
+        message: 'Used quantity must be greater than 0.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_003: {
+        code: 'E_PERK_003',
+        message: 'Cannot use more perks than available.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_004: {
+        code: 'E_PERK_004',
+        message: 'Only active perks can be marked as expired.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_005: {
+        code: 'E_PERK_005',
+        message: 'Cannot cancel a perk that has already been used.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_006: {
+        code: 'E_PERK_006',
+        message: 'Can only extend expiry for active perks.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_007: {
+        code: 'E_PERK_007',
+        message: 'New expiry date must be in the future.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_008: {
+        code: 'E_PERK_008',
+        message: 'New expiry date must be later than current expiry date.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_009: {
+        code: 'E_PERK_009',
+        message: 'Can only add quantity to active perks.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_PERK_010: {
+        code: 'E_PERK_010',
+        message: 'Additional quantity must be greater than 0.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    // --- Reservation Specific Errors ---
+    E_RESERVATION_001: {
+        code: 'E_RESERVATION_001',
+        message: 'Only pending reservations can be confirmed.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_002: {
+        code: 'E_RESERVATION_002',
+        message: 'Reservation cannot be cancelled.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_003: {
+        code: 'E_RESERVATION_003',
+        message: 'Reservation cannot be modified.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_004: {
+        code: 'E_RESERVATION_004',
+        message: 'Reservation date must be in the future.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_005: {
+        code: 'E_RESERVATION_005',
+        message: 'Party size must be between 1 and 20.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_006: {
+        code: 'E_RESERVATION_006',
+        message: 'QR code cannot be generated for this reservation.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_007: {
+        code: 'E_RESERVATION_007',
+        message: 'QR code data cannot be empty.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_008: {
+        code: 'E_RESERVATION_008',
+        message: 'QR code is not valid for redemption.',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_RESERVATION_009: {
+        code: 'E_RESERVATION_009',
+        message: 'Only confirmed reservations can be redeemed.',
+        type: ErrorType.BAD_REQUEST,
+    },
 } as const;
 
 type TouriiBackendAppErrorKeys = keyof typeof TouriiBackendAppErrorType;

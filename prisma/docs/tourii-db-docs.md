@@ -4,6 +4,7 @@
 - [Users](#users)
 - [Gamification](#gamification)
 - [Master](#master)
+- [Ecommerce](#ecommerce)
 - [default](#default)
 
 ## Users
@@ -1337,6 +1338,209 @@ provide variety in gameplay experience through different seasons.
   - `landed`: Success probability multiplier
   - `missed`: Failure probability multiplier
   - `win_rate`: Target win rate for this season
+  - `del_flag`: Soft delete flag
+  - `ins_user_id`: ID of user who created this record
+  - `ins_date_time`: Timestamp of record creation
+  - `upd_user_id`: ID of user who last updated this record
+  - `upd_date_time`: Timestamp of last record update
+  - `request_id`: Request ID for tracing
+
+
+## Ecommerce
+```mermaid
+erDiagram
+"user_cart" {
+  String(255) cart_id PK
+  String user_id FK
+  String product_id FK
+  Int quantity
+  DateTime added_at
+  Boolean del_flag
+  String ins_user_id
+  DateTime ins_date_time
+  String upd_user_id
+  DateTime upd_date_time
+  String request_id "nullable"
+}
+"user_order" {
+  String(255) order_id PK
+  String user_id FK
+  OrderStatus order_status
+  Decimal(10) subtotal_amount
+  Decimal(10) tax_amount
+  Decimal(10) shipping_amount
+  Decimal(10) total_amount
+  String(3) currency
+  PaymentMethod payment_method
+  PaymentStatus payment_status
+  String(255) payment_transaction_id "nullable"
+  Decimal(10) payment_fees
+  DateTime order_date
+  DateTime payment_completed_at "nullable"
+  DateTime processing_started_at "nullable"
+  DateTime fulfilled_at "nullable"
+  DateTime completed_at "nullable"
+  String fulfillment_notes "nullable"
+  DateTime estimated_delivery_date "nullable"
+  String(255) customer_email "nullable"
+  String(50) customer_phone "nullable"
+  Json billing_address "nullable"
+  Json shipping_address "nullable"
+  String customer_notes "nullable"
+  Boolean del_flag
+  String ins_user_id
+  DateTime ins_date_time
+  String upd_user_id
+  DateTime upd_date_time
+  String request_id "nullable"
+}
+"user_order_item" {
+  String(255) order_item_id PK
+  String order_id FK
+  String product_id FK
+  Int quantity
+  Decimal(10) unit_price
+  Decimal(10) total_price
+  String(255) product_name
+  String product_description "nullable"
+  String(255) product_image_url "nullable"
+  DateTime fulfilled_at "nullable"
+  String(255) blockchain_txn_hash "nullable"
+  OrderStatus item_status
+  String fulfillment_notes "nullable"
+  Boolean del_flag
+  String ins_user_id
+  DateTime ins_date_time
+  String upd_user_id
+  DateTime upd_date_time
+  String request_id "nullable"
+}
+"user_order_item" }o--|| "user_order" : order
+```
+
+### `user_cart`
+User Cart entity
+
+Represents items in a user's shopping cart before checkout.
+This model provides persistent cart functionality, allowing users
+to add items across sessions and devices. Cart items reference
+products from the onchain_item_catalog with PERK type.
+
+The cart system integrates with the existing perk catalog to
+provide a seamless shopping experience for travel benefits.
+
+**Properties**
+  - `cart_id`: Unique identifier for the cart item UCTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `user_id`: Associated user ID
+  - `product_id`: Product ID from onchain_item_catalog (PERK type)
+  - `quantity`: Quantity of the item in cart
+  - `added_at`: Timestamp when item was added to cart
+  - `del_flag`: Soft delete flag
+  - `ins_user_id`: ID of user who created this record
+  - `ins_date_time`: Timestamp of record creation
+  - `upd_user_id`: ID of user who last updated this record
+  - `upd_date_time`: Timestamp of last record update
+  - `request_id`: Request ID for tracing
+
+### `user_order`
+User Order entity
+
+Represents a completed purchase order in the Tourii e-commerce system.
+Orders contain multiple items and track the complete lifecycle from
+payment through fulfillment. Orders integrate with payment gateways
+and blockchain minting for perk delivery.
+
+Each order maintains audit trails for customer service and analytics.
+
+**Properties**
+  - `order_id`: Unique identifier for the order UORYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `user_id`: Associated user ID
+  - `order_status`
+    > Current status of the order
+    > 
+    > | Status     | Description                                    |
+    > |------------|------------------------------------------------|
+    > | PENDING    | Order created but payment not yet processed   |
+    > | PAID       | Payment has been successfully processed       |
+    > | PROCESSING | Order is being prepared for fulfillment      |
+    > | FULFILLED  | Order has been shipped or made available      |
+    > | COMPLETED  | Order has been delivered to the customer      |
+    > | CANCELLED  | Order has been cancelled                      |
+    > | REFUNDED   | Order has been refunded                       |
+    > | FAILED     | Order failed due to payment or processing    |
+  - `subtotal_amount`: Total amount for the order (before tax)
+  - `tax_amount`: Tax amount calculated for the order
+  - `shipping_amount`: Shipping cost for the order
+  - `total_amount`: Total amount including tax and shipping
+  - `currency`: Currency code for the transaction
+  - `payment_method`
+    > Payment method used for the order
+    > 
+    > | Method         | Description                        |
+    > |----------------|------------------------------------|
+    > | STRIPE         | Stripe payment gateway             |
+    > | PAYPAL         | PayPal payment system              |
+    > | APPLE_PAY      | Apple Pay mobile payment           |
+    > | GOOGLE_PAY     | Google Pay mobile payment          |
+    > | CREDIT_CARD    | Credit card payment                |
+    > | CRYPTO         | Cryptocurrency payment             |
+    > | MAGATAMA_POINTS| Pay with magatama points           |
+  - `payment_status`
+    > Current status of the payment
+    > 
+    > | Status          | Description                              |
+    > |-----------------|------------------------------------------|
+    > | PENDING         | Payment is being processed               |
+    > | COMPLETED       | Payment was successful                   |
+    > | FAILED          | Payment failed                           |
+    > | CANCELLED       | Payment was cancelled by user            |
+    > | REFUNDED        | Payment was refunded                     |
+    > | REQUIRES_ACTION | Payment requires additional auth         |
+  - `payment_transaction_id`: External payment transaction ID from payment gateway
+  - `payment_fees`: Payment processing fees charged by gateway
+  - `order_date`: Timestamp when order was placed
+  - `payment_completed_at`: Timestamp when payment was completed
+  - `processing_started_at`: Timestamp when order processing started
+  - `fulfilled_at`: Timestamp when order was fulfilled
+  - `completed_at`: Timestamp when order was completed
+  - `fulfillment_notes`: Notes from fulfillment team
+  - `estimated_delivery_date`: Estimated delivery or availability date
+  - `customer_email`: Customer email for order notifications
+  - `customer_phone`: Customer phone number
+  - `billing_address`: Billing address for the order
+  - `shipping_address`: Shipping address for physical items
+  - `customer_notes`: Special instructions from customer
+  - `del_flag`: Soft delete flag
+  - `ins_user_id`: ID of user who created this record
+  - `ins_date_time`: Timestamp of record creation
+  - `upd_user_id`: ID of user who last updated this record
+  - `upd_date_time`: Timestamp of last record update
+  - `request_id`: Request ID for tracing
+
+### `user_order_item`
+User Order Item entity
+
+Represents individual line items within a user's order.
+Each order item links to a specific product from the onchain_item_catalog
+and captures the quantity, price, and product details at the time of purchase.
+
+This model preserves historical pricing and product information for
+accurate order records and customer service.
+
+**Properties**
+  - `order_item_id`: Unique identifier for the order item UOIYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  - `order_id`: Associated order ID
+  - `product_id`: Product ID from onchain_item_catalog
+  - `quantity`: Quantity of this item in the order
+  - `unit_price`: Unit price of the item at time of purchase
+  - `total_price`: Total price for this line item (quantity × unit_price)
+  - `product_name`: Product name at time of purchase (for historical record)
+  - `product_description`: Product description at time of purchase
+  - `product_image_url`: Product image URL at time of purchase
+  - `fulfilled_at`: Timestamp when this item was fulfilled
+  - `blockchain_txn_hash`: Blockchain transaction hash for perk minting (if applicable)
+  - `item_status`: Status specific to this order item
+  - `fulfillment_notes`: Notes specific to this item's fulfillment
   - `del_flag`: Soft delete flag
   - `ins_user_id`: ID of user who created this record
   - `ins_date_time`: Timestamp of record creation

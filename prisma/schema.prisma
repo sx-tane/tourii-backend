@@ -478,7 +478,7 @@ model user {
   user_info user_info?
 
   /// User's blockchain items
-  user_onchain_item user_onchain_item[]
+  user_onchain_item user_onchain_item[] @relation("UserOnchainItems")
 
   /// History of item claims
   user_item_claim_log user_item_claim_log[]
@@ -503,6 +503,16 @@ model user {
 
   /// Invitation logs
   user_invite_log user_invite_log[]
+
+  /// User's shopping cart items
+  cart_items user_cart[]
+
+  /// User's order history
+  orders user_order[]
+
+
+  /// User's perk reservations
+  perk_reservations perk_reservation[]
 
   //----
   // DATABASE INDEXES
@@ -784,6 +794,24 @@ model user_onchain_item {
   status OnchainItemStatus @default(ACTIVE)
 
   //----
+  // PERK MANAGEMENT FIELDS (for item_type = PERK only)
+  //----
+  /// How the perk was acquired (QUEST, PURCHASE, GIFT) - only for PERK items
+  acquisition_type AcquisitionType? @default(PURCHASE)
+
+  /// Reference to quest_id or order_id that generated this perk - only for PERK items
+  source_id String? @db.VarChar(50)
+
+  /// Number of perk uses available - only for PERK items, default 1
+  quantity Int? @default(1)
+
+  /// When this perk expires and becomes unusable - only for PERK items
+  expiry_date DateTime?
+
+  /// When this perk was acquired - only for PERK items
+  acquired_at DateTime? @default(now())
+
+  //----
   // SYSTEM FIELDS
   //----
   /// Soft delete flag
@@ -808,7 +836,24 @@ model user_onchain_item {
   // RELATIONS
   //----
   /// Relation to the user who owns this item
-  user user? @relation(fields: [user_id], references: [user_id])
+  user user? @relation("UserOnchainItems", fields: [user_id], references: [user_id])
+
+  /// Catalog entry for this onchain item
+  catalog onchain_item_catalog? @relation("CatalogOnchainItems", fields: [onchain_item_id], references: [onchain_item_id])
+
+  /// Reservations made with this onchain perk (only for PERK items)
+  perk_reservations perk_reservation[]
+
+  //----
+  // DATABASE CONSTRAINTS AND INDEXES
+  //----
+  /// Business logic validation handled in domain entities (UserOnchainItemEntity)
+  
+  /// Performance indexes for perk management
+  @@index([user_id, item_type, status], name: "idx_onchain_item_user_perk_active")
+  @@index([item_type, status], name: "idx_onchain_item_type_status")
+  @@index([expiry_date], name: "idx_onchain_item_expiry")
+  @@index([acquisition_type, source_id], name: "idx_onchain_item_acquisition")
 }
 
 /// User Item Claim Log entity
@@ -2251,6 +2296,18 @@ model onchain_item_catalog {
 
   /// Request ID for tracing
   request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Cart items referencing this product
+  cart_items user_cart[]
+
+  /// Order items referencing this product
+  order_items user_order_item[]
+
+  /// Onchain items using this catalog entry
+  onchain_items user_onchain_item[] @relation("CatalogOnchainItems")
 }
 
 /// Level Requirement Master entity
@@ -2432,6 +2489,586 @@ model kendama_random_range {
 
   /// Request ID for tracing
   request_id String?
+}
+
+///-----------------------------------------------------------
+/// E-COMMERCE AND SHOP SYSTEM ENUMS
+///-----------------------------------------------------------
+
+/// Order status types
+/// Represents the current state of an order in the system
+enum OrderStatus {
+  /// Order has been created but payment not yet processed
+  PENDING
+  /// Payment has been successfully processed
+  PAID
+  /// Order is being prepared for fulfillment
+  PROCESSING
+  /// Order has been shipped or made available
+  FULFILLED
+  /// Order has been delivered to the customer
+  COMPLETED
+  /// Order has been cancelled
+  CANCELLED
+  /// Order has been refunded
+  REFUNDED
+  /// Order failed due to payment or processing issues
+  FAILED
+}
+
+/// Payment method types
+/// Defines the different payment methods supported by the system
+enum PaymentMethod {
+  /// Stripe payment gateway
+  STRIPE
+  /// PayPal payment system
+  PAYPAL
+  /// Apple Pay mobile payment
+  APPLE_PAY
+  /// Google Pay mobile payment
+  GOOGLE_PAY
+  /// Credit card payment
+  CREDIT_CARD
+  /// Ethereum cryptocurrency payment
+  CRYPTO_ETH
+  /// Bitcoin cryptocurrency payment
+  CRYPTO_BTC
+  /// Pay with magatama points (in-app currency)
+  MAGATAMA_POINTS
+}
+
+/// Payment status types
+/// Represents the current state of a payment transaction
+enum PaymentStatus {
+  /// Payment is being processed
+  PENDING
+  /// Payment was successful
+  COMPLETED
+  /// Payment failed
+  FAILED
+  /// Payment was cancelled by user
+  CANCELLED
+  /// Payment was refunded
+  REFUNDED
+  /// Payment requires additional authentication
+  REQUIRES_ACTION
+}
+
+/// Acquisition type for digital perks
+/// Defines how a user acquired a digital perk
+enum AcquisitionType {
+  /// Perk earned through quest completion
+  QUEST
+  /// Perk purchased from shop
+  PURCHASE
+  /// Perk received as a gift from another user
+  GIFT
+}
+
+/// Digital perk status
+/// Represents the current state of a user's perk
+enum PerkStatus {
+  /// Perk is active and can be used
+  ACTIVE
+  /// Perk has been used/redeemed
+  USED
+  /// Perk has expired and cannot be used
+  EXPIRED
+  /// Perk has been cancelled
+  CANCELLED
+}
+
+/// Reservation status for perk booking
+/// Represents the current state of a perk reservation
+enum ReservationStatus {
+  /// Reservation is awaiting confirmation
+  PENDING
+  /// Reservation has been confirmed
+  CONFIRMED
+  /// Reservation has been cancelled
+  CANCELLED
+  /// Reservation has been completed (perk was used)
+  COMPLETED
+}
+
+/// Perk delivery method
+/// Defines how purchased perks are delivered to user inventory
+enum PerkDeliveryMethod {
+  /// Perks are instantly added to inventory
+  INSTANT
+  /// Perks are scheduled for later delivery
+  SCHEDULED
+  /// Perks require manual processing
+  MANUAL
+}
+
+///-----------------------------------------------------------
+/// E-COMMERCE AND SHOP SYSTEM ENTITIES
+///-----------------------------------------------------------
+
+/// User Cart entity
+///
+/// Represents items in a user's shopping cart before checkout.
+/// This model provides persistent cart functionality, allowing users
+/// to add items across sessions and devices. Cart items reference
+/// products from the onchain_item_catalog with PERK type.
+///
+/// The cart system integrates with the existing perk catalog to
+/// provide a seamless shopping experience for travel benefits.
+///
+/// @namespace Ecommerce
+/// @author Tourii Team
+model user_cart {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the cart item UCTYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  cart_id String @id @default(dbgenerated("generate_cart_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  /// Product ID from onchain_item_catalog (PERK type)
+  product_id String
+
+  //----
+  // CART DETAILS
+  //----
+  /// Quantity of the item in cart
+  quantity Int @default(1)
+
+  /// Timestamp when item was added to cart
+  added_at DateTime @default(now())
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who owns this cart
+  user user @relation(fields: [user_id], references: [user_id])
+
+  /// Relation to the product in the catalog
+  product onchain_item_catalog @relation(fields: [product_id], references: [onchain_item_id])
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([user_id, added_at], name: "idx_user_cart_user_date")
+  @@index([product_id], name: "idx_user_cart_product")
+  @@unique([user_id, product_id], name: "unique_user_product_cart")
+}
+
+/// User Order entity
+///
+/// Represents a completed purchase order in the Tourii e-commerce system.
+/// Orders contain multiple items and track the complete lifecycle from
+/// payment through fulfillment. Orders integrate with payment gateways
+/// and blockchain minting for perk delivery.
+///
+/// Each order maintains audit trails for customer service and analytics.
+///
+/// @namespace Ecommerce
+/// @author Tourii Team
+model user_order {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the order UORYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  order_id String @id @default(dbgenerated("generate_order_id()")) @db.VarChar(255)
+
+  /// Associated user ID
+  user_id String
+
+  //----
+  // ORDER DETAILS
+  //----
+  /// Current status of the order
+  /// 
+  /// | Status     | Description                                    |
+  /// |------------|------------------------------------------------|
+  /// | PENDING    | Order created but payment not yet processed   |
+  /// | PAID       | Payment has been successfully processed       |
+  /// | PROCESSING | Order is being prepared for fulfillment      |
+  /// | FULFILLED  | Order has been shipped or made available      |
+  /// | COMPLETED  | Order has been delivered to the customer      |
+  /// | CANCELLED  | Order has been cancelled                      |
+  /// | REFUNDED   | Order has been refunded                       |
+  /// | FAILED     | Order failed due to payment or processing    |
+  order_status OrderStatus @default(PENDING)
+
+  /// Total amount for the order (before tax)
+  subtotal_amount Decimal @db.Decimal(10, 2)
+
+  /// Tax amount calculated for the order
+  tax_amount Decimal @default(0.00) @db.Decimal(10, 2)
+
+
+  /// Total amount including tax
+  total_amount Decimal @db.Decimal(10, 2)
+
+  /// Currency code for the transaction
+  currency String @default("USD") @db.VarChar(3)
+
+  //----
+  // PAYMENT DETAILS
+  //----
+  /// Payment method used for the order
+  /// 
+  /// | Method         | Description                        |
+  /// |----------------|------------------------------------|
+  /// | STRIPE         | Stripe payment gateway             |
+  /// | PAYPAL         | PayPal payment system              |
+  /// | APPLE_PAY      | Apple Pay mobile payment           |
+  /// | GOOGLE_PAY     | Google Pay mobile payment          |
+  /// | CREDIT_CARD    | Credit card payment                |
+  /// | CRYPTO         | Cryptocurrency payment             |
+  /// | MAGATAMA_POINTS| Pay with magatama points           |
+  payment_method PaymentMethod @default(STRIPE)
+
+  /// Current status of the payment
+  /// 
+  /// | Status          | Description                              |
+  /// |-----------------|------------------------------------------|
+  /// | PENDING         | Payment is being processed               |
+  /// | COMPLETED       | Payment was successful                   |
+  /// | FAILED          | Payment failed                           |
+  /// | CANCELLED       | Payment was cancelled by user            |
+  /// | REFUNDED        | Payment was refunded                     |
+  /// | REQUIRES_ACTION | Payment requires additional auth         |
+  payment_status PaymentStatus @default(PENDING)
+
+  /// External payment transaction ID from payment gateway
+  payment_transaction_id String? @db.VarChar(255)
+
+  /// Payment processing fees charged by gateway
+  payment_fees Decimal @default(0.00) @db.Decimal(10, 2)
+
+  //----
+  // FULFILLMENT DETAILS
+  //----
+  /// Timestamp when order was placed
+  order_date DateTime @default(now())
+
+  /// Timestamp when payment was completed
+  payment_completed_at DateTime?
+
+  /// Timestamp when order processing started
+  processing_started_at DateTime?
+
+  /// Timestamp when order was fulfilled
+  fulfilled_at DateTime?
+
+  /// Timestamp when order was completed
+  completed_at DateTime?
+
+  /// Notes from fulfillment team
+  fulfillment_notes String?
+
+
+  //----
+  // CUSTOMER DETAILS
+  //----
+  /// Customer email for order notifications
+  customer_email String? @db.VarChar(255)
+
+  /// Customer phone number
+  customer_phone String? @db.VarChar(50)
+
+  /// Billing address for the order
+  billing_address Json?
+
+
+  /// Special instructions from customer
+  customer_notes String?
+
+  //----
+  // DIGITAL PERKS FIELDS
+  //----
+  /// Whether purchased perks are automatically added to user inventory
+  auto_add_to_inventory Boolean @default(true)
+
+  /// How perks are delivered to user inventory
+  perk_delivery_method PerkDeliveryMethod @default(INSTANT)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the user who placed the order
+  user user @relation(fields: [user_id], references: [user_id])
+
+  /// Items included in this order
+  order_items user_order_item[]
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([user_id, order_date], name: "idx_user_order_user_date")
+  @@index([order_status, payment_status], name: "idx_user_order_status")
+  @@index([payment_transaction_id], name: "idx_user_order_payment_txn")
+}
+
+/// User Order Item entity
+///
+/// Represents individual line items within a user's order.
+/// Each order item links to a specific product from the onchain_item_catalog
+/// and captures the quantity, price, and product details at the time of purchase.
+///
+/// This model preserves historical pricing and product information for
+/// accurate order records and customer service.
+///
+/// @namespace Ecommerce
+/// @author Tourii Team
+model user_order_item {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the order item UOIYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  order_item_id String @id @default(dbgenerated("generate_order_item_id()")) @db.VarChar(255)
+
+  /// Associated order ID
+  order_id String
+
+  /// Product ID from onchain_item_catalog
+  product_id String
+
+  //----
+  // ITEM DETAILS
+  //----
+  /// Quantity of this item in the order
+  quantity Int @default(1)
+
+  /// Unit price of the item at time of purchase
+  unit_price Decimal @db.Decimal(10, 2)
+
+  /// Total price for this line item (quantity × unit_price)
+  total_price Decimal @db.Decimal(10, 2)
+
+  /// Product name at time of purchase (for historical record)
+  product_name String @db.VarChar(255)
+
+  /// Product description at time of purchase
+  product_description String?
+
+  /// Product image URL at time of purchase
+  product_image_url String? @db.VarChar(255)
+
+  //----
+  // FULFILLMENT
+  //----
+  /// Timestamp when this item was fulfilled
+  fulfilled_at DateTime?
+
+  /// Blockchain transaction hash for perk minting (if applicable)
+  blockchain_txn_hash String? @db.VarChar(255)
+
+  /// Status specific to this order item
+  item_status OrderStatus @default(PENDING)
+
+  /// Notes specific to this item's fulfillment
+  fulfillment_notes String?
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("user")
+
+  /// Timestamp of record creation
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("user")
+
+  /// Timestamp of last record update
+  upd_date_time DateTime @default(now())
+
+  /// Request ID for tracing
+  request_id String?
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the parent order
+  order user_order @relation(fields: [order_id], references: [order_id])
+
+  /// Relation to the product in the catalog
+  product onchain_item_catalog @relation(fields: [product_id], references: [onchain_item_id])
+
+  //----
+  // DATABASE INDEXES
+  //----
+  @@index([order_id], name: "idx_user_order_item_order")
+  @@index([product_id], name: "idx_user_order_item_product")
+  @@index([fulfilled_at], name: "idx_user_order_item_fulfilled")
+}
+
+///-----------------------------------------------------------
+/// DIGITAL PERKS AND QR REDEMPTION SYSTEM
+///-----------------------------------------------------------
+
+/// Perk Reservation entity
+///
+/// Manages booking and scheduling of perk usage. When users want to redeem
+/// their digital perks, they create reservations specifying when and where.
+///
+/// Generates QR codes for secure redemption at locations. Tracks the entire
+/// lifecycle from booking to redemption completion.
+///
+/// @namespace DigitalPerks
+/// @author Tourii Team
+model perk_reservation {
+  //----
+  // IDENTIFICATION
+  //----
+  /// Unique identifier for the reservation UPRYYYYMM-rand1-DDHHMI-rand2-obfCounter
+  ///
+  /// @format custom
+  reservation_id String @id @default(dbgenerated("generate_upr_id()")) @db.VarChar(50)
+
+  /// Associated onchain perk item being reserved
+  user_onchain_item_id String @db.VarChar(255)
+
+  /// User making the reservation
+  user_id String @db.VarChar(50)
+
+  //----
+  // RESERVATION DETAILS
+  //----
+  /// Date and time when user wants to use the perk
+  reservation_date DateTime
+
+  /// Number of people in the party
+  party_size Int @default(1)
+
+  /// Special requests or notes for the reservation
+  special_requests String?
+
+  //----
+  // STATUS AND QR CODE
+  //----
+  /// Current status of the reservation
+  /// 
+  /// | Status    | Description                          |
+  /// |-----------|--------------------------------------|
+  /// | PENDING   | Awaiting confirmation                |
+  /// | CONFIRMED | Reservation confirmed                |
+  /// | CANCELLED | Reservation cancelled                |
+  /// | COMPLETED | Perk was used successfully           |
+  status ReservationStatus @default(PENDING)
+
+  /// Generated QR code data for redemption
+  qr_code_data String?
+
+  /// When the QR code was generated
+  qr_generated_at DateTime?
+
+  /// When the QR code expires for security
+  qr_expires_at DateTime?
+
+  //----
+  // REDEMPTION TRACKING
+  //----
+  /// Location code where perk can be redeemed
+  redemption_location String? @db.VarChar(255)
+
+  /// When the perk was actually redeemed
+  redeemed_at DateTime?
+
+  /// Staff or partner who validated the QR code
+  redeemed_by String? @db.VarChar(50)
+
+  //----
+  // SYSTEM FIELDS
+  //----
+  /// Soft delete flag
+  del_flag Boolean @default(false)
+
+  /// ID of user who created this record
+  ins_user_id String @default("system") @db.VarChar(50)
+
+  /// Timestamp when record was created
+  ins_date_time DateTime @default(now())
+
+  /// ID of user who last updated this record
+  upd_user_id String @default("system") @db.VarChar(50)
+
+  /// Timestamp when record was last updated
+  upd_date_time DateTime @default(now()) @updatedAt
+
+  /// Request correlation ID for tracing
+  request_id String? @db.VarChar(50)
+
+  //----
+  // RELATIONS
+  //----
+  /// Relation to the onchain perk being reserved
+  onchain_perk user_onchain_item @relation(fields: [user_onchain_item_id], references: [user_onchain_item_id])
+
+  /// Relation to the user making the reservation
+  user user @relation(fields: [user_id], references: [user_id])
+
+  //----
+  // DATABASE CONSTRAINTS AND INDEXES
+  //----
+  /// Business logic validation handled in domain entities (PerkReservationEntity)
+  
+  /// Performance indexes
+  @@index([user_id], name: "idx_perk_reservation_user")
+  @@index([user_onchain_item_id], name: "idx_perk_reservation_onchain_perk")
+  @@index([status], name: "idx_perk_reservation_status")
+  @@index([reservation_date], name: "idx_perk_reservation_date")
+  @@index([qr_expires_at], name: "idx_perk_reservation_qr_expires")
+  @@index([user_id, reservation_date], name: "idx_perk_reservation_upcoming")
 }
 
 /// Memory Wall View combining travel, quest, and story logs.

@@ -43,6 +43,14 @@ import {
     AuthSignupRequestSchema,
 } from './model/tourii-request/create/auth-signup-request.model';
 import {
+    AddToCartRequestDto,
+    AddToCartRequestSchema,
+} from './model/tourii-request/create/cart-add-item-request.model';
+import {
+    CheckoutRequestDto,
+    CheckoutRequestSchema,
+} from './model/tourii-request/create/checkout-request.model';
+import {
     StoryChapterCreateRequestDto,
     StoryChapterCreateRequestSchema,
 } from './model/tourii-request/create/chapter-story-create-request.model';
@@ -85,6 +93,14 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import {
+    CreatePerkReservationRequestDto,
+    CreatePerkReservationRequestSchema,
+    GenerateQRRequestDto,
+    GenerateQRRequestSchema,
+    GiftPerkRequestDto,
+    GiftPerkRequestSchema,
+} from './model/tourii-request/create/perk-reservation-request.model';
 import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
@@ -130,6 +146,13 @@ import {
     TouristSpotUpdateRequestSchema,
 } from './model/tourii-request/update/tourist-spot-update-request.model';
 import { VerifySubmissionRequestDto } from './model/tourii-request/update/verify-submission-request.model';
+import { UpdateCartItemRequestDto } from './model/tourii-request/update/cart-update-item-request.model';
+import {
+    UpdatePerkReservationRequestDto,
+    UpdatePerkReservationRequestSchema,
+    QRRedemptionRequestDto,
+    QRRedemptionRequestSchema,
+} from './model/tourii-request/update/perk-reservation-update-request.model';
 import {
     AdminUserListResponseDto,
     AdminUserListResponseSchema,
@@ -139,6 +162,21 @@ import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
 } from './model/tourii-response/auth-signup-response.model';
+import { CartResponseDto } from './model/tourii-response/cart-response.model';
+import { CheckoutResponseDto, OrderResponseDto } from './model/tourii-response/order-response.model';
+import { ProductCatalogResponseDto } from './model/tourii-response/shop-response.model';
+import {
+    PerkInventoryResponseDto,
+    PerkInventoryResponseSchema,
+    PerkUsageStatsResponseDto,
+    PerkUsageStatsResponseSchema,
+    PerkReservationResponseDto,
+    PerkReservationResponseSchema,
+    QRCodeResponseDto,
+    QRCodeResponseSchema,
+    QRValidationResponseDto,
+    QRValidationResponseSchema,
+} from './model/tourii-response/perk-response.model';
 import {
     StoryChapterResponseDto,
     StoryChapterResponseSchema,
@@ -2148,5 +2186,754 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async getHomepageHighlights(): Promise<HomepageHighlightsResponseDto> {
         return this.touriiBackendService.getHomepageHighlights();
+    }
+
+    // ==========================================
+    // ECOMMERCE & SHOP ENDPOINTS
+    // ==========================================
+
+    @Get('/v2/shop/products')
+    @ApiTags('Shop')
+    @ApiOperation({
+        summary: 'Get product catalog',
+        description: 'Retrieve available products with optional filtering and pagination.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 10 })
+    @ApiQuery({ name: 'category', required: false, type: String, description: 'Product category filter', example: 'PERK' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Product catalog retrieved successfully',
+        type: ProductCatalogResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getProducts(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+        @Query('category') category?: string,
+    ): Promise<ProductCatalogResponseDto> {
+        return await this.touriiBackendService.getProductCatalog(page, limit, category);
+    }
+
+    @Get('/v2/shop/products/:productId')
+    @ApiTags('Shop')
+    @ApiOperation({
+        summary: 'Get product details',
+        description: 'Retrieve detailed information about a specific product.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Product details retrieved successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getProductById(@Param('productId') productId: string) {
+        return await this.touriiBackendService.getProductById(productId);
+    }
+
+    @Get('/v2/shop/search')
+    @ApiTags('Shop')
+    @ApiOperation({
+        summary: 'Search products',
+        description: 'Search products by keyword with pagination.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'q', required: true, type: String, description: 'Search query', example: 'Tokyo tour' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 10 })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Search results retrieved successfully',
+        type: ProductCatalogResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async searchProducts(
+        @Query('q') query: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ): Promise<ProductCatalogResponseDto> {
+        return await this.touriiBackendService.searchProducts(query, page, limit);
+    }
+
+    @Get('/v2/cart')
+    @ApiTags('Cart')
+    @ApiOperation({
+        summary: 'Get user cart',
+        description: 'Retrieve current user\'s cart contents.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Cart contents retrieved successfully',
+        type: CartResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getCart(@Headers('x-user-id') userId: string): Promise<CartResponseDto> {
+        return await this.touriiBackendService.getCart(userId);
+    }
+
+    @Post('/v2/cart/add')
+    @ApiTags('Cart')
+    @ApiOperation({
+        summary: 'Add item to cart',
+        description: 'Add a product to the user\'s shopping cart.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: AddToCartRequestDto,
+        schema: zodToOpenAPI(AddToCartRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Item added to cart successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async addToCart(
+        @Headers('x-user-id') userId: string,
+        @Body() addToCartRequest: AddToCartRequestDto,
+    ) {
+        return await this.touriiBackendService.addToCart(
+            userId,
+            addToCartRequest.productId,
+            addToCartRequest.quantity,
+        );
+    }
+
+    @Post('/v2/cart/:cartId/update')
+    @ApiTags('Cart')
+    @ApiOperation({
+        summary: 'Update cart item',
+        description: 'Update the quantity of an item in the cart.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: UpdateCartItemRequestDto,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Cart item updated successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateCartItem(
+        @Headers('x-user-id') userId: string,
+        @Param('cartId') cartId: string,
+        @Body() updateRequest: UpdateCartItemRequestDto,
+    ) {
+        return await this.touriiBackendService.updateCartItem(
+            userId,
+            cartId,
+            updateRequest.quantity,
+        );
+    }
+
+    @Delete('/v2/cart/:cartId')
+    @ApiTags('Cart')
+    @ApiOperation({
+        summary: 'Remove item from cart',
+        description: 'Remove a specific item from the cart.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Item removed from cart successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async removeFromCart(
+        @Headers('x-user-id') userId: string,
+        @Param('cartId') cartId: string,
+    ) {
+        return await this.touriiBackendService.removeFromCart(userId, cartId);
+    }
+
+    @Delete('/v2/cart')
+    @ApiTags('Cart')
+    @ApiOperation({
+        summary: 'Clear cart',
+        description: 'Remove all items from the user\'s cart.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Cart cleared successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async clearCart(@Headers('x-user-id') userId: string) {
+        return await this.touriiBackendService.clearCart(userId);
+    }
+
+    @Post('/v2/checkout')
+    @ApiTags('Orders')
+    @ApiOperation({
+        summary: 'Checkout cart',
+        description: 'Process checkout and create order from cart contents.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: CheckoutRequestDto,
+        schema: zodToOpenAPI(CheckoutRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Order created successfully',
+        type: CheckoutResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async checkout(
+        @Headers('x-user-id') userId: string,
+        @Body() checkoutRequest: CheckoutRequestDto,
+    ): Promise<CheckoutResponseDto> {
+        return await this.touriiBackendService.checkout(userId, checkoutRequest);
+    }
+
+    @Get('/v2/orders')
+    @ApiTags('Orders')
+    @ApiOperation({
+        summary: 'Get order history',
+        description: 'Retrieve user\'s order history with pagination.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 10 })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Order history retrieved successfully',
+        type: [OrderResponseDto],
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getOrderHistory(
+        @Headers('x-user-id') userId: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ) {
+        return await this.touriiBackendService.getOrderHistory(userId, page, limit);
+    }
+
+    @Get('/v2/orders/:orderId')
+    @ApiTags('Orders')
+    @ApiOperation({
+        summary: 'Get order details',
+        description: 'Retrieve detailed information about a specific order.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Order details retrieved successfully',
+        type: OrderResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getOrderById(
+        @Headers('x-user-id') userId: string,
+        @Param('orderId') orderId: string,
+    ): Promise<OrderResponseDto> {
+        return await this.touriiBackendService.getOrderById(userId, orderId);
+    }
+
+    @Post('/v2/orders/:orderId/cancel')
+    @ApiTags('Orders')
+    @ApiOperation({
+        summary: 'Cancel order',
+        description: 'Cancel an order if it\'s eligible for cancellation.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Order cancelled successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async cancelOrder(
+        @Headers('x-user-id') userId: string,
+        @Param('orderId') orderId: string,
+    ) {
+        return await this.touriiBackendService.cancelOrder(userId, orderId);
+    }
+
+    @Post('/v2/orders/:orderId/refund')
+    @ApiTags('Orders')
+    @ApiOperation({
+        summary: 'Request refund',
+        description: 'Request a refund for an order.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                reason: { type: 'string', description: 'Reason for refund request' }
+            },
+            required: ['reason']
+        }
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Refund processed successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async requestRefund(
+        @Headers('x-user-id') userId: string,
+        @Param('orderId') orderId: string,
+        @Body() body: { reason: string },
+    ) {
+        return await this.touriiBackendService.requestRefund(userId, orderId, body.reason);
+    }
+
+    @Get('/v2/shop/analytics')
+    @ApiTags('Shop')
+    @ApiOperation({
+        summary: 'Get shop analytics',
+        description: 'Retrieve shop analytics and metrics for a date range.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'startDate', required: true, type: String, description: 'Start date (ISO format)' })
+    @ApiQuery({ name: 'endDate', required: true, type: String, description: 'End date (ISO format)' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Analytics retrieved successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getShopAnalytics(
+        @Query('startDate') startDate: string,
+        @Query('endDate') endDate: string,
+    ) {
+        return await this.touriiBackendService.getShopAnalytics(
+            new Date(startDate),
+            new Date(endDate),
+        );
+    }
+
+    @Get('/v2/shop/popular')
+    @ApiTags('Shop')
+    @ApiOperation({
+        summary: 'Get popular products',
+        description: 'Retrieve the most popular products.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of products to return', example: 5 })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Popular products retrieved successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getPopularProducts(@Query('limit') limit: number = 5) {
+        return await this.touriiBackendService.getPopularProducts(limit);
+    }
+
+    // ==========================================
+    // DIGITAL PERKS MANAGEMENT ENDPOINTS
+    // ==========================================
+
+    @Get('/v2/perks/inventory')
+    @ApiTags('Perks')
+    @ApiOperation({
+        summary: 'Get user perk inventory',
+        description: 'Retrieve user\'s perk inventory with filtering and pagination.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiQuery({ name: 'status', required: false, isArray: true, enum: ['ACTIVE', 'USED', 'EXPIRED', 'CANCELLED'], description: 'Filter by perk status' })
+    @ApiQuery({ name: 'acquisitionType', required: false, isArray: true, enum: ['QUEST', 'PURCHASE', 'GIFT'], description: 'Filter by acquisition type' })
+    @ApiQuery({ name: 'includeExpired', required: false, type: Boolean, description: 'Include expired perks' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 10 })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Perk inventory retrieved successfully',
+        type: [PerkInventoryResponseDto],
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getUserPerks(
+        @Headers('x-user-id') userId: string,
+        @Query('status') status?: string[],
+        @Query('acquisitionType') acquisitionType?: string[],
+        @Query('includeExpired') includeExpired?: boolean,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ) {
+        return await this.touriiBackendService.getUserPerks(userId, {
+            status: status as any,
+            acquisitionType: acquisitionType as any,
+            includeExpired,
+            page,
+            limit,
+        });
+    }
+
+    @Get('/v2/perks/inventory/:perkId')
+    @ApiTags('Perks')
+    @ApiOperation({
+        summary: 'Get specific perk details',
+        description: 'Retrieve detailed information about a specific perk.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Perk details retrieved successfully',
+        type: PerkInventoryResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getPerkById(
+        @Headers('x-user-id') userId: string,
+        @Param('perkId') perkId: string,
+    ): Promise<PerkInventoryResponseDto> {
+        return await this.touriiBackendService.getPerkById(perkId);
+    }
+
+    @Post('/v2/perks/inventory/:perkId/gift')
+    @ApiTags('Perks')
+    @ApiOperation({
+        summary: 'Gift perk to another user',
+        description: 'Transfer a perk to another user as a gift.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: GiftPerkRequestDto,
+        schema: zodToOpenAPI(GiftPerkRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Perk gifted successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async giftPerk(
+        @Headers('x-user-id') userId: string,
+        @Param('perkId') perkId: string,
+        @Body() giftRequest: GiftPerkRequestDto,
+    ) {
+        return await this.touriiBackendService.giftPerk(perkId, giftRequest.toUserId, userId);
+    }
+
+    @Get('/v2/perks/inventory/stats')
+    @ApiTags('Perks')
+    @ApiOperation({
+        summary: 'Get perk usage statistics',
+        description: 'Retrieve user\'s perk usage statistics and analytics.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Perk usage statistics retrieved successfully',
+        type: PerkUsageStatsResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getPerkUsageStats(@Headers('x-user-id') userId: string) {
+        return await this.touriiBackendService.getPerkUsageStats(userId);
+    }
+
+    // ==========================================
+    // PERK RESERVATION ENDPOINTS
+    // ==========================================
+
+    @Post('/v2/perks/reserve')
+    @ApiTags('Reservations')
+    @ApiOperation({
+        summary: 'Create perk reservation',
+        description: 'Create a reservation for a perk (restaurant booking, etc.).',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: CreatePerkReservationRequestDto,
+        schema: zodToOpenAPI(CreatePerkReservationRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Reservation created successfully',
+        type: PerkReservationResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createPerkReservation(
+        @Headers('x-user-id') userId: string,
+        @Body() reservationRequest: CreatePerkReservationRequestDto,
+    ): Promise<PerkReservationResponseDto> {
+        return await this.touriiBackendService.createPerkReservation({
+            ...reservationRequest,
+            userId,
+            insUserId: userId,
+        });
+    }
+
+    @Get('/v2/perks/reservations')
+    @ApiTags('Reservations')
+    @ApiOperation({
+        summary: 'Get user reservations',
+        description: 'Retrieve user\'s perk reservations with filtering and pagination.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiQuery({ name: 'status', required: false, isArray: true, enum: ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'], description: 'Filter by reservation status' })
+    @ApiQuery({ name: 'dateFrom', required: false, type: String, description: 'Filter reservations from date (ISO format)' })
+    @ApiQuery({ name: 'dateTo', required: false, type: String, description: 'Filter reservations to date (ISO format)' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 10 })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Reservations retrieved successfully',
+        type: [PerkReservationResponseDto],
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getUserReservations(
+        @Headers('x-user-id') userId: string,
+        @Query('status') status?: string[],
+        @Query('dateFrom') dateFrom?: string,
+        @Query('dateTo') dateTo?: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ) {
+        return await this.touriiBackendService.getUserReservations(userId, {
+            status: status as any,
+            dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+            dateTo: dateTo ? new Date(dateTo) : undefined,
+            page,
+            limit,
+        });
+    }
+
+    @Get('/v2/perks/reservations/:reservationId')
+    @ApiTags('Reservations')
+    @ApiOperation({
+        summary: 'Get reservation details',
+        description: 'Retrieve detailed information about a specific reservation.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Reservation details retrieved successfully',
+        type: PerkReservationResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getReservationById(
+        @Headers('x-user-id') userId: string,
+        @Param('reservationId') reservationId: string,
+    ): Promise<PerkReservationResponseDto> {
+        return await this.touriiBackendService.getReservationById(reservationId);
+    }
+
+    @Put('/v2/perks/reservations/:reservationId')
+    @ApiTags('Reservations')
+    @ApiOperation({
+        summary: 'Update reservation',
+        description: 'Update reservation details (date, party size, special requests).',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: UpdatePerkReservationRequestDto,
+        schema: zodToOpenAPI(UpdatePerkReservationRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Reservation updated successfully',
+        type: PerkReservationResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async updateReservation(
+        @Headers('x-user-id') userId: string,
+        @Param('reservationId') reservationId: string,
+        @Body() updateRequest: UpdatePerkReservationRequestDto,
+    ): Promise<PerkReservationResponseDto> {
+        return await this.touriiBackendService.updateReservation(
+            reservationId,
+            updateRequest,
+            userId,
+        );
+    }
+
+    @Delete('/v2/perks/reservations/:reservationId')
+    @ApiTags('Reservations')
+    @ApiOperation({
+        summary: 'Cancel reservation',
+        description: 'Cancel a perk reservation.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Reservation cancelled successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async cancelReservation(
+        @Headers('x-user-id') userId: string,
+        @Param('reservationId') reservationId: string,
+    ) {
+        return await this.touriiBackendService.cancelReservation(reservationId, userId);
+    }
+
+    // ==========================================
+    // QR CODE MANAGEMENT ENDPOINTS
+    // ==========================================
+
+    @Post('/v2/perks/reservations/:reservationId/qr')
+    @ApiTags('QR Codes')
+    @ApiOperation({
+        summary: 'Generate QR code for reservation',
+        description: 'Generate a QR code for a confirmed reservation.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'User ID', required: true })
+    @ApiBody({
+        type: GenerateQRRequestDto,
+        schema: zodToOpenAPI(GenerateQRRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'QR code generated successfully',
+        type: QRCodeResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async generateReservationQR(
+        @Headers('x-user-id') userId: string,
+        @Param('reservationId') reservationId: string,
+        @Body() qrRequest: GenerateQRRequestDto,
+    ): Promise<QRCodeResponseDto> {
+        return await this.touriiBackendService.generateReservationQR(
+            reservationId,
+            qrRequest.locationCode,
+            qrRequest.expiryHours,
+            userId,
+        );
+    }
+
+    @Get('/v2/perks/qr/:qrCode/validate')
+    @ApiTags('QR Codes')
+    @ApiOperation({
+        summary: 'Validate QR code',
+        description: 'Validate a QR code and return its details.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiQuery({ name: 'location', required: false, isArray: true, type: String, description: 'Expected valid location codes' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'QR code validation result',
+        type: QRValidationResponseDto,
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async validateQRCode(
+        @Param('qrCode') qrCode: string,
+        @Query('location') expectedLocations?: string[],
+    ): Promise<QRValidationResponseDto> {
+        return await this.touriiBackendService.validateQRCode(qrCode, expectedLocations);
+    }
+
+    @Post('/v2/perks/qr/redeem')
+    @ApiTags('QR Codes')
+    @ApiOperation({
+        summary: 'Redeem perk with QR code',
+        description: 'Redeem a perk using its QR code.',
+    })
+    @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
+    @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
+    @ApiHeader({ name: 'x-user-id', description: 'Staff or partner ID', required: true })
+    @ApiBody({
+        type: QRRedemptionRequestDto,
+        schema: zodToOpenAPI(QRRedemptionRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Perk redeemed successfully',
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async redeemPerkWithQR(
+        @Headers('x-user-id') staffId: string,
+        @Body() redemptionRequest: QRRedemptionRequestDto,
+    ) {
+        return await this.touriiBackendService.redeemPerkWithQR(
+            redemptionRequest.qrCodeData,
+            redemptionRequest.redeemedBy,
+            staffId,
+        );
     }
 }

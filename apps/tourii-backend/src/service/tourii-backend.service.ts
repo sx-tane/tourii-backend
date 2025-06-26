@@ -5,6 +5,13 @@ import {
     UserTravelLogRepository,
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
+import type { CartRepository } from '@app/core/domain/ecommerce/cart.repository';
+import type { OrderRepository } from '@app/core/domain/ecommerce/order.repository';
+import type { PaymentRepository } from '@app/core/domain/ecommerce/payment.repository';
+import type { ShopRepository } from '@app/core/domain/ecommerce/shop.repository';
+import type { UserOnchainItemRepository } from '@app/core/domain/user/user-onchain-item.repository';
+import type { PerkReservationRepository } from '@app/core/domain/perks/perk-reservation.repository';
+import type { QRCodeService } from '@app/core/domain/perks/qr-code.service';
 import { MomentType } from '@app/core/domain/feed/moment-type';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
@@ -133,6 +140,20 @@ export class TouriiBackendService {
         private readonly userTravelLogRepository: UserTravelLogRepository,
         @Inject(TouriiBackendConstants.LOCATION_TRACKING_SERVICE_TOKEN)
         private readonly locationTrackingService: LocationTrackingService,
+        @Inject(TouriiBackendConstants.CART_REPOSITORY_TOKEN)
+        private readonly cartRepository: CartRepository,
+        @Inject(TouriiBackendConstants.ORDER_REPOSITORY_TOKEN)
+        private readonly orderRepository: OrderRepository,
+        @Inject(TouriiBackendConstants.SHOP_REPOSITORY_TOKEN)
+        private readonly shopRepository: ShopRepository,
+        @Inject(TouriiBackendConstants.PAYMENT_REPOSITORY_TOKEN)
+        private readonly paymentRepository: PaymentRepository,
+        @Inject(TouriiBackendConstants.USER_ONCHAIN_ITEM_REPOSITORY_TOKEN)
+        private readonly userOnchainItemRepository: UserOnchainItemRepository,
+        @Inject(TouriiBackendConstants.PERK_RESERVATION_REPOSITORY_TOKEN)
+        private readonly perkReservationRepository: PerkReservationRepository,
+        @Inject(TouriiBackendConstants.QR_CODE_SERVICE_TOKEN)
+        private readonly qrCodeService: QRCodeService,
         private readonly groupQuestGateway: GroupQuestGateway,
     ) {}
 
@@ -2265,5 +2286,676 @@ export class TouriiBackendService {
             magatama_point_awarded: result.magatama_point_awarded,
             completed_at: new Date().toISOString(),
         };
+    }
+
+    // ==========================================
+    // ECOMMERCE & SHOP METHODS
+    // ==========================================
+
+    /**
+     * Get product catalog with optional filtering
+     * @param page Page number for pagination
+     * @param limit Items per page
+     * @param category Optional category filter
+     */
+    async getProductCatalog(page: number = 1, limit: number = 10, category?: string) {
+        return await this.shopRepository.getProducts({ page, limit, category });
+    }
+
+    /**
+     * Get product details by ID
+     * @param productId Product ID
+     */
+    async getProductById(productId: string) {
+        return await this.shopRepository.getProductById(productId);
+    }
+
+    /**
+     * Add item to user's cart
+     * @param userId User ID
+     * @param productId Product ID
+     * @param quantity Quantity to add
+     */
+    async addToCart(userId: string, productId: string, quantity: number = 1) {
+        // Validate product exists and is available
+        const product = await this.shopRepository.getProductById(productId);
+        if (!product || !product.isAvailable) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Product not found or unavailable',
+            );
+        }
+
+        return await this.cartRepository.addItem(userId, productId, quantity);
+    }
+
+    /**
+     * Get user's cart contents
+     * @param userId User ID
+     */
+    async getCart(userId: string) {
+        return await this.cartRepository.getCartByUserId(userId);
+    }
+
+    /**
+     * Update cart item quantity
+     * @param userId User ID
+     * @param cartId Cart item ID
+     * @param quantity New quantity
+     */
+    async updateCartItem(userId: string, cartId: string, quantity: number) {
+        return await this.cartRepository.updateItemQuantity(cartId, quantity);
+    }
+
+    /**
+     * Remove item from cart
+     * @param userId User ID
+     * @param cartId Cart item ID
+     */
+    async removeFromCart(userId: string, cartId: string) {
+        return await this.cartRepository.removeItem(cartId);
+    }
+
+    /**
+     * Clear user's entire cart
+     * @param userId User ID
+     */
+    async clearCart(userId: string) {
+        return await this.cartRepository.clearCart(userId);
+    }
+
+    /**
+     * Checkout cart and create order
+     * @param userId User ID
+     * @param checkoutData Checkout information
+     */
+    async checkout(userId: string, checkoutData: any) {
+        // Get cart contents
+        const cart = await this.cartRepository.getCartByUserId(userId);
+        if (!cart || cart.length === 0) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Cart is empty',
+            );
+        }
+
+        // Calculate totals
+        const subtotal = cart.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+        const taxAmount = subtotal * 0.08; // 8% tax
+        const shippingAmount = 0; // Digital products - no shipping
+        const totalAmount = subtotal + taxAmount + shippingAmount;
+
+        // Create order
+        const order = await this.orderRepository.createOrder({
+            userId,
+            items: cart.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                productName: item.productName,
+                productDescription: item.productDescription,
+                productImageUrl: item.productImageUrl,
+            })),
+            subtotalAmount: subtotal,
+            taxAmount,
+            shippingAmount,
+            totalAmount,
+            currency: 'USD',
+            paymentMethod: checkoutData.paymentMethod,
+            customerEmail: checkoutData.customerEmail,
+            customerPhone: checkoutData.customerPhone,
+            billingAddress: checkoutData.billingAddress,
+            shippingAddress: checkoutData.shippingAddress,
+            customerNotes: checkoutData.customerNotes,
+        });
+
+        // Process payment
+        const paymentResult = await this.paymentRepository.processPayment({
+            orderId: order.orderId!,
+            amount: totalAmount,
+            currency: 'USD',
+            paymentMethod: checkoutData.paymentMethod,
+            paymentMethodData: checkoutData.paymentMethodData,
+            customerEmail: checkoutData.customerEmail,
+        });
+
+        // Update order with payment information
+        await this.orderRepository.updatePaymentStatus(
+            order.orderId!,
+            paymentResult.status,
+            paymentResult.transactionId,
+        );
+
+        // Clear cart after successful order
+        if (paymentResult.status === 'COMPLETED') {
+            await this.cartRepository.clearCart(userId);
+        }
+
+        return {
+            order,
+            paymentIntent: paymentResult.paymentIntent,
+            estimatedReviewTime: paymentResult.requiresManualReview ? '24 hours' : undefined,
+        };
+    }
+
+    /**
+     * Get user's order history
+     * @param userId User ID
+     * @param page Page number
+     * @param limit Items per page
+     */
+    async getOrderHistory(userId: string, page: number = 1, limit: number = 10) {
+        return await this.orderRepository.getOrdersByUserId(userId, { page, limit });
+    }
+
+    /**
+     * Get order details by ID
+     * @param userId User ID
+     * @param orderId Order ID
+     */
+    async getOrderById(userId: string, orderId: string) {
+        return await this.orderRepository.getOrderById(orderId);
+    }
+
+    /**
+     * Cancel an order (if eligible)
+     * @param userId User ID
+     * @param orderId Order ID
+     */
+    async cancelOrder(userId: string, orderId: string) {
+        const order = await this.orderRepository.getOrderById(orderId);
+        if (!order || order.userId !== userId) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order not found',
+            );
+        }
+
+        if (!order.canBeCancelled()) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order cannot be cancelled at this stage',
+            );
+        }
+
+        // Process cancellation through payment provider
+        await this.paymentRepository.cancelPayment(order.paymentTransactionId!);
+
+        // Update order status
+        return await this.orderRepository.updateOrderStatus(orderId, 'CANCELLED');
+    }
+
+    /**
+     * Request refund for an order
+     * @param userId User ID
+     * @param orderId Order ID
+     * @param reason Refund reason
+     */
+    async requestRefund(userId: string, orderId: string, reason: string) {
+        const order = await this.orderRepository.getOrderById(orderId);
+        if (!order || order.userId !== userId) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order not found',
+            );
+        }
+
+        if (!order.canBeRefunded()) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_TB_001,
+                'Order is not eligible for refund',
+            );
+        }
+
+        // Process refund through payment provider
+        const refundResult = await this.paymentRepository.refundPayment({
+            transactionId: order.paymentTransactionId!,
+            amount: order.totalAmount,
+            reason,
+        });
+
+        // Update order status
+        await this.orderRepository.updateOrderStatus(orderId, 'REFUNDED');
+
+        return refundResult;
+    }
+
+    /**
+     * Get shop analytics and metrics
+     * @param startDate Start date for analytics
+     * @param endDate End date for analytics
+     */
+    async getShopAnalytics(startDate: Date, endDate: Date) {
+        return await this.shopRepository.getAnalytics(startDate, endDate);
+    }
+
+    /**
+     * Get popular products
+     * @param limit Number of products to return
+     */
+    async getPopularProducts(limit: number = 5) {
+        return await this.shopRepository.getPopularProducts(limit);
+    }
+
+    /**
+     * Search products by keyword
+     * @param query Search query
+     * @param page Page number
+     * @param limit Items per page
+     */
+    async searchProducts(query: string, page: number = 1, limit: number = 10) {
+        return await this.shopRepository.searchProducts(query, { page, limit });
+    }
+
+    // ==========================================
+    // DIGITAL PERKS MANAGEMENT METHODS
+    // ==========================================
+
+    /**
+     * Creates a perk in user's inventory (for quest rewards or purchases)
+     * @param request Perk creation details
+     */
+    async createPerk(request: {
+        userId: string;
+        onchainItemId: string;
+        acquisitionType: 'QUEST' | 'PURCHASE' | 'GIFT';
+        sourceId?: string;
+        quantity?: number;
+        expiryDate?: Date;
+        insUserId: string;
+        requestId?: string;
+    }) {
+        return await this.perkInventoryRepository.createPerk({
+            ...request,
+            acquisitionType: request.acquisitionType as any,
+        });
+    }
+
+    /**
+     * Gets user's perk inventory with filtering and pagination
+     * @param userId User identifier
+     * @param options Filtering options
+     */
+    async getUserPerks(userId: string, options?: {
+        status?: ('ACTIVE' | 'USED' | 'EXPIRED' | 'CANCELLED')[];
+        acquisitionType?: ('QUEST' | 'PURCHASE' | 'GIFT')[];
+        includeExpired?: boolean;
+        sortBy?: 'acquired_at' | 'expiry_date' | 'quantity';
+        sortOrder?: 'asc' | 'desc';
+        page?: number;
+        limit?: number;
+    }) {
+        return await this.perkInventoryRepository.getUserPerks(userId, {
+            ...options,
+            status: options?.status as any,
+            acquisitionType: options?.acquisitionType as any,
+        });
+    }
+
+    /**
+     * Gets a specific perk by ID
+     * @param perkId Perk identifier
+     */
+    async getPerkById(perkId: string) {
+        return await this.perkInventoryRepository.findPerkById(perkId);
+    }
+
+    /**
+     * Uses/consumes a perk (reduces quantity)
+     * @param perkId Perk identifier
+     * @param quantity Amount to consume
+     * @param updUserId User making the update
+     */
+    async consumePerk(perkId: string, quantity: number, updUserId: string) {
+        return await this.perkInventoryRepository.consumePerk(perkId, quantity, updUserId);
+    }
+
+    /**
+     * Gifts a perk to another user
+     * @param perkId Perk identifier
+     * @param toUserId Recipient user ID
+     * @param updUserId User making the transfer
+     */
+    async giftPerk(perkId: string, toUserId: string, updUserId: string) {
+        return await this.perkInventoryRepository.transferPerk(perkId, toUserId, updUserId);
+    }
+
+    /**
+     * Gets perks expiring within specified days
+     * @param userId User identifier
+     * @param daysAhead Number of days to look ahead
+     */
+    async getExpiringPerks(userId: string, daysAhead: number = 7) {
+        return await this.perkInventoryRepository.getExpiringPerks(userId, daysAhead);
+    }
+
+    /**
+     * Gets user's perk usage statistics
+     * @param userId User identifier
+     */
+    async getPerkUsageStats(userId: string) {
+        return await this.perkInventoryRepository.getPerkUsageStats(userId);
+    }
+
+    /**
+     * Batch creates perks for order fulfillment
+     * @param perks Array of perk creation requests
+     */
+    async batchCreatePerks(perks: Array<{
+        userId: string;
+        onchainItemId: string;
+        acquisitionType: 'QUEST' | 'PURCHASE' | 'GIFT';
+        sourceId?: string;
+        quantity?: number;
+        expiryDate?: Date;
+        insUserId: string;
+        requestId?: string;
+    }>) {
+        const mappedPerks = perks.map(perk => ({
+            ...perk,
+            acquisitionType: perk.acquisitionType as any,
+        }));
+        return await this.perkInventoryRepository.batchCreatePerks(mappedPerks);
+    }
+
+    // ==========================================
+    // PERK RESERVATION METHODS
+    // ==========================================
+
+    /**
+     * Creates a perk reservation for booking
+     * @param request Reservation details
+     */
+    async createPerkReservation(request: {
+        perkId: string;
+        userId: string;
+        reservationDate: Date;
+        partySize: number;
+        specialRequests?: string;
+        redemptionLocation?: string;
+        insUserId: string;
+        requestId?: string;
+    }) {
+        return await this.perkReservationRepository.createReservation(request);
+    }
+
+    /**
+     * Gets user's reservations with filtering
+     * @param userId User identifier
+     * @param options Filtering options
+     */
+    async getUserReservations(userId: string, options?: {
+        status?: ('PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED')[];
+        dateFrom?: Date;
+        dateTo?: Date;
+        includeExpiredQR?: boolean;
+        sortBy?: 'reservation_date' | 'ins_date_time' | 'status';
+        sortOrder?: 'asc' | 'desc';
+        page?: number;
+        limit?: number;
+    }) {
+        return await this.perkReservationRepository.getUserReservations(userId, {
+            ...options,
+            status: options?.status as any,
+        });
+    }
+
+    /**
+     * Gets a specific reservation by ID
+     * @param reservationId Reservation identifier
+     */
+    async getReservationById(reservationId: string) {
+        return await this.perkReservationRepository.findReservationById(reservationId);
+    }
+
+    /**
+     * Updates reservation details
+     * @param reservationId Reservation identifier
+     * @param updates Update data
+     * @param updUserId User making the update
+     */
+    async updateReservation(
+        reservationId: string,
+        updates: {
+            reservationDate?: Date;
+            partySize?: number;
+            specialRequests?: string;
+        },
+        updUserId: string
+    ) {
+        return await this.perkReservationRepository.updateReservation({
+            reservationId,
+            ...updates,
+            updUserId,
+        });
+    }
+
+    /**
+     * Confirms a pending reservation
+     * @param reservationId Reservation identifier
+     * @param redemptionLocation Location where perk can be redeemed
+     * @param updUserId User making the update
+     */
+    async confirmReservation(reservationId: string, redemptionLocation: string, updUserId: string) {
+        return await this.perkReservationRepository.confirmReservation(reservationId, redemptionLocation, updUserId);
+    }
+
+    /**
+     * Cancels a reservation
+     * @param reservationId Reservation identifier
+     * @param updUserId User making the update
+     */
+    async cancelReservation(reservationId: string, updUserId: string) {
+        return await this.perkReservationRepository.cancelReservation(reservationId, updUserId);
+    }
+
+    /**
+     * Gets upcoming reservations for user (next 7 days)
+     * @param userId User identifier
+     */
+    async getUpcomingReservations(userId: string) {
+        return await this.perkReservationRepository.getUpcomingReservations(userId);
+    }
+
+    /**
+     * Gets reservation statistics for user
+     * @param userId User identifier
+     */
+    async getReservationStats(userId: string) {
+        return await this.perkReservationRepository.getReservationStats(userId);
+    }
+
+    // ==========================================
+    // QR CODE MANAGEMENT METHODS
+    // ==========================================
+
+    /**
+     * Generates QR code for a reservation
+     * @param reservationId Reservation identifier
+     * @param locationCode Location where QR can be redeemed
+     * @param expiryHours Hours until QR expires
+     * @param updUserId User making the update
+     */
+    async generateReservationQR(
+        reservationId: string,
+        locationCode: string,
+        expiryHours: number = 2,
+        updUserId: string
+    ) {
+        // Get reservation details
+        const reservation = await this.perkReservationRepository.findReservationById(reservationId);
+        if (!reservation) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_RESERVATION_001,
+                'Reservation not found'
+            );
+        }
+
+        // Generate QR code
+        const qrResult = await this.qrCodeService.generateReservationQR(
+            reservation,
+            locationCode,
+            expiryHours
+        );
+
+        // Update reservation with QR data
+        await this.perkReservationRepository.generateQRCode({
+            reservationId,
+            qrCodeData: qrResult.qrCodeData,
+            expiryHours,
+            updUserId,
+        });
+
+        return qrResult;
+    }
+
+    /**
+     * Validates a QR code
+     * @param qrCodeData QR code data to validate
+     * @param expectedLocations Optional array of valid location codes
+     */
+    async validateQRCode(qrCodeData: string, expectedLocations?: string[]) {
+        return await this.qrCodeService.validateQRCode(qrCodeData, expectedLocations);
+    }
+
+    /**
+     * Redeems a perk using QR code
+     * @param qrCodeData QR code data
+     * @param redeemedBy Staff or partner who validated the QR
+     * @param updUserId User making the update
+     */
+    async redeemPerkWithQR(qrCodeData: string, redeemedBy: string, updUserId: string) {
+        // Validate QR first
+        const validation = await this.qrCodeService.validateQRCode(qrCodeData);
+        if (!validation.isValid || !validation.reservationId) {
+            throw new TouriiBackendAppException(
+                TouriiBackendAppErrorType.E_RESERVATION_008,
+                validation.errorMessage || 'Invalid QR code'
+            );
+        }
+
+        // Redeem the perk
+        const redemption = await this.perkReservationRepository.redeemPerk({
+            reservationId: validation.reservationId,
+            qrCodeData,
+            redeemedBy,
+            updUserId,
+        });
+
+        // Consume the perk from inventory
+        if (validation.perkId) {
+            await this.perkInventoryRepository.consumePerk(validation.perkId, 1, 'system');
+        }
+
+        return redemption;
+    }
+
+    /**
+     * Generates discount QR code
+     * @param userId User identifier
+     * @param perkId Perk identifier
+     * @param discountAmount Discount amount or percentage
+     * @param locationCode Location where discount can be used
+     * @param expiryHours Hours until QR expires
+     */
+    async generateDiscountQR(
+        userId: string,
+        perkId: string,
+        discountAmount: number,
+        locationCode: string,
+        expiryHours: number = 24
+    ) {
+        return await this.qrCodeService.generateDiscountQR(
+            userId,
+            perkId,
+            discountAmount,
+            locationCode,
+            expiryHours
+        );
+    }
+
+    /**
+     * Auto-generates QR codes for confirmed reservations within 24 hours
+     * (Called by scheduled job)
+     */
+    async autoGenerateQRCodes() {
+        const eligibleReservations = await this.perkReservationRepository.getReservationsForQRGeneration();
+        
+        const results = [];
+        for (const reservation of eligibleReservations) {
+            try {
+                const qrResult = await this.generateReservationQR(
+                    reservation.reservationId!,
+                    reservation.redemptionLocation || 'DEFAULT_LOCATION',
+                    2, // 2 hours expiry
+                    'system'
+                );
+                results.push({
+                    reservationId: reservation.reservationId,
+                    success: true,
+                    qrData: qrResult,
+                });
+            } catch (error) {
+                results.push({
+                    reservationId: reservation.reservationId,
+                    success: false,
+                    error: error.message,
+                });
+            }
+        }
+
+        return results;
+    }
+
+    // ==========================================
+    // QUEST INTEGRATION METHODS
+    // ==========================================
+
+    /**
+     * Awards perks to user upon quest completion
+     * @param userId User identifier
+     * @param questId Quest identifier
+     * @param rewardItems Array of reward items
+     */
+    async awardQuestPerks(
+        userId: string,
+        questId: string,
+        rewardItems: Array<{
+            onchainItemId: string;
+            quantity: number;
+            expiryDays?: number;
+        }>
+    ) {
+        const perks = rewardItems.map(item => ({
+            userId,
+            onchainItemId: item.onchainItemId,
+            acquisitionType: 'QUEST' as const,
+            sourceId: questId,
+            quantity: item.quantity,
+            expiryDate: item.expiryDays 
+                ? new Date(Date.now() + item.expiryDays * 24 * 60 * 60 * 1000)
+                : undefined,
+            insUserId: 'system',
+        }));
+
+        return await this.batchCreatePerks(perks);
+    }
+
+    /**
+     * Gets system-wide perk analytics
+     * @param startDate Start date for analytics
+     * @param endDate End date for analytics
+     */
+    async getSystemPerkStats(startDate: Date, endDate: Date) {
+        return await this.perkInventoryRepository.getSystemPerkStats(startDate, endDate);
+    }
+
+    /**
+     * Gets system-wide reservation analytics
+     * @param startDate Start date for analytics
+     * @param endDate End date for analytics
+     */
+    async getSystemReservationStats(startDate: Date, endDate: Date) {
+        return await this.perkReservationRepository.getSystemReservationStats(startDate, endDate);
     }
 }
