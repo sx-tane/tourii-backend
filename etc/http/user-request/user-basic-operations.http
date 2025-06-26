@@ -1,0 +1,20 @@
+### Search User (Legacy endpoint)
+GET http://localhost:4000/TSU202504-34e4de-082337-73d397-BAAA/user
+
+###
+
+### Get Current User Profile
+GET http://localhost:4000/user/me
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-1bda5f-071407-504e5c-BAAA
+
+###
+
+### Get User Sensitive Information
+GET http://localhost:4000/user/sensitive-info
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+x-user-id: TSU202506-1bda5f-071407-504e5c-BAAA
+
+###

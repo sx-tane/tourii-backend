@@ -1,21 +1,21 @@
 ### Generate Google Pay Pass
 # Generates a Google Pay pass with passport achievements and QR code
-GET http://localhost:4000/api/passport/bob/wallet/google
+GET http://localhost:4000/api/passport/123/wallet/google
 accept-version: 1.0.0
 x-api-key: your-api-key-2
 
 ### Extract Google Pass Buffer with Curl
 # Use this curl command to extract the pass buffer and save it
-# curl -s "http://localhost:4000/api/passport/bob/wallet/google" \
-#   -H "accept-version: 1.0.0" \
-#   -H "x-api-key: your-api-key-2" | \
-#   node -e "
-#     const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
-#     const buffer = Buffer.from(data.passBuffer.data);
-#     require('fs').writeFileSync('bob-google-pass.json', buffer);
-#     console.log('Saved bob-google-pass.json');
-#     console.log('Google Wallet URL:', data.redirectUrl);
-#   "
+#  curl -s "http://localhost:4000/api/passport/bob/wallet/google" \
+#    -H "accept-version: 1.0.0" \
+#    -H "x-api-key: your-api-key-2" | \
+#    node -e "
+#      const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+#      const buffer = Buffer.from(data.passBuffer.data);
+#      require('fs').writeFileSync('bob-google-pass.json', buffer);
+#      console.log('Saved bob-google-pass.json');
+#      console.log('Google Wallet URL:', data.redirectUrl);
+#    "
 
 ### Verify QR Code from Google Pass
 # First extract the QR code JWT, then verify it

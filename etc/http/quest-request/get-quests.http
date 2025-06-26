@@ -1,3 +1,0 @@
-GET http://localhost:4000/quests/QST202506-f4869c-141501-dbae3f-BAAA
-x-api-key: your-api-key-1
-accept-version: 1.0.0

@@ -17,6 +17,7 @@ import { UserTravelLogRepositoryDb } from '@app/core/infrastructure/datasource/u
 import { LocationTrackingServiceImpl } from '@app/core/infrastructure/location/location-tracking.service-impl';
 import { AppleWalletRepositoryApi } from '@app/core/infrastructure/passport/apple-wallet.repository-api';
 import { GoogleWalletRepositoryApi } from '@app/core/infrastructure/passport/google-wallet.repository-api';
+import { MockPassportDataService } from '@app/core/infrastructure/passport/mock-passport-data.service';
 import { PassportMetadataRepositoryImpl } from '@app/core/infrastructure/passport/passport-metadata.repository-impl';
 import { PassportPdfRepositoryImpl } from '@app/core/infrastructure/passport/passport-pdf.repository-impl';
 import { WalletPassRepositoryImpl } from '@app/core/infrastructure/passport/wallet-pass.repository-impl';
@@ -216,6 +217,10 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         {
             provide: TouriiBackendConstants.GOOGLE_WALLET_REPOSITORY_TOKEN,
             useClass: GoogleWalletRepositoryApi,
+        },
+        {
+            provide: TouriiBackendConstants.MOCK_PASSPORT_DATA_SERVICE_TOKEN,
+            useClass: MockPassportDataService,
         },
     ],
 })

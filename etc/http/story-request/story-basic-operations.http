@@ -1,0 +1,36 @@
+### Get All Story Sagas
+GET http://localhost:4000/stories/sagas
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Get Story Chapters
+GET http://localhost:4000/stories/sagas/STO202505-682ca0-131927-cc481b-BAAA/chapters
+Content-Type: application/json
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Get Story Progress
+GET http://localhost:4000/stories/chapters/SCT202506-1a5af7-071350-84c9ac-EAAA/progress/TSU202506-1bda5f-071407-504e5c-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Delete Story Chapter
+DELETE http://localhost:4000/stories/chapters/SCT202506-abcdef-789012-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Delete Story
+DELETE http://localhost:4000/stories/STO202506-123456-abcdef-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###

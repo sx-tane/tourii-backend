@@ -402,7 +402,7 @@ try {
 ## 📚 Related Documentation
 
 - [API Examples](./API_EXAMPLES.md) - See working API requests
-- [Development Setup](./DEVELOPMENT_SETUP.md) - Environment configuration
+- [README.md](../README.md) - Environment configuration and setup
 - [Security Guide](./SECURITY.md) - Authentication details
 - [System Architecture](./SYSTEM_ARCHITECTURE.md) - Architecture overview
 

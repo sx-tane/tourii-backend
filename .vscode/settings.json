@@ -9,7 +9,8 @@
         "editor.defaultFormatter": "biomejs.biome"
     },
     "[json]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[typescript]": {
         "editor.formatOnSave": true,

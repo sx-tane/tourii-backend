@@ -1,214 +1,36 @@
 # CLAUDE.md
+## **Complete Developer Guide for Claude Code & Future Developers**
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides comprehensive guidance for Claude Code (claude.ai/code) and serves as the ultimate reference for future developers working with the tourii-backend codebase.
 
-## Common Development Commands
+---
 
-### Build & Development
+## 📋 **Quick Navigation for New Developers**
 
-```bash
-# Install dependencies
-pnpm install
+### **⚡ First 30 Minutes - Essential Reading Order**
 
-# Start development server
-pnpm start:dev                    # Start all apps
-pnpm start:dev:tourii-backend     # Start backend only
-pnpm start:dev:tourii-onchain     # Start onchain service only
+1. **🚀 [Quick Setup](#common-development-commands)** (5 min) - Get running immediately
+2. **🏗️ [Architecture Overview](#high-level-architecture)** (10 min) - Understand the system
+3. **📱 [Test API Features](#wallet-integration-testing)** (5 min) - Try the wallet features
+4. **📚 [Documentation Links](#team-onboarding-resources)** (10 min) - Know where to find help
 
-# Build for production
-pnpm build                        # Build all apps
-pnpm build:tourii-backend         # Build backend only
-pnpm build:tourii-onchain         # Build onchain service only
-pnpm start:prod                   # Run production build
-```
+### **🎯 Core Concepts Summary**
 
-### Testing
+- **What**: Location-based tourism platform with Web3 integration
+- **Architecture**: NestJS monorepo with Domain-Driven Design
+- **Key Features**: Interactive stories, gamified quests, digital wallet passes, blockchain NFTs
+- **Recent Achievement**: 85-90% Google Places API cost reduction + comprehensive wallet integration
+- **Security Status**: Production-ready with zero critical vulnerabilities
 
-```bash
-# Run tests
-pnpm test                         # Run all unit tests
-pnpm test:watch                   # Run tests in watch mode
-pnpm test:cov                     # Run tests with coverage
-pnpm test:e2e:app                 # Run e2e tests
+---
 
-# Security testing (platform-specific)
-bash tourii-backend/test/security-test.sh    # Linux/Mac
-.\tourii-backend\test\security-test.ps1      # Windows PowerShell
-```
+## Development Commands
 
-### Test Database Configuration
+> **Note**: For complete setup and development commands, see [README.md](README.md#-development-workflow) - the canonical reference for all build, test, and deployment commands.
 
-Tests use a separate database to protect development data:
+## Architecture Reference
 
-- **Development DB**: `localhost:7442/tourii_backend`
-- **Test DB**: `localhost:7443/tourii_backend_test` (configured in .env.test)
-- **Automatic Setup**: Tests automatically run migrations and seeding before execution
-- **Data Isolation**: Complete separation ensures safe testing without affecting development work
-
-### Code Quality
-
-```bash
-# Format code
-pnpm format                       # Format all code
-pnpm format:prettier              # Format YAML/MD files
-pnpm format:biome                 # Format JS/TS files
-
-# Lint
-pnpm lint                         # Run linter (may need: pnpm exec biome lint . in WSL)
-pnpm check                        # Run biome check with autofix
-```
-
-### Database Operations
-
-```bash
-# Prisma database commands
-pnpm prisma:migrate:dev           # Run migrations (dev)
-pnpm prisma:migrate:test          # Run migrations (test)
-pnpm prisma:db:execute            # Execute SQL scripts (moment view)
-pnpm prisma:studio                # Open Prisma Studio
-
-# Database seeding (new modular system)
-npx prisma db seed                # Traditional full seeding
-npx tsx prisma/seed-new.ts        # New modular seeding (recommended)
-npx tsx prisma/seed-new.ts --users-only     # Seed only users
-npx tsx prisma/seed-new.ts --stories-only   # Seed only stories/content
-npx tsx prisma/seed-new.ts --clean          # Clean everything first
-```
-
-### Documentation
-
-```bash
-# Update OpenAPI documentation
-pnpm update:openapi               # Regenerate OpenAPI spec and types
-pnpm docs:api                     # Build API documentation HTML
-```
-
-### Wallet Integration Testing
-
-```bash
-# Apple Wallet Pass Testing
-curl "http://localhost:4000/api/passport/alice/wallet/apple" \
-  -H "accept-version: 1.0.0" \
-  -H "x-api-key: dev-key"
-
-# Google Wallet Pass Testing  
-curl "http://localhost:4000/api/passport/bob/wallet/google" \
-  -H "accept-version: 1.0.0" \
-  -H "x-api-key: dev-key"
-
-# Both Platform Passes
-curl "http://localhost:4000/api/passport/charlie/wallet/both" \
-  -H "accept-version: 1.0.0" \
-  -H "x-api-key: dev-key"
-
-# QR Code Verification
-curl "http://localhost:4000/api/verify/stats/alice" \
-  -H "accept-version: 1.0.0" \
-  -H "x-api-key: dev-key"
-```
-
-## High-Level Architecture
-
-### Monorepo Structure
-
-This is a NestJS monorepo with two main applications:
-
-- **tourii-backend**: Main API server handling authentication, stories, quests, and user management
-- **tourii-onchain**: Blockchain integration service for NFT operations and Web3 interactions
-
-### Domain-Driven Design
-
-The architecture follows Domain-Driven Design principles with clear separation:
-
-- **Domain Layer** (`libs/core/src/domain/`): Core business entities and repository interfaces
-  - New: `GooglePassObject` interface for wallet integration type definitions
-  - Centralized passport and authentication types
-- **Infrastructure Layer** (`libs/core/src/infrastructure/`): Implementations of repositories (API, DB, blockchain)
-  - Enhanced: Wallet pass repositories with Apple/Google integration
-  - Improved: Exception handling standardization across all repositories
-- **Application Layer** (`apps/*/src/service/`): Business logic and use cases
-  - Enhanced: Wallet pass generation and verification services
-- **Interface Layer** (`apps/*/src/controller/`): HTTP controllers and DTOs
-  - New: Wallet pass generation endpoints with comprehensive validation
-
-### Repository Pattern
-
-All data access is abstracted through repository interfaces:
-
-- Repository interfaces are defined in the domain layer
-- Implementations are injected via dependency injection tokens (e.g., `USER_REPOSITORY_TOKEN`)
-- This allows easy swapping of implementations (DB, API, mock) for testing
-
-### Context System
-
-The application uses a custom context system (`TouriiBackendContextProvider`) to maintain request-scoped data:
-
-- Request ID tracking for distributed tracing
-- User authentication state
-- Request metadata
-
-### Middleware Stack
-
-Security and API middleware are applied in order:
-
-1. **SecurityMiddleware**: CORS, security headers, rate limiting
-2. **TouriiBackendApiMiddleware**: Logging, context initialization, error handling
-
-### Error Handling
-
-Centralized error handling with custom exception types:
-
-- `TouriiBackendAppException`: Application-specific errors with standardized metadata
-- `TouriiOnchainAppException`: Onchain service-specific errors
-- `AppError`: Base error class with error codes and type safety
-- Global error interceptor formats responses consistently
-- **30+ Error Codes**: Comprehensive error classification with solutions (E_TB_000-047, E_GEO_001-005, etc.)
-- **JWT & Token Validation**: Specialized error handling for QR tokens and authentication (E_TB_045-047)
-- **Request Validation**: Enhanced input validation with detailed error responses (E_TB_047, E_OC_047)
-
-### Authentication & Authorization
-
-Multi-provider authentication system:
-
-- Social login (Discord, Google, Twitter)
-- Web3 wallet signature verification (EIP-191)
-- JWT with refresh token rotation
-- Role-based access control
-
-### Blockchain Integration
-
-- **Gear.js**: For Vara Network blockchain interactions
-- **Sails.js**: Smart contract interface framework
-- **Ethers.js**: For EVM-compatible operations
-- Digital Passport NFT minting on user registration
-
-### Digital Passport & Wallet Integration
-
-Comprehensive wallet integration system for mobile digital passports:
-
-- **Apple Wallet Integration**: Native .pkpass generation with certificates and QR verification
-- **Google Wallet Integration**: Service account-based pass generation with JWT authentication
-- **Unified API**: Single endpoints for cross-platform wallet pass generation
-- **QR Token System**: Two-tier expiration (24h for PDF, 2 years for wallet passes)
-- **Mock Testing System**: Enhanced mock data with multiple user personas for development
-- **Domain-Driven Design**: Centralized `GooglePassObject` interface in domain layer
-- **Certificate Management**: Secure handling of Apple Wallet certificates and Google service accounts
-
-### Caching Strategy
-
-Redis-based caching for:
-
-- API responses (weather, location data)
-- User sessions
-- Rate limiting data
-- Configurable TTL per cache type
-
-### Testing Philosophy
-
-- Unit tests for all repository implementations
-- Integration tests for API endpoints
-- Mock implementations for external services
-- Test database with migrations for realistic testing
+> **📖 Complete Architecture Details**: All architectural information has been consolidated into [System Architecture Guide](docs/SYSTEM_ARCHITECTURE.md) - the single source of truth for technical architecture, patterns, and design decisions.
 
 ## Important Guidelines from Cursor Rules
 
@@ -220,7 +42,7 @@ Redis-based caching for:
    - `docs/DATABASE.md`: Database setup and operations guide
    - `docs/SEEDING_GUIDE.md`: New modular database seeding system
    - `docs/ERROR_CODES.md`: Complete error code reference
-   - `docs/DEVELOPMENT_SETUP.md`: Quick 5-minute onboarding guide
+   - `README.md`: Quick 5-minute setup guide
    - `docs/TESTING_STRATEGY.md`: Testing philosophy and implementation
 
 2. **Four-step development process**:
@@ -268,12 +90,117 @@ The repository now includes a modern, modular seeding system:
 
 ## Team Onboarding Resources
 
-For new team members, the documentation provides fast-track onboarding:
+### **🚀 New Developer Fast-Track Guide**
 
-1. **Quick Start**: `docs/DEVELOPMENT_SETUP.md` (5-minute setup)
-2. **API Examples**: `docs/API_EXAMPLES.md` (real workflows with curl commands)
-3. **Error Debugging**: `docs/ERROR_CODES.md` (all 28+ error codes with solutions)
-4. **Database Operations**: `docs/DATABASE.md` (migrations, seeding, troubleshooting)
+#### **First Day Setup (30 minutes total)**
+
+```bash
+# 1. Essential Environment Setup (5 min)
+git clone [repo-url] && cd tourii-backend && pnpm install
+cd etc/docker && docker-compose up db test_db -d
+cp .env.example .env  # Edit with your API keys
+
+# 2. Database & Data Setup (10 min)
+pnpm prisma:migrate:dev && pnpm prisma:db:execute
+npx tsx prisma/seed-new.ts  # Creates alice, bob, admin test users
+
+# 3. Start Development Server (5 min)
+pnpm start:dev:tourii-backend  # API at http://localhost:4000
+
+# 4. Test Key Features (10 min)
+curl "http://localhost:4000/api/passport/alice/wallet/apple" \
+  -H "accept-version: 1.0.0" -H "x-api-key: dev-key"
+```
+
+#### **📚 Essential Documentation Reading Order**
+
+| Priority | Document | Time | Purpose | When to Read |
+|----------|----------|------|---------|-------------|
+| **🔥 CRITICAL** | [README.md](README.md) | 5 min | Get system running | Day 1, Hour 1 |
+| **🔥 CRITICAL** | [API Examples](docs/API_EXAMPLES.md) | 10 min | Real-world usage patterns | Day 1, Hour 1 |
+| **⚡ HIGH** | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | 15 min | Understand the system | Day 1, Hour 2 |
+| **⚡ HIGH** | [Error Codes](docs/ERROR_CODES.md) | 5 min | Debug common issues | When stuck |
+| **📖 MEDIUM** | [Database Guide](docs/DATABASE.md) | 10 min | Database operations | When working with data |
+| **📖 MEDIUM** | [Security Guide](docs/SECURITY.md) | 8 min | Security best practices | Before production work |
+| **📖 MEDIUM** | [Testing Strategy](docs/TESTING_STRATEGY.md) | 10 min | Testing philosophy | When writing tests |
+| **📘 REFERENCE** | [Seeding Guide](docs/SEEDING_GUIDE.md) | 5 min | Database test data | When need test data |
+
+#### **🎯 First Week Learning Path**
+
+**Day 1: Environment & Basic Understanding**
+- ✅ Complete setup and run first API call
+- ✅ Read System Architecture overview
+- ✅ Test wallet integration features
+- ✅ Review API Examples for common patterns
+
+**Day 2-3: Core Development Skills**
+- ✅ Write your first test following Testing Strategy
+- ✅ Make your first API change and test it
+- ✅ Understand the database schema via Database Guide
+- ✅ Practice using the error codes reference
+
+**Day 4-5: Advanced Features**
+- ✅ Implement a simple quest task
+- ✅ Try wallet pass generation
+- ✅ Review security practices
+- ✅ Understand the blockchain integration
+
+#### **🛠️ Development Environment Verification**
+
+Run this checklist to verify your setup:
+
+```bash
+# ✅ Services Running
+curl http://localhost:4000/health-check \
+  -H "x-api-key: dev-key" -H "accept-version: 1.0.0"
+# Expected: "OK"
+
+# ✅ Database Connected
+pnpm prisma:studio  # Should open at http://localhost:5555
+
+# ✅ Test Data Available
+curl http://localhost:4000/user/me \
+  -H "x-api-key: dev-key" -H "accept-version: 1.0.0" -H "x-user-id: alice"
+# Expected: User profile data
+
+# ✅ Wallet Integration Working
+curl http://localhost:4000/api/passport/alice/wallet/google \
+  -H "x-api-key: dev-key" -H "accept-version: 1.0.0"
+# Expected: Google wallet pass data
+
+# ✅ Tests Pass
+pnpm test
+# Expected: All tests passing
+```
+
+#### **🚨 Common First-Day Issues & Solutions**
+
+| Issue | Symptom | Solution |
+|-------|---------|----------|
+| **Port conflicts** | "Port 7442 already in use" | `lsof -i :7442` then kill process, or change docker port |
+| **Missing API keys** | "E_TB_010: API key required" | Add `x-api-key: dev-key` header to all requests |
+| **Database connection** | "Connection refused" | Restart docker: `cd etc/docker && docker-compose restart` |
+| **Prisma generate fails** | "Cannot find module @prisma/client" | Run `npx prisma generate` |
+| **Biome not found** | "Command not found: biome" | Use `pnpm exec biome` or `npx biome` |
+| **Mock data missing** | "User not found" | Run `npx tsx prisma/seed-new.ts` |
+
+#### **📞 Getting Help**
+
+- **🐛 Bug in code**: Check [Error Codes](docs/ERROR_CODES.md) first
+- **🏗️ Architecture questions**: See [System Architecture](docs/SYSTEM_ARCHITECTURE.md)
+- **🔧 Setup issues**: Follow [README.md](README.md) troubleshooting
+- **📱 Wallet features**: Review [API Examples](docs/API_EXAMPLES.md) wallet section
+- **🗃️ Database problems**: Use [Database Guide](docs/DATABASE.md) troubleshooting
+- **🔒 Security questions**: Consult [Security Guide](docs/SECURITY.md)
+
+### **🎓 Advanced Developer Resources**
+
+For experienced developers diving deeper:
+
+1. **Quest System**: `docs/quest/` - Advanced group quest mechanics and task management
+2. **Wallet Integration**: `docs/wallet-integration/` - Production deployment guides for Apple/Google
+3. **Blockchain Integration**: `docs/web3/` - Smart contract interactions and NFT systems
+4. **Admin API**: `etc/http/user-request/` - Comprehensive admin API test examples
 
 ## 💰 Recent Cost Optimization Achievements
 
@@ -344,6 +271,117 @@ Implemented comprehensive task management and quest system improvements:
 - **Architecture Compliance**: Enhanced DDD compliance with proper domain layer interfaces
 - **Type Safety**: Improved TypeScript usage with centralized interface definitions
 - **Validation Pipeline**: Enhanced request validation with consistent error responses across all services
+
+### Advanced Development Workflows
+
+#### Wallet Integration Setup
+
+**Apple Wallet Setup:**
+1. Get Apple Developer Account (Required for production)
+2. Create Pass Type ID in Apple Developer Portal
+3. Generate Certificate and convert to .p12 format
+4. Configure Environment Variables:
+   ```bash
+   APPLE_WALLET_CERT_PATH=path/to/apple-cert.p12
+   APPLE_WALLET_CERT_PASSWORD=your-secure-password
+   ```
+
+**Google Wallet Setup:**
+1. Create Google Cloud Project and enable Google Wallet API
+2. Create Service Account with "Wallet Objects Admin" role
+3. Download JSON key file
+4. Configure Environment Variables:
+   ```bash
+   GOOGLE_WALLET_ISSUER_ID=your-google-wallet-issuer-id
+   GOOGLE_WALLET_CLASS_ID=tourii-passport
+   GOOGLE_WALLET_KEY_PATH=path/to/service-account-key.json
+   ```
+
+**Security Setup:**
+```bash
+chmod 600 path/to/service-account-key.json
+chmod 600 path/to/apple-cert.p12
+echo "*.p12" >> .gitignore
+echo "*service-account*.json" >> .gitignore
+```
+
+#### Development Workflow
+
+**Daily Startup:**
+```bash
+cd etc/docker && docker-compose start
+pnpm start:dev
+pnpm start:dev:tourii-onchain  # If needed
+```
+
+**Making Changes:**
+```bash
+git checkout -b feature/your-feature-name
+pnpm lint && pnpm test && pnpm format
+git add . && git commit -m "Add your feature"
+git push origin feature/your-feature-name
+```
+
+**Database Changes:**
+```bash
+# Modify prisma/schema.prisma, then:
+npx prisma migrate dev --name your_migration_name
+npx prisma migrate deploy  # For production
+```
+
+#### Common Issues & Fixes
+
+**Port 7442 already in use:**
+```bash
+lsof -i :7442  # Check what's using the port
+# Kill process or edit etc/docker/docker-compose.yml: "7443:5432"
+```
+
+**Database connection failed:**
+```bash
+cd etc/docker && docker-compose down && docker-compose up -d
+# Wait 10 seconds then retry
+```
+
+**Prisma generate failed:**
+```bash
+npx prisma generate
+# If still fails: rm -rf node_modules && pnpm install
+```
+
+**Module not found:**
+```bash
+pnpm store prune && rm -rf node_modules && pnpm install
+```
+
+#### IDE Setup Recommendations
+
+**VS Code Extensions:**
+- Prisma - Database schema support
+- TypeScript Importer - Auto imports
+- Biome - Linting & formatting
+- REST Client - Test API endpoints from `etc/http/`
+
+**VS Code Settings:**
+```json
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome"
+}
+```
+
+#### Mock Testing System
+
+Available Mock Token IDs for wallet testing:
+- `123` - Japanese Test User (E級 天津神)
+- `456` - Advanced User (S級 国津神) 
+- `789` - Beginner (F級 地神)
+- `alice` - Explorer (A級 山神)
+- `bob` - Tech Enthusiast (B級 水神)
+- `charlie` - Adventurer (C級 火神)
+
+**No authentication required** for testing these mock personas!
 
 ---
 

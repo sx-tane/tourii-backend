@@ -1,3 +1,0 @@
-GET http://localhost:4000/quests?questType=TRAVEL_TO_EARN&page=1&limit=1
-x-api-key: your-api-key-1
-accept-version: 1.0.0

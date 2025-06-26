@@ -1,0 +1,13 @@
+### Get Homepage Highlights
+GET http://localhost:4000/v2/homepage/highlights
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Get Moments Feed
+GET http://localhost:4000/moments?page=1&limit=10
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
