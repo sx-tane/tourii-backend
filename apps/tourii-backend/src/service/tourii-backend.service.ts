@@ -1090,10 +1090,11 @@ export class TouriiBackendService {
         // 4. Handle story chapter linking based on storyChapterId changes
         const oldStoryChapterId = existingTouristSpot?.storyChapterId;
         const newStoryChapterId = updated.storyChapterId;
-        
+
         // Check if we're transitioning from null/undefined to a valid chapter ID, or updating to a new valid chapter
-        const shouldUpdateChapterLink = updated.touristSpotId && 
-            newStoryChapterId && 
+        const shouldUpdateChapterLink =
+            updated.touristSpotId &&
+            newStoryChapterId &&
             (!oldStoryChapterId || oldStoryChapterId !== newStoryChapterId);
 
         if (shouldUpdateChapterLink) {

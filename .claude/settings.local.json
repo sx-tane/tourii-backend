@@ -71,7 +71,8 @@
       "Bash(npx tsc:*)",
       "Bash(kill:*)",
       "Bash(docker-compose up:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(git remote get-url:*)"
     ],
     "deny": []
   }
