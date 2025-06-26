@@ -1,0 +1,220 @@
+### AI Route Recommendations - Cache Test (Identical Request #1)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: cache-test-user
+Content-Type: application/json
+
+{
+  "keywords": ["cache", "test"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Cache Test (Identical Request #2 - Should be faster)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: cache-test-user
+Content-Type: application/json
+
+{
+  "keywords": ["cache", "test"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Large Dataset Test
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["popular", "tourist", "attraction"],
+  "mode": "any",
+  "proximityRadiusKm": 200,
+  "minSpotsPerCluster": 1,
+  "maxSpotsPerCluster": 15,
+  "maxRoutes": 20
+}
+
+###
+
+### AI Route Recommendations - Rate Limit Test #1
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: rate-limit-user
+Content-Type: application/json
+
+{
+  "keywords": ["rate", "limit", "test", "1"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Rate Limit Test #2  
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: rate-limit-user
+Content-Type: application/json
+
+{
+  "keywords": ["rate", "limit", "test", "2"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Rate Limit Test #3
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: rate-limit-user
+Content-Type: application/json
+
+{
+  "keywords": ["rate", "limit", "test", "3"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Rate Limit Test #4
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: rate-limit-user
+Content-Type: application/json
+
+{
+  "keywords": ["rate", "limit", "test", "4"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Rate Limit Test #5
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: rate-limit-user
+Content-Type: application/json
+
+{
+  "keywords": ["rate", "limit", "test", "5"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Anonymous Rate Limit Test #1
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["anonymous", "test", "1"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Anonymous Rate Limit Test #2
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["anonymous", "test", "2"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Anonymous Rate Limit Test #3
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["anonymous", "test", "3"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Anonymous Rate Limit Test #4 (Should fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["anonymous", "test", "4"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Concurrent Request Test (User A)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: concurrent-user-a
+Content-Type: application/json
+
+{
+  "keywords": ["concurrent", "request", "a"],
+  "mode": "any",
+  "proximityRadiusKm": 75,
+  "maxRoutes": 5
+}
+
+###
+
+### AI Route Recommendations - Concurrent Request Test (User B)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: concurrent-user-b
+Content-Type: application/json
+
+{
+  "keywords": ["concurrent", "request", "b"],
+  "mode": "any",
+  "proximityRadiusKm": 75,
+  "maxRoutes": 5
+}
+
+###
+
+### AI Route Recommendations - AI Service Stress Test
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: stress-test-user
+Content-Type: application/json
+
+{
+  "keywords": ["stress", "test", "ai", "generation", "heavy", "load"],
+  "mode": "any",
+  "proximityRadiusKm": 150,
+  "minSpotsPerCluster": 1,
+  "maxSpotsPerCluster": 15,
+  "maxRoutes": 15
+}
+
+###
