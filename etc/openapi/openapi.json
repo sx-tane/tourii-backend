@@ -5719,7 +5719,7 @@
                       "type": "object",
                       "properties": {
                         "storyChapterId": {
-                          "description": "Unique identifier for the story chapter",
+                          "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                           "type": "string"
                         },
                         "touristSpotName": {
@@ -6413,7 +6413,7 @@
                 "type": "object",
                 "properties": {
                   "storyChapterId": {
-                    "description": "Unique identifier for the story chapter",
+                    "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                     "type": "string"
                   },
                   "touristSpotName": {
@@ -6706,7 +6706,7 @@
                       "type": "object",
                       "properties": {
                         "storyChapterId": {
-                          "description": "Unique identifier for the story chapter",
+                          "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                           "type": "string"
                         },
                         "touristSpotName": {
@@ -7117,7 +7117,7 @@
                 "type": "object",
                 "properties": {
                   "storyChapterId": {
-                    "description": "Unique identifier for the story chapter",
+                    "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                     "type": "string"
                   },
                   "touristSpotName": {
@@ -13050,6 +13050,698 @@
         ]
       }
     },
+    "/api/passport/generate/{tokenId}": {
+      "post": {
+        "description": "Generate a professional PDF passport document with user achievements and QR code verification. Uploads to cloud storage and returns download URL.",
+        "operationId": "TouriiBackendController_generatePdf",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Passport PDF generated and uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportPdfResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "Passport not found"
+          }
+        },
+        "summary": "Generate Digital Passport PDF"
+      }
+    },
+    "/api/passport/refresh/{tokenId}": {
+      "post": {
+        "description": "Regenerate passport PDF with updated user achievements and progress",
+        "operationId": "TouriiBackendController_refreshPassport",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Passport refreshed successfully"
+          }
+        },
+        "summary": "Refresh Passport with New Achievements"
+      }
+    },
+    "/api/passport/preview/{tokenId}": {
+      "get": {
+        "description": "Generate a preview PDF without uploading to storage (for testing/preview purposes)",
+        "operationId": "TouriiBackendController_generatePreview",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Preview PDF generated successfully",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Generate Passport Preview"
+      }
+    },
+    "/api/passport/download/{tokenId}": {
+      "post": {
+        "description": "Generate and directly download passport PDF (generates on-demand)",
+        "operationId": "TouriiBackendController_downloadPdf",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF downloaded successfully",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Download Passport PDF"
+      }
+    },
+    "/api/verify/{verificationCode}": {
+      "get": {
+        "description": "Verify a passport verification token (from QR code or manual entry). Public endpoint requiring no authentication.",
+        "operationId": "TouriiBackendController_verifyPassport",
+        "parameters": [
+          {
+            "name": "verificationCode",
+            "required": true,
+            "in": "path",
+            "description": "The verification token (JWT) from QR code or manual entry",
+            "schema": {
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification completed (check valid field for result)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Verify Passport Token"
+      }
+    },
+    "/api/verify/batch": {
+      "post": {
+        "description": "Verify multiple passport tokens at once. Useful for bulk verification scenarios.",
+        "operationId": "TouriiBackendController_batchVerifyPassports",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchVerificationResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Batch Verify Multiple Passports"
+      }
+    },
+    "/api/verify/qr/{qrCode}": {
+      "get": {
+        "description": "Verify a passport using QR code data. Alias for standard verification endpoint.",
+        "operationId": "TouriiBackendController_verifyQrCode",
+        "parameters": [
+          {
+            "name": "qrCode",
+            "required": true,
+            "in": "path",
+            "description": "The QR code data (JWT token)",
+            "schema": {
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "QR code verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Verify QR Code"
+      }
+    },
+    "/api/verify/stats/{tokenId}": {
+      "get": {
+        "description": "Get verification statistics for a specific token ID or global stats if no token ID provided",
+        "operationId": "TouriiBackendController_getVerificationStats",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": false,
+            "in": "path",
+            "description": "The token ID to get stats for (optional)",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationStatsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get Verification Statistics"
+      }
+    },
+    "/api/passport/{tokenId}/wallet/apple": {
+      "get": {
+        "description": "Generate Apple Wallet pass (.pkpass file) for Digital Passport NFT",
+        "operationId": "TouriiBackendController_generateAppleWalletPass",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Apple Wallet pass generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPassResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "Passport not found"
+          }
+        },
+        "summary": "Generate Apple Wallet Pass"
+      }
+    },
+    "/api/passport/{tokenId}/wallet/google": {
+      "get": {
+        "description": "Generate Google Pay pass for Digital Passport NFT",
+        "operationId": "TouriiBackendController_generateGoogleWalletPass",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Google Pay pass generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPassResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "Passport not found"
+          }
+        },
+        "summary": "Generate Google Pay Pass"
+      }
+    },
+    "/api/passport/{tokenId}/wallet/both": {
+      "get": {
+        "description": "Generate both Apple Wallet and Google Pay passes for Digital Passport NFT",
+        "operationId": "TouriiBackendController_generateBothWalletPasses",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Both wallet passes generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BothWalletPassesResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "Passport not found"
+          }
+        },
+        "summary": "Generate Both Wallet Passes"
+      }
+    },
+    "/api/passport/{tokenId}/wallet/update": {
+      "post": {
+        "description": "Update an existing wallet pass for a specific platform",
+        "operationId": "TouriiBackendController_updateWalletPass",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID of the Digital Passport NFT",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletPassUpdateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet pass updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPassResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "404": {
+            "description": "Passport not found"
+          }
+        },
+        "summary": "Update Wallet Pass"
+      }
+    },
+    "/api/passport/validate/{tokenId}": {
+      "get": {
+        "description": "Check if a token ID exists and is valid for passport generation",
+        "operationId": "TouriiBackendController_validateTokenStatus",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "description": "The token ID to validate",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassStatusDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Validate Token ID"
+      }
+    },
     "/test/headers": {
       "get": {
         "description": "Tests the security headers set by SecurityMiddleware. Returns all configured security headers in the response.",
@@ -13657,7 +14349,7 @@
               "type": "object",
               "properties": {
                 "storyChapterId": {
-                  "description": "Unique identifier for the story chapter",
+                  "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                   "type": "string"
                 },
                 "touristSpotName": {
@@ -13729,7 +14421,7 @@
         "type": "object",
         "properties": {
           "storyChapterId": {
-            "description": "Unique identifier for the story chapter",
+            "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
             "type": "string"
           },
           "touristSpotName": {
@@ -14047,7 +14739,7 @@
               "type": "object",
               "properties": {
                 "storyChapterId": {
-                  "description": "Unique identifier for the story chapter",
+                  "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
                   "type": "string"
                 },
                 "touristSpotName": {
@@ -14149,7 +14841,7 @@
         "type": "object",
         "properties": {
           "storyChapterId": {
-            "description": "Unique identifier for the story chapter",
+            "description": "Unique identifier for the story chapter. Use \"No\" to skip story chapter linking.",
             "type": "string"
           },
           "touristSpotName": {
@@ -19422,6 +20114,524 @@
         },
         "required": [
           "action"
+        ]
+      },
+      "BatchVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "tokens": {
+            "description": "Array of verification tokens (JWT) to verify in batch",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tokens"
+        ]
+      },
+      "WalletPassGenerateRequestDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "Token ID of the Digital Passport NFT",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tokenId"
+        ]
+      },
+      "WalletPassUpdateRequestDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "Token ID of the Digital Passport NFT",
+            "type": "string"
+          },
+          "platform": {
+            "description": "Wallet platform to update",
+            "type": "string",
+            "enum": [
+              "apple",
+              "google"
+            ]
+          }
+        },
+        "required": [
+          "tokenId",
+          "platform"
+        ]
+      },
+      "PassportPdfResponseDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "The token ID of the Digital Passport NFT",
+            "type": "string"
+          },
+          "downloadUrl": {
+            "description": "URL to download the generated PDF",
+            "type": "string",
+            "format": "uri"
+          },
+          "qrCode": {
+            "description": "JWT token for QR code verification",
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "Expiration date of the PDF",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "tokenId",
+          "downloadUrl",
+          "qrCode",
+          "expiresAt"
+        ]
+      },
+      "VerificationResultDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "description": "Whether the verification was successful",
+            "type": "boolean"
+          },
+          "tokenId": {
+            "description": "Token ID of the verified passport",
+            "type": "string"
+          },
+          "verifiedAt": {
+            "description": "Timestamp of verification",
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "description": "Token expiration timestamp",
+            "type": "string",
+            "format": "date-time"
+          },
+          "passportData": {
+            "description": "Passport holder data if verification successful",
+            "type": "object",
+            "properties": {
+              "username": {
+                "description": "Username of the passport holder",
+                "type": "string"
+              },
+              "level": {
+                "description": "User level (e.g., E-Class Amatsukami)",
+                "type": "string"
+              },
+              "passportType": {
+                "description": "Type of passport (e.g., Amatsukami)",
+                "type": "string"
+              },
+              "questsCompleted": {
+                "description": "Number of quests completed",
+                "type": "integer"
+              },
+              "travelDistance": {
+                "description": "Total travel distance in km",
+                "type": "number"
+              },
+              "magatamaPoints": {
+                "description": "Total Magatama points earned",
+                "type": "integer"
+              },
+              "registeredAt": {
+                "description": "Registration date",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "username",
+              "level",
+              "passportType",
+              "questsCompleted",
+              "travelDistance",
+              "magatamaPoints",
+              "registeredAt"
+            ]
+          },
+          "error": {
+            "description": "Error message if verification failed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid",
+          "tokenId",
+          "verifiedAt"
+        ]
+      },
+      "BatchVerificationResultDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "description": "Individual verification results",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "valid": {
+                  "description": "Whether the verification was successful",
+                  "type": "boolean"
+                },
+                "tokenId": {
+                  "description": "Token ID of the verified passport",
+                  "type": "string"
+                },
+                "verifiedAt": {
+                  "description": "Timestamp of verification",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "expiresAt": {
+                  "description": "Token expiration timestamp",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "passportData": {
+                  "description": "Passport holder data if verification successful",
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "description": "Username of the passport holder",
+                      "type": "string"
+                    },
+                    "level": {
+                      "description": "User level (e.g., E-Class Amatsukami)",
+                      "type": "string"
+                    },
+                    "passportType": {
+                      "description": "Type of passport (e.g., Amatsukami)",
+                      "type": "string"
+                    },
+                    "questsCompleted": {
+                      "description": "Number of quests completed",
+                      "type": "integer"
+                    },
+                    "travelDistance": {
+                      "description": "Total travel distance in km",
+                      "type": "number"
+                    },
+                    "magatamaPoints": {
+                      "description": "Total Magatama points earned",
+                      "type": "integer"
+                    },
+                    "registeredAt": {
+                      "description": "Registration date",
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "username",
+                    "level",
+                    "passportType",
+                    "questsCompleted",
+                    "travelDistance",
+                    "magatamaPoints",
+                    "registeredAt"
+                  ]
+                },
+                "error": {
+                  "description": "Error message if verification failed",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "valid",
+                "tokenId",
+                "verifiedAt"
+              ]
+            }
+          },
+          "summary": {
+            "description": "Summary statistics",
+            "type": "object",
+            "properties": {
+              "total": {
+                "description": "Total number of tokens verified",
+                "type": "integer"
+              },
+              "valid": {
+                "description": "Number of valid tokens",
+                "type": "integer"
+              },
+              "invalid": {
+                "description": "Number of invalid tokens",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "valid",
+              "invalid"
+            ]
+          }
+        },
+        "required": [
+          "results",
+          "summary"
+        ]
+      },
+      "VerificationStatsDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "Token ID if specific stats requested",
+            "type": "string"
+          },
+          "totalVerifications": {
+            "description": "Total verification count",
+            "type": "integer"
+          },
+          "todayVerifications": {
+            "description": "Verifications today",
+            "type": "integer"
+          },
+          "lastVerified": {
+            "description": "Last verification timestamp",
+            "type": "string",
+            "format": "date-time"
+          },
+          "popularPassports": {
+            "description": "Most verified passports",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tokenId": {
+                  "description": "Token ID",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "Username",
+                  "type": "string"
+                },
+                "verificationCount": {
+                  "description": "Number of verifications",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "tokenId",
+                "username",
+                "verificationCount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "totalVerifications",
+          "todayVerifications"
+        ]
+      },
+      "PassportDataDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "description": "Username of the passport holder",
+            "type": "string"
+          },
+          "level": {
+            "description": "User level (e.g., E-Class Amatsukami)",
+            "type": "string"
+          },
+          "passportType": {
+            "description": "Type of passport (e.g., Amatsukami)",
+            "type": "string"
+          },
+          "questsCompleted": {
+            "description": "Number of quests completed",
+            "type": "integer"
+          },
+          "travelDistance": {
+            "description": "Total travel distance in km",
+            "type": "number"
+          },
+          "magatamaPoints": {
+            "description": "Total Magatama points earned",
+            "type": "integer"
+          },
+          "registeredAt": {
+            "description": "Registration date",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "username",
+          "level",
+          "passportType",
+          "questsCompleted",
+          "travelDistance",
+          "magatamaPoints",
+          "registeredAt"
+        ]
+      },
+      "WalletPassResultDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "Token ID of the Digital Passport NFT",
+            "type": "string"
+          },
+          "platform": {
+            "description": "Wallet platform (apple or google)",
+            "type": "string",
+            "enum": [
+              "apple",
+              "google"
+            ]
+          },
+          "downloadUrl": {
+            "description": "Direct download URL for Apple passes",
+            "type": "string",
+            "format": "uri"
+          },
+          "redirectUrl": {
+            "description": "URL to add pass to wallet",
+            "type": "string",
+            "format": "uri"
+          },
+          "expiresAt": {
+            "description": "Pass expiration timestamp",
+            "type": "string",
+            "format": "date-time"
+          },
+          "passBuffer": {
+            "description": "Pass file buffer (for direct downloads)"
+          }
+        },
+        "required": [
+          "tokenId",
+          "platform",
+          "redirectUrl",
+          "expiresAt"
+        ]
+      },
+      "BothWalletPassesResultDto": {
+        "type": "object",
+        "properties": {
+          "tokenId": {
+            "description": "Token ID of the Digital Passport NFT",
+            "type": "string"
+          },
+          "apple": {
+            "description": "Apple Wallet pass data",
+            "type": "object",
+            "properties": {
+              "tokenId": {
+                "description": "Token ID of the Digital Passport NFT",
+                "type": "string"
+              },
+              "platform": {
+                "description": "Wallet platform (apple or google)",
+                "type": "string",
+                "enum": [
+                  "apple",
+                  "google"
+                ]
+              },
+              "downloadUrl": {
+                "description": "Direct download URL for Apple passes",
+                "type": "string",
+                "format": "uri"
+              },
+              "redirectUrl": {
+                "description": "URL to add pass to wallet",
+                "type": "string",
+                "format": "uri"
+              },
+              "expiresAt": {
+                "description": "Pass expiration timestamp",
+                "type": "string",
+                "format": "date-time"
+              },
+              "passBuffer": {
+                "description": "Pass file buffer (for direct downloads)"
+              }
+            },
+            "required": [
+              "tokenId",
+              "platform",
+              "redirectUrl",
+              "expiresAt"
+            ]
+          },
+          "google": {
+            "description": "Google Pay pass data",
+            "type": "object",
+            "properties": {
+              "tokenId": {
+                "description": "Token ID of the Digital Passport NFT",
+                "type": "string"
+              },
+              "platform": {
+                "description": "Wallet platform (apple or google)",
+                "type": "string",
+                "enum": [
+                  "apple",
+                  "google"
+                ]
+              },
+              "downloadUrl": {
+                "description": "Direct download URL for Apple passes",
+                "type": "string",
+                "format": "uri"
+              },
+              "redirectUrl": {
+                "description": "URL to add pass to wallet",
+                "type": "string",
+                "format": "uri"
+              },
+              "expiresAt": {
+                "description": "Pass expiration timestamp",
+                "type": "string",
+                "format": "date-time"
+              },
+              "passBuffer": {
+                "description": "Pass file buffer (for direct downloads)"
+              }
+            },
+            "required": [
+              "tokenId",
+              "platform",
+              "redirectUrl",
+              "expiresAt"
+            ]
+          }
+        },
+        "required": [
+          "tokenId",
+          "apple",
+          "google"
+        ]
+      },
+      "PassStatusDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "description": "Whether the token ID is valid",
+            "type": "boolean"
+          },
+          "tokenId": {
+            "description": "The token ID that was validated",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid",
+          "tokenId"
         ]
       },
       "UserSensitiveInfoResponseDto": {

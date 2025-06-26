@@ -1,4 +1,0 @@
-GET http://localhost:4000/stories/sagas
-Content-Type: application/json
-x-api-key: your-api-key-1
-accept-version: 1.0.0

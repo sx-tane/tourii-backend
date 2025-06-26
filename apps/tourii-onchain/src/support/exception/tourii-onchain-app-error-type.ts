@@ -31,6 +31,21 @@ export const TouriiOnchainAppErrorType = {
         message: 'Version is deprecated',
         type: ErrorType.BAD_REQUEST,
     },
+    E_OC_010: {
+        code: 'E_OC_010',
+        message: 'API key is required',
+        type: ErrorType.UNAUTHORIZED,
+    },
+    E_OC_011: {
+        code: 'E_OC_011',
+        message: 'Invalid API key',
+        type: ErrorType.UNAUTHORIZED,
+    },
+    E_OC_047: {
+        code: 'E_OC_047',
+        message: 'Request validation failed',
+        type: ErrorType.BAD_REQUEST,
+    },
 } as const;
 
 type TouriiOnchainAppErrorKeys = keyof typeof TouriiOnchainAppErrorType;

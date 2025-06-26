@@ -23,6 +23,185 @@ Content-Type: application/json
 
 ---
 
+## 📱 Digital Wallet Integration
+
+### Apple Wallet Pass Generation
+
+Generate a `.pkpass` file for Apple Wallet with QR verification:
+
+```bash
+curl -s "http://localhost:4000/api/passport/alice/wallet/apple" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key" | \
+  node -e "
+    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const buffer = Buffer.from(data.passBuffer.data);
+    require('fs').writeFileSync('alice-passport.pkpass', buffer);
+    console.log('✅ Apple Wallet pass saved as alice-passport.pkpass');
+    console.log('📱 Install URL:', data.redirectUrl);
+    console.log('⏰ Expires:', data.expiresAt);
+  "
+```
+
+**Response Structure:**
+```json
+{
+  "tokenId": "alice",
+  "platform": "apple",
+  "redirectUrl": "https://your-domain.com/api/wallet/apple/pass?tokenId=alice",
+  "expiresAt": "2027-06-26T12:00:00.000Z",
+  "passBuffer": { "type": "Buffer", "data": [...] }
+}
+```
+
+### Google Wallet Pass Generation
+
+Generate a Google Pay pass with real Google Wallet API:
+
+```bash
+curl -s "http://localhost:4000/api/passport/bob/wallet/google" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key" | \
+  node -e "
+    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const buffer = Buffer.from(data.passBuffer.data);
+    const passObject = JSON.parse(buffer.toString());
+    require('fs').writeFileSync('bob-google-pass.json', buffer);
+    console.log('✅ Google Wallet pass saved as bob-google-pass.json');
+    console.log('📱 Add to Google Wallet:', data.redirectUrl);
+    console.log('🔍 QR Code JWT:', passObject.genericObjects[0].barcode.value);
+  "
+```
+
+**Response Structure:**
+```json
+{
+  "tokenId": "bob", 
+  "platform": "google",
+  "redirectUrl": "https://pay.google.com/gp/v/save/eyJ...",
+  "expiresAt": "2027-06-26T12:00:00.000Z",
+  "passBuffer": { "type": "Buffer", "data": [...] }
+}
+```
+
+### Both Platform Passes
+
+Generate both Apple and Google wallet passes simultaneously:
+
+```bash
+curl "http://localhost:4000/api/passport/charlie/wallet/both" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key"
+```
+
+**Response Structure:**
+```json
+{
+  "tokenId": "charlie",
+  "apple": {
+    "tokenId": "charlie",
+    "platform": "apple", 
+    "redirectUrl": "https://your-domain.com/api/wallet/apple/pass?tokenId=charlie",
+    "expiresAt": "2027-06-26T12:00:00.000Z",
+    "passBuffer": { "type": "Buffer", "data": [...] }
+  },
+  "google": {
+    "tokenId": "charlie",
+    "platform": "google",
+    "redirectUrl": "https://pay.google.com/gp/v/save/eyJ...",
+    "expiresAt": "2027-06-26T12:00:00.000Z",
+    "passBuffer": { "type": "Buffer", "data": [...] }
+  }
+}
+```
+
+### QR Code Verification
+
+Verify QR codes from wallet passes:
+
+```bash
+# Extract QR code from Google Pass
+QR_TOKEN=$(curl -s "http://localhost:4000/api/passport/alice/wallet/google" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key" | \
+  node -e "
+    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const buffer = Buffer.from(data.passBuffer.data);
+    const passObject = JSON.parse(buffer.toString());
+    console.log(passObject.genericObjects[0].barcode.value);
+  ")
+
+# Verify the QR token
+curl "http://localhost:4000/api/verify/${QR_TOKEN}" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key"
+```
+
+### Verification Statistics
+
+Get verification analytics for tokens:
+
+```bash
+# Individual token stats
+curl "http://localhost:4000/api/verify/stats/alice" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key"
+
+# Global verification stats  
+curl "http://localhost:4000/api/verify/stats" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key"
+```
+
+### PDF Passport Generation
+
+Generate downloadable PDF passports:
+
+```bash
+# Generate PDF
+curl "http://localhost:4000/api/passport/alice/generate" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key"
+
+# Download PDF
+curl "http://localhost:4000/api/passport/alice/download" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key" \
+  -o alice-passport.pdf
+
+# Preview PDF  
+curl "http://localhost:4000/api/passport/alice/preview" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: your-api-key" \
+  -o alice-preview.pdf
+```
+
+### Mock Testing System
+
+The system supports multiple mock token IDs for testing:
+
+| Token ID | Profile | Description |
+|----------|---------|-------------|
+| `123` | Japanese Test User | E級 天津神 (Amatsukami Class E) |
+| `456` | Advanced User | S級 国津神 (Kunitsukami Class S) |
+| `789` | Beginner | F級 地神 (Chijin Class F) |
+| `alice` | Explorer | A級 山神 (Mountain God Class A) |
+| `bob` | Tech Enthusiast | B級 水神 (Water God Class B) |
+| `charlie` | Adventurer | C級 火神 (Fire God Class C) |
+
+```bash
+# Test different user profiles
+for user in alice bob charlie 123 456 789; do
+  echo "Testing wallet generation for $user:"
+  curl "http://localhost:4000/api/passport/$user/wallet/google" \
+    -H "accept-version: 1.0.0" \
+    -H "x-api-key: your-api-key" | \
+    jq '.redirectUrl'
+done
+```
+
+---
+
 ## 🔐 Authentication & User Management
 
 ### User Signup
@@ -956,4 +1135,4 @@ GET http://localhost:4000/admin/users?isBanned=true&sortBy=registered_at&sortOrd
 
 ---
 
-_Last Updated: June 22, 2025_
+_Last Updated: June 26, 2025_

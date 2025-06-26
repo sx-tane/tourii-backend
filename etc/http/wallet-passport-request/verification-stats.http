@@ -1,0 +1,11 @@
+### Get Verification Statistics
+# Get verification statistics for a specific token ID or global stats if no token ID provided
+GET http://localhost:4000/api/verify/stats/bob
+accept-version: 1.0.0
+x-api-key: your-api-key-2
+
+### Get Global Verification Statistics
+# Get global verification statistics (no token ID provided)
+GET http://localhost:4000/api/verify/stats
+accept-version: 1.0.0
+x-api-key: your-api-key-2

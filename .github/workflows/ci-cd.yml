@@ -40,6 +40,9 @@ jobs:
           
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+          PUPPETEER_SKIP_DOWNLOAD: true
         
       - name: Setup test environment
         run: |
@@ -72,6 +75,9 @@ jobs:
           
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+          PUPPETEER_SKIP_DOWNLOAD: true
         
       - name: Drop existing database views
         run: pnpm prisma db execute --schema=./prisma/schema.prisma --file=./prisma/scripts/drop_view.sql

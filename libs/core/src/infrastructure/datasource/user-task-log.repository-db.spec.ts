@@ -508,7 +508,7 @@ describe('UserTaskLogRepositoryDb', () => {
                     interactionType: 'text',
                     content: textContent,
                     submittedAt: expect.any(String),
-                })
+                }),
             );
             expect((taskLog?.submission_data as any)?.content).toEqual(textContent);
             expect(taskLog?.completed_at).not.toBeNull();
@@ -544,7 +544,7 @@ describe('UserTaskLogRepositoryDb', () => {
                     interactionType: 'photo',
                     content: photoUrl,
                     submittedAt: expect.any(String),
-                })
+                }),
             );
             expect((taskLog?.submission_data as any)?.content).toEqual(photoUrl);
             expect(taskLog?.completed_at).not.toBeNull();
@@ -577,7 +577,7 @@ describe('UserTaskLogRepositoryDb', () => {
                     interactionType: 'audio',
                     content: audioUrl,
                     submittedAt: expect.any(String),
-                })
+                }),
             );
             expect((taskLog?.submission_data as any)?.content).toEqual(audioUrl);
         });
@@ -624,7 +624,7 @@ describe('UserTaskLogRepositoryDb', () => {
                     interactionType: 'text',
                     content: updatedContent,
                     submittedAt: expect.any(String),
-                })
+                }),
             );
             expect((updatedLog?.submission_data as any)?.content).toEqual(updatedContent);
             expect(updatedLog?.upd_user_id).toEqual(userId);
@@ -722,7 +722,7 @@ describe('UserTaskLogRepositoryDb', () => {
                         interactionType: interaction.type,
                         content: interaction.content,
                         submittedAt: expect.any(String),
-                    })
+                    }),
                 );
                 expect((taskLog?.submission_data as any)?.content).toEqual(interaction.content);
                 expect(taskLog?.action).toEqual(TaskType.LOCAL_INTERACTION);

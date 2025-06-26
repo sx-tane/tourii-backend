@@ -122,17 +122,30 @@ export class SecurityMiddleware implements NestMiddleware {
                             return;
                         }
 
-                        // Convert wildcard domain to regex pattern
-                        // Example: https://*.tourii.xyz becomes https://(.+\.)?tourii\.xyz
-                        const pattern = allowedOrigin.replace('*.', '(.+\\.)?');
-                        const regex = new RegExp(`^${pattern.replace(/\./g, '\\.')}$`);
+                        // Split CORS_ORIGIN by comma to handle multiple origins
+                        const allowedOrigins = allowedOrigin
+                            .split(',')
+                            .map((o: string) => o.trim());
 
-                        if (regex.test(origin)) {
-                            callback(null, origin); // Origin allowed - send CORS headers
-                        } else {
-                            // Origin not allowed - send error
-                            callback(new Error('Not allowed by CORS'));
+                        // Check each allowed origin
+                        for (const allowed of allowedOrigins) {
+                            // Convert wildcard domain to regex pattern
+                            // Example: https://*.tourii.xyz becomes https://(.+\.)?tourii\.xyz
+                            // Example: http://localhost:* becomes http://localhost:.*
+                            let pattern = allowed.replace(/\*/g, '.*');
+                            pattern = pattern.replace(/\./g, '\\.');
+                            pattern = pattern.replace(/\\\.\\\*/g, '.*');
+
+                            const regex = new RegExp(`^${pattern}$`);
+
+                            if (regex.test(origin)) {
+                                callback(null, origin); // Origin allowed - send CORS headers
+                                return;
+                            }
                         }
+
+                        // No origin matched - send error
+                        callback(new Error('Not allowed by CORS'));
                     },
                     // Allowed HTTP Methods
                     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

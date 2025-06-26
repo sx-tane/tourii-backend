@@ -1,0 +1,16 @@
+### Generate Apple Wallet Pass
+# Generates a .pkpass file for Apple Wallet with passport achievements and QR code
+POST http://localhost:4000/api/wallet/apple/pass
+Content-Type: application/json
+accept-version: 1.0.0
+x-api-key: your-api-key-2
+
+
+# curl -s "http://localhost:4000/api/passport/alice/wallet/apple" \
+#   -H "accept-version: 1.0.0" \
+#   -H "x-api-key: your-api-key-2" | \
+#   node -e "
+#     const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+#     const buffer = Buffer.from(data.passBuffer.data);
+#     require('fs').writeFileSync('alice-passport.pkpass', buffer);
+#   "

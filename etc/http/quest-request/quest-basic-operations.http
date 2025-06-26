@@ -1,0 +1,34 @@
+### Get Quests with Filter
+GET http://localhost:4000/quests?questType=TRAVEL_TO_EARN&page=1&limit=1
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Get Single Quest by ID
+GET http://localhost:4000/quests/QST202506-f4869c-141501-dbae3f-BAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Get Quest by Tourist Spot ID
+GET http://localhost:4000/quests/tourist-spot/{{touristSpotId}}?userId={{userId}}
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Delete Quest Task
+DELETE http://localhost:4000/tasks/TASK202506-654321-fedcba-EAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###
+
+### Delete Quest
+DELETE http://localhost:4000/quests/QST202506-abcdef-123456-EAAA
+x-api-key: your-api-key-1
+accept-version: 1.0.0
+
+###

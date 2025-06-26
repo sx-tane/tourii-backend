@@ -1,4 +1,0 @@
-DELETE http://localhost:4000/stories/STO202506-123456-abcdef-BAAA
-x-api-key: your-api-key-1
-accept-version: 1.0.0
-

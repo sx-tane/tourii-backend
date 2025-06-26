@@ -1,4 +1,0 @@
-DELETE http://localhost:4000/routes/tourist-spots/TST202506-0fedcb-321987-DAAA
-x-api-key: your-api-key-2
-accept-version: 1.0.0
-

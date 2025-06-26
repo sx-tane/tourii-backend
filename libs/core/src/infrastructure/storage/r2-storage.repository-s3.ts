@@ -64,7 +64,6 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             await this.s3Client.send(command);
 
             const publicUrl = this.generatePublicUrl(key);
-            this.logger.log(`File uploaded successfully to R2: ${publicUrl}`);
 
             return publicUrl;
         } catch (error) {
@@ -102,7 +101,6 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             await this.s3Client.send(command);
 
             const publicUrl = this.generatePublicUrl(key);
-            this.logger.log(`Metadata uploaded successfully to R2: ${publicUrl}`);
 
             return publicUrl;
         } catch (error) {
@@ -115,6 +113,14 @@ export class R2StorageRepositoryS3 implements R2StorageRepository {
             );
             throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_038);
         }
+    }
+
+    async uploadPassportPdf(pdf: Buffer, key: string): Promise<string> {
+        return this.uploadProof(pdf, key, 'application/pdf');
+    }
+
+    async uploadWalletPass(pass: Buffer, key: string, contentType: string): Promise<string> {
+        return this.uploadProof(pass, key, contentType);
     }
 
     generatePublicUrl(key: string): string {

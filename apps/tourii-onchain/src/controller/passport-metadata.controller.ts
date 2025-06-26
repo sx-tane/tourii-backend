@@ -3,7 +3,6 @@ import {
     Controller,
     Get,
     HttpException,
-    HttpStatus,
     Logger,
     Param,
     UseGuards,
@@ -15,6 +14,8 @@ import {
     ApiInvalidVersionResponse,
     ApiResourceNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
+import { TouriiOnchainAppErrorType } from '../support/exception/tourii-onchain-app-error-type';
+import { TouriiOnchainAppException } from '../support/exception/tourii-onchain-app-exception';
 
 @ApiTags('passport-metadata')
 @Controller('api/passport/metadata')
@@ -89,10 +90,7 @@ export class PassportMetadataController {
                 throw error;
             }
 
-            throw new HttpException(
-                `Failed to retrieve metadata for token ID ${tokenId}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_002);
         }
     }
 }

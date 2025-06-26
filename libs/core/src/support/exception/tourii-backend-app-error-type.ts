@@ -178,6 +178,38 @@ export const TouriiBackendAppErrorType = {
         message: 'ENCRYPTION_KEY environment variable is required for security',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
+    // --- PDF & Passport Generation Errors ---
+    E_TB_042: {
+        code: 'E_TB_042',
+        message: 'PDF passport generation failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_043: {
+        code: 'E_TB_043',
+        message: 'Batch passport verification failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_TB_044: {
+        code: 'E_TB_044',
+        message: 'Wallet pass generation failed',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    // --- JWT & Token Validation Errors ---
+    E_TB_045: {
+        code: 'E_TB_045',
+        message: 'Invalid QR token structure',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_046: {
+        code: 'E_TB_046',
+        message: 'QR token has expired',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_TB_047: {
+        code: 'E_TB_047',
+        message: 'Request validation failed',
+        type: ErrorType.BAD_REQUEST,
+    },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
         code: 'E_GEO_001',

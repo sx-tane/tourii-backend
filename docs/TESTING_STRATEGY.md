@@ -2,7 +2,7 @@
 
 _Comprehensive testing documentation for the Tourii Backend platform_
 
-_Last Updated: June 22, 2025_
+_Last Updated: June 26, 2025_
 
 ## 📋 **Table of Contents**
 
@@ -412,6 +412,228 @@ describe('User Story Log Repository Integration', () => {
       const failed = results.filter((r) => r.status === 'rejected');
       expect(failed.length).toBeGreaterThan(0);
     });
+  });
+});
+```
+
+#### **Wallet Integration Testing (NEW)**
+
+**Testing Digital Wallet Pass Generation:**
+
+```typescript
+describe('Wallet Integration Tests', () => {
+  let app: INestApplication;
+  let walletService: WalletPassRepositoryImpl;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = module.createNestApplication();
+    walletService = module.get<WalletPassRepositoryImpl>('WALLET_PASS_REPOSITORY_TOKEN');
+    await app.init();
+  });
+
+  describe('Apple Wallet Pass Generation', () => {
+    it('should generate valid .pkpass for mock users', async () => {
+      // Test with mock token ID
+      const response = await request(app.getHttpServer())
+        .get('/api/passport/alice/wallet/apple')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        tokenId: 'alice',
+        platform: 'apple',
+        redirectUrl: expect.stringContaining('apple'),
+        expiresAt: expect.any(String),
+        passBuffer: expect.objectContaining({
+          type: 'Buffer',
+          data: expect.any(Array),
+        }),
+      });
+
+      // Verify .pkpass structure
+      const passBuffer = Buffer.from(response.body.passBuffer.data);
+      expect(passBuffer.length).toBeGreaterThan(0);
+    });
+
+    it('should handle invalid token IDs gracefully', async () => {
+      await request(app.getHttpServer())
+        .get('/api/passport/invalid-token/wallet/apple')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(404);
+    });
+  });
+
+  describe('Google Wallet Pass Generation', () => {
+    it('should generate valid Google Pass object', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/passport/bob/wallet/google')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        tokenId: 'bob',
+        platform: 'google',
+        redirectUrl: expect.stringContaining('pay.google.com'),
+        expiresAt: expect.any(String),
+        passBuffer: expect.any(Object),
+      });
+
+      // Verify Google Pass structure
+      const passBuffer = Buffer.from(response.body.passBuffer.data);
+      const passObject = JSON.parse(passBuffer.toString());
+      
+      expect(passObject).toMatchObject({
+        genericObjects: expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.stringContaining('bob'),
+            classId: expect.stringContaining('tourii-passport'),
+            state: 'ACTIVE',
+            barcode: expect.objectContaining({
+              type: 'QR_CODE',
+              value: expect.any(String), // JWT token
+            }),
+          }),
+        ]),
+      });
+    });
+  });
+
+  describe('Cross-Platform Pass Generation', () => {
+    it('should generate both Apple and Google passes', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/passport/charlie/wallet/both')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        tokenId: 'charlie',
+        apple: expect.objectContaining({
+          platform: 'apple',
+          tokenId: 'charlie',
+        }),
+        google: expect.objectContaining({
+          platform: 'google',
+          tokenId: 'charlie',
+        }),
+      });
+    });
+  });
+
+  describe('QR Token Verification', () => {
+    it('should verify QR tokens from wallet passes', async () => {
+      // Generate Google pass
+      const passResponse = await request(app.getHttpServer())
+        .get('/api/passport/alice/wallet/google')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      // Extract QR token
+      const passBuffer = Buffer.from(passResponse.body.passBuffer.data);
+      const passObject = JSON.parse(passBuffer.toString());
+      const qrToken = passObject.genericObjects[0].barcode.value;
+
+      // Verify token
+      const verifyResponse = await request(app.getHttpServer())
+        .get(`/api/verify/${qrToken}`)
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      expect(verifyResponse.body).toMatchObject({
+        valid: true,
+        tokenId: 'alice',
+        type: 'passport_verification',
+      });
+    });
+
+    it('should reject expired QR tokens', async () => {
+      // Mock expired token
+      const expiredToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.expired.token';
+      
+      await request(app.getHttpServer())
+        .get(`/api/verify/${expiredToken}`)
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(400);
+    });
+  });
+
+  describe('Mock Data Testing', () => {
+    it('should support all mock token IDs', async () => {
+      const mockTokens = ['123', '456', '789', 'alice', 'bob', 'charlie'];
+
+      for (const tokenId of mockTokens) {
+        const response = await request(app.getHttpServer())
+          .get(`/api/passport/${tokenId}/wallet/google`)
+          .set('x-api-key', TEST_API_KEY)
+          .set('accept-version', '1.0.0')
+          .expect(200);
+
+        expect(response.body.tokenId).toBe(tokenId);
+        expect(response.body.platform).toBe('google');
+      }
+    });
+
+    it('should return different user profiles for mock tokens', async () => {
+      const aliceResponse = await request(app.getHttpServer())
+        .get('/api/passport/alice/wallet/google')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      const bobResponse = await request(app.getHttpServer())
+        .get('/api/passport/bob/wallet/google')
+        .set('x-api-key', TEST_API_KEY)
+        .set('accept-version', '1.0.0')
+        .expect(200);
+
+      // Verify different user profiles
+      const alicePass = JSON.parse(Buffer.from(aliceResponse.body.passBuffer.data).toString());
+      const bobPass = JSON.parse(Buffer.from(bobResponse.body.passBuffer.data).toString());
+
+      expect(alicePass.genericObjects[0].header.defaultValue.value)
+        .not.toBe(bobPass.genericObjects[0].header.defaultValue.value);
+    });
+  });
+});
+```
+
+**Testing Error Handling:**
+
+```typescript
+describe('Wallet Integration Error Handling', () => {
+  it('should handle missing certificates gracefully', async () => {
+    // Mock missing certificate scenario
+    jest.spyOn(walletService, 'generateApplePass')
+      .mockRejectedValue(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_044));
+
+    await request(app.getHttpServer())
+      .get('/api/passport/alice/wallet/apple')
+      .set('x-api-key', TEST_API_KEY)
+      .set('accept-version', '1.0.0')
+      .expect(500);
+  });
+
+  it('should validate JWT token structure', async () => {
+    const malformedToken = 'invalid.jwt.token';
+    
+    await request(app.getHttpServer())
+      .get(`/api/verify/${malformedToken}`)
+      .set('x-api-key', TEST_API_KEY)
+      .set('accept-version', '1.0.0')
+      .expect(400)
+      .expect((res) => {
+        expect(res.body.code).toBe('E_TB_045');
+      });
   });
 });
 ```

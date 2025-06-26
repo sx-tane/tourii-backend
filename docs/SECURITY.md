@@ -2,19 +2,22 @@
 
 _Comprehensive security guidelines, critical fixes, and best practices_
 
-_Last Updated: June 18, 2025_
+_Last Updated: June 26, 2025_
 
 ---
 
 ## 📋 **Quick Security Status**
 
-| Component             | Status  | Action Required               |
-| --------------------- | ------- | ----------------------------- |
-| ✅ **JWT_SECRET**     | SECURED | Environment variable required |
-| ✅ **ENCRYPTION_KEY** | SECURED | Environment variable required |
-| ✅ **API_KEYS**       | SECURED | Configuration required        |
-| ✅ **CORS**           | SECURED | Proper middleware enforcement |
-| ✅ **Caching**        | SECURED | Race conditions fixed         |
+| Component                      | Status  | Action Required               |
+| ------------------------------ | ------- | ----------------------------- |
+| ✅ **JWT_SECRET**              | SECURED | Environment variable required |
+| ✅ **ENCRYPTION_KEY**          | SECURED | Environment variable required |
+| ✅ **API_KEYS**                | SECURED | Configuration required        |
+| ✅ **CORS**                    | SECURED | Proper middleware enforcement |
+| ✅ **Caching**                 | SECURED | Race conditions fixed         |
+| ✅ **Wallet Certificates**     | SECURED | Secure file handling required |
+| ✅ **Google Service Account**  | SECURED | Key protection required       |
+| ✅ **QR Token Validation**     | SECURED | JWT validation implemented    |
 
 **🟢 ALL CRITICAL SECURITY VULNERABILITIES RESOLVED - PRODUCTION READY**
 
@@ -42,10 +45,20 @@ JWT_SECRET=<strong-random-64-char-string>
 ENCRYPTION_KEY=<strong-random-32-char-string>
 API_KEYS=<comma-separated-api-keys>
 
+# 📱 Wallet Integration Security (NEW)
+GOOGLE_WALLET_ISSUER_ID=<google-wallet-issuer-id>
+GOOGLE_WALLET_CLASS_ID=tourii-passport
+GOOGLE_WALLET_KEY_PATH=path/to/service-account-key.json
+APPLE_WALLET_CERT_PATH=path/to/apple-cert.p12
+APPLE_WALLET_CERT_PASSWORD=<strong-cert-password>
+WALLET_PASS_QR_TOKEN_EXPIRATION_HOURS=17520  # 2 years
+PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS=24    # 24h for security
+
 # Generate strong secrets:
 openssl rand -base64 64  # For JWT_SECRET
 openssl rand -hex 32     # For ENCRYPTION_KEY
 openssl rand -hex 16     # For each API key
+openssl rand -base64 32  # For APPLE_WALLET_CERT_PASSWORD
 ```
 
 ---
@@ -191,10 +204,58 @@ class EncryptionService {
 
 #### **🔐 Wallet Security**
 
+**Web3 Wallet Security:**
 - Never store private keys
 - Use secure keyring management
 - Validate signature formats (EIP-191)
 - Implement nonce-based authentication
+
+**📱 Digital Wallet Integration Security (NEW):**
+
+**Apple Wallet Security:**
+- **Certificate Protection**: Store .p12 certificates outside version control
+- **Password Security**: Use strong passwords for certificate encryption
+- **File Permissions**: Set restrictive permissions (600) on certificate files
+- **Rotation Policy**: Regularly rotate certificates and passwords
+
+```bash
+# Secure certificate handling
+chmod 600 /path/to/apple-cert.p12
+chown app:app /path/to/apple-cert.p12
+
+# Add to .gitignore
+echo "*.p12" >> .gitignore
+echo "apple-wallet-cert*" >> .gitignore
+```
+
+**Google Wallet Security:**
+- **Service Account Keys**: Never commit JSON service account keys to version control
+- **Least Privilege**: Grant minimal required permissions (Wallet Objects Admin)
+- **Key Rotation**: Regularly rotate service account keys (quarterly recommended)
+- **API Quotas**: Monitor and set appropriate API usage limits
+
+```bash
+# Secure service account key handling
+chmod 600 /path/to/google-service-account.json
+chown app:app /path/to/google-service-account.json
+
+# Add to .gitignore
+echo "*service-account*.json" >> .gitignore
+echo "google-wallet-key*" >> .gitignore
+```
+
+**QR Token Security:**
+- **Dual Expiration Strategy**: Short-lived PDF tokens (24h), long-lived wallet tokens (2 years)
+- **JWT Validation**: Strict token structure and expiration checking
+- **Token Revocation**: Consider database-backed revocation for enhanced security
+- **Secure Generation**: Use cryptographically secure random values
+
+**Certificate Management Best Practices:**
+1. **Environment Separation**: Use different certificates for dev/staging/production
+2. **Backup Strategy**: Maintain secure backups of certificates and keys
+3. **Access Control**: Limit access to certificate files to application user only
+4. **Monitoring**: Log certificate usage and monitor for unauthorized access
+5. **Compliance**: Follow Apple and Google security guidelines for wallet integration
 
 ### **5. Infrastructure Security**
 

@@ -1,0 +1,10 @@
+### Update Existing Wallet Pass
+# Push updates to existing wallet pass when user earns new achievements
+POST http://localhost:4000/api/passport/123/wallet/update
+Content-Type: application/json
+accept-version: 1.0.0
+x-api-key: your-api-key-2
+
+{
+  "platform": "apple"
+} 

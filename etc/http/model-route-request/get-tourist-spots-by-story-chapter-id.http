@@ -1,4 +1,0 @@
-GET http://localhost:4000/routes/tourist-spots/SCT202506-123456-abcdef
-x-api-key: your-api-key-2
-accept-version: 1.0.0
-Content-Type: application/json

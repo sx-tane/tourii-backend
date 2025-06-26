@@ -1,2 +1,0 @@
-GET https://api.openweathermap.org/data/2.5/forecast?lat=32.9641446&lon=131.4512123&appid={API_KEY}
-Content-Type: application/json

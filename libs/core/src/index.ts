@@ -1,6 +1,7 @@
 export * from './core.service';
 // Domain - Auth
 export * from './domain/auth/encryption.repository';
+export * from './domain/auth/jwt.repository';
 export * from './domain/feed/moment.entity';
 export * from './domain/feed/moment.repository';
 export * from './domain/feed/moment-type';
@@ -25,6 +26,10 @@ export * from './domain/geo/weather-info.repository';
 export * from './domain/location/location-tracking.service';
 // Domain - Passport
 export * from './domain/passport/digital-passport.repository';
+export * from './domain/passport/digital-passport-metadata';
+export * from './domain/passport/passport-metadata.repository';
+export * from './domain/passport/passport-pdf.repository';
+export * from './domain/passport/wallet-pass.repository';
 export * from './domain/storage/r2-storage.repository';
 // Domain - User
 export * from './domain/user/user.entity';
@@ -34,6 +39,7 @@ export * from './domain/user/user-travel-log.repository';
 export * from './infrastructure/api/geo-info-repository-api';
 export * from './infrastructure/api/weather-info.repository-api';
 export * from './infrastructure/authentication/encryption-repository-auth';
+export * from './infrastructure/authentication/jwt-repository-auth';
 export * from './infrastructure/blockchain/digital-passport.repository.fake';
 export * from './infrastructure/datasource/model-route-repository-db';
 export * from './infrastructure/datasource/moment.repository-db';
@@ -45,6 +51,10 @@ export * from './infrastructure/datasource/user-task-log.repository-db';
 export * from './infrastructure/datasource/user-travel-log.repository-db';
 // Infrastructure - Location
 export * from './infrastructure/location/location-tracking.service-impl';
+export * from './infrastructure/passport/passport-metadata.repository-impl';
+// Infrastructure - Passport
+export * from './infrastructure/passport/passport-pdf.repository-impl';
+export * from './infrastructure/passport/wallet-pass.repository-impl';
 export * from './infrastructure/storage/r2-storage.repository-s3';
 // Providers
 export * from './provider/caching.service';

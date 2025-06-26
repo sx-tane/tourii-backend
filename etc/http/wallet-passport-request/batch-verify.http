@@ -1,0 +1,11 @@
+### Batch Verify Multiple Passports
+# Verify multiple passport tokens at once. Useful for bulk verification scenarios.
+POST http://localhost:4000/api/verify/batch
+Content-Type: application/json
+
+{
+  "tokens": [
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6IjEyMyIsImlhdCI6MTY0MDk5NTIwMCwiZXhwIjoxNjQwOTk4ODAwfQ.example_signature_1",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6IjEyNCIsImlhdCI6MTY0MDk5NTIwMCwiZXhwIjoxNjQwOTk4ODAwfQ.example_signature_2"
+  ]
+} 
