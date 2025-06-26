@@ -26,7 +26,7 @@ export class GoogleWalletRepositoryApi {
             this.credentials = JSON.parse(readFileSync(keyPath, 'utf8'));
         }
         
-        this.issuerId = this.config.get<string>('GOOGLE_WALLET_ISSUER_ID') || '3388000000022196539';
+        this.issuerId = this.config.get<string>('GOOGLE_WALLET_ISSUER_ID') || '3388000000022942524';
         this.classId = this.config.get<string>('GOOGLE_WALLET_CLASS_ID') || 'tourii_passport';
         this.walletApi = google.walletobjects({ version: 'v1', auth: this.credentials });
         // --- END GOOGLE WALLET PRODUCTION SETUP ---

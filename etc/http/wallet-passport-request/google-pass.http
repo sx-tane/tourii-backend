@@ -1,6 +1,6 @@
 ### Generate Google Pay Pass
 # Generates a Google Pay pass with passport achievements and QR code
-GET http://localhost:4000/api/passport/123/wallet/google
+GET http://localhost:4000/api/passport/bob/wallet/google
 accept-version: 1.0.0
 x-api-key: your-api-key-2
 

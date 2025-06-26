@@ -69,7 +69,8 @@
       "Bash(true)",
       "Bash(ss:*)",
       "Bash(npx tsc:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(docker-compose up:*)"
     ],
     "deny": []
   }
