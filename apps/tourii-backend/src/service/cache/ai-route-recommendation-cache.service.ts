@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { AI_ROUTE_CONFIG } from '../config/ai-route-recommendation.config';
 
@@ -82,7 +82,7 @@ export class AiRouteRecommendationCacheService {
     private readonly logger = new Logger(AiRouteRecommendationCacheService.name);
     private readonly config = AI_ROUTE_CONFIG.CACHE;
 
-    constructor(private readonly cacheProvider: CacheOperations) {}
+    constructor(@Inject('CacheOperations') private readonly cacheProvider: CacheOperations) {}
 
     /**
      * Cache tourist spot search results

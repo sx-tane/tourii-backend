@@ -87,7 +87,7 @@ describe('AiRouteRecommendationCacheService', () => {
             ],
         }).compile();
 
-        service = new AiRouteRecommendationCacheService(mockCacheProvider);
+        service = module.get<AiRouteRecommendationCacheService>(AiRouteRecommendationCacheService);
     });
 
     it('should be defined', () => {
