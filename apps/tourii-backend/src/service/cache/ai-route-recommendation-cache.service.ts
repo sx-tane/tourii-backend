@@ -96,15 +96,16 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateTouristSpotSearchKey(request);
             await this.cacheProvider.set(key, result, this.config.TOURIST_SPOTS_TTL);
-            
+
             this.logger.debug('Cached tourist spot search results', {
                 key,
                 spotCount: result.totalFound,
                 ttl: this.config.TOURIST_SPOTS_TTL,
             });
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to cache tourist spot search', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
         }
@@ -121,17 +122,18 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateTouristSpotSearchKey(request);
             const cached = await this.cacheProvider.get<TouristSpotSearchCache>(key);
-            
+
             if (cached) {
                 this.logger.debug('Cache hit for tourist spot search', { key });
                 return cached;
             }
-            
+
             this.logger.debug('Cache miss for tourist spot search', { key });
             return null;
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to retrieve cached tourist spot search', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
             return null;
@@ -150,7 +152,7 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateAiContentKey(request);
             await this.cacheProvider.set(key, result, this.config.AI_CONTENT_TTL);
-            
+
             this.logger.debug('Cached AI-generated content', {
                 key,
                 routeName: result.routeName,
@@ -158,8 +160,9 @@ export class AiRouteRecommendationCacheService {
                 ttl: this.config.AI_CONTENT_TTL,
             });
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to cache AI content', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
         }
@@ -176,20 +179,21 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateAiContentKey(request);
             const cached = await this.cacheProvider.get<AiContentGenerationCache>(key);
-            
+
             if (cached) {
-                this.logger.debug('Cache hit for AI content', { 
-                    key, 
-                    routeName: cached.routeName 
+                this.logger.debug('Cache hit for AI content', {
+                    key,
+                    routeName: cached.routeName,
                 });
                 return cached;
             }
-            
+
             this.logger.debug('Cache miss for AI content', { key });
             return null;
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to retrieve cached AI content', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
             return null;
@@ -208,7 +212,7 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateRouteRecommendationKey(request);
             await this.cacheProvider.set(key, result, this.config.ROUTE_RECOMMENDATIONS_TTL);
-            
+
             this.logger.debug('Cached route recommendations', {
                 key,
                 routeCount: result.generatedRoutes.length,
@@ -216,8 +220,9 @@ export class AiRouteRecommendationCacheService {
                 ttl: this.config.ROUTE_RECOMMENDATIONS_TTL,
             });
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to cache route recommendations', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
         }
@@ -234,20 +239,21 @@ export class AiRouteRecommendationCacheService {
         try {
             const key = this.generateRouteRecommendationKey(request);
             const cached = await this.cacheProvider.get<RouteRecommendationCache>(key);
-            
+
             if (cached) {
-                this.logger.debug('Cache hit for route recommendations', { 
+                this.logger.debug('Cache hit for route recommendations', {
                     key,
-                    routeCount: cached.generatedRoutes.length 
+                    routeCount: cached.generatedRoutes.length,
                 });
                 return cached;
             }
-            
+
             this.logger.debug('Cache miss for route recommendations', { key });
             return null;
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to retrieve cached route recommendations', {
-                error: error.message,
+                error: errorMessage,
                 request,
             });
             return null;
@@ -263,8 +269,9 @@ export class AiRouteRecommendationCacheService {
             // For Redis, you could use SCAN with pattern matching
             this.logger.debug('Cache invalidation requested', { pattern });
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to invalidate cache by pattern', {
-                error: error.message,
+                error: errorMessage,
                 pattern,
             });
         }
@@ -279,10 +286,11 @@ export class AiRouteRecommendationCacheService {
                 this.invalidateByPattern(`${this.config.ROUTE_CACHE_PREFIX}*`),
                 this.invalidateByPattern(`${this.config.SPOTS_CACHE_PREFIX}*`),
             ]);
-            
+
             this.logger.log('Cleared all AI route recommendation caches');
         } catch (error) {
-            this.logger.error('Failed to clear all caches', { error: error.message });
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.logger.error('Failed to clear all caches', { error: errorMessage });
         }
     }
 
@@ -295,7 +303,7 @@ export class AiRouteRecommendationCacheService {
             mode: request.mode,
             region: request.region || 'all',
         };
-        
+
         const hash = this.hashObject(normalized);
         return `${this.config.SPOTS_CACHE_PREFIX}search:${hash}`;
     }
@@ -310,7 +318,7 @@ export class AiRouteRecommendationCacheService {
             region: request.region,
             spotCount: request.spotCount,
         };
-        
+
         const hash = this.hashObject(normalized);
         return `${this.config.ROUTE_CACHE_PREFIX}ai-content:${hash}`;
     }
@@ -323,12 +331,17 @@ export class AiRouteRecommendationCacheService {
             keywords: [...request.keywords].sort(),
             mode: request.mode,
             region: request.region || 'all',
-            proximityRadiusKm: request.proximityRadiusKm || AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_PROXIMITY_RADIUS_KM,
-            minSpotsPerCluster: request.minSpotsPerCluster || AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_MIN_SPOTS_PER_CLUSTER,
-            maxSpotsPerCluster: request.maxSpotsPerCluster || AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_MAX_SPOTS_PER_CLUSTER,
+            proximityRadiusKm:
+                request.proximityRadiusKm || AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_PROXIMITY_RADIUS_KM,
+            minSpotsPerCluster:
+                request.minSpotsPerCluster ||
+                AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_MIN_SPOTS_PER_CLUSTER,
+            maxSpotsPerCluster:
+                request.maxSpotsPerCluster ||
+                AI_ROUTE_CONFIG.CLUSTERING.DEFAULT_MAX_SPOTS_PER_CLUSTER,
             maxRoutes: request.maxRoutes || AI_ROUTE_CONFIG.SEARCH.DEFAULT_MAX_ROUTES,
         };
-        
+
         const hash = this.hashObject(normalized);
         return `${this.config.ROUTE_CACHE_PREFIX}recommendations:${hash}`;
     }

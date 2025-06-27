@@ -142,8 +142,9 @@ export class AiRouteRecommendationController {
 
             return response;
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.error('AI route recommendation failed', {
-                error: error.message,
+                error: errorMessage,
                 keywords: request.keywords,
                 userId: userId || 'anonymous',
             });
@@ -152,12 +153,9 @@ export class AiRouteRecommendationController {
                 throw error;
             }
 
-            throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_049,
-                'Failed to generate AI route recommendations',
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                { originalError: error.message },
-            );
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_049, {
+                originalError: errorMessage,
+            });
         }
     }
 

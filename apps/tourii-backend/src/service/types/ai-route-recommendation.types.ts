@@ -280,25 +280,24 @@ export interface ValidationErrorDetails {
  * Type guard functions for runtime validation
  */
 export const TypeGuards = {
-    isValidLatitude: (value: number): value is Latitude => 
+    isValidLatitude: (value: number): value is Latitude =>
         typeof value === 'number' && value >= -90 && value <= 90,
-    
-    isValidLongitude: (value: number): value is Longitude => 
+
+    isValidLongitude: (value: number): value is Longitude =>
         typeof value === 'number' && value >= -180 && value <= 180,
-    
-    isValidConfidenceScore: (value: number): value is ConfidenceScore => 
+
+    isValidConfidenceScore: (value: number): value is ConfidenceScore =>
         typeof value === 'number' && value >= 0 && value <= 1,
-    
-    isValidProximityRadius: (value: number): value is ProximityRadius => 
+
+    isValidProximityRadius: (value: number): value is ProximityRadius =>
         typeof value === 'number' && value >= 1 && value <= 200,
-    
-    isValidKeyword: (value: string): value is Keyword => 
+
+    isValidKeyword: (value: string): value is Keyword =>
         typeof value === 'string' && value.length >= 1 && value.length <= 50,
-    
-    isValidSearchMode: (value: string): value is SearchMode => 
-        value === 'all' || value === 'any',
-    
-    isValidDurationString: (value: string): value is DurationString => 
+
+    isValidSearchMode: (value: string): value is SearchMode => value === 'all' || value === 'any',
+
+    isValidDurationString: (value: string): value is DurationString =>
         typeof value === 'string' && /^\d+-\d+\s+(day|days|hour|hours)$/i.test(value),
 } as const;
 
@@ -312,21 +311,21 @@ export const TypeConstructors = {
         }
         return value as RouteId;
     },
-    
+
     createTouristSpotId: (value: string): TouristSpotId => {
         if (!value || typeof value !== 'string') {
             throw new Error('Invalid TouristSpotId: must be non-empty string');
         }
         return value as TouristSpotId;
     },
-    
+
     createKeyword: (value: string): Keyword => {
         if (!TypeGuards.isValidKeyword(value)) {
             throw new Error('Invalid Keyword: must be 1-50 characters');
         }
         return value as Keyword;
     },
-    
+
     createCoordinates: (lat: number, lng: number): Coordinates => {
         if (!TypeGuards.isValidLatitude(lat)) {
             throw new Error('Invalid latitude: must be between -90 and 90');
@@ -336,7 +335,7 @@ export const TypeConstructors = {
         }
         return { lat: lat as Latitude, lng: lng as Longitude };
     },
-    
+
     createConfidenceScore: (value: number): ConfidenceScore => {
         if (!TypeGuards.isValidConfidenceScore(value)) {
             throw new Error('Invalid confidence score: must be between 0 and 1');

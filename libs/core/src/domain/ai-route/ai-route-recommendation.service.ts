@@ -67,7 +67,7 @@ export class AiRouteRecommendationService {
         const matchingSpots = await this.findMatchingTouristSpots(request);
 
         if (matchingSpots.length === 0) {
-            this.logger.info('No tourist spots found matching criteria', {
+            this.logger.log('No tourist spots found matching criteria', {
                 keywords: request.keywords,
                 mode: request.mode,
                 region: request.region,
@@ -101,7 +101,7 @@ export class AiRouteRecommendationService {
 
         const processingTime = Date.now() - startTime;
 
-        this.logger.info('AI route recommendation generation completed', {
+        this.logger.log('AI route recommendation generation completed', {
             totalSpotsFound: matchingSpots.length,
             clustersFormed: clusters.length,
             routesGenerated: generatedRoutes.length,
@@ -203,8 +203,9 @@ export class AiRouteRecommendationService {
                     routeId: modelRoute.modelRouteId,
                 });
             } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
                 this.logger.error(`Failed to generate route for cluster ${cluster.id}`, {
-                    error: error.message,
+                    error: errorMessage,
                     clusterId: cluster.id,
                     spotCount: cluster.spots.length,
                 });
@@ -221,7 +222,7 @@ export class AiRouteRecommendationService {
     private async createModelRouteFromCluster(
         cluster: TouristSpotCluster,
         aiContent: AiGeneratedRouteContent,
-        userKeywords: string[],
+        _userKeywords: string[],
         userId?: string,
     ): Promise<ModelRouteEntity> {
         const now = new Date();
@@ -231,28 +232,31 @@ export class AiRouteRecommendationService {
         const backgroundMedia = this.selectRepresentativeImage(cluster.spots);
 
         // Create model route entity with AI-generated content
-        const modelRoute = new ModelRouteEntity({
-            // AI-generated content
-            routeName: aiContent.routeName,
-            regionDesc: aiContent.regionDesc,
-            recommendation: aiContent.recommendations,
+        const modelRoute = new ModelRouteEntity(
+            {
+                // AI-generated content
+                routeName: aiContent.routeName,
+                regionDesc: aiContent.regionDesc,
+                recommendation: aiContent.recommendations,
 
-            // Geographic and region data
-            region: cluster.region,
-            regionLatitude: cluster.centerCoordinates.lat,
-            regionLongitude: cluster.centerCoordinates.lng,
-            regionBackgroundMedia: backgroundMedia,
+                // Geographic and region data
+                region: cluster.region,
+                regionLatitude: cluster.centerCoordinates.lat,
+                regionLongitude: cluster.centerCoordinates.lng,
+                regionBackgroundMedia: backgroundMedia,
 
-            // Metadata
-            storyId: undefined, // Standalone AI-generated route
-            insUserId: systemUserId,
-            insDateTime: now,
-            updUserId: systemUserId,
-            updDateTime: now,
+                // Metadata
+                storyId: undefined, // Standalone AI-generated route
+                insUserId: systemUserId,
+                insDateTime: now,
+                updUserId: systemUserId,
+                updDateTime: now,
 
-            // Tourist spots (optional - we might link them or keep as recommendations)
-            touristSpotList: [], // Keep empty for now, spots remain independent
-        });
+                // Tourist spots (optional - we might link them or keep as recommendations)
+                touristSpotList: [], // Keep empty for now, spots remain independent
+            },
+            undefined,
+        );
 
         // Save the model route to database
         const savedRoute = await this.modelRouteRepository.createModelRoute(modelRoute);

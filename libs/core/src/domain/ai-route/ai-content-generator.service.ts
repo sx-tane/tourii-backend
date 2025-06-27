@@ -47,8 +47,9 @@ export class AiContentGeneratorService {
                 return this.generateFallbackContent(request);
             }
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.error('AI content generation failed, using fallback', {
-                error: error.message,
+                error: errorMessage,
                 clusterId: request.cluster.id,
             });
             return this.generateFallbackContent(request);
@@ -186,7 +187,7 @@ Guidelines:
                 'Discover unique attractions in this region.',
             );
             const recommendations = Array.isArray(parsed.recommendations)
-                ? parsed.recommendations.slice(0, 5).map((r) => String(r).toLowerCase())
+                ? parsed.recommendations.slice(0, 5).map((r: any) => String(r).toLowerCase())
                 : request.userKeywords;
             const estimatedDuration = this.validateAndCleanString(
                 parsed.estimatedDuration,
@@ -202,8 +203,9 @@ Guidelines:
                 confidenceScore: 0.9, // High confidence for successful AI generation
             };
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.warn('Failed to parse GPT response, using fallback', {
-                error: error.message,
+                error: errorMessage,
                 response: response.substring(0, 200),
             });
             return this.generateFallbackContent(request);

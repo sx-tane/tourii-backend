@@ -1,18 +1,16 @@
-import { HttpStatus } from '@nestjs/common';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { HttpStatus } from '@nestjs/common';
 
 /**
  * Base exception class for AI Route Recommendation errors
  */
 export abstract class AiRouteRecommendationException extends TouriiBackendAppException {
     constructor(
-        errorType: TouriiBackendAppErrorType,
-        message: string,
-        httpStatus: HttpStatus,
+        errorType: TouriiBackendAppErrorType[keyof TouriiBackendAppErrorType],
         details?: any,
     ) {
-        super(errorType, message, httpStatus, details);
+        super(errorType, details);
     }
 }
 
@@ -21,19 +19,14 @@ export abstract class AiRouteRecommendationException extends TouriiBackendAppExc
  */
 export class AiRouteValidationException extends AiRouteRecommendationException {
     constructor(message: string, details?: any) {
-        super(
-            TouriiBackendAppErrorType.E_TB_050,
-            message,
-            HttpStatus.BAD_REQUEST,
-            details,
-        );
+        super(TouriiBackendAppErrorType.E_TB_050, { ...details, customMessage: message });
     }
 
     static keywordsRequired(): AiRouteValidationException {
-        return new AiRouteValidationException(
-            'Keywords are required for route recommendation',
-            { field: 'keywords', requirement: 'non-empty array' },
-        );
+        return new AiRouteValidationException('Keywords are required for route recommendation', {
+            field: 'keywords',
+            requirement: 'non-empty array',
+        });
     }
 
     static invalidKeywordCount(count: number, max: number): AiRouteValidationException {
@@ -56,12 +49,7 @@ export class AiRouteValidationException extends AiRouteRecommendationException {
  */
 export class TouristSpotSearchException extends AiRouteRecommendationException {
     constructor(message: string, details?: any) {
-        super(
-            TouriiBackendAppErrorType.E_TB_051,
-            message,
-            HttpStatus.NOT_FOUND,
-            details,
-        );
+        super(TouriiBackendAppErrorType.E_TB_051, { ...details, customMessage: message });
     }
 
     static noSpotsFound(keywords: string[]): TouristSpotSearchException {
@@ -71,7 +59,10 @@ export class TouristSpotSearchException extends AiRouteRecommendationException {
         );
     }
 
-    static insufficientSpotsForClustering(spotCount: number, minRequired: number): TouristSpotSearchException {
+    static insufficientSpotsForClustering(
+        spotCount: number,
+        minRequired: number,
+    ): TouristSpotSearchException {
         return new TouristSpotSearchException(
             `Insufficient tourist spots for route generation. Found ${spotCount}, minimum ${minRequired} required`,
             { spotsFound: spotCount, minRequired },
@@ -84,19 +75,13 @@ export class TouristSpotSearchException extends AiRouteRecommendationException {
  */
 export class GeographicClusteringException extends AiRouteRecommendationException {
     constructor(message: string, details?: any) {
-        super(
-            TouriiBackendAppErrorType.E_TB_052,
-            message,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            details,
-        );
+        super(TouriiBackendAppErrorType.E_TB_052, { ...details, customMessage: message });
     }
 
     static clusteringFailed(reason: string): GeographicClusteringException {
-        return new GeographicClusteringException(
-            `Geographic clustering failed: ${reason}`,
-            { failureReason: reason },
-        );
+        return new GeographicClusteringException(`Geographic clustering failed: ${reason}`, {
+            failureReason: reason,
+        });
     }
 
     static noClustersFormed(): GeographicClusteringException {
@@ -112,12 +97,7 @@ export class GeographicClusteringException extends AiRouteRecommendationExceptio
  */
 export class AiContentGenerationException extends AiRouteRecommendationException {
     constructor(message: string, details?: any) {
-        super(
-            TouriiBackendAppErrorType.E_TB_053,
-            message,
-            HttpStatus.SERVICE_UNAVAILABLE,
-            details,
-        );
+        super(TouriiBackendAppErrorType.E_TB_053, { ...details, customMessage: message });
     }
 
     static aiServiceUnavailable(): AiContentGenerationException {
@@ -128,10 +108,10 @@ export class AiContentGenerationException extends AiRouteRecommendationException
     }
 
     static contentGenerationFailed(error: string): AiContentGenerationException {
-        return new AiContentGenerationException(
-            `AI content generation failed: ${error}`,
-            { originalError: error, suggestion: 'Retry with different keywords' },
-        );
+        return new AiContentGenerationException(`AI content generation failed: ${error}`, {
+            originalError: error,
+            suggestion: 'Retry with different keywords',
+        });
     }
 
     static rateLimitExceeded(userId?: string): AiContentGenerationException {
@@ -147,12 +127,7 @@ export class AiContentGenerationException extends AiRouteRecommendationException
  */
 export class RouteCreationException extends AiRouteRecommendationException {
     constructor(message: string, details?: any) {
-        super(
-            TouriiBackendAppErrorType.E_TB_054,
-            message,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            details,
-        );
+        super(TouriiBackendAppErrorType.E_TB_054, { ...details, customMessage: message });
     }
 
     static routePersistenceFailed(error: string): RouteCreationException {

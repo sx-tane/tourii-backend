@@ -10,25 +10,25 @@ export const AI_ROUTE_CONFIG = {
     CLUSTERING: {
         /** Default proximity radius for clustering tourist spots (kilometers) */
         DEFAULT_PROXIMITY_RADIUS_KM: 50,
-        
+
         /** Minimum proximity radius allowed (kilometers) */
         MIN_PROXIMITY_RADIUS_KM: 1,
-        
+
         /** Maximum proximity radius allowed (kilometers) */
         MAX_PROXIMITY_RADIUS_KM: 200,
-        
+
         /** Default minimum spots required to form a cluster */
         DEFAULT_MIN_SPOTS_PER_CLUSTER: 2,
-        
+
         /** Default maximum spots allowed in a cluster */
         DEFAULT_MAX_SPOTS_PER_CLUSTER: 8,
-        
+
         /** Maximum clusters to process in a single request */
         MAX_CLUSTERS_PER_REQUEST: 20,
-        
+
         /** Hashtag threshold percentage for common hashtag detection */
         HASHTAG_THRESHOLD_PERCENTAGE: 0.3,
-        
+
         /** Minimum hashtag appearances required */
         MIN_HASHTAG_APPEARANCES: 2,
     },
@@ -39,16 +39,16 @@ export const AI_ROUTE_CONFIG = {
     SEARCH: {
         /** Maximum keywords allowed in a single request */
         MAX_KEYWORDS: 10,
-        
+
         /** Minimum keyword length */
         MIN_KEYWORD_LENGTH: 1,
-        
+
         /** Maximum keyword length */
         MAX_KEYWORD_LENGTH: 50,
-        
+
         /** Default maximum routes to generate */
         DEFAULT_MAX_ROUTES: 5,
-        
+
         /** Maximum routes allowed in a single request */
         MAX_ROUTES_LIMIT: 20,
     },
@@ -59,19 +59,19 @@ export const AI_ROUTE_CONFIG = {
     OPENAI: {
         /** Default model to use for content generation */
         DEFAULT_MODEL: 'gpt-4o-mini',
-        
+
         /** Maximum tokens for GPT response */
         MAX_TOKENS: 1000,
-        
+
         /** Temperature for content generation (0-1, lower = more deterministic) */
         TEMPERATURE: 0.7,
-        
+
         /** Maximum retries for failed AI requests */
         MAX_RETRIES: 3,
-        
+
         /** Timeout for AI requests (milliseconds) */
         REQUEST_TIMEOUT_MS: 30000,
-        
+
         /** Minimum confidence score to accept AI-generated content */
         MIN_CONFIDENCE_SCORE: 0.6,
     },
@@ -82,16 +82,16 @@ export const AI_ROUTE_CONFIG = {
     CACHE: {
         /** Cache TTL for tourist spot searches (seconds) */
         TOURIST_SPOTS_TTL: 1800, // 30 minutes
-        
+
         /** Cache TTL for AI-generated content (seconds) */
         AI_CONTENT_TTL: 3600, // 1 hour
-        
+
         /** Cache TTL for route recommendations (seconds) */
         ROUTE_RECOMMENDATIONS_TTL: 900, // 15 minutes
-        
+
         /** Cache key prefix for route recommendations */
         ROUTE_CACHE_PREFIX: 'ai-route:',
-        
+
         /** Cache key prefix for tourist spot searches */
         SPOTS_CACHE_PREFIX: 'spots-search:',
     },
@@ -102,16 +102,16 @@ export const AI_ROUTE_CONFIG = {
     RATE_LIMITING: {
         /** Rate limit window (milliseconds) */
         WINDOW_MS: 60000, // 1 minute
-        
+
         /** Maximum requests per window for authenticated users */
         MAX_REQUESTS_PER_WINDOW: 10,
-        
+
         /** Maximum requests per window for anonymous users */
         MAX_ANONYMOUS_REQUESTS: 3,
-        
+
         /** AI generation rate limit per user per hour */
         AI_GENERATION_LIMIT_PER_HOUR: 20,
-        
+
         /** Cooldown period after rate limit exceeded (seconds) */
         RATE_LIMIT_COOLDOWN_SECONDS: 300, // 5 minutes
     },
@@ -122,16 +122,16 @@ export const AI_ROUTE_CONFIG = {
     DEFAULTS: {
         /** Default region description when none provided */
         DEFAULT_REGION_DESC: 'Discover amazing locations in this beautiful region of Japan',
-        
+
         /** Default route name when AI generation fails */
         FALLBACK_ROUTE_NAME: 'Scenic Discovery Route',
-        
+
         /** Default estimated duration */
         DEFAULT_ESTIMATED_DURATION: '1-2 days',
-        
+
         /** Default background image for routes */
         DEFAULT_BACKGROUND_IMAGE: 'https://example.com/default-japan-landscape.jpg',
-        
+
         /** Default recommendations when AI fails */
         FALLBACK_RECOMMENDATIONS: ['scenic', 'discovery', 'culture'],
     },
@@ -142,13 +142,13 @@ export const AI_ROUTE_CONFIG = {
     VALIDATION: {
         /** Maximum route name length */
         MAX_ROUTE_NAME_LENGTH: 100,
-        
+
         /** Maximum region description length */
         MAX_REGION_DESC_LENGTH: 500,
-        
+
         /** Maximum recommendations array length */
         MAX_RECOMMENDATIONS_COUNT: 10,
-        
+
         /** Minimum confidence score for accepting results */
         MIN_RESULT_CONFIDENCE: 0.5,
     },
@@ -159,10 +159,10 @@ export const AI_ROUTE_CONFIG = {
     PERFORMANCE: {
         /** Maximum processing time warning threshold (milliseconds) */
         SLOW_REQUEST_THRESHOLD_MS: 5000,
-        
+
         /** Maximum tourist spots to process in memory */
         MAX_SPOTS_IN_MEMORY: 1000,
-        
+
         /** Batch size for database operations */
         DB_BATCH_SIZE: 50,
     },
@@ -173,16 +173,16 @@ export const AI_ROUTE_CONFIG = {
     FEATURES: {
         /** Enable AI content generation */
         AI_GENERATION_ENABLED: true,
-        
+
         /** Enable caching for requests */
         CACHING_ENABLED: true,
-        
+
         /** Enable rate limiting */
         RATE_LIMITING_ENABLED: true,
-        
+
         /** Enable performance monitoring */
         PERFORMANCE_MONITORING_ENABLED: true,
-        
+
         /** Use fallback when AI service is unavailable */
         FALLBACK_MODE_ENABLED: true,
     },
@@ -192,8 +192,8 @@ export const AI_ROUTE_CONFIG = {
  * Environment-specific configuration overrides
  */
 export const getEnvironmentConfig = () => {
-    const env = process.env.NODE_ENV || 'development';
-    
+    const env = process.env['NODE_ENV'] || 'development';
+
     const envOverrides = {
         development: {
             OPENAI: {

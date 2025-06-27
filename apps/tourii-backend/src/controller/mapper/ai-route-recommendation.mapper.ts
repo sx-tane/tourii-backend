@@ -58,16 +58,22 @@ export class AiRouteRecommendationMapper {
         try {
             return {
                 generatedRoutes: result.generatedRoutes.map((route) =>
-                    this.mapGeneratedRoute(route, searchKeywords),
+                    AiRouteRecommendationMapper.mapGeneratedRoute(route, searchKeywords),
                 ),
-                summary: this.mapSummary(result.summary, aiAvailable),
-                message: this.generateSuccessMessage(result.generatedRoutes.length),
+                summary: AiRouteRecommendationMapper.mapSummary(result.summary, aiAvailable),
+                message: AiRouteRecommendationMapper.generateSuccessMessage(
+                    result.generatedRoutes.length,
+                ),
             };
         } catch (error) {
-            this.logger.error('Failed to map route recommendation result to response DTO', {
-                error: error.message,
-                routesCount: result.generatedRoutes.length,
-            });
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            AiRouteRecommendationMapper.logger.error(
+                'Failed to map route recommendation result to response DTO',
+                {
+                    error: errorMessage,
+                    routesCount: result.generatedRoutes.length,
+                },
+            );
             throw error;
         }
     }
@@ -77,11 +83,11 @@ export class AiRouteRecommendationMapper {
         searchKeywords: string[],
     ): AiGeneratedRouteResponseDto {
         return {
-            modelRouteId: this.safeString(route.modelRoute.modelRouteId),
-            routeName: this.safeString(route.modelRoute.routeName),
-            regionDesc: this.safeString(route.modelRoute.regionDesc),
+            modelRouteId: AiRouteRecommendationMapper.safeString(route.modelRoute.modelRouteId),
+            routeName: AiRouteRecommendationMapper.safeString(route.modelRoute.routeName),
+            regionDesc: AiRouteRecommendationMapper.safeString(route.modelRoute.regionDesc),
             recommendations: route.modelRoute.recommendation || [],
-            region: this.safeString(route.modelRoute.region),
+            region: AiRouteRecommendationMapper.safeString(route.modelRoute.region),
             regionLatitude: route.modelRoute.regionLatitude || 0,
             regionLongitude: route.modelRoute.regionLongitude || 0,
             estimatedDuration: route.aiContent.estimatedDuration,
@@ -89,13 +95,13 @@ export class AiRouteRecommendationMapper {
             spotCount: route.metadata.spotCount,
             averageDistance: route.cluster.averageDistance,
             touristSpots: route.cluster.spots.map((spot) => ({
-                touristSpotId: this.safeString(spot.touristSpotId),
-                touristSpotName: this.safeString(spot.touristSpotName),
+                touristSpotId: AiRouteRecommendationMapper.safeString(spot.touristSpotId),
+                touristSpotName: AiRouteRecommendationMapper.safeString(spot.touristSpotName),
                 touristSpotDesc: spot.touristSpotDesc,
                 latitude: spot.latitude || 0,
                 longitude: spot.longitude || 0,
                 touristSpotHashtag: spot.touristSpotHashtag || [],
-                matchedKeywords: this.findMatchedKeywords(
+                matchedKeywords: AiRouteRecommendationMapper.findMatchedKeywords(
                     spot.touristSpotHashtag || [],
                     searchKeywords,
                 ),
@@ -109,10 +115,7 @@ export class AiRouteRecommendationMapper {
         };
     }
 
-    private static mapSummary(
-        summary: RouteRecommendationResult['summary'],
-        aiAvailable: boolean,
-    ) {
+    private static mapSummary(summary: RouteRecommendationResult['summary'], aiAvailable: boolean) {
         return {
             ...summary,
             aiAvailable,
