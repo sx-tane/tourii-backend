@@ -165,6 +165,8 @@ import { TouristSpotUpdateRequestBuilder } from './builder/tourist-spot-update-r
 import { UserCreateBuilder } from './builder/user-create-builder';
 import { UserResultBuilder } from './builder/user-result-builder';
 import { UserTravelLogResultBuilder } from './builder/user-travel-log-result-builder';
+import { AiRouteRecommendationService } from './ai-route-recommendation.service';
+import { RouteFilterService } from './route-filter.service';
 
 @Injectable()
 export class TouriiBackendService {
@@ -213,6 +215,8 @@ export class TouriiBackendService {
         @Inject(TouriiBackendConstants.PASSPORT_METADATA_REPOSITORY_TOKEN)
         private readonly passportMetadataRepository: PassportMetadataRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
+        private readonly aiRouteRecommendationService: AiRouteRecommendationService,
+        private readonly routeFilterService: RouteFilterService,
     ) {}
 
     // ==========================================
@@ -1071,6 +1075,98 @@ export class TouriiBackendService {
                 );
             }),
         );
+    }
+
+    /**
+     * Generate unified AI route recommendations combining existing and AI routes
+     * @param request AI route recommendation request
+     * @param userId Optional user ID for rate limiting and personalization
+     * @returns Unified AI route recommendation response
+     */
+    async generateUnifiedAiRouteRecommendations(
+        request: {
+            keywords: string[];
+            mode: 'all' | 'any';
+            region?: string;
+            proximityRadiusKm?: number;
+            minSpotsPerCluster?: number;
+            maxSpotsPerCluster?: number;
+            maxRoutes?: number;
+        },
+        userId?: string,
+    ): Promise<import('@app/tourii-backend/controller/model/tourii-response/ai-route-recommendation-response.model').AiRouteRecommendationResponseDto> {
+        try {
+            // 1. Validate request using AI service
+            this.aiRouteRecommendationService.validateRequest({
+                keywords: request.keywords,
+                mode: request.mode,
+                region: request.region,
+                clusteringOptions: {
+                    proximityRadiusKm: request.proximityRadiusKm,
+                    minSpotsPerCluster: request.minSpotsPerCluster,
+                    maxSpotsPerCluster: request.maxSpotsPerCluster,
+                },
+                maxRoutes: request.maxRoutes,
+                userId,
+            });
+
+            // 2. Get and filter existing routes
+            const allRoutes = await this.getModelRouteEntities();
+            const regionFilteredRoutes = allRoutes.filter((route) => {
+                // Filter out AI-generated routes
+                if (route.isAiGenerated) return false;
+
+                // Filter by region if specified
+                if (request.region && route.region) {
+                    return route.region.toLowerCase().includes(request.region.toLowerCase());
+                }
+
+                return true;
+            });
+
+            // 3. Apply hashtag filtering using optimized service
+            const matchingExistingRoutes = this.routeFilterService.filterRoutesByHashtags(
+                regionFilteredRoutes,
+                {
+                    keywords: request.keywords,
+                    mode: request.mode,
+                    region: request.region,
+                    maxRoutes: request.maxRoutes || 5,
+                },
+            );
+
+            // 4. Generate AI routes
+            const aiResult = await this.aiRouteRecommendationService.generateRouteRecommendations({
+                keywords: request.keywords,
+                mode: request.mode,
+                region: request.region,
+                clusteringOptions: {
+                    proximityRadiusKm: request.proximityRadiusKm,
+                    minSpotsPerCluster: request.minSpotsPerCluster,
+                    maxSpotsPerCluster: request.maxSpotsPerCluster,
+                },
+                maxRoutes: request.maxRoutes,
+                userId,
+            });
+
+            // 5. Build unified response using result builder
+            const { AiRouteRecommendationResultBuilder } = await import('./builder/ai-route-recommendation-result-builder');
+            return AiRouteRecommendationResultBuilder.buildUnifiedResponse({
+                keywords: request.keywords,
+                region: request.region,
+                existingRoutes: matchingExistingRoutes,
+                aiResult,
+                userId: userId || 'anonymous',
+                aiAvailable: this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
+            });
+
+        } catch (error) {
+            // Use result builder for error response
+            const { AiRouteRecommendationResultBuilder } = await import('./builder/ai-route-recommendation-result-builder');
+            return AiRouteRecommendationResultBuilder.buildErrorResponse(
+                error instanceof Error ? error : new Error(String(error)),
+            );
+        }
     }
 
     /**

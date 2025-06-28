@@ -2951,164 +2951,50 @@ export class TouriiBackendController {
         @Body() request: AiRouteRecommendationRequestDto,
         @Headers('x-user-id') userId?: string,
     ): Promise<AiRouteRecommendationResponseDto> {
-        const userIdSafe = userId || 'anonymous';
-
         try {
             this.logger.log('AI route recommendation request received', {
                 keywords: request.keywords,
                 mode: request.mode,
                 region: request.region,
-                userId: userIdSafe,
+                userId: userId || 'anonymous',
             });
 
-            // Rate limiting check
-            if (userId) {
-                this.logger.debug(`Rate limit check for user: ${userId}`);
-            }
-
-            // Validate request
-            this.aiRouteRecommendationService.validateRequest({
-                keywords: request.keywords,
-                mode: request.mode,
-                region: request.region,
-                clusteringOptions: {
-                    proximityRadiusKm: request.proximityRadiusKm,
-                    minSpotsPerCluster: request.minSpotsPerCluster,
-                    maxSpotsPerCluster: request.maxSpotsPerCluster,
-                },
-                maxRoutes: request.maxRoutes,
-                userId,
-            });
-
-            // NEW: Get all existing route entities for filtering  
-            const allRoutes = await this.touriiBackendService.getModelRouteEntities();
-
-            // Filter by region and manual routes (not AI generated)
-            const regionFilteredRoutes = allRoutes.filter((route) => {
-                // Filter out AI-generated routes
-                if (route.isAiGenerated) return false;
-
-                // Filter by region if specified
-                if (
-                    request.region &&
-                    route.region &&
-                    !route.region.toLowerCase().includes(request.region.toLowerCase())
-                ) {
-                    return false;
-                }
-
-                return true;
-            });
-
-            // Filter existing routes using optimized service
-            const matchingExistingRoutes = this.routeFilterService.filterRoutesByHashtags(
-                regionFilteredRoutes,
+            // Delegate to service layer for business logic coordination
+            const response = await this.touriiBackendService.generateUnifiedAiRouteRecommendations(
                 {
                     keywords: request.keywords,
                     mode: request.mode,
                     region: request.region,
-                    maxRoutes: request.maxRoutes || 5,
-                },
-            );
-
-            // Execute AI route generation service call
-            const result = await this.aiRouteRecommendationService.generateRouteRecommendations({
-                keywords: request.keywords,
-                mode: request.mode,
-                region: request.region,
-                clusteringOptions: {
                     proximityRadiusKm: request.proximityRadiusKm,
                     minSpotsPerCluster: request.minSpotsPerCluster,
                     maxSpotsPerCluster: request.maxSpotsPerCluster,
+                    maxRoutes: request.maxRoutes,
                 },
-                maxRoutes: request.maxRoutes,
                 userId,
-            });
+            );
 
-            // Transform to unified response DTO
-            const response = {
-                generatedRoutes: result.generatedRoutes.map((route) => ({
-                    modelRouteId: route.modelRoute.modelRouteId || '',
-                    routeName: route.modelRoute.routeName || '',
-                    regionDesc: route.modelRoute.regionDesc || '',
-                    recommendations: route.modelRoute.recommendation || [],
-                    region: route.modelRoute.region || '',
-                    regionLatitude: route.modelRoute.regionLatitude || 0,
-                    regionLongitude: route.modelRoute.regionLongitude || 0,
-                    estimatedDuration: route.aiContent.estimatedDuration,
-                    confidenceScore: route.aiContent.confidenceScore,
-                    spotCount: route.metadata.spotCount,
-                    averageDistance: route.cluster.averageDistance,
-                    touristSpots: route.cluster.spots.map((spot) => ({
-                        touristSpotId: spot.touristSpotId || '',
-                        touristSpotName: spot.touristSpotName || '',
-                        touristSpotDesc: spot.touristSpotDesc,
-                        latitude: spot.latitude || 0,
-                        longitude: spot.longitude || 0,
-                        touristSpotHashtag: spot.touristSpotHashtag || [],
-                        matchedKeywords: request.keywords,
-                    })),
-                    metadata: {
-                        sourceKeywords: route.metadata.sourceKeywords,
-                        generatedAt: route.metadata.generatedAt.toISOString(),
-                        algorithm: route.metadata.algorithm,
-                        aiGenerated: true,
-                    },
-                })),
-
-                // NEW: Add existing routes to response
-                existingRoutes: matchingExistingRoutes.map((route) => ({
-                    modelRouteId: route.modelRouteId || '',
-                    routeName: route.routeName || '',
-                    regionDesc: route.regionDesc || '',
-                    recommendations: route.recommendation || [],
-                    region: route.region || '',
-                    regionLatitude: route.regionLatitude || 0,
-                    regionLongitude: route.regionLongitude || 0,
-                    spotCount: route.touristSpotList?.length || 0,
-                    isAiGenerated: route.isAiGenerated || false,
-                    matchedKeywords: request.keywords,
-                    touristSpots:
-                        route.touristSpotList?.map((spot) => ({
-                            touristSpotId: spot.touristSpotId || '',
-                            touristSpotName: spot.touristSpotName || '',
-                            touristSpotDesc: spot.touristSpotDesc,
-                            latitude: spot.latitude || 0,
-                            longitude: spot.longitude || 0,
-                            touristSpotHashtag: spot.touristSpotHashtag || [],
-                            matchedKeywords: request.keywords,
-                        })) || [],
-                })),
-
-                summary: {
-                    ...result.summary,
-                    existingRoutesFound: matchingExistingRoutes.length,
-                    totalRoutesReturned:
-                        matchingExistingRoutes.length + result.generatedRoutes.length,
-                    aiAvailable: this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
-                },
-                message: `Found ${matchingExistingRoutes.length} existing routes and generated ${result.generatedRoutes.length} AI routes based on your selected hashtags: ${request.keywords.join(', ')} in ${request.region || 'all regions'}`,
-            };
-
-            // Log completion
-            this.logger.log('Unified route recommendation completed', {
-                existingRoutes: matchingExistingRoutes.length,
-                aiRoutes: result.generatedRoutes.length,
-                totalRoutes: matchingExistingRoutes.length + result.generatedRoutes.length,
-                processingTime: result.summary.processingTimeMs,
-                userId: userIdSafe,
+            this.logger.log('AI route recommendation completed successfully', {
+                existingRoutes: response.summary.existingRoutesFound,
+                aiRoutes: response.generatedRoutes.length,
+                totalRoutes: response.summary.totalRoutesReturned,
+                userId: userId || 'anonymous',
             });
 
             return response;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
             this.logger.error('AI route recommendation failed', {
-                error: errorMessage,
+                error: error instanceof Error ? error.message : String(error),
                 keywords: request.keywords,
-                userId: userIdSafe,
+                userId: userId || 'anonymous',
             });
 
-            throw error;
+            // Re-throw to maintain existing error handling behavior
+            if (error instanceof TouriiBackendAppException) {
+                throw error;
+            }
+
+            // Convert unknown errors to custom app exceptions
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_048);
         }
     }
 

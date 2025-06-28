@@ -5597,6 +5597,76 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerCreateStandaloneTouristSpot {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+    }
+    export interface RequestBody {
+      /**
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
+       */
+      storyChapterId?: string;
+      /**
+       * Name of the tourist spot
+       */
+      touristSpotName: string;
+      /**
+       * Description of the tourist spot
+       */
+      touristSpotDesc: string;
+      /**
+       * Best visit time of the tourist spot
+       */
+      bestVisitTime: string;
+      /**
+       * Hashtags associated with this location
+       */
+      touristSpotHashtag: string[];
+      /**
+       * Image set for the tourist spot
+       */
+      imageSet?: {
+        /**
+         * Main image of the tourist spot
+         */
+        main: string;
+        /**
+         * Small images of the tourist spot
+         */
+        small: string[];
+      };
+      /**
+       * Address for enhanced search accuracy
+       */
+      address?: string;
+    }
+    namespace Responses {
+      export type $201 = Components.Schemas.TouristSpotResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerCreateStory {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -5645,6 +5715,89 @@ declare namespace Paths {
     export type RequestBody = Components.Schemas.StoryChapterCreateRequestDto;
     namespace Responses {
       export type $201 = Components.Schemas.StoryChapterResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerCreateTouristRoute {
+    export interface HeaderParameters {
+      'x-user-id': Parameters.XUserId;
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+      export type XUserId = string;
+    }
+    export interface RequestBody {
+      /**
+       * Name of the tourist route (1-100 characters)
+       */
+      routeName: string;
+      /**
+       * Description of the route (1-500 characters)
+       */
+      regionDesc: string;
+      /**
+       * List of recommendations for this route (1-10 items)
+       */
+      recommendations: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+      /**
+       * Array of existing tourist spot IDs to include (1-20 spots)
+       */
+      touristSpotIds: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+    }
+    namespace Responses {
+      export type $201 = Components.Schemas.ModelRouteResponseDto;
       export interface $400 {
         /**
          * example:
