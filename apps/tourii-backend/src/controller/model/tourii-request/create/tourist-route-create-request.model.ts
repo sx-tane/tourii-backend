@@ -2,16 +2,8 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const TouristRouteCreateRequestSchema = z.object({
-    routeName: z
-        .string()
-        .min(1)
-        .max(100)
-        .describe('Name of the tourist route (1-100 characters)'),
-    regionDesc: z
-        .string()
-        .min(1)
-        .max(500)
-        .describe('Description of the route (1-500 characters)'),
+    routeName: z.string().min(1).max(100).describe('Name of the tourist route (1-100 characters)'),
+    regionDesc: z.string().min(1).max(500).describe('Description of the route (1-500 characters)'),
     recommendations: z
         .array(z.string())
         .min(1)

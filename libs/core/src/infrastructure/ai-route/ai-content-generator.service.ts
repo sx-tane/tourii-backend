@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TouristSpotCluster } from './ai-route-clustering.service';
 import { LocationInfoRepository } from '../../domain/geo/location-info.repository';
+import { TouristSpotCluster } from './ai-route-clustering.service';
 
 export interface AiGeneratedRouteContent {
     routeName: string;
@@ -232,12 +232,19 @@ Guidelines:
                 : 'Discovery';
 
         const routeName = `${keywordString} ${cluster.region}`.substring(0, 30);
-        const regionDesc = `Explore ${cluster.spots.length} locations in ${cluster.region} featuring ${userKeywords.slice(0, 2).join(', ')}.`.substring(0, 200);
+        const regionDesc =
+            `Explore ${cluster.spots.length} locations in ${cluster.region} featuring ${userKeywords.slice(0, 2).join(', ')}.`.substring(
+                0,
+                200,
+            );
 
         return {
             routeName,
             regionDesc,
-            recommendations: this.generateDefaultRecommendations([...userKeywords, ...commonHashtags]),
+            recommendations: this.generateDefaultRecommendations([
+                ...userKeywords,
+                ...commonHashtags,
+            ]),
             estimatedDuration: this.calculateDurationFallback(cluster.spots.length),
             confidenceScore: 0.6, // Lower confidence for fallback content
         };
@@ -308,7 +315,7 @@ Guidelines:
             culinary: 'Local Food',
             sushi: 'Local Food',
             ramen: 'Local Food',
-            
+
             // Culture and tradition
             culture: 'A good mix of nature and culture',
             cultural: 'A good mix of nature and culture',
@@ -317,7 +324,7 @@ Guidelines:
             history: 'Historical Sites',
             temple: 'Historical Sites',
             shrine: 'Historical Sites',
-            
+
             // Nature and scenery
             nature: 'A good mix of nature and culture',
             natural: 'A good mix of nature and culture',
@@ -326,14 +333,14 @@ Guidelines:
             mountain: 'A good mix of nature and culture',
             garden: 'A good mix of nature and culture',
             park: 'A good mix of nature and culture',
-            
+
             // Modern and urban
             modern: 'Modern Architecture',
             urban: 'Urban Experience',
             city: 'Urban Experience',
             shopping: 'Shopping District',
             nightlife: 'Nightlife & Entertainment',
-            
+
             // Experience types
             animation: 'Pop Culture & Anime',
             anime: 'Pop Culture & Anime',
@@ -341,24 +348,24 @@ Guidelines:
             tokyo: 'Ideal for First Time Visitors',
             kyoto: 'Historical Sites',
             osaka: 'Local Food',
-            
+
             // Activity types
             walking: 'Walking Tour',
             cycling: 'Active Experience',
             photography: 'Great for Photography',
-            family: 'Family Friendly'
+            family: 'Family Friendly',
         };
 
         const recommendations = new Set<string>();
-        
+
         // Map keywords to recommendations
-        keywords.forEach(keyword => {
+        keywords.forEach((keyword) => {
             const normalized = keyword.toLowerCase().trim();
             if (recommendationMap[normalized]) {
                 recommendations.add(recommendationMap[normalized]);
             }
         });
-        
+
         // Add defaults if not enough recommendations
         if (recommendations.size === 0) {
             recommendations.add('Ideal for First Time Visitors');
@@ -367,31 +374,36 @@ Guidelines:
             recommendations.add('A good mix of nature and culture');
             recommendations.add('Local Food');
         }
-        
+
         return Array.from(recommendations).slice(0, 5);
     }
 
     /**
      * Gets real image from LocationInfo API for a location
      */
-    async getLocationImage(locationName: string, latitude?: number, longitude?: number, address?: string): Promise<string | null> {
+    async getLocationImage(
+        locationName: string,
+        latitude?: number,
+        longitude?: number,
+        address?: string,
+    ): Promise<string | null> {
         try {
             this.logger.debug(`Fetching real image for location: ${locationName}`);
-            
+
             const locationInfo = await this.locationInfoRepository.getLocationInfo(
                 locationName,
                 latitude,
                 longitude,
-                address
+                address,
             );
-            
+
             if (locationInfo.images && locationInfo.images.length > 0) {
                 // Return the first (usually best quality) image
                 const bestImage = locationInfo.images[0];
                 this.logger.debug(`Found real image for ${locationName}: ${bestImage.url}`);
                 return bestImage.url;
             }
-            
+
             this.logger.debug(`No images found for ${locationName}`);
             return null;
         } catch (error) {

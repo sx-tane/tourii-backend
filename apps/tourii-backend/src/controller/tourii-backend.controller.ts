@@ -2894,44 +2894,53 @@ export class TouriiBackendController {
 
             // NEW: Get all existing routes and filter by region and hashtags
             const allRoutes = await this.touriiBackendService.getModelRoutes();
-            
+
             // Filter by region and manual routes (not AI generated)
-            const regionFilteredRoutes = allRoutes.filter(route => {
+            const regionFilteredRoutes = allRoutes.filter((route) => {
                 // Filter out AI-generated routes
                 if (route.isAiGenerated) return false;
-                
+
                 // Filter by region if specified
-                if (request.region && route.region && !route.region.toLowerCase().includes(request.region.toLowerCase())) {
+                if (
+                    request.region &&
+                    route.region &&
+                    !route.region.toLowerCase().includes(request.region.toLowerCase())
+                ) {
                     return false;
                 }
-                
+
                 return true;
             });
 
             // Filter existing routes by hashtag matching
-            const matchingExistingRoutes = regionFilteredRoutes.filter(route => {
-                if (!route.touristSpotList || route.touristSpotList.length === 0) return false;
-                
-                const routeHashtags = route.touristSpotList
-                    .flatMap(spot => spot.touristSpotHashtag || [])
-                    .map(tag => tag.toLowerCase());
+            const matchingExistingRoutes = regionFilteredRoutes
+                .filter((route) => {
+                    if (!route.touristSpotList || route.touristSpotList.length === 0) return false;
 
-                if (request.mode === 'all') {
-                    return request.keywords.every(keyword => 
-                        routeHashtags.some(hashtag => 
-                            hashtag.includes(keyword.toLowerCase()) || 
-                            keyword.toLowerCase().includes(hashtag)
-                        )
-                    );
-                } else { // 'any' mode
-                    return request.keywords.some(keyword => 
-                        routeHashtags.some(hashtag => 
-                            hashtag.includes(keyword.toLowerCase()) || 
-                            keyword.toLowerCase().includes(hashtag)
-                        )
-                    );
-                }
-            }).slice(0, request.maxRoutes || 5);
+                    const routeHashtags = route.touristSpotList
+                        .flatMap((spot) => spot.touristSpotHashtag || [])
+                        .map((tag) => tag.toLowerCase());
+
+                    if (request.mode === 'all') {
+                        return request.keywords.every((keyword) =>
+                            routeHashtags.some(
+                                (hashtag) =>
+                                    hashtag.includes(keyword.toLowerCase()) ||
+                                    keyword.toLowerCase().includes(hashtag),
+                            ),
+                        );
+                    } else {
+                        // 'any' mode
+                        return request.keywords.some((keyword) =>
+                            routeHashtags.some(
+                                (hashtag) =>
+                                    hashtag.includes(keyword.toLowerCase()) ||
+                                    keyword.toLowerCase().includes(hashtag),
+                            ),
+                        );
+                    }
+                })
+                .slice(0, request.maxRoutes || 5);
 
             // Execute AI route generation service call
             const result = await this.aiRouteRecommendationService.generateRouteRecommendations({
@@ -2977,9 +2986,9 @@ export class TouriiBackendController {
                         aiGenerated: true,
                     },
                 })),
-                
+
                 // NEW: Add existing routes to response
-                existingRoutes: matchingExistingRoutes.map(route => ({
+                existingRoutes: matchingExistingRoutes.map((route) => ({
                     modelRouteId: route.modelRouteId || '',
                     routeName: route.routeName || '',
                     regionDesc: route.regionDesc || '',
@@ -2990,21 +2999,23 @@ export class TouriiBackendController {
                     spotCount: route.touristSpotList?.length || 0,
                     isAiGenerated: route.isAiGenerated || false,
                     matchedKeywords: request.keywords,
-                    touristSpots: route.touristSpotList?.map(spot => ({
-                        touristSpotId: spot.touristSpotId || '',
-                        touristSpotName: spot.touristSpotName || '',
-                        touristSpotDesc: spot.touristSpotDesc,
-                        latitude: spot.touristSpotLatitude || 0,
-                        longitude: spot.touristSpotLongitude || 0,
-                        touristSpotHashtag: spot.touristSpotHashtag || [],
-                        matchedKeywords: request.keywords,
-                    })) || [],
+                    touristSpots:
+                        route.touristSpotList?.map((spot) => ({
+                            touristSpotId: spot.touristSpotId || '',
+                            touristSpotName: spot.touristSpotName || '',
+                            touristSpotDesc: spot.touristSpotDesc,
+                            latitude: spot.touristSpotLatitude || 0,
+                            longitude: spot.touristSpotLongitude || 0,
+                            touristSpotHashtag: spot.touristSpotHashtag || [],
+                            matchedKeywords: request.keywords,
+                        })) || [],
                 })),
 
                 summary: {
                     ...result.summary,
                     existingRoutesFound: matchingExistingRoutes.length,
-                    totalRoutesReturned: matchingExistingRoutes.length + result.generatedRoutes.length,
+                    totalRoutesReturned:
+                        matchingExistingRoutes.length + result.generatedRoutes.length,
                     aiAvailable: this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
                 },
                 message: `Found ${matchingExistingRoutes.length} existing routes and generated ${result.generatedRoutes.length} AI routes based on your selected hashtags: ${request.keywords.join(', ')} in ${request.region || 'all regions'}`,
@@ -3068,9 +3079,7 @@ export class TouriiBackendController {
     })
     @ApiInvalidVersionResponse()
     @ApiDefaultBadRequestResponse()
-    async getAvailableHashtags(
-        @Body() request?: { region?: string }
-    ): Promise<{
+    async getAvailableHashtags(@Body() request?: { region?: string }): Promise<{
         hashtags: string[];
         totalCount: number;
         topHashtags: Array<{ hashtag: string; count: number }>;
@@ -3078,7 +3087,9 @@ export class TouriiBackendController {
         message: string;
     }> {
         try {
-            const result = await this.aiRouteRecommendationService.getAvailableHashtags(request?.region);
+            const result = await this.aiRouteRecommendationService.getAvailableHashtags(
+                request?.region,
+            );
 
             this.logger.log('Available hashtags retrieved', {
                 region: request?.region || 'all',

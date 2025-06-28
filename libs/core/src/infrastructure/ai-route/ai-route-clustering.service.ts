@@ -1,5 +1,5 @@
-import { TouristSpot } from '../../domain/game/model-route/tourist-spot';
 import { CLUSTERING_DEFAULTS } from '../../domain/ai-route/ai-route-constants';
+import { TouristSpot } from '../../domain/game/model-route/tourist-spot';
 import { RegionDetectionUtil } from '../../utils/region-detection.util';
 
 export interface TouristSpotCluster {
@@ -161,7 +161,6 @@ export class AiRouteClusteringService {
     private static determineClusterRegion(spots: TouristSpot[]): string {
         return RegionDetectionUtil.determineMostCommonRegion(spots);
     }
-
 
     /**
      * Calculates average distance from center for cluster compactness metric

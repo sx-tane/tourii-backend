@@ -1,6 +1,6 @@
-import { JapaneseAddressParserService } from '../infrastructure/geo/japanese-address-parser.service';
-import { TouristSpot } from '../domain/game/model-route/tourist-spot';
 import { PREFECTURE_BOUNDARIES } from '../domain/ai-route/ai-route-constants';
+import { TouristSpot } from '../domain/game/model-route/tourist-spot';
+import { JapaneseAddressParserService } from '../infrastructure/geo/japanese-address-parser.service';
 
 /**
  * Utility class for detecting regions from coordinates and addresses

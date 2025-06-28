@@ -1,17 +1,20 @@
 import { Logger } from '@nestjs/common';
-import { ContextStorage } from '../../support/context/context-storage';
+import {
+    AI_ROUTE_LIMITS,
+    ALGORITHM_VERSIONS,
+    REGION_FALLBACK_IMAGES,
+} from '../../domain/ai-route/ai-route-constants';
 import { ModelRouteEntity } from '../../domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '../../domain/game/model-route/model-route.repository';
 import { TouristSpot } from '../../domain/game/model-route/tourist-spot';
+import { ContextStorage } from '../../support/context/context-storage';
+import { RegionDetectionUtil } from '../../utils/region-detection.util';
 import { AiContentGeneratorService, AiGeneratedRouteContent } from './ai-content-generator.service';
 import {
     AiRouteClusteringService,
     ClusteringOptions,
     TouristSpotCluster,
 } from './ai-route-clustering.service';
-import { AI_ROUTE_LIMITS, ALGORITHM_VERSIONS, REGION_FALLBACK_IMAGES } from '../../domain/ai-route/ai-route-constants';
-import { RegionDetectionUtil } from '../../utils/region-detection.util';
-
 
 export interface RouteRecommendationRequest {
     keywords: string[];
@@ -52,7 +55,6 @@ export class AiRouteRecommendationService {
         private readonly modelRouteRepository: ModelRouteRepository,
         private readonly aiContentGenerator: AiContentGeneratorService,
     ) {}
-
 
     /**
      * Generates AI-powered route recommendations based on user keywords
@@ -419,8 +421,6 @@ export class AiRouteRecommendationService {
         });
     }
 
-
-
     // Constants for consistent behavior
     private static readonly SAMPLE_HASHTAGS_FOR_LOGGING = 10;
     private static readonly TOP_HASHTAGS_LIMIT = 20;
@@ -686,14 +686,15 @@ export class AiRouteRecommendationService {
     }> {
         try {
             let allRoutes = await this.modelRouteRepository.getModelRoutes();
-            
+
             // Filter by region if specified
             if (region) {
-                allRoutes = allRoutes.filter(route => 
-                    route.region && route.region.toLowerCase().includes(region.toLowerCase())
+                allRoutes = allRoutes.filter(
+                    (route) =>
+                        route.region && route.region.toLowerCase().includes(region.toLowerCase()),
                 );
             }
-            
+
             const hashtagCounts = this.extractHashtagsFromRoutes(allRoutes);
 
             const uniqueHashtags = [...hashtagCounts.keys()].sort();

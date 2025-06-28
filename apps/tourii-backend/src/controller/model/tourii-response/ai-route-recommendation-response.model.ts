@@ -76,7 +76,9 @@ export const EnhancedAiRouteRecommendationResponseSchema = z.object({
 
     summary: z
         .object({
-            keywordExpansion: KeywordExpansionResponseSchema.describe('AI keyword expansion details'),
+            keywordExpansion: KeywordExpansionResponseSchema.describe(
+                'AI keyword expansion details',
+            ),
             totalSpotsFound: z.number().describe('Total tourist spots found matching keywords'),
             clustersFormed: z.number().describe('Number of geographic clusters formed'),
             routesGenerated: z.number().describe('Number of AI routes successfully generated'),
@@ -115,7 +117,10 @@ export const AiRouteRecommendationResponseSchema = z.object({
             clustersFormed: z.number().describe('Number of geographic clusters formed'),
             routesGenerated: z.number().describe('Number of AI routes successfully generated'),
             existingRoutesFound: z.number().optional().describe('Number of existing routes found'),
-            totalRoutesReturned: z.number().optional().describe('Total routes returned (existing + AI)'),
+            totalRoutesReturned: z
+                .number()
+                .optional()
+                .describe('Total routes returned (existing + AI)'),
             processingTimeMs: z.number().describe('Total processing time in milliseconds'),
             aiAvailable: z.boolean().describe('Whether AI content generation was available'),
         })

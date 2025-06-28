@@ -1,4 +1,4 @@
-import { PREFECTURE_MAPPING, MAJOR_CITIES } from '../domain/geo/japanese-address.constants';
+import { MAJOR_CITIES, PREFECTURE_MAPPING } from '../domain/geo/japanese-address.constants';
 import type { ParsedJapaneseAddress } from '../infrastructure/geo/japanese-address-parser.service';
 
 /**
@@ -14,12 +14,12 @@ export class JapaneseAddressParserUtil {
             return {
                 prefecture: 'Unknown',
                 originalAddress: address,
-                confidence: 0.0
+                confidence: 0.0,
             };
         }
 
         const normalizedAddress = address.toLowerCase().trim();
-        
+
         // Try multiple parsing strategies
         const strategies = [
             JapaneseAddressParserUtil.parseByDirectPrefectureMatch,
@@ -42,7 +42,10 @@ export class JapaneseAddressParserUtil {
     /**
      * Strategy 1: Direct prefecture name matching
      */
-    private static parseByDirectPrefectureMatch(normalizedAddress: string, originalAddress: string): ParsedJapaneseAddress {
+    private static parseByDirectPrefectureMatch(
+        normalizedAddress: string,
+        originalAddress: string,
+    ): ParsedJapaneseAddress {
         for (const [key, prefecture] of Object.entries(PREFECTURE_MAPPING)) {
             if (normalizedAddress.includes(key)) {
                 return {
@@ -50,7 +53,7 @@ export class JapaneseAddressParserUtil {
                     originalAddress,
                     confidence: 0.9,
                     city: JapaneseAddressParserUtil.extractCity(normalizedAddress),
-                    ward: JapaneseAddressParserUtil.extractWard(normalizedAddress)
+                    ward: JapaneseAddressParserUtil.extractWard(normalizedAddress),
                 };
             }
         }
@@ -61,14 +64,17 @@ export class JapaneseAddressParserUtil {
     /**
      * Strategy 2: Major city matching to prefecture
      */
-    private static parseByMajorCityMatch(normalizedAddress: string, originalAddress: string): ParsedJapaneseAddress {
+    private static parseByMajorCityMatch(
+        normalizedAddress: string,
+        originalAddress: string,
+    ): ParsedJapaneseAddress {
         for (const [city, prefecture] of Object.entries(MAJOR_CITIES)) {
             if (normalizedAddress.includes(city)) {
                 return {
                     prefecture,
                     city: JapaneseAddressParserUtil.capitalizeFirst(city),
                     originalAddress,
-                    confidence: 0.8
+                    confidence: 0.8,
                 };
             }
         }
@@ -79,10 +85,13 @@ export class JapaneseAddressParserUtil {
     /**
      * Strategy 3: Positional analysis (prefecture usually comes first in Japanese addresses)
      */
-    private static parseByPositionalAnalysis(normalizedAddress: string, originalAddress: string): ParsedJapaneseAddress {
+    private static parseByPositionalAnalysis(
+        normalizedAddress: string,
+        originalAddress: string,
+    ): ParsedJapaneseAddress {
         // Split by common separators
-        const parts = normalizedAddress.split(/[,，、\s]+/).filter(part => part.length > 0);
-        
+        const parts = normalizedAddress.split(/[,，、\s]+/).filter((part) => part.length > 0);
+
         for (const part of parts) {
             const trimmedPart = part.trim();
             for (const [key, prefecture] of Object.entries(PREFECTURE_MAPPING)) {
@@ -90,7 +99,7 @@ export class JapaneseAddressParserUtil {
                     return {
                         prefecture,
                         originalAddress,
-                        confidence: 0.7
+                        confidence: 0.7,
                     };
                 }
             }
@@ -102,7 +111,10 @@ export class JapaneseAddressParserUtil {
     /**
      * Strategy 4: Postal code pattern analysis
      */
-    private static parseByPostalCodePattern(normalizedAddress: string, originalAddress: string): ParsedJapaneseAddress {
+    private static parseByPostalCodePattern(
+        normalizedAddress: string,
+        originalAddress: string,
+    ): ParsedJapaneseAddress {
         // Japanese postal codes: 〒123-4567 or 123-4567
         const postalCodeMatch = normalizedAddress.match(/〒?(\d{3})-?(\d{4})/);
         if (postalCodeMatch) {
@@ -112,7 +124,7 @@ export class JapaneseAddressParserUtil {
                 return {
                     prefecture,
                     originalAddress,
-                    confidence: 0.6
+                    confidence: 0.6,
                 };
             }
         }
@@ -123,20 +135,23 @@ export class JapaneseAddressParserUtil {
     /**
      * Strategy 5: Best effort fallback
      */
-    private static parseByBestEffort(normalizedAddress: string, originalAddress: string): ParsedJapaneseAddress {
+    private static parseByBestEffort(
+        normalizedAddress: string,
+        originalAddress: string,
+    ): ParsedJapaneseAddress {
         // If address contains "japan" but we couldn't identify prefecture, default to Tokyo
         if (normalizedAddress.includes('japan') || normalizedAddress.includes('日本')) {
             return {
                 prefecture: 'Tokyo',
                 originalAddress,
-                confidence: 0.3
+                confidence: 0.3,
             };
         }
 
         return {
             prefecture: 'Unknown',
             originalAddress,
-            confidence: 0.0
+            confidence: 0.0,
         };
     }
 
@@ -144,11 +159,7 @@ export class JapaneseAddressParserUtil {
      * Extract city from address
      */
     private static extractCity(address: string): string | undefined {
-        const cityPatterns = [
-            /(\w+)\s*city/i,
-            /(\w+)市/,
-            /(\w+)\s*shi/i
-        ];
+        const cityPatterns = [/(\w+)\s*city/i, /(\w+)市/, /(\w+)\s*shi/i];
 
         for (const pattern of cityPatterns) {
             const match = address.match(pattern);
@@ -164,11 +175,7 @@ export class JapaneseAddressParserUtil {
      * Extract ward from address
      */
     private static extractWard(address: string): string | undefined {
-        const wardPatterns = [
-            /(\w+)\s*ward/i,
-            /(\w+)区/,
-            /(\w+)\s*ku/i
-        ];
+        const wardPatterns = [/(\w+)\s*ward/i, /(\w+)区/, /(\w+)\s*ku/i];
 
         for (const pattern of wardPatterns) {
             const match = address.match(pattern);
@@ -185,7 +192,7 @@ export class JapaneseAddressParserUtil {
      */
     private static prefectureByPostalCode(postalCode: string): string {
         const code = parseInt(postalCode.substring(0, 3));
-        
+
         if (code >= 100 && code <= 199) return 'Tokyo';
         if (code >= 200 && code <= 259) return 'Kanagawa';
         if (code >= 260 && code <= 299) return 'Chiba';
@@ -202,7 +209,7 @@ export class JapaneseAddressParserUtil {
         if (code >= 640 && code <= 649) return 'Wakayama';
         if (code >= 650 && code <= 679) return 'Hyogo';
         if (code >= 870 && code <= 879) return 'Oita';
-        
+
         return 'Unknown';
     }
 
@@ -217,7 +224,7 @@ export class JapaneseAddressParserUtil {
      * Batch parse multiple addresses
      */
     public static parseMultipleAddresses(addresses: string[]): ParsedJapaneseAddress[] {
-        return addresses.map(address => JapaneseAddressParserUtil.parseAddress(address));
+        return addresses.map((address) => JapaneseAddressParserUtil.parseAddress(address));
     }
 
     /**

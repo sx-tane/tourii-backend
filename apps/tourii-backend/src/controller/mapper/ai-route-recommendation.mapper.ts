@@ -1,14 +1,14 @@
+import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
+import type {
+    GeneratedRoute,
+    RouteRecommendationResult,
+} from '@app/core/infrastructure/ai-route/ai-route-recommendation.service';
 import { Logger } from '@nestjs/common';
 import {
     AiGeneratedRouteResponseDto,
     AiRouteRecommendationResponseDto,
     ExistingRouteResponseDto,
 } from '../model/tourii-response/ai-route-recommendation-response.model';
-import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
-import type { 
-    RouteRecommendationResult,
-    GeneratedRoute
-} from '@app/core/infrastructure/ai-route/ai-route-recommendation.service';
 
 export class AiRouteRecommendationMapper {
     private static readonly logger = new Logger(AiRouteRecommendationMapper.name);
@@ -40,8 +40,6 @@ export class AiRouteRecommendationMapper {
             throw error;
         }
     }
-
-
 
     private static mapGeneratedRoute(
         route: GeneratedRoute,

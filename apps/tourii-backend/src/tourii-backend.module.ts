@@ -1,3 +1,4 @@
+import { AiContentGeneratorService } from '@app/core/infrastructure/ai-route/ai-content-generator.service';
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
@@ -44,7 +45,6 @@ import { PassportMetadataService } from '../../tourii-onchain/src/service/passpo
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
-import { AiContentGeneratorService } from '@app/core/infrastructure/ai-route/ai-content-generator.service';
 import { AiRouteRecommendationService } from './service/ai-route-recommendation.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';

@@ -112,13 +112,15 @@ export class ModelRouteMapper {
             request_id: modelRouteEntity.requestId,
             // Only create owned tourist spots if there are spots to create
             // AI-generated routes use junction table linking instead
-            ...(modelRouteEntity.touristSpotList && modelRouteEntity.touristSpotList.length > 0 ? {
-                owned_tourist_spots: {
-                    create: modelRouteEntity.touristSpotList.map((touristSpot) =>
-                        ModelRouteMapper.touristSpotEntityToPrismaInput(touristSpot),
-                    ),
-                },
-            } : {}),
+            ...(modelRouteEntity.touristSpotList && modelRouteEntity.touristSpotList.length > 0
+                ? {
+                      owned_tourist_spots: {
+                          create: modelRouteEntity.touristSpotList.map((touristSpot) =>
+                              ModelRouteMapper.touristSpotEntityToPrismaInput(touristSpot),
+                          ),
+                      },
+                  }
+                : {}),
         };
     }
 

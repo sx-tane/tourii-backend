@@ -8,8 +8,8 @@ import { TouriiBackendAppException } from '@app/core/support/exception/tourii-ba
 import { Injectable, Logger } from '@nestjs/common';
 import type { tourist_spot } from '@prisma/client';
 import { ModelRouteRelationModel } from 'prisma/relation-model/model-route-relation-model';
-import { ModelRouteMapper } from '../mapper/model-route-mapper';
 import { ContextStorage } from '../../support/context/context-storage';
+import { ModelRouteMapper } from '../mapper/model-route-mapper';
 
 const _MODEL_ROUTE_RAW_CACHE_KEY_PREFIX = 'model_route_raw';
 const _MODEL_ROUTES_ALL_LIST_CACHE_KEY = 'model_routes_all_list';
@@ -312,7 +312,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 // Use raw SQL for case-insensitive hashtag matching
                 let hashtagConditionSql: string;
                 const hashtagParams: string[] = [];
-                
+
                 if (mode === 'all') {
                     // All hashtags must be present (case-insensitive)
                     const conditions = normalizedHashtags.map((tag) => {
@@ -326,7 +326,9 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 } else {
                     // Any hashtag can match (case-insensitive)
                     hashtagParams.push(...normalizedHashtags);
-                    const placeholders = normalizedHashtags.map((_, index) => `$${index + 1}`).join(', ');
+                    const placeholders = normalizedHashtags
+                        .map((_, index) => `$${index + 1}`)
+                        .join(', ');
                     hashtagConditionSql = `EXISTS (
                         SELECT 1 FROM unnest(tourist_spot_hashtag) AS tag 
                         WHERE LOWER(tag) = ANY(ARRAY[${placeholders}])
@@ -354,7 +356,10 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 sql += ` ORDER BY ts.ins_date_time DESC`;
 
                 // Execute raw SQL query
-                const rawSpots = await this.prisma.$queryRawUnsafe<tourist_spot[]>(sql, ...hashtagParams);
+                const rawSpots = await this.prisma.$queryRawUnsafe<tourist_spot[]>(
+                    sql,
+                    ...hashtagParams,
+                );
 
                 return rawSpots;
             },
@@ -384,7 +389,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         try {
             // Use createMany for batch insert
             await this.prisma.route_tourist_spot.createMany({
-                data: junctionRecords.map(record => ({
+                data: junctionRecords.map((record) => ({
                     model_route_id: record.modelRouteId,
                     tourist_spot_id: record.touristSpotId,
                     display_order: record.displayOrder,
@@ -394,10 +399,9 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 skipDuplicates: true, // Skip if junction already exists
             });
 
-            this.logger.debug(
-                `Created ${junctionRecords.length} route-tourist spot junctions`,
-                { routeId: junctionRecords[0]?.modelRouteId }
-            );
+            this.logger.debug(`Created ${junctionRecords.length} route-tourist spot junctions`, {
+                routeId: junctionRecords[0]?.modelRouteId,
+            });
         } catch (error) {
             this.logger.error('Failed to create route-tourist spot junctions', {
                 error: error instanceof Error ? error.message : String(error),
@@ -429,10 +433,12 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
 
             // Determine region from first hashtag of first tourist spot
             const region = this.determineRegionFromHashtags(touristSpots);
-            
+
             // Calculate center coordinates
-            const centerLat = touristSpots.reduce((sum, spot) => sum + spot.latitude, 0) / touristSpots.length;
-            const centerLng = touristSpots.reduce((sum, spot) => sum + spot.longitude, 0) / touristSpots.length;
+            const centerLat =
+                touristSpots.reduce((sum, spot) => sum + spot.latitude, 0) / touristSpots.length;
+            const centerLng =
+                touristSpots.reduce((sum, spot) => sum + spot.longitude, 0) / touristSpots.length;
 
             const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
 
@@ -550,7 +556,9 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 skip: filters?.offset,
             });
 
-            this.logger.debug(`getUnifiedRoutes: Found ${modelRoutesPrisma.length} routes`, { filters });
+            this.logger.debug(`getUnifiedRoutes: Found ${modelRoutesPrisma.length} routes`, {
+                filters,
+            });
             return modelRoutesPrisma;
         };
 
@@ -576,7 +584,11 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
      */
     private determineRegionFromHashtags(touristSpots: any[]): string {
         for (const spot of touristSpots) {
-            if (spot.tourist_spot_hashtag && Array.isArray(spot.tourist_spot_hashtag) && spot.tourist_spot_hashtag.length > 0) {
+            if (
+                spot.tourist_spot_hashtag &&
+                Array.isArray(spot.tourist_spot_hashtag) &&
+                spot.tourist_spot_hashtag.length > 0
+            ) {
                 // Use first hashtag as region name
                 const firstHashtag = spot.tourist_spot_hashtag[0];
                 if (typeof firstHashtag === 'string' && firstHashtag.length > 0) {
@@ -584,7 +596,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
                 }
             }
         }
-        
+
         // Fallback to 'Unknown' if no hashtags found
         return 'Unknown';
     }
