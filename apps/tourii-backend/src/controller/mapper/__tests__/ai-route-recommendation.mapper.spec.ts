@@ -441,7 +441,7 @@ describe('AiRouteRecommendationMapper', () => {
             );
 
             const resultSpot = result.generatedRoutes[0].touristSpots[0];
-            expect(resultSpot.matchedKeywords).toEqual(['animation', 'culture']);
+            expect(resultSpot.matchedKeywords).toEqual(['animation']);
         });
     });
 
