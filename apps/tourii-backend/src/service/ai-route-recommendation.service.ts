@@ -1,10 +1,11 @@
-import { AiContentGeneratorService } from '@app/core/domain/ai-route/ai-content-generator.service';
+import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
+import { LocationInfoRepository } from '@app/core/domain/geo/location-info.repository';
+import { AiContentGeneratorService } from '@app/core/infrastructure/ai-route/ai-content-generator.service';
 import {
     AiRouteRecommendationService as DomainAiRouteRecommendationService,
     RouteRecommendationRequest,
     RouteRecommendationResult,
-} from '@app/core/domain/ai-route/ai-route-recommendation.service';
-import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
+} from '@app/core/infrastructure/ai-route/ai-route-recommendation.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
@@ -17,10 +18,15 @@ export class AiRouteRecommendationService {
     constructor(
         @Inject(TouriiBackendConstants.MODEL_ROUTE_REPOSITORY_TOKEN)
         private readonly modelRouteRepository: ModelRouteRepository,
+        @Inject(TouriiBackendConstants.LOCATION_INFO_REPOSITORY_TOKEN)
+        private readonly locationInfoRepository: LocationInfoRepository,
         private readonly configService: ConfigService,
     ) {
-        // Create the AI content generator service
-        const aiContentGenerator = new AiContentGeneratorService(this.configService);
+        // Create the AI content generator service with proper dependencies
+        const aiContentGenerator = new AiContentGeneratorService(
+            this.configService,
+            this.locationInfoRepository,
+        );
 
         // Create the domain service with dependencies
         this.domainService = new DomainAiRouteRecommendationService(
@@ -48,6 +54,17 @@ export class AiRouteRecommendationService {
      */
     public validateRequest(request: RouteRecommendationRequest): void {
         this.domainService.validateRequest(request);
+    }
+
+    /**
+     * Gets available hashtags in the database
+     */
+    async getAvailableHashtags(region?: string): Promise<{
+        hashtags: string[];
+        totalCount: number;
+        topHashtags: Array<{ hashtag: string; count: number }>;
+    }> {
+        return await this.domainService.getAvailableHashtags(region);
     }
 
     /**

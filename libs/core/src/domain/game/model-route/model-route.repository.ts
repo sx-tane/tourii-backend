@@ -12,10 +12,10 @@ export interface ModelRouteRepository {
     /**
      * Create tourist spot
      * @param touristSpot
-     * @param modelRouteId
+     * @param modelRouteId Optional model route ID (for legacy compatibility)
      * @returns TouristSpot
      */
-    createTouristSpot(touristSpot: TouristSpot, modelRouteId: string): Promise<TouristSpot>;
+    createTouristSpot(touristSpot: TouristSpot, modelRouteId?: string): Promise<TouristSpot>;
 
     /**
      * Update model route
@@ -52,6 +52,36 @@ export interface ModelRouteRepository {
     getModelRoutes(): Promise<ModelRouteEntity[]>;
 
     /**
+     * Create a tourist-generated route (non-AI route created by users)
+     * @param routeName Route name
+     * @param regionDesc Route description
+     * @param recommendations Array of recommendation strings
+     * @param touristSpotIds Array of existing tourist spot IDs to include
+     * @param userId User creating the route
+     * @returns Created ModelRouteEntity
+     */
+    createTouristRoute(
+        routeName: string,
+        regionDesc: string,
+        recommendations: string[],
+        touristSpotIds: string[],
+        userId: string,
+    ): Promise<ModelRouteEntity>;
+
+    /**
+     * Get unified routes with filtering options
+     * @param filters Filtering options
+     * @returns Array of ModelRouteEntity matching filters
+     */
+    getUnifiedRoutes(filters?: {
+        source?: 'ai' | 'manual' | 'all';
+        region?: string;
+        userId?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<ModelRouteEntity[]>;
+
+    /**
      * Delete model route and its tourist spots
      * @param modelRouteId Model route ID
      */
@@ -81,4 +111,18 @@ export interface ModelRouteRepository {
         mode: 'all' | 'any',
         region?: string,
     ): Promise<TouristSpot[]>;
+
+    /**
+     * Create junction table records to link tourist spots to a route
+     * @param junctionRecords Array of junction records to create
+     */
+    createRouteTouristSpotJunctions(
+        junctionRecords: Array<{
+            modelRouteId: string;
+            touristSpotId: string;
+            displayOrder: number;
+            isPrimary: boolean;
+            createdBy: string;
+        }>,
+    ): Promise<void>;
 }

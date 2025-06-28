@@ -2,50 +2,13 @@ import { Logger } from '@nestjs/common';
 import {
     AiGeneratedRouteResponseDto,
     AiRouteRecommendationResponseDto,
+    ExistingRouteResponseDto,
 } from '../model/tourii-response/ai-route-recommendation-response.model';
-
-interface RouteRecommendationResult {
-    generatedRoutes: GeneratedRoute[];
-    summary: {
-        totalSpotsFound: number;
-        clustersFormed: number;
-        routesGenerated: number;
-        processingTimeMs: number;
-    };
-}
-
-interface GeneratedRoute {
-    modelRoute: {
-        modelRouteId?: string;
-        routeName?: string;
-        regionDesc?: string;
-        recommendation?: string[];
-        region?: string;
-        regionLatitude?: number;
-        regionLongitude?: number;
-    };
-    aiContent: {
-        estimatedDuration: string;
-        confidenceScore: number;
-    };
-    metadata: {
-        spotCount: number;
-        sourceKeywords: string[];
-        generatedAt: Date;
-        algorithm: string;
-    };
-    cluster: {
-        averageDistance: number;
-        spots: Array<{
-            touristSpotId?: string;
-            touristSpotName?: string;
-            touristSpotDesc?: string;
-            latitude?: number;
-            longitude?: number;
-            touristSpotHashtag?: string[];
-        }>;
-    };
-}
+import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
+import type { 
+    RouteRecommendationResult,
+    GeneratedRoute
+} from '@app/core/infrastructure/ai-route/ai-route-recommendation.service';
 
 export class AiRouteRecommendationMapper {
     private static readonly logger = new Logger(AiRouteRecommendationMapper.name);
@@ -77,6 +40,8 @@ export class AiRouteRecommendationMapper {
             throw error;
         }
     }
+
+
 
     private static mapGeneratedRoute(
         route: GeneratedRoute,

@@ -36,6 +36,7 @@ import {
 import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
+import { AiRouteRecommendationService } from '../service/ai-route-recommendation.service';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
     ApiDefaultBadRequestResponse,
@@ -43,6 +44,10 @@ import {
     ApiUserExistsResponse,
     ApiUserNotFoundResponse,
 } from '../support/decorators/api-error-responses.decorator';
+import {
+    AiRouteRecommendationRequestDto,
+    AiRouteRecommendationRequestSchema,
+} from './model/tourii-request/ai-route-recommendation-request.model';
 import {
     AuthSignupRequestDto,
     AuthSignupRequestSchema,
@@ -145,6 +150,10 @@ import {
     AdminUserListResponseSchema,
     AdminUserQueryDto,
 } from './model/tourii-response/admin/admin-user-list-response.model';
+import {
+    AiRouteRecommendationResponseDto,
+    AiRouteRecommendationResponseSchema,
+} from './model/tourii-response/ai-route-recommendation-response.model';
 import {
     AuthSignupResponseDto,
     AuthSignupResponseSchema,
@@ -307,18 +316,24 @@ import {
     WalletPassResultDto,
     BothWalletPassesResultDto,
     PassStatusDto,
+    // AI route DTOs
+    AiRouteRecommendationRequestDto,
+    AiRouteRecommendationResponseDto,
 )
 export class TouriiBackendController {
     private readonly logger = new Logger(TouriiBackendController.name);
 
-    constructor(private readonly touriiBackendService: TouriiBackendService) {}
+    constructor(
+        private readonly touriiBackendService: TouriiBackendService,
+        private readonly aiRouteRecommendationService: AiRouteRecommendationService,
+    ) {}
 
     // ==========================================
     // HELPER ENDPOINTS
     // ==========================================
 
     @Get('/health-check')
-    @ApiTags('Health Check')
+    @ApiTags('System Health')
     @ApiOperation({
         summary: 'Health Check',
         description: 'Check if the API is running and accessible.',
@@ -1158,7 +1173,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Post('/routes')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Create Model Route',
         description: 'Create a new model route.',
@@ -1194,7 +1209,7 @@ export class TouriiBackendController {
     }
 
     @Post('/routes/:routeId/tourist-spots')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Create Tourist Spot',
         description: 'Create a new tourist spot.',
@@ -1232,7 +1247,7 @@ export class TouriiBackendController {
     }
 
     @Post('/routes/update-model-route')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({ summary: 'Update Model Route', description: 'Update an existing model route.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1256,7 +1271,7 @@ export class TouriiBackendController {
     }
 
     @Post('/routes/update-tourist-spot')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Update Tourist Spot',
         description: 'Update an existing tourist spot.',
@@ -1283,7 +1298,7 @@ export class TouriiBackendController {
     }
 
     @Delete('/routes/:routeId')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({ summary: 'Delete Model Route', description: 'Delete an existing model route.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1296,7 +1311,7 @@ export class TouriiBackendController {
     }
 
     @Delete('/routes/tourist-spots/:touristSpotId')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({ summary: 'Delete Tourist Spot', description: 'Delete a tourist spot.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1309,7 +1324,7 @@ export class TouriiBackendController {
     }
 
     @Get('/routes/tourist-spots/:storyChapterId')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Get Tourist Spots by Story Chapter',
         description: 'Retrieve tourist spot information linked to a story chapter.',
@@ -1333,7 +1348,7 @@ export class TouriiBackendController {
     }
 
     @Get('/routes')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Get All Model Routes',
         description: 'Retrieve a list of all available model routes with their details.',
@@ -1365,7 +1380,7 @@ export class TouriiBackendController {
     }
 
     @Get('/routes/:id')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Get Model Route by ID',
         description:
@@ -1395,7 +1410,7 @@ export class TouriiBackendController {
     }
 
     @Get('/locations/info')
-    @ApiTags('Routes')
+    @ApiTags('Routes & Tourist Spots')
     @ApiOperation({
         summary: 'Get Location Info',
         description: 'Retrieve basic location details with thumbnail images using Google Places.',
@@ -1451,7 +1466,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Get('/quests')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({
         summary: 'Get quest with pagination',
         description: 'Get quest with pagination',
@@ -1524,7 +1539,7 @@ export class TouriiBackendController {
     }
 
     @Get('/quests/:questId')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({
         summary: 'Get quest by ID',
         description: 'Get quest by ID',
@@ -1564,7 +1579,7 @@ export class TouriiBackendController {
     }
 
     @Get('/quests/tourist-spot/:touristSpotId')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({
         summary: 'Get Quests by Tourist Spot',
         description:
@@ -1610,7 +1625,7 @@ export class TouriiBackendController {
     }
 
     @Post('/quests')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Create Quest', description: 'Create a new quest.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1632,7 +1647,7 @@ export class TouriiBackendController {
     }
 
     @Post('/quests/:questId/tasks')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Create Quest Task', description: 'Create a new quest task.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1657,7 +1672,7 @@ export class TouriiBackendController {
     }
 
     @Post('/quests/update-quest')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Update Quest', description: 'Update an existing quest.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1679,7 +1694,7 @@ export class TouriiBackendController {
     }
 
     @Post('/quests/update-task')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Update Quest Task', description: 'Update an existing quest task.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1701,7 +1716,7 @@ export class TouriiBackendController {
     }
 
     @Delete('/quests/:questId')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Delete Quest', description: 'Delete a quest and its tasks.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1714,7 +1729,7 @@ export class TouriiBackendController {
     }
 
     @Delete('/tasks/:taskId')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({ summary: 'Delete Quest Task', description: 'Delete an individual quest task.' })
     @ApiHeader({ name: 'x-api-key', description: 'API key for authentication', required: true })
     @ApiHeader({ name: 'accept-version', description: 'API version (e.g., 1.0.0)', required: true })
@@ -1727,7 +1742,7 @@ export class TouriiBackendController {
     }
 
     @Get('/quests/:questId/group/members')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({
         summary: 'Get Group Members',
         description: 'Return current members of the group quest.',
@@ -1748,7 +1763,7 @@ export class TouriiBackendController {
     }
 
     @Post('/quests/:questId/group/start')
-    @ApiTags('Quest')
+    @ApiTags('Quests')
     @ApiOperation({
         summary: 'Start Group Quest',
         description: 'Leader starts the quest for all members.',
@@ -1796,7 +1811,7 @@ export class TouriiBackendController {
             },
         }),
     )
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Upload task photo',
         description: 'Upload photo for photo submission task completion.',
@@ -1839,7 +1854,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/social-share')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Complete social sharing task',
         description: 'Submit social media proof URL for task completion.',
@@ -1879,7 +1894,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/qr-scan')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Complete QR scan task',
         description: 'Validate scanned QR code and complete the task if correct',
@@ -1920,7 +1935,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/answer-text')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Submit answer text task',
         description: 'Submit text answer for text-based task completion.',
@@ -1953,7 +1968,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/select-option')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Submit select option task',
         description: 'Submit selected options for multiple choice task completion.',
@@ -1990,7 +2005,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/checkin')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Submit checkin task',
         description: 'Submit location coordinates for check-in task completion.',
@@ -2028,7 +2043,7 @@ export class TouriiBackendController {
     }
 
     @Post('/tasks/:taskId/local-interaction')
-    @ApiTags('Task')
+    @ApiTags('Tasks')
     @ApiOperation({
         summary: 'Submit local interaction task',
         description:
@@ -2136,7 +2151,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Get('/moments')
-    @ApiTags('Moment')
+    @ApiTags('Moments')
     @ApiOperation({
         summary: 'Get latest moments',
         description: 'Retrieve latest traveler moments and activities.',
@@ -2166,7 +2181,7 @@ export class TouriiBackendController {
     // HOMEPAGE ENDPOINTS
     // ==========================================
     @Get('/v2/homepage/highlights')
-    @ApiTags('Homepage')
+    @ApiTags('Homepage Data')
     @ApiOperation({
         summary: 'Get homepage highlights',
         description: 'Latest chapter and popular quest',
@@ -2191,6 +2206,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Post('api/passport/generate/:tokenId')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Generate Digital Passport PDF',
         description:
@@ -2235,6 +2251,7 @@ export class TouriiBackendController {
     }
 
     @Post('api/passport/refresh/:tokenId')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Refresh Passport with New Achievements',
         description: 'Regenerate passport PDF with updated user achievements and progress',
@@ -2262,6 +2279,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/passport/preview/:tokenId')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Generate Passport Preview',
         description:
@@ -2304,6 +2322,7 @@ export class TouriiBackendController {
     }
 
     @Post('api/passport/download/:tokenId')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Download Passport PDF',
         description: 'Generate and directly download passport PDF (generates on-demand)',
@@ -2349,6 +2368,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Get('api/verify/:verificationCode')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Verify Passport Token',
         description:
@@ -2393,6 +2413,7 @@ export class TouriiBackendController {
     }
 
     @Post('api/verify/batch')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Batch Verify Multiple Passports',
         description:
@@ -2441,6 +2462,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/verify/qr/:qrCode')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Verify QR Code',
         description:
@@ -2494,6 +2516,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/verify/stats/:tokenId?')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Get Verification Statistics',
         description:
@@ -2542,6 +2565,7 @@ export class TouriiBackendController {
     // ==========================================
 
     @Get('api/passport/:tokenId/wallet/apple')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Generate Apple Wallet Pass',
         description: 'Generate Apple Wallet pass (.pkpass file) for Digital Passport NFT',
@@ -2588,6 +2612,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/passport/:tokenId/wallet/google')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Generate Google Pay Pass',
         description: 'Generate Google Pay pass for Digital Passport NFT',
@@ -2633,6 +2658,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/passport/:tokenId/wallet/both')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Generate Both Wallet Passes',
         description: 'Generate both Apple Wallet and Google Pay passes for Digital Passport NFT',
@@ -2688,6 +2714,7 @@ export class TouriiBackendController {
     }
 
     @Post('api/passport/:tokenId/wallet/update')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Update Wallet Pass',
         description: 'Update an existing wallet pass for a specific platform',
@@ -2742,6 +2769,7 @@ export class TouriiBackendController {
     }
 
     @Get('api/passport/validate/:tokenId')
+    @ApiTags('Passport')
     @ApiOperation({
         summary: 'Validate Token ID',
         description: 'Check if a token ID exists and is valid for passport generation',
@@ -2769,6 +2797,308 @@ export class TouriiBackendController {
         } catch (error) {
             this.logger.error(`Failed to validate token ID ${tokenId}:`, error);
             return { valid: false, tokenId };
+        }
+    }
+
+    // ==========================================
+    // AI ROUTE RECOMMENDATIONS
+    // ==========================================
+
+    @Post('/ai/routes/recommendations')
+    @ApiTags('AI Routes')
+    @ApiOperation({
+        summary: '🤖 Get AI Travel Route Recommendations',
+        description: `
+            **Create personalized travel routes using AI!**
+            
+            📍 **How it works:**
+            1. Enter keywords (e.g., "anime", "food", "nature", "temple")
+            2. AI finds matching tourist spots and groups them by location
+            3. Generates themed routes with names, descriptions, and recommendations
+            
+            💡 **Examples:**
+            - Keywords: ["anime", "tokyo"] → "Otaku Paradise Route in Tokyo"
+            - Keywords: ["food", "osaka"] → "Culinary Adventure in Osaka"
+            - Keywords: ["temple", "kyoto"] → "Sacred Journey Through Kyoto"
+            
+            ⚡ **Perfect for:** Discovering new travel experiences based on your interests!
+        `,
+    })
+    @ApiBody({
+        type: AiRouteRecommendationRequestDto,
+        description: 'Route recommendation request with keywords and preferences',
+        schema: zodToOpenAPI(AiRouteRecommendationRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'AI route recommendations generated successfully',
+        type: AiRouteRecommendationResponseDto,
+        schema: zodToOpenAPI(AiRouteRecommendationResponseSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Invalid request parameters',
+    })
+    @ApiResponse({
+        status: HttpStatus.TOO_MANY_REQUESTS,
+        description: 'Rate limit exceeded for AI route generation',
+    })
+    @ApiResponse({
+        status: HttpStatus.SERVICE_UNAVAILABLE,
+        description: 'AI service temporarily unavailable',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async generateAiRouteRecommendations(
+        @Body() request: AiRouteRecommendationRequestDto,
+        @Headers('x-user-id') userId?: string,
+    ): Promise<AiRouteRecommendationResponseDto> {
+        const userIdSafe = userId || 'anonymous';
+
+        try {
+            this.logger.log('AI route recommendation request received', {
+                keywords: request.keywords,
+                mode: request.mode,
+                region: request.region,
+                userId: userIdSafe,
+            });
+
+            // Rate limiting check
+            if (userId) {
+                this.logger.debug(`Rate limit check for user: ${userId}`);
+            }
+
+            // Validate request
+            this.aiRouteRecommendationService.validateRequest({
+                keywords: request.keywords,
+                mode: request.mode,
+                region: request.region,
+                clusteringOptions: {
+                    proximityRadiusKm: request.proximityRadiusKm,
+                    minSpotsPerCluster: request.minSpotsPerCluster,
+                    maxSpotsPerCluster: request.maxSpotsPerCluster,
+                },
+                maxRoutes: request.maxRoutes,
+                userId,
+            });
+
+            // NEW: Get all existing routes and filter by region and hashtags
+            const allRoutes = await this.touriiBackendService.getModelRoutes();
+            
+            // Filter by region and manual routes (not AI generated)
+            const regionFilteredRoutes = allRoutes.filter(route => {
+                // Filter out AI-generated routes
+                if (route.isAiGenerated) return false;
+                
+                // Filter by region if specified
+                if (request.region && route.region && !route.region.toLowerCase().includes(request.region.toLowerCase())) {
+                    return false;
+                }
+                
+                return true;
+            });
+
+            // Filter existing routes by hashtag matching
+            const matchingExistingRoutes = regionFilteredRoutes.filter(route => {
+                if (!route.touristSpotList || route.touristSpotList.length === 0) return false;
+                
+                const routeHashtags = route.touristSpotList
+                    .flatMap(spot => spot.touristSpotHashtag || [])
+                    .map(tag => tag.toLowerCase());
+
+                if (request.mode === 'all') {
+                    return request.keywords.every(keyword => 
+                        routeHashtags.some(hashtag => 
+                            hashtag.includes(keyword.toLowerCase()) || 
+                            keyword.toLowerCase().includes(hashtag)
+                        )
+                    );
+                } else { // 'any' mode
+                    return request.keywords.some(keyword => 
+                        routeHashtags.some(hashtag => 
+                            hashtag.includes(keyword.toLowerCase()) || 
+                            keyword.toLowerCase().includes(hashtag)
+                        )
+                    );
+                }
+            }).slice(0, request.maxRoutes || 5);
+
+            // Execute AI route generation service call
+            const result = await this.aiRouteRecommendationService.generateRouteRecommendations({
+                keywords: request.keywords,
+                mode: request.mode,
+                region: request.region,
+                clusteringOptions: {
+                    proximityRadiusKm: request.proximityRadiusKm,
+                    minSpotsPerCluster: request.minSpotsPerCluster,
+                    maxSpotsPerCluster: request.maxSpotsPerCluster,
+                },
+                maxRoutes: request.maxRoutes,
+                userId,
+            });
+
+            // Transform to unified response DTO
+            const response = {
+                generatedRoutes: result.generatedRoutes.map((route) => ({
+                    modelRouteId: route.modelRoute.modelRouteId || '',
+                    routeName: route.modelRoute.routeName || '',
+                    regionDesc: route.modelRoute.regionDesc || '',
+                    recommendations: route.modelRoute.recommendation || [],
+                    region: route.modelRoute.region || '',
+                    regionLatitude: route.modelRoute.regionLatitude || 0,
+                    regionLongitude: route.modelRoute.regionLongitude || 0,
+                    estimatedDuration: route.aiContent.estimatedDuration,
+                    confidenceScore: route.aiContent.confidenceScore,
+                    spotCount: route.metadata.spotCount,
+                    averageDistance: route.cluster.averageDistance,
+                    touristSpots: route.cluster.spots.map((spot) => ({
+                        touristSpotId: spot.touristSpotId || '',
+                        touristSpotName: spot.touristSpotName || '',
+                        touristSpotDesc: spot.touristSpotDesc,
+                        latitude: spot.latitude || 0,
+                        longitude: spot.longitude || 0,
+                        touristSpotHashtag: spot.touristSpotHashtag || [],
+                        matchedKeywords: request.keywords,
+                    })),
+                    metadata: {
+                        sourceKeywords: route.metadata.sourceKeywords,
+                        generatedAt: route.metadata.generatedAt.toISOString(),
+                        algorithm: route.metadata.algorithm,
+                        aiGenerated: true,
+                    },
+                })),
+                
+                // NEW: Add existing routes to response
+                existingRoutes: matchingExistingRoutes.map(route => ({
+                    modelRouteId: route.modelRouteId || '',
+                    routeName: route.routeName || '',
+                    regionDesc: route.regionDesc || '',
+                    recommendations: route.recommendation || [],
+                    region: route.region || '',
+                    regionLatitude: route.regionLatitude || 0,
+                    regionLongitude: route.regionLongitude || 0,
+                    spotCount: route.touristSpotList?.length || 0,
+                    isAiGenerated: route.isAiGenerated || false,
+                    matchedKeywords: request.keywords,
+                    touristSpots: route.touristSpotList?.map(spot => ({
+                        touristSpotId: spot.touristSpotId || '',
+                        touristSpotName: spot.touristSpotName || '',
+                        touristSpotDesc: spot.touristSpotDesc,
+                        latitude: spot.touristSpotLatitude || 0,
+                        longitude: spot.touristSpotLongitude || 0,
+                        touristSpotHashtag: spot.touristSpotHashtag || [],
+                        matchedKeywords: request.keywords,
+                    })) || [],
+                })),
+
+                summary: {
+                    ...result.summary,
+                    existingRoutesFound: matchingExistingRoutes.length,
+                    totalRoutesReturned: matchingExistingRoutes.length + result.generatedRoutes.length,
+                    aiAvailable: this.aiRouteRecommendationService.getServiceStatus().aiAvailable,
+                },
+                message: `Found ${matchingExistingRoutes.length} existing routes and generated ${result.generatedRoutes.length} AI routes based on your selected hashtags: ${request.keywords.join(', ')} in ${request.region || 'all regions'}`,
+            };
+
+            // Log completion
+            this.logger.log('Unified route recommendation completed', {
+                existingRoutes: matchingExistingRoutes.length,
+                aiRoutes: result.generatedRoutes.length,
+                totalRoutes: matchingExistingRoutes.length + result.generatedRoutes.length,
+                processingTime: result.summary.processingTimeMs,
+                userId: userIdSafe,
+            });
+
+            return response;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.logger.error('AI route recommendation failed', {
+                error: errorMessage,
+                keywords: request.keywords,
+                userId: userIdSafe,
+            });
+
+            throw error;
+        }
+    }
+
+    @Post('/ai/routes/hashtags/available')
+    @ApiTags('AI Routes')
+    @ApiOperation({
+        summary: '🏷️ Browse Available Keywords & Hashtags',
+        description: `
+            **Discover what keywords you can use for AI route recommendations!**
+            
+            🔍 **This endpoint helps you:**
+            - See all available hashtags in the system
+            - Find popular keywords for better route matching
+            - Understand what themes and interests are covered
+            
+            📊 **Returns:**
+            - Complete list of hashtags (e.g., "anime", "food", "temple", "nature")
+            - Total count of available hashtags
+            - Top 20 most popular hashtags
+            
+            💡 **Pro tip:** Use these hashtags as keywords in the route recommendation endpoint!
+        `,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Available hashtags retrieved successfully',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async getAvailableHashtags(
+        @Body() request?: { region?: string }
+    ): Promise<{
+        hashtags: string[];
+        totalCount: number;
+        topHashtags: Array<{ hashtag: string; count: number }>;
+        region?: string;
+        message: string;
+    }> {
+        try {
+            const result = await this.aiRouteRecommendationService.getAvailableHashtags(request?.region);
+
+            this.logger.log('Available hashtags retrieved', {
+                region: request?.region || 'all',
+                totalCount: result.totalCount,
+                topHashtagsCount: result.topHashtags.length,
+            });
+
+            return {
+                ...result,
+                region: request?.region,
+                message: `Found ${result.totalCount} unique hashtags${request?.region ? ` in ${request.region}` : ' in the database'}`,
+            };
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.logger.error('Failed to get available hashtags', {
+                error: errorMessage,
+                region: request?.region,
+            });
+
+            throw error;
         }
     }
 }

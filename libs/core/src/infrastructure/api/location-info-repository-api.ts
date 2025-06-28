@@ -10,8 +10,8 @@ import { firstValueFrom } from 'rxjs';
 
 const LOCATION_CACHE_PREFIX = 'location_info';
 const CACHE_TTL_SECONDS = 86400; // 24 hours
-const DEFAULT_PHOTO_MAX_WIDTH = 1200; // Increased from 400 for higher resolution
-const DEFAULT_PHOTO_MAX_HEIGHT = 1200; // Increased from 400 for higher resolution
+const DEFAULT_PHOTO_MAX_WIDTH = 1920; // Increased from 400 for higher resolution
+const DEFAULT_PHOTO_MAX_HEIGHT = 1080; // Increased from 400 for higher resolution
 const MAX_PHOTOS = 3; // Maximum number of photos to fetch
 
 @Injectable()

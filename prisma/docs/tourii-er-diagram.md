@@ -478,6 +478,7 @@ EVENT EVENT
     Float region_latitude 
     Float region_longitude 
     String region_background_media "❓"
+    Boolean is_ai_generated 
     Boolean del_flag 
     String ins_user_id 
     DateTime ins_date_time 
@@ -489,7 +490,7 @@ EVENT EVENT
 
   "tourist_spot" {
     String tourist_spot_id "🗝️"
-    String model_route_id 
+    String model_route_id "❓"
     String story_chapter_id "❓"
     String tourist_spot_name 
     String tourist_spot_desc 
@@ -506,6 +507,16 @@ EVENT EVENT
     String upd_user_id 
     DateTime upd_date_time 
     String request_id "❓"
+    }
+  
+
+  "route_tourist_spot" {
+    String model_route_id "🗝️"
+    String tourist_spot_id "🗝️"
+    Int display_order 
+    Boolean is_primary 
+    DateTime created_at 
+    String created_by 
     }
   
 
@@ -672,9 +683,13 @@ EVENT EVENT
     "story" o{--}o "model_route" : "model_route"
     "story_chapter" o|--|| "story" : "story"
     "model_route" o|--|o "story" : "story"
-    "model_route" o{--}o "tourist_spot" : "tourist_spot"
-    "tourist_spot" o|--|| "model_route" : "model_route"
+    "model_route" o{--}o "tourist_spot" : "owned_tourist_spots"
+    "model_route" o{--}o "route_tourist_spot" : "route_tourist_spots"
+    "tourist_spot" o|--|o "model_route" : "model_route"
+    "tourist_spot" o{--}o "route_tourist_spot" : "tourist_spot_routes"
     "tourist_spot" o{--}o "quest" : "quest"
+    "route_tourist_spot" o|--|| "model_route" : "model_route"
+    "route_tourist_spot" o|--|| "tourist_spot" : "tourist_spot"
     "quest" o|--|| "QuestType" : "enum:quest_type"
     "quest" o|--|| "RewardType" : "enum:reward_type"
     "quest" o|--|| "tourist_spot" : "tourist_spot"

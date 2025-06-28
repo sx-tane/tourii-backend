@@ -6,8 +6,8 @@ import {
 } from '@app/core';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { JwtRepository, QrCodePayload } from '@app/core/domain/auth/jwt.repository';
-import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { MomentType } from '@app/core/domain/feed/moment-type';
+import { MomentRepository } from '@app/core/domain/feed/moment.repository';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { ModelRouteRepository } from '@app/core/domain/game/model-route/model-route.repository';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
@@ -33,6 +33,7 @@ import { PassportPdfRepository } from '@app/core/domain/passport/passport-pdf.re
 import { DeviceInfo, WalletPassRepository } from '@app/core/domain/passport/wallet-pass.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
+import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -896,6 +897,180 @@ export class TouriiBackendService {
         }
 
         return touristSpotResponseDto;
+    }
+
+    /**
+     * Create standalone tourist spot without requiring a model route
+     * @param touristSpotDto Tourist spot create request DTO
+     * @returns Tourist spot response DTO
+     */
+    async createStandaloneTouristSpot(
+        touristSpotDto: TouristSpotCreateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        // 1. Standardize tourist spot name and address using Google Places API
+        let standardizedSpotName = touristSpotDto.touristSpotName;
+        let standardizedAddress = touristSpotDto.address;
+
+        try {
+            const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                touristSpotDto.touristSpotName,
+                undefined,
+                undefined,
+                touristSpotDto.address,
+            );
+            standardizedSpotName = locationInfo.name;
+            standardizedAddress = locationInfo.formattedAddress || touristSpotDto.address;
+            Logger.log(
+                `Standardized "${touristSpotDto.touristSpotName}" → "${standardizedSpotName}" with address "${standardizedAddress}"`,
+            );
+        } catch (error) {
+            Logger.warn(`Failed to standardize spot "${touristSpotDto.touristSpotName}": ${error}`);
+        }
+
+        // 2. Get accurate lat/long using standardized name + address
+        const addresses = standardizedAddress ? [standardizedAddress] : undefined;
+        const [touristSpotGeoInfo] =
+            await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
+                [standardizedSpotName],
+                addresses,
+            );
+
+        // 4. Create tourist spot entity instance with standardized name
+        const modifiedDto = { ...touristSpotDto, touristSpotName: standardizedSpotName };
+        const touristSpotEntityInstance = ModelRouteCreateRequestBuilder.dtoToTouristSpot(
+            [modifiedDto],
+            [touristSpotGeoInfo],
+            null,
+            'admin',
+        )[0];
+
+        // 5. Create standalone tourist spot (no model route ID)
+        const createdTouristSpotEntity: TouristSpot =
+            await this.modelRouteRepository.createTouristSpot(touristSpotEntityInstance);
+
+        // 6. Fetch weather data for the new spot
+        const [currentTouristSpotWeatherInfo] =
+            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([touristSpotGeoInfo]);
+
+        // 7. Build response DTO
+        const touristSpotResponseDto: TouristSpotResponseDto =
+            ModelRouteResultBuilder.touristSpotToDto(createdTouristSpotEntity, [
+                currentTouristSpotWeatherInfo,
+            ]);
+
+        // 8. Update the corresponding story chapter if needed
+        if (createdTouristSpotEntity.touristSpotId && createdTouristSpotEntity.storyChapterId) {
+            await this.updateStoryChaptersWithTouristSpotIds([
+                {
+                    storyChapterId: createdTouristSpotEntity.storyChapterId,
+                    touristSpotId: createdTouristSpotEntity.touristSpotId,
+                },
+            ]);
+        }
+
+        return touristSpotResponseDto;
+    }
+
+    /**
+     * Create tourist route (user-generated route using existing tourist spots)
+     * @param routeName Name of the route
+     * @param regionDesc Description of the route
+     * @param recommendations Array of recommendations
+     * @param touristSpotIds Array of existing tourist spot IDs
+     * @param userId User creating the route
+     * @returns Model route response DTO
+     */
+    async createTouristRoute(
+        routeName: string,
+        regionDesc: string,
+        recommendations: string[],
+        touristSpotIds: string[],
+        userId: string,
+    ): Promise<ModelRouteResponseDto> {
+        // Create tourist route using repository
+        const modelRouteEntity = await this.modelRouteRepository.createTouristRoute(
+            routeName,
+            regionDesc,
+            recommendations,
+            touristSpotIds,
+            userId,
+        );
+
+        // Get weather info for response
+        const regionInfo: GeoInfo = {
+            touristSpotName: modelRouteEntity.region ?? '',
+            latitude: modelRouteEntity.regionLatitude ?? 0,
+            longitude: modelRouteEntity.regionLongitude ?? 0,
+            formattedAddress: modelRouteEntity.region || '',
+        };
+
+        const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                (modelRouteEntity.touristSpotList || []).map((spot) => ({
+                    touristSpotName: spot.touristSpotName ?? '',
+                    latitude: spot.latitude ?? 0,
+                    longitude: spot.longitude ?? 0,
+                    formattedAddress: spot.address || '',
+                })),
+            ),
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]),
+        ]);
+
+        const currentRegionWeatherInfo = currentRegionWeather[0];
+
+        // Build response DTO
+        return ModelRouteResultBuilder.modelRouteToDto(
+            modelRouteEntity,
+            currentTouristSpotWeatherList,
+            currentRegionWeatherInfo,
+        );
+    }
+
+    /**
+     * Get unified routes with filtering options
+     * @param filters Filtering options
+     * @returns Array of model route response DTOs
+     */
+    async getUnifiedRoutes(filters?: {
+        source?: 'ai' | 'manual' | 'all';
+        region?: string;
+        userId?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<ModelRouteResponseDto[]> {
+        const routes = await this.modelRouteRepository.getUnifiedRoutes(filters);
+
+        // Convert to response DTOs with weather info
+        return Promise.all(
+            routes.map(async (route) => {
+                const regionInfo: GeoInfo = {
+                    touristSpotName: route.region ?? '',
+                    latitude: route.regionLatitude ?? 0,
+                    longitude: route.regionLongitude ?? 0,
+                    formattedAddress: route.region || '',
+                };
+
+                const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
+                    this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                        (route.touristSpotList || []).map((spot) => ({
+                            touristSpotName: spot.touristSpotName ?? '',
+                            latitude: spot.latitude ?? 0,
+                            longitude: spot.longitude ?? 0,
+                            formattedAddress: spot.address || '',
+                        })),
+                    ),
+                    this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]),
+                ]);
+
+                const currentRegionWeatherInfo = currentRegionWeather[0];
+
+                return ModelRouteResultBuilder.modelRouteToDto(
+                    route,
+                    currentTouristSpotWeatherList,
+                    currentRegionWeatherInfo,
+                );
+            }),
+        );
     }
 
     /**
@@ -2252,7 +2427,9 @@ export class TouriiBackendService {
             userTaskLogId,
             action,
             verifiedBy: adminUserId,
-            verifiedAt: new Date().toISOString(),
+            verifiedAt: (
+                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()
+            ).toISOString(),
             ...(rejectionReason && { rejectionReason }),
         };
     }
@@ -2377,7 +2554,9 @@ export class TouriiBackendService {
             taskId,
             questId: result.questId,
             magatama_point_awarded: result.magatama_point_awarded,
-            completed_at: new Date().toISOString(),
+            completed_at: (
+                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()
+            ).toISOString(),
         };
     }
 
@@ -2620,7 +2799,7 @@ export class TouriiBackendService {
                 return {
                     valid: false,
                     tokenId: '',
-                    verifiedAt: new Date(),
+                    verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                     error: 'Invalid or expired verification code',
                 };
             }
@@ -2650,7 +2829,7 @@ export class TouriiBackendService {
                 magatamaPoints:
                     (metadata.attributes.find((a) => a.trait_type === 'Magatama Points')
                         ?.value as number) || 0,
-                registeredAt: new Date(), // Would come from actual user data
+                registeredAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(), // Would come from actual user data
             };
 
             // TODO: Update verification stats in database
@@ -2658,7 +2837,7 @@ export class TouriiBackendService {
             return {
                 valid: true,
                 tokenId: payload.tokenId,
-                verifiedAt: new Date(),
+                verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 expiresAt: new Date((payload['exp'] as number) * 1000),
                 passportData,
             };
@@ -2667,7 +2846,7 @@ export class TouriiBackendService {
             return {
                 valid: false,
                 tokenId: '',
-                verifiedAt: new Date(),
+                verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 error: (error as Error).message || 'Verification failed',
             };
         }

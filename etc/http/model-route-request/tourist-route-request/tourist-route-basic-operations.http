@@ -1,0 +1,156 @@
+@api-key = your-api-key-1
+@api-version = 1.0.0
+@user-id = alice
+
+### Create Standalone Tourist Spot - Basic
+POST http://localhost:4000/tourist-spots
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "touristSpotName": "Tokyo Skytree",
+  "touristSpotDesc": "Iconic broadcasting and observation tower offering panoramic views of Tokyo",
+  "bestVisitTime": "9:00-22:00",
+  "touristSpotHashtag": ["#Tokyo", "#Landmark", "#Views", "#Architecture"],
+  "address": "1 Chome-1-2 Oshiage, Sumida City, Tokyo 131-0045, Japan"
+}
+
+###
+
+### Create Standalone Tourist Spot - With Story Chapter
+POST http://localhost:4000/tourist-spots
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "storyChapterId": "SCT202506-example-story-chapter-id",
+  "touristSpotName": "Senso-ji Temple",
+  "touristSpotDesc": "Ancient Buddhist temple in Asakusa, Tokyo's oldest temple",
+  "bestVisitTime": "6:00-17:00",
+  "touristSpotHashtag": ["#Tokyo", "#Temple", "#Buddhist", "#Asakusa", "#Historic"],
+  "imageSet": {
+    "main": "https://cdn.tourii.app/images/sensoji_main.jpg",
+    "small": [
+      "https://cdn.tourii.app/images/sensoji_1.jpg",
+      "https://cdn.tourii.app/images/sensoji_2.jpg"
+    ]
+  },
+  "address": "2 Chome-3-1 Asakusa, Taito City, Tokyo 111-0032, Japan"
+}
+
+###
+
+### Create Standalone Tourist Spot - Minimal
+POST http://localhost:4000/tourist-spots
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "touristSpotName": "Shibuya Crossing",
+  "touristSpotDesc": "Famous scramble crossing in the heart of Tokyo",
+  "bestVisitTime": "Peak hours: 7:00-9:00, 17:00-19:00",
+  "touristSpotHashtag": ["#Tokyo", "#Shibuya", "#Crossing", "#Urban"]
+}
+
+###
+
+### Create Tourist Route - Basic
+POST http://localhost:4000/tourist/routes
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "routeName": "My Custom Oita Adventure",
+  "regionDesc": "A personalized route exploring the best of Oita's natural beauty and cultural heritage.",
+  "recommendations": [
+    "Nature Lovers",
+    "Cultural Experience",
+    "Photography Hotspots"
+  ],
+  "touristSpotIds": [
+    "TST202506-6cb4b1-222010-ee0d44-BAAA",
+    "TST202506-8cb64c-222010-28a397-CAAA"
+  ]
+}
+
+###
+
+### Create Tourist Route - All Spots
+POST http://localhost:4000/tourist/routes
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: bob
+Content-Type: application/json
+
+{
+  "routeName": "Complete Oita Experience",
+  "regionDesc": "Visit all the amazing tourist spots in Oita for a comprehensive cultural and natural journey.",
+  "recommendations": [
+    "Complete Experience",
+    "Adventure Seekers",
+    "Cultural Immersion",
+    "Hidden Gems"
+  ],
+  "touristSpotIds": [
+    "TST202506-6cb4b1-222010-ee0d44-BAAA",
+    "TST202506-8cb64c-222010-28a397-CAAA",
+    "TST202506-a3f56a-222013-7592d7-BAAA",
+    "TST202506-dc93ea-222011-0dadc8-BAAA"
+  ]
+}
+
+###
+
+### Get Unified Routes - All Routes
+GET http://localhost:4000/routes
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Only AI Routes
+GET http://localhost:4000/routes?source=ai&limit=10
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Only Manual Routes
+GET http://localhost:4000/routes?source=manual&limit=10
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Filter by Region
+GET http://localhost:4000/routes?region=Waterfall&limit=5
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Filter by User
+GET http://localhost:4000/routes?userId=alice&limit=5
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Complex Filter
+GET http://localhost:4000/routes?source=manual&region=Oita&userId=bob&limit=3&offset=0
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###
+
+### Get Unified Routes - Pagination
+GET http://localhost:4000/routes?limit=5&offset=0@
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+###

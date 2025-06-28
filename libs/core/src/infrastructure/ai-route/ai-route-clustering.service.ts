@@ -1,4 +1,6 @@
-import { TouristSpot } from '../game/model-route/tourist-spot';
+import { TouristSpot } from '../../domain/game/model-route/tourist-spot';
+import { CLUSTERING_DEFAULTS } from '../../domain/ai-route/ai-route-constants';
+import { RegionDetectionUtil } from '../../utils/region-detection.util';
 
 export interface TouristSpotCluster {
     id: string;
@@ -19,9 +21,9 @@ export interface ClusteringOptions {
 
 export class AiRouteClusteringService {
     private static readonly DEFAULT_OPTIONS: ClusteringOptions = {
-        proximityRadiusKm: 50,
-        minSpotsPerCluster: 2,
-        maxSpotsPerCluster: 8,
+        proximityRadiusKm: CLUSTERING_DEFAULTS.PROXIMITY_RADIUS_KM,
+        minSpotsPerCluster: CLUSTERING_DEFAULTS.MIN_SPOTS_PER_CLUSTER,
+        maxSpotsPerCluster: CLUSTERING_DEFAULTS.MAX_SPOTS_PER_CLUSTER,
     };
 
     /**
@@ -153,42 +155,13 @@ export class AiRouteClusteringService {
     }
 
     /**
-     * Determines the primary region for a cluster
-     * Uses the most common region among the spots
+     * Determines the primary region for a cluster based on tourist spot hashtags
+     * Uses the shared RegionDetectionUtil for consistency
      */
     private static determineClusterRegion(spots: TouristSpot[]): string {
-        // Get regions from associated model routes or use a default
-        const regions = spots
-            .map((spot) => {
-                // For now, we'll use a simple heuristic
-                // In the future, this could look up the model route region
-                if (spot.latitude! >= 35.0 && spot.latitude! <= 36.0) {
-                    return 'Kanto';
-                } else if (spot.latitude! >= 34.0 && spot.latitude! < 35.0) {
-                    return 'Kansai';
-                } else if (spot.latitude! >= 32.0 && spot.latitude! < 34.0) {
-                    return 'Kyushu';
-                } else {
-                    return 'Japan';
-                }
-            })
-            .filter((region) => region !== undefined);
-
-        // Find most common region
-        const regionCounts = regions.reduce(
-            (counts, region) => {
-                counts[region] = (counts[region] || 0) + 1;
-                return counts;
-            },
-            {} as Record<string, number>,
-        );
-
-        return (
-            Object.keys(regionCounts).reduce((a, b) =>
-                regionCounts[a] > regionCounts[b] ? a : b,
-            ) || 'Japan'
-        );
+        return RegionDetectionUtil.determineMostCommonRegion(spots);
     }
+
 
     /**
      * Calculates average distance from center for cluster compactness metric

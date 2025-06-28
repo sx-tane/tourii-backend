@@ -16,6 +16,7 @@ export const ModelRouteResponseSchema = z.object({
     regionLatitude: z.number().describe('Latitude of the region'),
     regionLongitude: z.number().describe('Longitude of the region'),
     regionBackgroundMedia: z.string().describe("URL to the region's cover media"),
+    isAiGenerated: z.boolean().describe('Whether the model route was AI-generated'),
     touristSpotList: z
         .array(TouristSpotResponseSchema)
         .describe('List of tourist spots in the model route'),

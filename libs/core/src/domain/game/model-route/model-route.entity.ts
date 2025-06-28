@@ -11,6 +11,7 @@ interface ModelRouteProps {
     regionBackgroundMedia?: string;
     touristSpotList?: TouristSpot[];
     recommendation?: string[];
+    isAiGenerated?: boolean;
     delFlag?: boolean;
     insUserId?: string;
     insDateTime?: Date;
@@ -38,6 +39,10 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
 
     get recommendation(): string[] | undefined {
         return this.props.recommendation;
+    }
+
+    get isAiGenerated(): boolean | undefined {
+        return this.props.isAiGenerated;
     }
 
     get region(): string | undefined {

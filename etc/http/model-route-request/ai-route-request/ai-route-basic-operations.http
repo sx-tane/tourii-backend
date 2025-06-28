@@ -1,0 +1,175 @@
+@api-key = your-api-key-1
+@api-version = 1.0.0
+@user-id = alice
+
+### AI Route Recommendations - Basic Keyword Search
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["shrine"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 2,
+  "minSpotsPerCluster": 1
+}
+
+###
+
+### AI Route Recommendations - Strict Keyword Matching (ALL mode)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["Food"],
+  "mode": "all",
+  "proximityRadiusKm": 30,
+  "minSpotsPerCluster": 3,
+  "maxSpotsPerCluster": 6,
+  "maxRoutes": 2
+}
+
+###
+
+### AI Route Recommendations - Food & Nightlife with User Context
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: alice
+Content-Type: application/json
+
+{
+  "keywords": ["food", "nightlife", "ramen"],
+  "mode": "any",
+  "region": "Tokyo",
+  "proximityRadiusKm": 25,
+  "maxRoutes": 5
+}
+
+###
+
+### AI Route Recommendations - Single Keyword Test
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["onsen"],
+  "mode": "any",
+  "proximityRadiusKm": 100,
+  "maxRoutes": 4
+}
+
+###
+
+### AI Route Recommendations - Large Radius Search
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["sakura", "hanami", "spring"],
+  "mode": "any",
+  "proximityRadiusKm": 150,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 10,
+  "maxRoutes": 8
+}
+
+###
+
+### AI Route Recommendations - Minimal Request (Defaults)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["nature"],
+  "mode": "any"
+}
+
+###
+
+### 🚀 ENHANCED AI Route Recommendations - Basic Search
+POST http://localhost:4000/ai/routes/recommendations/enhanced
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["food", "ramen"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 3
+}
+
+###
+
+### 🚀 ENHANCED AI Route Recommendations - Tourism Keywords
+POST http://localhost:4000/ai/routes/recommendations/enhanced
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: alice
+Content-Type: application/json
+
+{
+  "keywords": ["oita", "waterfall"],
+  "mode": "any",
+  "region": "Oita",
+  "proximityRadiusKm": 30,
+  "maxRoutes": 5
+}
+
+###
+
+### 🚀 ENHANCED AI Route Recommendations - Nature & Activities
+POST http://localhost:4000/ai/routes/recommendations/enhanced
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "keywords": ["stupid"],
+  "mode": "all",
+  "proximityRadiusKm": 100,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 8,
+  "maxRoutes": 4
+}
+
+###
+
+### 🚀 ENHANCED AI Route Recommendations - Single Keyword Test
+POST http://localhost:4000/ai/routes/recommendations/enhanced
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "keywords": ["onsen"],
+  "mode": "any"
+}
+
+###
+
+### 🔍 DEBUG: Get Available Hashtags in Database
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{}
+
+###
