@@ -456,6 +456,295 @@ accept-version: 1.0.0
 
 ---
 
+## 🤖 AI-Powered Route Discovery
+
+The AI Route Recommendation System provides intelligent, personalized travel route suggestions through a 3-step discovery flow that combines existing curated routes with AI-generated recommendations.
+
+### **🎯 3-Step User Flow Overview**
+
+```
+Step 1: Region Selection → Step 2: Interest Discovery → Step 3: Unified Route Results
+     (from existing routes)     (hashtags by region)      (existing + AI routes)
+```
+
+### Get Available Hashtags by Region
+
+Get popular hashtags/interests filtered by a specific geographic region to help users select their preferences:
+
+```http
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "region": "Tokyo"
+}
+```
+
+**Response:**
+```json
+{
+  "topHashtags": [
+    { "hashtag": "food", "count": 25 },
+    { "hashtag": "anime", "count": 18 },
+    { "hashtag": "temple", "count": 15 },
+    { "hashtag": "shopping", "count": 12 },
+    { "hashtag": "traditional", "count": 10 }
+  ],
+  "totalCount": 45,
+  "region": "Tokyo",
+  "description": "Popular interests in Tokyo based on tourist spot data"
+}
+```
+
+### Get All Available Hashtags (No Region Filter)
+
+Get all hashtags across all regions:
+
+```http
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{}
+```
+
+### Generate AI Route Recommendations
+
+Get unified route recommendations combining existing curated routes with AI-generated routes based on user interests:
+
+```http
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: your-api-key
+accept-version: 1.0.0
+x-user-id: alice
+Content-Type: application/json
+
+{
+  "keywords": ["food", "anime"],
+  "mode": "any",
+  "region": "Tokyo",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 3,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 8
+}
+```
+
+**Request Parameters:**
+- `keywords` (required): Array of interest keywords (max 10, each max 50 chars)
+- `mode` (optional): `"any"` (match at least one keyword) or `"all"` (match all keywords). Default: `"any"`
+- `region` (optional): Filter by geographic region
+- `proximityRadiusKm` (optional): Search radius in kilometers (1-200). Default: 50
+- `maxRoutes` (optional): Maximum AI routes to generate (1-20). Default: 5
+- `minSpotsPerCluster` (optional): Minimum spots per route (1-20). Default: 2
+- `maxSpotsPerCluster` (optional): Maximum spots per route (2-20). Default: 8
+
+**Response:**
+```json
+{
+  "existingRoutes": [
+    {
+      "modelRouteId": "MRT-existing-123",
+      "routeName": "Akihabara Food & Anime Tour", 
+      "region": "Tokyo",
+      "spotCount": 5,
+      "isAiGenerated": false,
+      "touristSpotLatitude": 35.698353,
+      "touristSpotLongitude": 139.773114,
+      "touristSpots": [
+        {
+          "touristSpotId": "TS-akihabara-001",
+          "touristSpotName": "Ichiran Ramen Akihabara",
+          "touristSpotLatitude": 35.698353,
+          "touristSpotLongitude": 139.773114,
+          "touristSpotHashtag": ["food", "ramen", "popular"],
+          "matchedKeywords": ["food"]
+        }
+      ]
+    }
+  ],
+  "generatedRoutes": [
+    {
+      "modelRouteId": "MRT-ai-456",
+      "routeName": "Tokyo Anime Gastronomy Experience",
+      "regionDesc": "Discover Tokyo's vibrant anime culture and culinary delights",
+      "region": "Tokyo",
+      "regionLatitude": 35.676,
+      "regionLongitude": 139.65,
+      "estimatedDuration": "2-3 days",
+      "confidenceScore": 0.9,
+      "spotCount": 4,
+      "averageDistance": 15.5,
+      "touristSpots": [
+        {
+          "touristSpotId": "TS-harajuku-001",
+          "touristSpotName": "Takeshita Street",
+          "latitude": 35.6702,
+          "longitude": 139.7036,
+          "touristSpotHashtag": ["anime", "culture", "shopping"],
+          "matchedKeywords": ["anime"]
+        }
+      ],
+      "metadata": {
+        "sourceKeywords": ["food", "anime"],
+        "generatedAt": "2025-06-28T12:00:00.000Z",
+        "algorithm": "ai-clustering-v1",
+        "aiGenerated": true
+      }
+    }
+  ],
+  "summary": {
+    "totalSpotsFound": 25,
+    "clustersFormed": 3,
+    "routesGenerated": 1,
+    "existingRoutesFound": 1,
+    "totalRoutesReturned": 2,
+    "processingTimeMs": 1234,
+    "aiAvailable": true
+  },
+  "message": "Successfully found 1 existing route and generated 1 AI route recommendation"
+}
+```
+
+### Real-World Usage Scenarios
+
+#### Quick City Tour (1 Day)
+```http
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["must-see", "popular"],
+  "mode": "all",
+  "proximityRadiusKm": 20,
+  "minSpotsPerCluster": 3,
+  "maxSpotsPerCluster": 5,
+  "maxRoutes": 2
+}
+```
+
+#### Deep Cultural Experience (3-4 Days)
+```http
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["temple", "traditional", "history"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "minSpotsPerCluster": 6,
+  "maxSpotsPerCluster": 10,
+  "maxRoutes": 5
+}
+```
+
+#### Food Adventure Route
+```http
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: your-api-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["food", "local", "restaurant"],
+  "mode": "all",
+  "region": "Osaka",
+  "maxRoutes": 8
+}
+```
+
+### Rate Limiting
+
+AI route generation is rate-limited to ensure fair usage:
+
+- **Authenticated users**: 10 requests per minute
+- **Anonymous users**: 3 requests per minute  
+- **Include `x-user-id` header** for higher rate limits
+
+**Rate limit exceeded response (429):**
+```json
+{
+  "statusCode": 429,
+  "message": "Too many requests. Please wait before trying again.",
+  "timestamp": "2025-06-28T12:00:00.000Z",
+  "path": "/ai/routes/recommendations"
+}
+```
+
+### Error Handling
+
+#### No Tourist Spots Found (404)
+```json
+{
+  "statusCode": 404,
+  "errorCode": "E_TB_048",
+  "message": "No tourist spots found matching keywords",
+  "details": {
+    "keywords": ["nonexistent-keyword"],
+    "suggestedKeywords": ["food", "temple", "anime", "culture"]
+  }
+}
+```
+
+#### Invalid Parameters (400)
+```json
+{
+  "statusCode": 400,
+  "errorCode": "E_TB_050", 
+  "message": "AI route recommendation validation failed",
+  "details": {
+    "errors": [
+      "proximityRadiusKm must be between 1 and 200",
+      "keywords array cannot be empty"
+    ]
+  }
+}
+```
+
+#### AI Service Unavailable (503)
+```json
+{
+  "statusCode": 503,
+  "errorCode": "E_TB_053",
+  "message": "AI content generation service unavailable",
+  "details": {
+    "fallbackMessage": "Existing routes are still available",
+    "retryAfter": 60
+  }
+}
+```
+
+### Integration Tips
+
+1. **Step-by-step implementation**: 
+   - First get regions from `/routes` endpoint
+   - Then get hashtags with `/ai/routes/hashtags/available`
+   - Finally get recommendations with `/ai/routes/recommendations`
+
+2. **Performance optimization**:
+   - Cache hashtag results by region (they change rarely)
+   - Debounce user input when adjusting parameters
+   - Show existing routes immediately while AI routes generate
+
+3. **User experience**:
+   - Display existing and AI routes in separate sections
+   - Show confidence scores for AI routes
+   - Provide fallback when AI is unavailable
+
+4. **Error handling**:
+   - Always check for rate limiting (429 status)
+   - Gracefully degrade to existing routes when AI fails
+   - Provide suggested keywords when searches return no results
+
+---
+
 ## 🎯 Quest System
 
 ### Get Quests with Pagination

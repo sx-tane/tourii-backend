@@ -250,6 +250,67 @@ curl -X POST http://localhost:4000/tasks/task-123/qr-scan \
 
 ---
 
+### 🤖 AI Route Recommendations
+
+AI route recommendation errors occur during the 3-step route discovery process (region selection → hashtag discovery → unified route generation).
+
+| Code         | Message                                              | HTTP Status | When It Occurs                      | Solution                         |
+| ------------ | ---------------------------------------------------- | ----------- | ----------------------------------- | -------------------------------- |
+| **E_TB_048** | No tourist spots found matching keywords            | 404         | No spots match search criteria      | Try different or broader keywords |
+| **E_TB_049** | AI content generation failed                        | 500         | OpenAI API error or misconfiguration | Check OpenAI API key and service status |
+| **E_TB_050** | AI route recommendation validation failed           | 400         | Invalid request parameters          | Verify request format and parameters |
+| **E_TB_051** | No tourist spots found matching criteria            | 404         | Geographic or filter constraints too strict | Adjust proximity radius or filters |
+| **E_TB_052** | Geographic clustering failed                        | 500         | Error during spot clustering algorithm | Retry with different parameters |
+| **E_TB_053** | AI content generation service unavailable          | 503         | OpenAI API service unavailable      | Retry later or check service status |
+| **E_TB_054** | Route creation failed during database operation     | 500         | Database error during route creation | Check database connectivity |
+
+**Common AI Route Issues:**
+
+```bash
+# No spots found with restrictive criteria
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["very-specific-keyword"],
+    "proximityRadiusKm": 1,
+    "region": "Remote Area"
+  }'
+# Returns: E_TB_048 or E_TB_051
+
+# Fix: Use broader parameters
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["food", "culture"],
+    "proximityRadiusKm": 50,
+    "mode": "any"
+  }'
+```
+
+**Rate Limiting for AI Routes:**
+
+AI route generation is rate-limited. If you exceed limits, you'll get a standard 429 error:
+
+```bash
+# Too many requests
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0"
+# Returns: 429 Too Many Requests after 10 requests/minute (authenticated) or 3/minute (anonymous)
+
+# Fix: Include user ID for higher limits
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0" \
+  -H "x-user-id: alice"
+```
+
+---
+
 ## 🔍 Debugging Guide
 
 ### Step 1: Check the Error Code

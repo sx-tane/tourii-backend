@@ -75,8 +75,16 @@ npx tsx prisma/seed-new.ts && pnpm start:dev:tourii-backend
 ### **🗺️ Smart Location Intelligence**
 - **Cost-Optimized Google Places**: 85-90% API cost reduction with hybrid fallback
 - **Weather Integration**: Location-aware climate data with caching
-- **Route Planning**: AI-powered tourist route optimization
+- **AI Route Discovery**: 3-step unified route recommendation (region → interests → routes)
 - **Real-Time Verification**: GPS-based check-ins and location validation
+
+### **🤖 AI-Powered Route Recommendation System**
+- **3-Step User Flow**: Region selection → Interest discovery → Unified route results
+- **Hybrid Results**: Combines existing curated routes with AI-generated recommendations
+- **Smart Clustering**: Geographic proximity clustering with Haversine formula (1-200km radius)
+- **OpenAI Integration**: GPT-4o-mini content generation with cost optimization
+- **Regional Intelligence**: Dynamic hashtag filtering based on geographic regions
+- **Performance Optimized**: Intelligent caching, rate limiting, and batch processing
 
 ### **⛓️ Blockchain Integration**
 - **Digital Passport NFTs**: Travel credentials on Vara Network
@@ -117,6 +125,7 @@ npx tsx prisma/seed-new.ts && pnpm start:dev:tourii-backend
 ### **📱 Advanced Features**
 | Document | Purpose | Time to Read | Target Audience |
 |----------|---------|-------------|-----------------|
+| [**🤖 AI Route Integration**](./FRONTEND_INTEGRATION_GUIDE.md) | Complete 3-step route discovery | 12 min | Frontend developers |
 | [**Quest System Guide**](./docs/quest/Tourii%20Group%20Quest%20System%20-%20Complete%20Guide.md) | Group quest mechanics | 8 min | Game developers |
 | [**Wallet Integration Docs**](./docs/wallet-integration/) | Apple/Google wallet setup | 10 min | Mobile developers |
 | [**Passport NFT Guide**](./docs/user/Tourii%20Passport%20NFT%20metadata%20delivery.md) | Blockchain passport system | 8 min | Web3 developers |
@@ -191,6 +200,39 @@ curl "http://localhost:4000/api/verify/stats/alice" \
   -H "x-api-key: dev-key"
 ```
 
+### **🤖 AI Route Discovery (3-Step Flow)**
+
+```bash
+# Step 1: Get Available Regions (from existing routes)
+curl "http://localhost:4000/routes" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key"
+# Extract unique regions from response: ["Tokyo", "Osaka", "Kyoto", ...]
+
+# Step 2: Get Regional Hashtags for Interest Selection
+curl -X POST "http://localhost:4000/ai/routes/hashtags/available" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{"region": "Tokyo"}'
+# Returns: {"topHashtags": [{"hashtag": "food", "count": 25}, ...]}
+
+# Step 3: Get Unified Route Recommendations (Existing + AI Generated)
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "x-user-id: alice" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["food", "anime"],
+    "mode": "any",
+    "region": "Tokyo",
+    "proximityRadiusKm": 50,
+    "maxRoutes": 3
+  }'
+# Returns: {"existingRoutes": [...], "generatedRoutes": [...], "summary": {...}}
+```
+
 ---
 
 ## ⚙️ **Environment Configuration**
@@ -207,6 +249,12 @@ API_KEYS=<comma-separated-api-keys>           # Strong random keys
 GOOGLE_MAPS_API_KEY=your_google_maps_key
 GOOGLE_PLACES_API_KEY=your_google_places_key  # New Places API for 85-90% savings
 OPEN_WEATHER_API_KEY=your_weather_api_key
+
+# 🤖 AI Route Recommendation (OPTIONAL)
+OPENAI_API_KEY=your_openai_api_key              # For AI content generation
+OPENAI_MODEL=gpt-4o-mini                        # Cost-effective model
+THROTTLE_TTL=60000                              # Rate limiting window (1 min)
+THROTTLE_LIMIT=10                               # Max requests per window
 
 # 📱 Wallet Integration (NEW)
 GOOGLE_WALLET_ISSUER_ID=your_google_wallet_issuer_id
@@ -262,6 +310,8 @@ Content-Type: application/json    # JSON requests
 | **Quests** | `/quests` | GET | Quest list with pagination |
 | **Tasks** | `/tasks/{id}/qr-scan` | POST | QR code verification |
 | **Location** | `/location-info` | GET | Google Places search |
+| **AI Routes** | `/ai/routes/hashtags/available` | POST | Get regional hashtags |
+| **AI Routes** | `/ai/routes/recommendations` | POST | Unified route discovery |
 | **Admin** | `/admin/users` | GET | User management |
 | **Wallets** | `/api/passport/{id}/wallet/apple` | GET | Apple Wallet pass |
 | **Wallets** | `/api/passport/{id}/wallet/google` | GET | Google Wallet pass |
@@ -341,11 +391,20 @@ passport_metadata      # NFT metadata for blockchain
 - **N+1 Query Elimination**: Optimized authentication and data loading
 - **Cache Strategy**: Granular invalidation, 85% cache hit rate improvement
 
+### **🤖 AI Route Recommendation System (June 2025)**
+- **3-Step User Flow**: Region selection → Interest discovery → Unified route results
+- **Hybrid Intelligence**: Combines 150+ curated routes with AI-generated recommendations
+- **Smart Clustering**: Geographic proximity algorithm with configurable 1-200km radius
+- **Cost-Optimized AI**: GPT-4o-mini integration with intelligent caching and fallbacks
+- **Regional Intelligence**: Dynamic hashtag filtering based on tourist spot data
+- **Complete Frontend Guide**: React/Next.js components with TypeScript interfaces
+
 ### **📚 Documentation Excellence**
 - **8 Comprehensive Docs**: Complete coverage of all system aspects
 - **5-Minute Onboarding**: Quick start guide for new developers
 - **Real-World Examples**: Practical API usage with curl commands
 - **Complete Error Reference**: 30+ error codes with solutions
+- **AI Route Integration Guide**: Complete frontend implementation examples
 
 ---
 
@@ -373,7 +432,8 @@ passport_metadata      # NFT metadata for blockchain
 1. **Quick Setup**: Follow [README.md setup section](README.md#-quick-start-for-new-developers) (5 minutes)
 2. **Understand Architecture**: Read [System Architecture](./docs/SYSTEM_ARCHITECTURE.md) (15 minutes)
 3. **Try API Examples**: Use [API Examples](./docs/API_EXAMPLES.md) (10 minutes)
-4. **Test Wallet Features**: Generate wallet passes using the quick commands above
+4. **Test Key Features**: Try wallet generation and AI route discovery using the examples above
+5. **Explore AI Routes**: Use the 3-step flow to discover personalized travel recommendations
 
 ### **💬 Need Help?**
 - **🔧 Development Issues**: Check [README.md setup section](README.md)

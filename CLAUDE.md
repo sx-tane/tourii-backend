@@ -118,6 +118,7 @@ curl "http://localhost:4000/api/passport/alice/wallet/apple" \
 |----------|----------|------|---------|-------------|
 | **🔥 CRITICAL** | [README.md](README.md) | 5 min | Get system running | Day 1, Hour 1 |
 | **🔥 CRITICAL** | [API Examples](docs/API_EXAMPLES.md) | 10 min | Real-world usage patterns | Day 1, Hour 1 |
+| **🔥 CRITICAL** | [AI Route Integration](FRONTEND_INTEGRATION_GUIDE.md) | 12 min | Complete 3-step route discovery | Day 1, Hour 2 |
 | **⚡ HIGH** | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | 15 min | Understand the system | Day 1, Hour 2 |
 | **⚡ HIGH** | [Error Codes](docs/ERROR_CODES.md) | 5 min | Debug common issues | When stuck |
 | **📖 MEDIUM** | [Database Guide](docs/DATABASE.md) | 10 min | Database operations | When working with data |
@@ -189,6 +190,7 @@ pnpm test
 - **🐛 Bug in code**: Check [Error Codes](docs/ERROR_CODES.md) first
 - **🏗️ Architecture questions**: See [System Architecture](docs/SYSTEM_ARCHITECTURE.md)
 - **🔧 Setup issues**: Follow [README.md](README.md) troubleshooting
+- **🤖 AI Route Features**: See [API Examples](docs/API_EXAMPLES.md) AI route section and [Frontend Guide](FRONTEND_INTEGRATION_GUIDE.md)
 - **📱 Wallet features**: Review [API Examples](docs/API_EXAMPLES.md) wallet section
 - **🗃️ Database problems**: Use [Database Guide](docs/DATABASE.md) troubleshooting
 - **🔒 Security questions**: Consult [Security Guide](docs/SECURITY.md)
@@ -197,10 +199,11 @@ pnpm test
 
 For experienced developers diving deeper:
 
-1. **Quest System**: `docs/quest/` - Advanced group quest mechanics and task management
-2. **Wallet Integration**: `docs/wallet-integration/` - Production deployment guides for Apple/Google
-3. **Blockchain Integration**: `docs/web3/` - Smart contract interactions and NFT systems
-4. **Admin API**: `etc/http/user-request/` - Comprehensive admin API test examples
+1. **AI Route System**: `FRONTEND_INTEGRATION_GUIDE.md` & `docs/API_EXAMPLES.md` - Complete 3-step route discovery with React components
+2. **Quest System**: `docs/quest/` - Advanced group quest mechanics and task management
+3. **Wallet Integration**: `docs/wallet-integration/` - Production deployment guides for Apple/Google
+4. **Blockchain Integration**: `docs/web3/` - Smart contract interactions and NFT systems
+5. **Admin API**: `etc/http/user-request/` - Comprehensive admin API test examples
 
 ## 💰 Recent Cost Optimization Achievements
 

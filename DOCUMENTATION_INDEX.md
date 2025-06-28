@@ -13,6 +13,7 @@
 |------|----------|------|---------------|
 | **Start Development** | [README.md](README.md) | 5 min | See README.md setup section |
 | **Test API Instantly** | [API Examples](docs/API_EXAMPLES.md) | 2 min | `curl http://localhost:4000/health-check -H "x-api-key: dev-key"` |
+| **Try AI Route Generation** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) | 3 min | See 3-step AI route flow |
 | **Debug Error** | [Error Codes](docs/ERROR_CODES.md) | 1 min | Find your E_TB_xxx code |
 
 ### **⚡ HIGH PRIORITY - First Week Reading**
@@ -61,6 +62,7 @@
 ### **📱 Frontend/Mobile Developer**
 ```
 📚 API Integration Focus:
+├── FRONTEND_INTEGRATION_GUIDE.md (3-step AI route flow)
 ├── docs/API_EXAMPLES.md (real usage examples)
 ├── docs/ERROR_CODES.md (error handling)
 ├── etc/openapi/ (API specifications)
@@ -70,6 +72,11 @@
 ├── http://localhost:4000/api (Swagger UI)
 ├── etc/openapi/openapi.json (OpenAPI spec)
 └── etc/http/ (test requests)
+
+🤖 AI Route Integration:
+├── FRONTEND_INTEGRATION_GUIDE.md (complete React/Next.js implementation)
+├── docs/API_EXAMPLES.md#ai-route-recommendations
+└── docs/SYSTEM_ARCHITECTURE.md#ai-route-system
 ```
 
 ### **⛓️ Web3/Blockchain Developer**
@@ -126,6 +133,7 @@
 | **Understand the project** | [README.md](README.md) | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | Open README.md |
 | **Make my first API call** | [API Examples](docs/API_EXAMPLES.md) | [Error Codes](docs/ERROR_CODES.md) | `curl http://localhost:4000/health-check -H "x-api-key: dev-key"` |
 | **Test wallet integration** | [API Examples](docs/API_EXAMPLES.md#digital-wallet-integration) | [CLAUDE.md](CLAUDE.md) | `curl wallet endpoints` |
+| **Try AI route generation** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) | [API Examples](docs/API_EXAMPLES.md) | 3-step React implementation |
 
 ### **🏗️ Development Tasks**
 
@@ -135,6 +143,7 @@
 | **Modify database schema** | [Database Guide](docs/DATABASE.md) | [Seeding Guide](docs/SEEDING_GUIDE.md) | `prisma/schema.prisma` |
 | **Write tests** | [Testing Strategy](docs/TESTING_STRATEGY.md) | [README.md](README.md) | `*.spec.ts files` |
 | **Add quest task type** | [Quest System Guide](docs/quest/) | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | `libs/core/src/domain/game/` |
+| **Implement AI route generation** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) | [API Examples](docs/API_EXAMPLES.md) | 3-step user flow |
 | **Integrate external API** | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | [Security Guide](docs/SECURITY.md) | `libs/core/src/infrastructure/api/` |
 
 ### **🔧 Troubleshooting Tasks**
@@ -146,6 +155,7 @@
 | **Tests failing** | [Testing Strategy](docs/TESTING_STRATEGY.md) | Test debugging | `pnpm test -- --verbose` |
 | **Environment setup** | [README.md](README.md) | Environment section | Check .env variables |
 | **Wallet integration** | [API Examples](docs/API_EXAMPLES.md) | Wallet section | Check certificates |
+| **AI route system** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) | [Error Codes](docs/ERROR_CODES.md) | Check API rate limits |
 
 ### **🔒 Security & Production Tasks**
 
@@ -167,6 +177,7 @@
 ├── 📋 README.md                     # 🔥 CRITICAL - Project overview & quick start
 ├── 📝 CLAUDE.md                     # 🔥 CRITICAL - Complete developer guide  
 ├── 📚 DOCUMENTATION_INDEX.md        # 📍 YOU ARE HERE - Navigation guide
+├── 🤖 FRONTEND_INTEGRATION_GUIDE.md # ⚡ 3-step AI route implementation
 ├── 📄 .env.example                  # Environment template
 └── 📄 package.json                  # Scripts reference
 ```
@@ -242,6 +253,7 @@
 | Feature Type | Primary Docs | Implementation Path | Testing Approach |
 |--------------|-------------|-------------------|------------------|
 | **New API Endpoint** | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) + [API Examples](docs/API_EXAMPLES.md) | Controller → Service → Repository | [Testing Strategy](docs/TESTING_STRATEGY.md) |
+| **AI Route Integration** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) + [API Examples](docs/API_EXAMPLES.md) | 3-step user flow → React components | Frontend + Backend testing |
 | **Quest Task Type** | [Quest Guide](docs/quest/) + [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | Domain → Infrastructure → Controller | Unit + Integration tests |
 | **Wallet Integration** | [API Examples](docs/API_EXAMPLES.md) + [README.md](README.md) | Repository → Service → Controller | Mock + Real wallet tests |
 | **Database Changes** | [Database Guide](docs/DATABASE.md) + [Seeding Guide](docs/SEEDING_GUIDE.md) | Schema → Migration → Seeding → Code | Repository tests |
@@ -252,6 +264,7 @@
 |-----------------------------|----------------|-----------------|-----------|
 | **Error Code E_TB_xxx** | [Error Codes](docs/ERROR_CODES.md) | Search error code | Solution & examples |
 | **API Endpoint Usage** | [API Examples](docs/API_EXAMPLES.md) | Find endpoint example | Swagger UI |
+| **AI Route Implementation** | [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md) | React components | API integration examples |
 | **Database Schema** | [Database Guide](docs/DATABASE.md) | Schema overview | `prisma/docs/` |
 | **Security Requirements** | [Security Guide](docs/SECURITY.md) | Security checklist | Security best practices |
 | **Testing Patterns** | [Testing Strategy](docs/TESTING_STRATEGY.md) | Test examples | Implementation files |
@@ -303,6 +316,7 @@
 │
 ├── 🔧 DEVELOPMENT: I'm building something
 │   ├── Feature development → [System Architecture](docs/SYSTEM_ARCHITECTURE.md)
+│   ├── AI route integration → [Frontend Integration Guide](FRONTEND_INTEGRATION_GUIDE.md)
 │   ├── API integration → [API Examples](docs/API_EXAMPLES.md)
 │   ├── Database changes → [Database Guide](docs/DATABASE.md)
 │   ├── Testing → [Testing Strategy](docs/TESTING_STRATEGY.md)
@@ -356,6 +370,8 @@ ls prisma/docs/tourii-db-docs.md
 # Test core functionality based on documentation
 curl http://localhost:4000/health-check -H "x-api-key: dev-key" -H "accept-version: 1.0.0"
 curl http://localhost:4000/api/passport/alice/wallet/google -H "x-api-key: dev-key" -H "accept-version: 1.0.0"
+# Test AI route generation
+curl -X POST http://localhost:4000/ai/routes/recommendations -H "x-api-key: dev-key" -H "accept-version: 1.0.0" -H "Content-Type: application/json" -d '{"keywords":["animation","scenery"],"mode":"any","maxRoutes":2}'
 pnpm test --maxWorkers=1
 npx tsx prisma/seed-new.ts --help
 ```
