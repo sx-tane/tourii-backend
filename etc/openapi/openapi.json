@@ -14051,6 +14051,122 @@
                     ]
                   }
                 },
+                "existingRoutes": {
+                  "description": "Existing routes that match the search keywords",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "modelRouteId": {
+                        "description": "Existing model route ID",
+                        "type": "string"
+                      },
+                      "routeName": {
+                        "description": "Route name",
+                        "type": "string"
+                      },
+                      "regionDesc": {
+                        "description": "Region description",
+                        "type": "string"
+                      },
+                      "recommendations": {
+                        "description": "Route recommendation hashtags",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "region": {
+                        "description": "Route region",
+                        "type": "string"
+                      },
+                      "regionLatitude": {
+                        "description": "Center latitude of the route",
+                        "type": "number"
+                      },
+                      "regionLongitude": {
+                        "description": "Center longitude of the route",
+                        "type": "number"
+                      },
+                      "spotCount": {
+                        "description": "Number of tourist spots in this route",
+                        "type": "number"
+                      },
+                      "isAiGenerated": {
+                        "description": "Whether this route was AI-generated",
+                        "type": "boolean"
+                      },
+                      "matchedKeywords": {
+                        "description": "Keywords that matched this route",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "touristSpots": {
+                        "description": "Tourist spots included in this route",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "touristSpotId": {
+                              "description": "Tourist spot ID",
+                              "type": "string"
+                            },
+                            "touristSpotName": {
+                              "description": "Tourist spot name",
+                              "type": "string"
+                            },
+                            "touristSpotDesc": {
+                              "description": "Tourist spot description",
+                              "type": "string"
+                            },
+                            "latitude": {
+                              "description": "Latitude coordinate",
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "description": "Longitude coordinate",
+                              "type": "number"
+                            },
+                            "touristSpotHashtag": {
+                              "description": "Hashtags for this tourist spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "matchedKeywords": {
+                              "description": "Keywords that matched for this spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "touristSpotId",
+                            "touristSpotName",
+                            "latitude",
+                            "longitude",
+                            "touristSpotHashtag",
+                            "matchedKeywords"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "modelRouteId",
+                      "routeName",
+                      "recommendations",
+                      "region",
+                      "spotCount",
+                      "isAiGenerated",
+                      "matchedKeywords",
+                      "touristSpots"
+                    ]
+                  }
+                },
                 "summary": {
                   "description": "Processing summary and statistics",
                   "type": "object",
@@ -14065,6 +14181,14 @@
                     },
                     "routesGenerated": {
                       "description": "Number of AI routes successfully generated",
+                      "type": "number"
+                    },
+                    "existingRoutesFound": {
+                      "description": "Number of existing routes found",
+                      "type": "number"
+                    },
+                    "totalRoutesReturned": {
+                      "description": "Total routes returned (existing + AI)",
                       "type": "number"
                     },
                     "processingTimeMs": {
@@ -21292,6 +21416,122 @@
               ]
             }
           },
+          "existingRoutes": {
+            "description": "Existing routes that match the search keywords",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "modelRouteId": {
+                  "description": "Existing model route ID",
+                  "type": "string"
+                },
+                "routeName": {
+                  "description": "Route name",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "Region description",
+                  "type": "string"
+                },
+                "recommendations": {
+                  "description": "Route recommendation hashtags",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "region": {
+                  "description": "Route region",
+                  "type": "string"
+                },
+                "regionLatitude": {
+                  "description": "Center latitude of the route",
+                  "type": "number"
+                },
+                "regionLongitude": {
+                  "description": "Center longitude of the route",
+                  "type": "number"
+                },
+                "spotCount": {
+                  "description": "Number of tourist spots in this route",
+                  "type": "number"
+                },
+                "isAiGenerated": {
+                  "description": "Whether this route was AI-generated",
+                  "type": "boolean"
+                },
+                "matchedKeywords": {
+                  "description": "Keywords that matched this route",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "touristSpots": {
+                  "description": "Tourist spots included in this route",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "touristSpotName": {
+                        "description": "Tourist spot name",
+                        "type": "string"
+                      },
+                      "touristSpotDesc": {
+                        "description": "Tourist spot description",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Latitude coordinate",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Longitude coordinate",
+                        "type": "number"
+                      },
+                      "touristSpotHashtag": {
+                        "description": "Hashtags for this tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "matchedKeywords": {
+                        "description": "Keywords that matched for this spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "touristSpotId",
+                      "touristSpotName",
+                      "latitude",
+                      "longitude",
+                      "touristSpotHashtag",
+                      "matchedKeywords"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "modelRouteId",
+                "routeName",
+                "recommendations",
+                "region",
+                "spotCount",
+                "isAiGenerated",
+                "matchedKeywords",
+                "touristSpots"
+              ]
+            }
+          },
           "summary": {
             "description": "Processing summary and statistics",
             "type": "object",
@@ -21306,6 +21546,14 @@
               },
               "routesGenerated": {
                 "description": "Number of AI routes successfully generated",
+                "type": "number"
+              },
+              "existingRoutesFound": {
+                "description": "Number of existing routes found",
+                "type": "number"
+              },
+              "totalRoutesReturned": {
+                "description": "Total routes returned (existing + AI)",
                 "type": "number"
               },
               "processingTimeMs": {

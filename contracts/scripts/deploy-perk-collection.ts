@@ -99,7 +99,7 @@ async function main() {
     console.log(`Deployment info updated in: ${deploymentsPath}`);
 
     // Verification command
-    if (network.chainId !== 31337n) {
+    if (network.chainId !== 31337) {
         console.log('\n🔍 Verification command:');
         console.log(
             `npx hardhat verify --network ${network.name} ${perkAddress} "${name}" "${symbol}"`,

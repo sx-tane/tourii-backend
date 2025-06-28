@@ -1329,6 +1329,14 @@ export class TouriiBackendService {
     }
 
     /**
+     * Get all model route entities (raw data for filtering)
+     * @returns Model route entity list
+     */
+    async getModelRouteEntities(): Promise<ModelRouteEntity[]> {
+        return await this.modelRouteRepository.getModelRoutes();
+    }
+
+    /**
      * Get all model routes
      * @returns Model route response DTO list
      */

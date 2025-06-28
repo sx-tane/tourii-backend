@@ -46,6 +46,7 @@ import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
 import { AiRouteRecommendationService } from './service/ai-route-recommendation.service';
+import { RouteFilterService } from './service/route-filter.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -111,6 +112,7 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
         AiRouteRecommendationService, // AI route recommendation service
+        RouteFilterService, // Optimized route filtering service
         AiContentGeneratorService, // AI content generation service
         GroupQuestGateway,
         CachingService,

@@ -1050,6 +1050,84 @@ declare namespace Components {
         };
       }[];
       /**
+       * Existing routes that match the search keywords
+       */
+      existingRoutes?: {
+        /**
+         * Existing model route ID
+         */
+        modelRouteId: string;
+        /**
+         * Route name
+         */
+        routeName: string;
+        /**
+         * Region description
+         */
+        regionDesc?: string;
+        /**
+         * Route recommendation hashtags
+         */
+        recommendations: string[];
+        /**
+         * Route region
+         */
+        region: string;
+        /**
+         * Center latitude of the route
+         */
+        regionLatitude?: number;
+        /**
+         * Center longitude of the route
+         */
+        regionLongitude?: number;
+        /**
+         * Number of tourist spots in this route
+         */
+        spotCount: number;
+        /**
+         * Whether this route was AI-generated
+         */
+        isAiGenerated: boolean;
+        /**
+         * Keywords that matched this route
+         */
+        matchedKeywords: string[];
+        /**
+         * Tourist spots included in this route
+         */
+        touristSpots: {
+          /**
+           * Tourist spot ID
+           */
+          touristSpotId: string;
+          /**
+           * Tourist spot name
+           */
+          touristSpotName: string;
+          /**
+           * Tourist spot description
+           */
+          touristSpotDesc?: string;
+          /**
+           * Latitude coordinate
+           */
+          latitude: number;
+          /**
+           * Longitude coordinate
+           */
+          longitude: number;
+          /**
+           * Hashtags for this tourist spot
+           */
+          touristSpotHashtag: string[];
+          /**
+           * Keywords that matched for this spot
+           */
+          matchedKeywords: string[];
+        }[];
+      }[];
+      /**
        * Processing summary and statistics
        */
       summary: {
@@ -1065,6 +1143,14 @@ declare namespace Components {
          * Number of AI routes successfully generated
          */
         routesGenerated: number;
+        /**
+         * Number of existing routes found
+         */
+        existingRoutesFound?: number;
+        /**
+         * Total routes returned (existing + AI)
+         */
+        totalRoutesReturned?: number;
         /**
          * Total processing time in milliseconds
          */
@@ -1693,6 +1779,10 @@ declare namespace Components {
        * URL to the region's cover media
        */
       regionBackgroundMedia: string;
+      /**
+       * Whether the model route was AI-generated
+       */
+      isAiGenerated: boolean;
       /**
        * List of tourist spots in the model route
        */
@@ -4886,26 +4976,6 @@ declare namespace Components {
   }
 }
 declare namespace Paths {
-  namespace AiRouteRecommendationControllerGenerateRouteRecommendations {
-    export interface HeaderParameters {
-      'x-api-key': Parameters.XApiKey;
-      'accept-version': Parameters.AcceptVersion;
-      'x-user-id': Parameters.XUserId;
-    }
-    namespace Parameters {
-      export type AcceptVersion = string;
-      export type XApiKey = string;
-      export type XUserId = string;
-    }
-    export type RequestBody =
-      Components.Schemas.AiRouteRecommendationRequestDto;
-    namespace Responses {
-      export type $201 = Components.Schemas.AiRouteRecommendationResponseDto;
-      export interface $400 {}
-      export interface $429 {}
-      export interface $503 {}
-    }
-  }
   namespace TestControllerTestApiKey {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -5927,6 +5997,26 @@ declare namespace Paths {
       Parameters.TokenId;
     }
   }
+  namespace TouriiBackendControllerGenerateAiRouteRecommendations {
+    export interface HeaderParameters {
+      'x-user-id': Parameters.XUserId;
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+      export type XUserId = string;
+    }
+    export type RequestBody =
+      Components.Schemas.AiRouteRecommendationRequestDto;
+    namespace Responses {
+      export type $201 = Components.Schemas.AiRouteRecommendationResponseDto;
+      export interface $400 {}
+      export interface $429 {}
+      export interface $503 {}
+    }
+  }
   namespace TouriiBackendControllerGenerateAppleWalletPass {
     namespace Parameters {
       /**
@@ -6152,6 +6242,36 @@ declare namespace Paths {
         type?: string;
       }
       export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetAvailableHashtags {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+    }
+    namespace Responses {
+      export interface $200 {}
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
     }
   }
   namespace TouriiBackendControllerGetCheckins {

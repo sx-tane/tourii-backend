@@ -37,6 +37,7 @@ import { QuestType, StoryStatus } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { zodToOpenAPI } from 'nestjs-zod';
 import { AiRouteRecommendationService } from '../service/ai-route-recommendation.service';
+import { RouteFilterService } from '../service/route-filter.service';
 import { TouriiBackendService } from '../service/tourii-backend.service';
 import {
     ApiDefaultBadRequestResponse,
@@ -95,6 +96,10 @@ import {
     TouristSpotCreateRequestDto,
     TouristSpotCreateRequestSchema,
 } from './model/tourii-request/create/tourist-spot-create-request.model';
+import {
+    TouristRouteCreateRequestDto,
+    TouristRouteCreateRequestSchema,
+} from './model/tourii-request/create/tourist-route-create-request.model';
 import { CheckinsFetchRequestDto } from './model/tourii-request/fetch/checkins-fetch-request.model';
 import { LocationQueryDto } from './model/tourii-request/fetch/location-query-request.model';
 import { MomentListQueryDto } from './model/tourii-request/fetch/moment-fetch-request.model';
@@ -326,6 +331,7 @@ export class TouriiBackendController {
     constructor(
         private readonly touriiBackendService: TouriiBackendService,
         private readonly aiRouteRecommendationService: AiRouteRecommendationService,
+        private readonly routeFilterService: RouteFilterService,
     ) {}
 
     // ==========================================
@@ -1321,6 +1327,88 @@ export class TouriiBackendController {
     @ApiDefaultBadRequestResponse()
     async deleteTouristSpot(@Param('touristSpotId') touristSpotId: string): Promise<void> {
         await this.touriiBackendService.deleteTouristSpot(touristSpotId);
+    }
+
+    @Post('/tourist-spots')
+    @ApiTags('Routes & Tourist Spots')
+    @ApiOperation({
+        summary: 'Create Standalone Tourist Spot',
+        description: 'Create a standalone tourist spot without associating it to a specific route. This allows creating individual tourist spots that can later be added to multiple routes or used independently.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiBody({
+        description: 'Standalone tourist spot creation request',
+        schema: zodToOpenAPI(TouristSpotCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created standalone tourist spot',
+        type: TouristSpotResponseDto,
+        schema: zodToOpenAPI(TouristSpotResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createStandaloneTouristSpot(
+        @Body() touristSpot: TouristSpotCreateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        return await this.touriiBackendService.createStandaloneTouristSpot(touristSpot);
+    }
+
+    @Post('/tourist/routes')
+    @ApiTags('Routes & Tourist Spots')
+    @ApiOperation({
+        summary: 'Create User Tourist Route',
+        description: 'Create a user-generated tourist route by combining existing tourist spots. Unlike model routes which are predefined, this allows users to create custom routes from available tourist spots.',
+    })
+    @ApiHeader({
+        name: 'x-api-key',
+        description: 'API key for authentication',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'accept-version',
+        description: 'API version (e.g., 1.0.0)',
+        required: true,
+    })
+    @ApiHeader({
+        name: 'x-user-id',
+        description: 'User ID for route ownership',
+        required: true,
+    })
+    @ApiBody({
+        description: 'User tourist route creation request',
+        schema: zodToOpenAPI(TouristRouteCreateRequestSchema),
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'Successfully created user tourist route',
+        type: ModelRouteResponseDto,
+        schema: zodToOpenAPI(ModelRouteResponseSchema),
+    })
+    @ApiUnauthorizedResponse()
+    @ApiInvalidVersionResponse()
+    @ApiDefaultBadRequestResponse()
+    async createTouristRoute(
+        @Body() touristRoute: TouristRouteCreateRequestDto,
+        @Headers('x-user-id') userId: string,
+    ): Promise<ModelRouteResponseDto> {
+        return await this.touriiBackendService.createTouristRoute(
+            touristRoute.routeName,
+            touristRoute.regionDesc,
+            touristRoute.recommendations,
+            touristRoute.touristSpotIds,
+            userId,
+        );
     }
 
     @Get('/routes/tourist-spots/:storyChapterId')
@@ -2892,8 +2980,8 @@ export class TouriiBackendController {
                 userId,
             });
 
-            // NEW: Get all existing routes and filter by region and hashtags
-            const allRoutes = await this.touriiBackendService.getModelRoutes();
+            // NEW: Get all existing route entities for filtering  
+            const allRoutes = await this.touriiBackendService.getModelRouteEntities();
 
             // Filter by region and manual routes (not AI generated)
             const regionFilteredRoutes = allRoutes.filter((route) => {
@@ -2912,35 +3000,16 @@ export class TouriiBackendController {
                 return true;
             });
 
-            // Filter existing routes by hashtag matching
-            const matchingExistingRoutes = regionFilteredRoutes
-                .filter((route) => {
-                    if (!route.touristSpotList || route.touristSpotList.length === 0) return false;
-
-                    const routeHashtags = route.touristSpotList
-                        .flatMap((spot) => spot.touristSpotHashtag || [])
-                        .map((tag) => tag.toLowerCase());
-
-                    if (request.mode === 'all') {
-                        return request.keywords.every((keyword) =>
-                            routeHashtags.some(
-                                (hashtag) =>
-                                    hashtag.includes(keyword.toLowerCase()) ||
-                                    keyword.toLowerCase().includes(hashtag),
-                            ),
-                        );
-                    } else {
-                        // 'any' mode
-                        return request.keywords.some((keyword) =>
-                            routeHashtags.some(
-                                (hashtag) =>
-                                    hashtag.includes(keyword.toLowerCase()) ||
-                                    keyword.toLowerCase().includes(hashtag),
-                            ),
-                        );
-                    }
-                })
-                .slice(0, request.maxRoutes || 5);
+            // Filter existing routes using optimized service
+            const matchingExistingRoutes = this.routeFilterService.filterRoutesByHashtags(
+                regionFilteredRoutes,
+                {
+                    keywords: request.keywords,
+                    mode: request.mode,
+                    region: request.region,
+                    maxRoutes: request.maxRoutes || 5,
+                },
+            );
 
             // Execute AI route generation service call
             const result = await this.aiRouteRecommendationService.generateRouteRecommendations({
@@ -3004,8 +3073,8 @@ export class TouriiBackendController {
                             touristSpotId: spot.touristSpotId || '',
                             touristSpotName: spot.touristSpotName || '',
                             touristSpotDesc: spot.touristSpotDesc,
-                            latitude: spot.touristSpotLatitude || 0,
-                            longitude: spot.touristSpotLongitude || 0,
+                            latitude: spot.latitude || 0,
+                            longitude: spot.longitude || 0,
                             touristSpotHashtag: spot.touristSpotHashtag || [],
                             matchedKeywords: request.keywords,
                         })) || [],
