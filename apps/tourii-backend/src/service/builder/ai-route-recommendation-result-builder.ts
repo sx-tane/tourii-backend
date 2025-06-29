@@ -22,6 +22,7 @@ export class AiRouteRecommendationResultBuilder {
                 modelRouteId: route.modelRoute.modelRouteId || '',
                 routeName: route.modelRoute.routeName || '',
                 regionDesc: route.modelRoute.regionDesc || '',
+                regionBackgroundMedia: route.modelRoute.regionBackgroundMedia || '',
                 recommendations: route.modelRoute.recommendation || [],
                 region: route.modelRoute.region || '',
                 regionLatitude: route.modelRoute.regionLatitude || 0,

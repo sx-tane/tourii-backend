@@ -21,7 +21,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             select: { story_id: true, story_chapter_id: true },
         });
         if (!chapter) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         const existing = await this.prisma.user_story_log.findFirst({
@@ -77,7 +77,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             });
 
             if (!chapter) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
             }
 
             // Check if already completed
@@ -86,7 +86,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             });
 
             if (existing?.status === StoryStatus.COMPLETED) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_029);
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_029);
             }
 
             // Check for achievements (simple implementation)
@@ -247,7 +247,7 @@ export class UserStoryLogRepositoryDb implements UserStoryLogRepository {
             select: { story_id: true, story_chapter_id: true },
         });
         if (!chapter) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         const existing = await this.prisma.user_story_log.findFirst({

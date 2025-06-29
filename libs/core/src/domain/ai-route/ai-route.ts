@@ -319,6 +319,9 @@ export class AiRoute {
                 aiContent,
                 backgroundMedia,
                 systemUserId,
+                cluster.region,
+                cluster.centerCoordinates.lat,
+                cluster.centerCoordinates.lng,
             ),
         );
 

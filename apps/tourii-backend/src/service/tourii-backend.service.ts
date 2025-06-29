@@ -459,7 +459,7 @@ export class TouriiBackendService {
 
         // 2. Check if story saga is undefined
         if (!storySaga) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         // 3. Return story response DTO list
@@ -475,7 +475,7 @@ export class TouriiBackendService {
         const storyChapter: StoryChapter[] =
             await this.storyRepository.getStoryChaptersByStoryId(storyId);
         if (!storyChapter) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
         return storyChapter.map((storyChapter) =>
             StoryResultBuilder.storyChapterToDto(storyChapter, storyId),
@@ -796,7 +796,7 @@ export class TouriiBackendService {
             await this.modelRouteRepository.getModelRouteByModelRouteId(modelRouteId);
 
         if (!modelRouteEntity.storyId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         // 3. Second pass: Get accurate lat/long using standardized name + address
@@ -2465,7 +2465,7 @@ export class TouriiBackendService {
         const isUpdated = await this.storyRepository.updateTouristSpotIdListInStoryChapter(pairs);
         if (!isUpdated) {
             throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_024, // Update failed
+                TouriiBackendAppErrorType.E_ST_024, // Update failed
             );
         }
     }

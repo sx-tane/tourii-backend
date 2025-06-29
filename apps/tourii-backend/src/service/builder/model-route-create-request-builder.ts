@@ -108,13 +108,19 @@ export class ModelRouteCreateRequestBuilder {
         aiContent: AiGeneratedRouteContent,
         backgroundMedia: string,
         userId: string,
+        region: string,
+        regionLatitude: number,
+        regionLongitude: number,
     ): ModelRouteEntity {
         const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
         return new ModelRouteEntity(
             {
                 storyId: undefined,
                 routeName: aiContent.routeName,
+                region: region,
                 regionDesc: aiContent.regionDesc,
+                regionLatitude: regionLatitude,
+                regionLongitude: regionLongitude,
                 recommendation: aiContent.recommendations,
                 regionBackgroundMedia: backgroundMedia,
                 isAiGenerated: true,

@@ -46,6 +46,7 @@ export class AiRouteRecommendationConverter {
             regionDesc: ValidateUtil.safeString(route.modelRoute.regionDesc),
             recommendations: route.modelRoute.recommendation || [],
             region: ValidateUtil.safeString(route.modelRoute.region),
+            regionBackgroundMedia: route.modelRoute.regionBackgroundMedia || '',
             regionLatitude: route.modelRoute.regionLatitude || 0,
             regionLongitude: route.modelRoute.regionLongitude || 0,
             estimatedDuration: route.aiContent.estimatedDuration,

@@ -85,13 +85,13 @@ export const TouriiBackendAppErrorType = {
         message: 'This API version is no longer supported',
         type: ErrorType.BAD_REQUEST,
     },
-    E_TB_023: {
-        code: 'E_TB_023',
+    E_ST_023: {
+        code: 'E_ST_023',
         message: 'Story not found',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_024: {
-        code: 'E_TB_024',
+    E_ST_024: {
+        code: 'E_ST_024',
         message: 'Story chapter update failed',
         type: ErrorType.BAD_REQUEST,
     },
@@ -115,8 +115,8 @@ export const TouriiBackendAppErrorType = {
         message: 'Quest task not found',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_029: {
-        code: 'E_TB_029',
+    E_ST_029: {
+        code: 'E_ST_029',
         message: 'Story chapter already completed',
         type: ErrorType.BAD_REQUEST,
     },

@@ -20,6 +20,7 @@ export const AiGeneratedRouteResponseSchema = z.object({
         .string()
         .transform((val) => val.toLowerCase().trim())
         .describe('Route region'),
+    regionBackgroundMedia: z.string().optional().describe('Background image URL'),
     regionLatitude: z.number().describe('Center latitude of the route'),
     regionLongitude: z.number().describe('Center longitude of the route'),
     estimatedDuration: z.string().describe('AI-estimated duration for the route'),

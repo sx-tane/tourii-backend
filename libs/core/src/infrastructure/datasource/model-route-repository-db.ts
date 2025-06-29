@@ -544,7 +544,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
 
             // Create junction table records
             const junctionRecords = touristSpotIds.map((spotId, index) => ({
-                modelRouteId: createdRoute.modelRouteId!,
+                modelRouteId: createdRoute?.modelRouteId ?? '',
                 touristSpotId: spotId,
                 displayOrder: index + 1,
                 isPrimary: index === 0, // First spot is primary
@@ -552,12 +552,6 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             }));
 
             await this.createRouteTouristSpotJunctions(junctionRecords);
-
-            this.logger.debug(`Created tourist route: ${routeName}`, {
-                routeId: createdRoute.modelRouteId,
-                userId,
-                spotCount: touristSpotIds.length,
-            });
 
             return createdRoute;
         } catch (error) {

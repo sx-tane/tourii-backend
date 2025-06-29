@@ -7461,6 +7461,10 @@
                         "description": "Route region",
                         "type": "string"
                       },
+                      "regionBackgroundMedia": {
+                        "description": "Background image URL",
+                        "type": "string"
+                      },
                       "regionLatitude": {
                         "description": "Center latitude of the route",
                         "type": "number"
@@ -22602,6 +22606,10 @@
                 },
                 "region": {
                   "description": "Route region",
+                  "type": "string"
+                },
+                "regionBackgroundMedia": {
+                  "description": "Background image URL",
                   "type": "string"
                 },
                 "regionLatitude": {

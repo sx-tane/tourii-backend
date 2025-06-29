@@ -59,7 +59,7 @@ export class StoryRepositoryDb implements StoryRepository {
 
     async updateStory(story: StoryEntity): Promise<StoryEntity> {
         if (!story.storyId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
         const updated = await this.prisma.story.update({
             where: { story_id: story.storyId },
@@ -73,7 +73,7 @@ export class StoryRepositoryDb implements StoryRepository {
 
     async updateStoryChapter(chapter: StoryChapter): Promise<StoryChapter> {
         if (!chapter.storyChapterId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
         const updated = await this.prisma.story_chapter.update({
             where: { story_chapter_id: chapter.storyChapterId },
@@ -136,7 +136,7 @@ export class StoryRepositoryDb implements StoryRepository {
             },
         });
         if (!storyDb) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
         return StoryMapper.prismaModelToStoryEntity(storyDb);
     }

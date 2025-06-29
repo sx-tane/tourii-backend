@@ -132,7 +132,7 @@ describe('UserStoryLogRepositoryDb', () => {
     it('should throw an error if the chapter does not exist', async () => {
         await expect(
             repository.trackProgress(userId, 'non-existent-chapter', StoryStatus.IN_PROGRESS),
-        ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023));
+        ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023));
     });
 
     describe('startStoryReading', () => {
@@ -198,7 +198,7 @@ describe('UserStoryLogRepositoryDb', () => {
         it('should throw an error if chapter does not exist', async () => {
             await expect(
                 repository.startStoryReading(userId, 'non-existent-chapter'),
-            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023));
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023));
         });
     });
 
@@ -274,7 +274,7 @@ describe('UserStoryLogRepositoryDb', () => {
             // Try to complete again
             await expect(
                 repository.completeStoryWithQuestUnlocking(userId, chapterId),
-            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_029));
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_029));
         });
 
         it('should handle chapter with no tourist spot', async () => {
@@ -439,7 +439,7 @@ describe('UserStoryLogRepositoryDb', () => {
         it('should throw error if chapter does not exist', async () => {
             await expect(
                 repository.completeStoryWithQuestUnlocking(userId, 'non-existent-chapter'),
-            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023));
+            ).rejects.toThrow(new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023));
         });
     });
 

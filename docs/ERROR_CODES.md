@@ -98,8 +98,9 @@ curl -X POST http://localhost:4000/auth/signup \
 
 | Code         | Message                     | HTTP Status | When It Occurs                  | Solution           |
 | ------------ | --------------------------- | ----------- | ------------------------------- | ------------------ |
-| **E_TB_023** | Story not found             | 404         | Story ID doesn't exist          | Verify story ID    |
-| **E_TB_024** | Story chapter update failed | 400         | Chapter update operation failed | Check request data |
+| **E_ST_023** | Story not found             | 404         | Story ID doesn't exist          | Verify story ID    |
+| **E_ST_024** | Story chapter update failed | 400         | Chapter update operation failed | Check request data |
+| **E_ST_029** | Story chapter already completed | 400         | Chapter already completed       | Check chapter status |
 | **E_MR_004** | Model route not found       | 404         | Route ID doesn't exist          | Verify route ID    |
 | **E_TB_028** | Quest task not found        | 404         | Task ID doesn't exist           | Verify task ID     |
 
@@ -109,7 +110,7 @@ curl -X POST http://localhost:4000/auth/signup \
 # Requesting non-existent story
 curl -H "x-api-key: dev-key" -H "accept-version: 1.0.0" \
   http://localhost:4000/stories/sagas/invalid_story_id/chapters
-# Returns: E_TB_023
+# Returns: E_ST_023
 ```
 
 ---
@@ -408,7 +409,7 @@ curl -X POST http://localhost:4000/auth/signup \
   }'
 ```
 
-### "Story not found" (E_TB_023)
+### "Story not found" (E_ST_023)
 
 ```bash
 # Get available stories first
