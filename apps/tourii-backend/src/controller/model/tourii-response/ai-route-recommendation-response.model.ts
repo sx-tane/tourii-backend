@@ -16,7 +16,10 @@ export const AiGeneratedRouteResponseSchema = z.object({
     routeName: z.string().describe('AI-generated route name'),
     regionDesc: z.string().describe('AI-generated region description'),
     recommendations: z.array(z.string()).describe('AI-generated recommendation hashtags'),
-    region: z.string().describe('Route region'),
+    region: z
+        .string()
+        .transform((val) => val.toLowerCase().trim())
+        .describe('Route region'),
     regionLatitude: z.number().describe('Center latitude of the route'),
     regionLongitude: z.number().describe('Center longitude of the route'),
     estimatedDuration: z.string().describe('AI-estimated duration for the route'),
@@ -41,7 +44,10 @@ export const ExistingRouteResponseSchema = z.object({
     routeName: z.string().describe('Route name'),
     regionDesc: z.string().optional().describe('Region description'),
     recommendations: z.array(z.string()).describe('Route recommendation hashtags'),
-    region: z.string().describe('Route region'),
+    region: z
+        .string()
+        .transform((val) => val.toLowerCase().trim())
+        .describe('Route region'),
     regionLatitude: z.number().optional().describe('Center latitude of the route'),
     regionLongitude: z.number().optional().describe('Center longitude of the route'),
     spotCount: z.number().describe('Number of tourist spots in this route'),

@@ -1,3 +1,4 @@
+import { AiGeneratedRouteContent } from '@app/core/domain/ai-route/ai-route';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
@@ -97,6 +98,31 @@ export class ModelRouteCreateRequestBuilder {
                 insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 updUserId: insUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+                requestId: ContextStorage.getStore()?.getRequestId()?.value,
+            },
+            undefined,
+        );
+    }
+
+    static dtoToGeneratedAiRoute(
+        aiContent: AiGeneratedRouteContent,
+        backgroundMedia: string,
+        userId: string,
+    ): ModelRouteEntity {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+        return new ModelRouteEntity(
+            {
+                storyId: undefined,
+                routeName: aiContent.routeName,
+                regionDesc: aiContent.regionDesc,
+                recommendation: aiContent.recommendations,
+                regionBackgroundMedia: backgroundMedia,
+                isAiGenerated: true,
+                insUserId: userId,
+                insDateTime: now,
+                updUserId: userId,
+                updDateTime: now,
+                touristSpotList: [],
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
             },
             undefined,

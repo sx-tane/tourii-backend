@@ -380,4 +380,4 @@ npx tsx prisma/seed-new.ts --help
 
 **🎯 This documentation index is your central hub for navigating the tourii-backend project. Bookmark this page and use it whenever you need to find specific information quickly!**
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

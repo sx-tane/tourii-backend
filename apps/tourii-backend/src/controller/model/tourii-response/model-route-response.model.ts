@@ -10,7 +10,10 @@ export const ModelRouteResponseSchema = z.object({
         .optional()
         .describe('Unique identifier for the story (optional for standalone routes)'),
     routeName: z.string().describe('Name of the model route'),
-    region: z.string().describe('Region of the model route'),
+    region: z
+        .string()
+        .transform((val) => val.toLowerCase().trim())
+        .describe('Region of the model route'),
     regionDesc: z.string().describe('Description of the region'),
     recommendation: z.array(z.string()).describe('Recommendation of the model route'),
     regionLatitude: z.number().describe('Latitude of the region'),

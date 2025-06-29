@@ -1,4 +1,5 @@
-import { AiContentGeneratorService } from '@app/core/infrastructure/ai-route/ai-content-generator.service';
+import { AiRouteClusteringRepositoryImpl } from '@app/core/infrastructure/ai-route/ai-route-clustering.repository-impl';
+import { AiRouteGeneratorRepositoryImpl } from '@app/core/infrastructure/ai-route/ai-route-generator.repository-impl';
 import { GeoInfoRepositoryApi } from '@app/core/infrastructure/api/geo-info-repository-api';
 import { LocationInfoRepositoryApi } from '@app/core/infrastructure/api/location-info-repository-api';
 import { WeatherInfoRepositoryApi } from '@app/core/infrastructure/api/weather-info.repository-api';
@@ -24,6 +25,7 @@ import { PassportPdfRepositoryImpl } from '@app/core/infrastructure/passport/pas
 import { WalletPassRepositoryImpl } from '@app/core/infrastructure/passport/wallet-pass.repository-impl';
 import { R2StorageRepositoryS3 } from '@app/core/infrastructure/storage/r2-storage.repository-s3';
 import { CachingService } from '@app/core/provider/caching.service';
+import { OpenAiService } from '@app/core/provider/open-ai.service';
 import { PrismaService } from '@app/core/provider/prisma.service';
 import { TouriiBackendHttpService } from '@app/core/provider/tourii-backend-http-service';
 import { TouriiBackendLoggingService } from '@app/core/provider/tourii-backend-logging-service';
@@ -45,8 +47,6 @@ import { PassportMetadataService } from '../../tourii-onchain/src/service/passpo
 import { TestController } from './controller/test.controller';
 import { TouriiBackendController } from './controller/tourii-backend.controller';
 import { GroupQuestGateway } from './group-quest/group-quest.gateway';
-import { AiRouteRecommendationService } from './service/ai-route-recommendation.service';
-import { RouteFilterService } from './service/route-filter.service';
 import { TouriiBackendService } from './service/tourii-backend.service';
 import { TouriiBackendContextProvider } from './support/context/tourii-backend-context-provider';
 import { SecurityMiddleware } from './support/middleware/security.middleware';
@@ -111,9 +111,12 @@ import { TouriiBackendConstants } from './tourii-backend.constant';
         TouriiBackendLoggingService, // Custom logging
         TouriiBackendService, // Main business logic
         TouriiBackendHttpService, // HTTP client service
-        AiRouteRecommendationService, // AI route recommendation service
-        RouteFilterService, // Optimized route filtering service
-        AiContentGeneratorService, // AI content generation service
+        {
+            provide: TouriiBackendConstants.OPENAI_SERVICE_TOKEN,
+            useClass: OpenAiService,
+        },
+        AiRouteGeneratorRepositoryImpl, // AI route generator repository
+        AiRouteClusteringRepositoryImpl, // AI route clustering repository
         GroupQuestGateway,
         CachingService,
         // Passport metadata service (onchain)

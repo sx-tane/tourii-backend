@@ -100,7 +100,7 @@ curl -X POST http://localhost:4000/auth/signup \
 | ------------ | --------------------------- | ----------- | ------------------------------- | ------------------ |
 | **E_TB_023** | Story not found             | 404         | Story ID doesn't exist          | Verify story ID    |
 | **E_TB_024** | Story chapter update failed | 400         | Chapter update operation failed | Check request data |
-| **E_TB_027** | Model route not found       | 404         | Route ID doesn't exist          | Verify route ID    |
+| **E_MR_004** | Model route not found       | 404         | Route ID doesn't exist          | Verify route ID    |
 | **E_TB_028** | Quest task not found        | 404         | Task ID doesn't exist           | Verify task ID     |
 
 **Example:**
@@ -256,13 +256,20 @@ AI route recommendation errors occur during the 3-step route discovery process (
 
 | Code         | Message                                              | HTTP Status | When It Occurs                      | Solution                         |
 | ------------ | ---------------------------------------------------- | ----------- | ----------------------------------- | -------------------------------- |
-| **E_TB_048** | No tourist spots found matching keywords            | 404         | No spots match search criteria      | Try different or broader keywords |
-| **E_TB_049** | AI content generation failed                        | 500         | OpenAI API error or misconfiguration | Check OpenAI API key and service status |
-| **E_TB_050** | AI route recommendation validation failed           | 400         | Invalid request parameters          | Verify request format and parameters |
-| **E_TB_051** | No tourist spots found matching criteria            | 404         | Geographic or filter constraints too strict | Adjust proximity radius or filters |
-| **E_TB_052** | Geographic clustering failed                        | 500         | Error during spot clustering algorithm | Retry with different parameters |
-| **E_TB_053** | AI content generation service unavailable          | 503         | OpenAI API service unavailable      | Retry later or check service status |
-| **E_TB_054** | Route creation failed during database operation     | 500         | Database error during route creation | Check database connectivity |
+| **E_MR_005** | No tourist spots found matching keywords            | 404         | No spots match search criteria      | Try different or broader keywords |
+| **E_MR_006** | AI content generation failed                        | 500         | OpenAI API error or misconfiguration | Check OpenAI API key and service status |
+| **E_MR_007** | AI route recommendation validation failed           | 400         | Invalid request parameters          | Verify request format and parameters |
+| **E_MR_008** | No tourist spots found matching criteria            | 404         | Geographic or filter constraints too strict | Adjust proximity radius or filters |
+| **E_MR_009** | Geographic clustering failed                        | 500         | Error during spot clustering algorithm | Retry with different parameters |
+| **E_MR_010** | AI content generation service unavailable          | 503         | OpenAI API service unavailable      | Retry later or check service status |
+| **E_MR_011** | Route creation failed during database operation     | 500         | Database error during route creation | Check database connectivity |
+| **E_MR_012** | Maximum 10 keywords allowed                         | 400         | Too many keywords in request        | Limit keywords to 10 or fewer |
+| **E_MR_013** | Keywords must be 50 characters or less             | 400         | Individual keyword too long         | Shorten keywords to 50 chars max |
+| **E_MR_014** | Max routes must be between 1 and 20                | 400         | Invalid maxRoutes parameter         | Set maxRoutes between 1-20 |
+| **E_MR_015** | Invalid clustering options                          | 400         | Malformed clustering parameters     | Check clustering configuration |
+| **E_MR_016** | Proximity radius must be greater than 0            | 400         | Invalid proximityRadiusKm value     | Set radius > 0 (default: 50km) |
+| **E_MR_017** | Minimum spots per cluster must be at least 1       | 400         | Invalid minSpotsPerCluster value    | Set minSpotsPerCluster >= 1 |
+| **E_MR_018** | Maximum spots per cluster must be greater than or equal to minimum | 400 | maxSpotsPerCluster < minSpotsPerCluster | Ensure max >= min spots |
 
 **Common AI Route Issues:**
 
@@ -277,7 +284,18 @@ curl -X POST "http://localhost:4000/ai/routes/recommendations" \
     "proximityRadiusKm": 1,
     "region": "Remote Area"
   }'
-# Returns: E_TB_048 or E_TB_051
+# Returns: E_MR_005 or E_MR_008
+
+# Validation errors - too many keywords
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "x-api-key: dev-key" \
+  -H "accept-version: 1.0.0" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"],
+    "maxRoutes": 25
+  }'
+# Returns: E_MR_012 (too many keywords) or E_MR_014 (invalid maxRoutes)
 
 # Fix: Use broader parameters
 curl -X POST "http://localhost:4000/ai/routes/recommendations" \
@@ -469,4 +487,4 @@ try {
 
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

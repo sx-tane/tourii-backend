@@ -163,7 +163,7 @@ libs/core/src/domain/
 {
   "core": {
     "@nestjs/core": "^10.4.15",
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.6.0",
     "ethers": "^6.14.3",
     "axios": "^1.8.4"
   },
@@ -464,7 +464,8 @@ graph TB
 - **3-Step User Flow**: Region selection → Interest discovery → Unified route results
 - **Hybrid Intelligence**: Combines curated routes with AI-generated recommendations
 - **Geographic Clustering**: Proximity-based tourist spot grouping with Haversine formula
-- **OpenAI Integration**: GPT-4o-mini powered content generation with cost optimization
+- **OpenAI Integration**: ✅ **FULLY OPERATIONAL** - GPT-4o-mini powered content generation with cost optimization
+- **Smart Fallback System**: Domain-driven recommendation logic ensures meaningful results even without AI
 
 #### Architecture Overview
 
@@ -692,19 +693,21 @@ route_tourist_spot {
 #### Error Handling & Resilience
 
 **AI Route Error Codes:**
-- `E_TB_048`: No tourist spots found matching keywords
-- `E_TB_049`: AI content generation failed  
-- `E_TB_050`: AI route recommendation validation failed
-- `E_TB_051`: No tourist spots found matching criteria
-- `E_TB_052`: Geographic clustering failed
-- `E_TB_053`: AI content generation service unavailable
-- `E_TB_054`: Route creation failed during database operation
+- `E_MR_005`: No tourist spots found matching keywords
+- `E_MR_006`: AI content generation failed  
+- `E_MR_007`: AI route recommendation validation failed
+- `E_MR_008`: No tourist spots found matching criteria
+- `E_MR_009`: Geographic clustering failed
+- `E_MR_010`: AI content generation service unavailable
+- `E_MR_011`: Route creation failed during database operation
+- `E_MR_012-018`: Request validation errors (keywords, limits, clustering options)
 
 **Graceful Degradation:**
-1. **AI Service Down**: Return existing routes only with clear messaging
+1. **AI Service Down**: Domain-driven fallback provides intelligent recommendations based on keywords and hashtags
 2. **Clustering Failure**: Fall back to simple distance-based grouping
-3. **Content Generation Failure**: Use template-based route names and descriptions
+3. **Content Generation Failure**: Enhanced template system with keyword-aware recommendations
 4. **Rate Limit Exceeded**: Provide clear retry guidance and estimated wait time
+5. **Domain-Driven Fallbacks**: RouteRecommendation.generateFallbackRecommendations() ensures consistent quality
 
 #### Quality Assurance
 
@@ -987,4 +990,4 @@ R2_BUCKET=tourii-production
 
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

@@ -246,6 +246,8 @@ Implemented comprehensive task management and quest system improvements:
 ### Enhanced Error Handling & Task Management (June 2025)
 
 - **Comprehensive Error Handling**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
+- **Model Route Error Standardization**: Refactored all model route and tourist spot error codes from E_TB_xxx to E_MR_xxx format
+- **AI Route Error Codes**: Added 14 new error codes (E_MR_005-018) for AI route recommendation system debugging
 - **R2 Storage Error Types**: Added 5 new error codes (E_TB_035-039) for Cloudflare R2 storage configuration and operation failures
 - **Authentication Security Errors**: Added 2 new error codes (E_TB_040-041) for JWT and encryption configuration requirements
 - **JWT & Token Validation**: Added 3 new error codes (E_TB_045-047) for QR token structure and validation failures
@@ -386,9 +388,9 @@ Available Mock Token IDs for wallet testing:
 
 **No authentication required** for testing these mock personas!
 
-### AI Route Recommendation Testing
+### AI Route Recommendation System ✅ FULLY OPERATIONAL
 
-Test the new AI-powered route recommendation system:
+Test the production-ready AI-powered route recommendation system:
 
 ```bash
 # Generate AI route recommendations by keywords
@@ -429,16 +431,16 @@ curl -X POST "http://localhost:4000/ai/routes/recommendations" \
   }'
 ```
 
-**What it does:**
-- **Finds tourist spots** matching your keywords in their hashtags
-- **Clusters nearby spots** geographically (within 50km by default)
-- **Uses AI (GPT)** to generate route names, descriptions, and themes
-- **Creates new model routes** with AI-generated content in the database
-- **Returns both** the new routes and the tourist spots they contain
+**System Capabilities:**
+- **✅ OpenAI Integration**: GPT-4o-mini content generation fully operational
+- **🏗️ Domain-Driven Architecture**: Intelligent fallback logic in domain layer ensures quality results
+- **📍 Geographic Clustering**: Proximity-based tourist spot grouping with Haversine formula
+- **🎯 Smart Recommendations**: Hybrid system combining curated routes with AI-generated content
+- **🚀 Performance Optimized**: Caching, rate limiting, and cost optimization
 
 **Environment Setup for AI Features:**
 ```bash
-# Optional - for AI content generation (otherwise uses fallback)
+# Required - for AI content generation (falls back to domain logic if unavailable)
 OPENAI_API_KEY=your-openai-api-key
 OPENAI_MODEL=gpt-4o-mini  # Cost-effective model
 
@@ -447,6 +449,12 @@ THROTTLE_TTL=60000  # 1 minute
 THROTTLE_LIMIT=10   # 10 requests per minute
 ```
 
+**✨ Recent Architecture Improvements (June 2025):**
+- **Fixed OpenAI Dependency Injection**: Proper NestJS service registration with injection tokens
+- **Domain-Driven Fallbacks**: Moved intelligent recommendation logic to domain layer
+- **Enhanced Error Handling**: Standardized error codes (E_MR_005-018) for comprehensive debugging
+- **Production Reliability**: Graceful degradation with domain-driven fallback system
+
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

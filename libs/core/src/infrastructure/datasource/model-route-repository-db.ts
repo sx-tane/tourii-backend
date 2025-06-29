@@ -71,7 +71,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
 
     async updateModelRoute(modelRoute: ModelRouteEntity): Promise<ModelRouteEntity> {
         if (!modelRoute.modelRouteId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
         }
         const updated = await this.prisma.model_route.update({
             where: { model_route_id: modelRoute.modelRouteId },
@@ -94,7 +94,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
 
     async updateTouristSpot(touristSpot: TouristSpot): Promise<TouristSpot> {
         if (!touristSpot.touristSpotId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
         }
         const updated = await this.prisma.tourist_spot.update({
             where: { tourist_spot_id: touristSpot.touristSpotId },
@@ -181,7 +181,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             this.logger.warn(
                 `getModelRouteByModelRouteId: Raw route ${modelRouteId} not found in cache or DB fetch.`,
             );
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
         }
 
         // Map raw data to entity AFTER cache/DB retrieval
@@ -244,6 +244,82 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         // Map array of raw data to entities AFTER cache/DB retrieval
         this.logger.debug(
             `getModelRoutes: Mapping ${rawModelRoutes.length} raw routes to entities.`,
+        );
+        return rawModelRoutes.map((rawRoute) =>
+            ModelRouteMapper.prismaModelToModelRouteEntity(rawRoute),
+        );
+    }
+
+    async getModelRoutesByRegion(
+        region: string,
+        includeAiGenerated: boolean = false,
+        limit?: number,
+        offset?: number,
+    ): Promise<ModelRouteEntity[]> {
+        const cacheKey = `model_routes_region:${region.toLowerCase()}:ai_${includeAiGenerated}:limit_${limit || 'all'}:offset_${offset || 0}`;
+
+        const fetchDataFn = async () => {
+            this.logger.debug(
+                `getModelRoutesByRegion: Cache miss for ${cacheKey}, fetching routes from DB with region filter.`,
+            );
+
+            const whereClause = {
+                region: {
+                    contains: region,
+                    mode: 'insensitive' as const,
+                },
+                del_flag: false,
+                ...(includeAiGenerated === false && { is_ai_generated: false }),
+            };
+
+            const modelRoutesPrisma = await this.prisma.model_route.findMany({
+                where: whereClause,
+                include: {
+                    // Include spots owned directly by this route (legacy)
+                    owned_tourist_spots: {
+                        orderBy: {
+                            ins_date_time: 'asc',
+                        },
+                    },
+                    // Include spots referenced through junction table
+                    route_tourist_spots: {
+                        orderBy: {
+                            display_order: 'asc',
+                        },
+                        include: {
+                            tourist_spot: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    ins_date_time: 'asc',
+                },
+                ...(limit && { take: limit }),
+                ...(offset && { skip: offset }),
+            });
+
+            this.logger.debug(
+                `getModelRoutesByRegion: Found ${modelRoutesPrisma.length} routes in DB for region '${region}' (includeAi: ${includeAiGenerated}).`,
+            );
+            return modelRoutesPrisma;
+        };
+
+        const rawModelRoutes = await this.cachingService.getOrSet<ModelRouteRelationModel[]>(
+            cacheKey,
+            fetchDataFn,
+            DEFAULT_CACHE_TTL_SECONDS,
+        );
+
+        if (!rawModelRoutes || rawModelRoutes.length === 0) {
+            this.logger.debug(
+                `getModelRoutesByRegion: No routes found for region '${region}' (includeAi: ${includeAiGenerated}).`,
+            );
+            return [];
+        }
+
+        // Map array of raw data to entities AFTER cache/DB retrieval
+        this.logger.debug(
+            `getModelRoutesByRegion: Mapping ${rawModelRoutes.length} routes to entities for region '${region}'.`,
         );
         return rawModelRoutes.map((rawRoute) =>
             ModelRouteMapper.prismaModelToModelRouteEntity(rawRoute),
@@ -428,7 +504,7 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
             });
 
             if (touristSpots.length === 0) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
             }
 
             // Determine region from first hashtag of first tourist spot
@@ -577,6 +653,155 @@ export class ModelRouteRepositoryDb implements ModelRouteRepository {
         return rawModelRoutes.map((rawRoute) =>
             ModelRouteMapper.prismaModelToModelRouteEntity(rawRoute),
         );
+    }
+
+    async getStandaloneTouristSpots(limit = 20, offset = 0): Promise<TouristSpot[]> {
+        const cacheKey = `standalone_tourist_spots:${limit}:${offset}`;
+
+        const rawTouristSpots = await this.cachingService.getOrSet<tourist_spot[]>(
+            cacheKey,
+            async () => {
+                // Use raw SQL with NOT EXISTS for efficient single query
+                const sql = `
+                    SELECT ts.* FROM tourist_spot ts
+                    WHERE ts.del_flag = false
+                    AND ts.model_route_id IS NULL
+                    AND NOT EXISTS (
+                        SELECT 1 FROM route_tourist_spot rts 
+                        WHERE rts.tourist_spot_id = ts.tourist_spot_id
+                    )
+                    ORDER BY ts.ins_date_time DESC
+                    LIMIT $1 OFFSET $2
+                `;
+
+                return await this.prisma.$queryRawUnsafe<tourist_spot[]>(sql, limit, offset);
+            },
+            300000, // 5 minutes cache
+        );
+
+        if (!rawTouristSpots) {
+            this.logger.warn(
+                'getStandaloneTouristSpots: Failed to fetch standalone tourist spots, returning empty array',
+            );
+            return [];
+        }
+
+        return rawTouristSpots.map((spot) => ModelRouteMapper.touristSpotToEntity([spot])[0]);
+    }
+
+    async getTouristSpotById(touristSpotId: string): Promise<TouristSpot | null> {
+        const cacheKey = `tourist_spot_by_id:${touristSpotId}`;
+
+        const rawTouristSpot = await this.cachingService.getOrSet<tourist_spot | null>(
+            cacheKey,
+            async () => {
+                return await this.prisma.tourist_spot.findUnique({
+                    where: {
+                        tourist_spot_id: touristSpotId,
+                        del_flag: false,
+                    },
+                });
+            },
+            300000, // 5 minutes cache
+        );
+
+        if (!rawTouristSpot) {
+            return null;
+        }
+
+        return ModelRouteMapper.touristSpotToEntity([rawTouristSpot])[0];
+    }
+
+    async searchTouristSpots(filters: {
+        query?: string;
+        location?: string;
+        hashtags?: string[];
+        limit?: number;
+        offset?: number;
+    }): Promise<TouristSpot[]> {
+        const { query, location, hashtags, limit = 20, offset = 0 } = filters;
+        const cacheKey = `search_tourist_spots:${JSON.stringify(filters)}`;
+
+        const rawTouristSpots = await this.cachingService.getOrSet<tourist_spot[]>(
+            cacheKey,
+            async () => {
+                const whereConditions: any = {
+                    del_flag: false,
+                };
+
+                // Build where conditions based on filters
+                const andConditions: any[] = [];
+
+                // Search in name and description
+                if (query) {
+                    andConditions.push({
+                        OR: [
+                            {
+                                tourist_spot_name: {
+                                    contains: query,
+                                    mode: 'insensitive',
+                                },
+                            },
+                            {
+                                tourist_spot_desc: {
+                                    contains: query,
+                                    mode: 'insensitive',
+                                },
+                            },
+                        ],
+                    });
+                }
+
+                // Search in address and location
+                if (location) {
+                    andConditions.push({
+                        address: {
+                            contains: location,
+                            mode: 'insensitive',
+                        },
+                    });
+                }
+
+                // Filter by hashtags (case-insensitive, any match)
+                if (hashtags && hashtags.length > 0) {
+                    const normalizedHashtags = hashtags.map((h) => {
+                        const tag = h.toLowerCase();
+                        // Add # prefix if not present
+                        return tag.startsWith('#') ? tag : `#${tag}`;
+                    });
+                    andConditions.push({
+                        OR: normalizedHashtags.map((hashtag) => ({
+                            tourist_spot_hashtag: {
+                                array_contains: [hashtag],
+                            },
+                        })),
+                    });
+                }
+
+                if (andConditions.length > 0) {
+                    whereConditions.AND = andConditions;
+                }
+
+                return await this.prisma.tourist_spot.findMany({
+                    where: whereConditions,
+                    orderBy: {
+                        ins_date_time: 'desc',
+                    },
+                    skip: offset,
+                    take: limit,
+                });
+            },
+            300000, // 5 minutes cache
+        );
+
+        if (!rawTouristSpots) {
+            this.logger.warn(
+                'searchTouristSpots: Failed to search tourist spots, returning empty array',
+            );
+            return [];
+        }
+
+        return rawTouristSpots.map((spot) => ModelRouteMapper.touristSpotToEntity([spot])[0]);
     }
 
     /**

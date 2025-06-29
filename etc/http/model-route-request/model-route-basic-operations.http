@@ -1,5 +1,69 @@
-### Get All Model Routes
+### Get All Model Routes (No Filters)
 GET http://localhost:4000/routes
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get AI-Generated Routes Only (Filter: source=ai)
+GET http://localhost:4000/routes?source=ai&limit=5
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Manual Routes Only (Filter: source=manual)
+GET http://localhost:4000/routes?source=manual&limit=10
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Routes with Pagination (First 3 routes)
+GET http://localhost:4000/routes?source=all&limit=3&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Routes with Pagination (Next 3 routes)
+GET http://localhost:4000/routes?source=all&limit=3&offset=3
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Filter Routes by Region (case-insensitive)
+GET http://localhost:4000/routes?region=tokyo&limit=5
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Filter Routes by User ID (Created by specific user)
+GET http://localhost:4000/routes?userId=alice&limit=10
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Combined Filters (AI routes in Tokyo, limited to 2)
+GET http://localhost:4000/routes?source=ai&region=Tokyo&limit=2
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Large Pagination Test (50 routes starting from 10th)
+GET http://localhost:4000/routes?limit=50&offset=10
 x-api-key: your-api-key-2       
 accept-version: 1.0.0
 Content-Type: application/json 

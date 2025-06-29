@@ -1,4 +1,5 @@
-import { AiRouteRecommendationMapper } from '../ai-route-recommendation.mapper';
+import { AiRouteGenerationResultDto } from '@app/core/domain/ai-route/ai-route';
+import { AiRouteRecommendationBuilder } from '../ai-route-recommendation.mapper';
 
 describe('AiRouteRecommendationMapper', () => {
     const mockGeneratedRoute = {
@@ -59,8 +60,8 @@ describe('AiRouteRecommendationMapper', () => {
             const searchKeywords = ['anime', 'animation'];
             const aiAvailable = true;
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                mockResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                mockResult as unknown as AiRouteGenerationResultDto,
                 searchKeywords,
                 aiAvailable,
             );
@@ -164,8 +165,8 @@ describe('AiRouteRecommendationMapper', () => {
                 },
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                incompleteResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                incompleteResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 false,
             );
@@ -208,8 +209,8 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                multipleRoutesResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                multipleRoutesResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 true,
             );
@@ -228,8 +229,8 @@ describe('AiRouteRecommendationMapper', () => {
                 },
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                emptyResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                emptyResult as unknown as AiRouteGenerationResultDto,
                 ['nonexistent'],
                 true,
             );
@@ -261,8 +262,8 @@ describe('AiRouteRecommendationMapper', () => {
 
             const searchKeywords = ['anime', 'Culture', 'food', 'nonmatch'];
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                testResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                testResult as unknown as AiRouteGenerationResultDto,
                 searchKeywords,
                 true,
             );
@@ -293,8 +294,8 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                testResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                testResult as unknown as AiRouteGenerationResultDto,
                 ['animation', 'SCENIC'],
                 true,
             );
@@ -322,7 +323,11 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(testResult, ['test'], true);
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                testResult as unknown as AiRouteGenerationResultDto,
+                ['test'],
+                true,
+            );
 
             const resultSpot = result.generatedRoutes[0].touristSpots[0];
             expect(resultSpot.matchedKeywords).toEqual([]);
@@ -342,7 +347,11 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: customSummary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(customResult, ['test'], false);
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                customResult as unknown as AiRouteGenerationResultDto,
+                ['test'],
+                false,
+            );
 
             expect(result.summary).toEqual({
                 ...customSummary,
@@ -364,7 +373,11 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationMapper.toResponseDto(invalidResult, ['test'], true);
+                AiRouteRecommendationBuilder.toResponseDto(
+                    invalidResult as unknown as AiRouteGenerationResultDto,
+                    ['test'],
+                    true,
+                );
             }).toThrow();
         });
 
@@ -388,7 +401,11 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             const startTime = Date.now();
-            const result = AiRouteRecommendationMapper.toResponseDto(largeResult, ['common'], true);
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                largeResult as unknown as AiRouteGenerationResultDto,
+                ['common'],
+                true,
+            );
             const endTime = Date.now();
 
             expect(result.generatedRoutes[0].touristSpots).toHaveLength(100);
@@ -410,7 +427,11 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(testResult, ['test'], true);
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                testResult as unknown as AiRouteGenerationResultDto,
+                ['test'],
+                true,
+            );
 
             expect(result.generatedRoutes[0].metadata.generatedAt).toBe('2025-06-15T14:30:45.123Z');
         });
@@ -434,8 +455,8 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationMapper.toResponseDto(
-                testResult,
+            const result = AiRouteRecommendationBuilder.toResponseDto(
+                testResult as unknown as AiRouteGenerationResultDto,
                 ['animation', 'culture'],
                 true,
             );
@@ -447,7 +468,7 @@ describe('AiRouteRecommendationMapper', () => {
 
     describe('Error Handling', () => {
         it('should log errors during mapping', () => {
-            const loggerSpy = jest.spyOn(AiRouteRecommendationMapper['logger'], 'error');
+            const loggerSpy = jest.spyOn(AiRouteRecommendationBuilder['logger'], 'error');
 
             const invalidResult = {
                 generatedRoutes: [null],
@@ -455,7 +476,11 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationMapper.toResponseDto(invalidResult, ['test'], true);
+                AiRouteRecommendationBuilder.toResponseDto(
+                    invalidResult as unknown as AiRouteGenerationResultDto,
+                    ['test'],
+                    true,
+                );
             }).toThrow();
 
             expect(loggerSpy).toHaveBeenCalledWith(
@@ -480,7 +505,11 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationMapper.toResponseDto(invalidResult, ['test'], true);
+                AiRouteRecommendationBuilder.toResponseDto(
+                    invalidResult as unknown as AiRouteGenerationResultDto,
+                    ['test'],
+                    true,
+                );
             }).toThrow();
         });
     });

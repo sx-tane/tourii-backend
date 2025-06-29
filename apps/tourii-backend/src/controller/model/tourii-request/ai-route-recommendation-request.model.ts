@@ -1,3 +1,4 @@
+import { RouteRecommendationMode } from '@app/core/domain/ai-route/route-recommendation';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
@@ -6,15 +7,16 @@ export const AiRouteRecommendationRequestSchema = z.object({
         .array(z.string().min(1).max(50))
         .min(1, 'At least one keyword is required')
         .max(10, 'Maximum 10 keywords allowed')
-        .describe('Keywords to search for in tourist spot hashtags'),
-
+        .describe('Keywords to search for in tourist spot hashtags')
+        .transform((val) => val.map((k) => k.toLowerCase().trim())),
     mode: z
-        .enum(['all', 'any'])
-        .default('any')
+        .nativeEnum(RouteRecommendationMode)
+        .default(RouteRecommendationMode.ANY)
         .describe('Matching mode: "all" requires all keywords, "any" requires any keyword'),
-
-    region: z.string().optional().describe('Optional region filter'),
-
+    region: z
+        .string()
+        .describe('Region filter')
+        .transform((val) => val.toLowerCase().trim()),
     proximityRadiusKm: z
         .number()
         .min(1)
@@ -22,7 +24,6 @@ export const AiRouteRecommendationRequestSchema = z.object({
         .default(50)
         .optional()
         .describe('Proximity radius in kilometers for clustering spots'),
-
     minSpotsPerCluster: z
         .number()
         .min(1)
@@ -30,7 +31,6 @@ export const AiRouteRecommendationRequestSchema = z.object({
         .default(2)
         .optional()
         .describe('Minimum number of spots required to form a cluster'),
-
     maxSpotsPerCluster: z
         .number()
         .min(2)
@@ -38,7 +38,6 @@ export const AiRouteRecommendationRequestSchema = z.object({
         .default(8)
         .optional()
         .describe('Maximum number of spots allowed in a cluster'),
-
     maxRoutes: z
         .number()
         .min(1)

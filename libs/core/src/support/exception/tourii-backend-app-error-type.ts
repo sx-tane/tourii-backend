@@ -95,18 +95,18 @@ export const TouriiBackendAppErrorType = {
         message: 'Story chapter update failed',
         type: ErrorType.BAD_REQUEST,
     },
-    E_TB_025: {
-        code: 'E_TB_025',
+    E_MR_002: {
+        code: 'E_MR_002',
         message: 'Geo info not found',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_026: {
-        code: 'E_TB_026',
+    E_MR_003: {
+        code: 'E_MR_003',
         message: 'Current weather not found',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_027: {
-        code: 'E_TB_027',
+    E_MR_004: {
+        code: 'E_MR_004',
         message: 'Model route not found',
         type: ErrorType.NOT_FOUND,
     },
@@ -211,40 +211,77 @@ export const TouriiBackendAppErrorType = {
         type: ErrorType.BAD_REQUEST,
     },
     // --- AI Route Recommendation Errors ---
-    E_TB_048: {
-        code: 'E_TB_048',
+    E_MR_005: {
+        code: 'E_MR_005',
         message: 'No tourist spots found matching keywords',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_049: {
-        code: 'E_TB_049',
+    E_MR_006: {
+        code: 'E_MR_006',
         message: 'AI content generation failed',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
-    E_TB_050: {
-        code: 'E_TB_050',
+    E_MR_007: {
+        code: 'E_MR_007',
         message: 'AI route recommendation validation failed',
         type: ErrorType.BAD_REQUEST,
     },
-    E_TB_051: {
-        code: 'E_TB_051',
+    E_MR_008: {
+        code: 'E_MR_008',
         message: 'No tourist spots found matching criteria',
         type: ErrorType.NOT_FOUND,
     },
-    E_TB_052: {
-        code: 'E_TB_052',
+    E_MR_009: {
+        code: 'E_MR_009',
         message: 'Geographic clustering failed',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
-    E_TB_053: {
-        code: 'E_TB_053',
+    E_MR_010: {
+        code: 'E_MR_010',
         message: 'AI content generation service unavailable',
         type: ErrorType.SERVICE_UNAVAILABLE,
     },
-    E_TB_054: {
-        code: 'E_TB_054',
+    E_MR_011: {
+        code: 'E_MR_011',
         message: 'Route creation failed during database operation',
         type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    // --- Route Recommendation Errors ---
+    E_MR_012: {
+        code: 'E_MR_012',
+        message: 'Maximum 10 keywords allowed',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_MR_013: {
+        code: 'E_MR_013',
+        message: 'Keywords must be 50 characters or less',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_MR_014: {
+        code: 'E_MR_014',
+        message: 'Max routes must be between 1 and 20',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_MR_015: {
+        code: 'E_MR_015',
+        message: 'Invalid clustering options',
+        type: ErrorType.BAD_REQUEST,
+    },
+    // --- Route Clustering Errors ---
+    E_MR_016: {
+        code: 'E_MR_016',
+        message: 'Proximity radius must be greater than 0',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_MR_017: {
+        code: 'E_MR_017',
+        message: 'Minimum spots per cluster must be at least 1',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_MR_018: {
+        code: 'E_MR_018',
+        message: 'Maximum spots per cluster must be greater than or equal to minimum',
+        type: ErrorType.BAD_REQUEST,
     },
     // --- Geocoding Specific Errors ---
     E_GEO_001: {
@@ -296,6 +333,31 @@ export const TouriiBackendAppErrorType = {
     E_WEATHER_005: {
         code: 'E_WEATHER_005',
         message: 'Weather API: WEATHER_API_KEY not configured in server environment.',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_OPENAI_001: {
+        code: 'E_OPENAI_001',
+        message: 'OpenAI API key not configured',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_OPENAI_002: {
+        code: 'E_OPENAI_002',
+        message: 'AI content generation failed',
+        type: ErrorType.BAD_REQUEST,
+    },
+    E_OPENAI_003: {
+        code: 'E_OPENAI_003',
+        message: 'Invalid GPT response',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_OPENAI_004: {
+        code: 'E_OPENAI_004',
+        message: 'No response from OpenAI',
+        type: ErrorType.INTERNAL_SERVER_ERROR,
+    },
+    E_MR_001: {
+        code: 'E_MR_001',
+        message: 'Failed to create model route - no ID returned',
         type: ErrorType.INTERNAL_SERVER_ERROR,
     },
 } as const;

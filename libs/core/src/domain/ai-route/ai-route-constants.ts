@@ -2,7 +2,6 @@
  * Constants for AI Route Recommendation System
  * Centralizes magic numbers and configuration values
  */
-
 export const AI_ROUTE_LIMITS = {
     MAX_KEYWORDS: 10,
     MAX_KEYWORD_LENGTH: 50,
@@ -15,12 +14,18 @@ export const AI_ROUTE_LIMITS = {
     EXISTING_ROUTES_LIMIT: 10,
 } as const;
 
+/**
+ * Default clustering options
+ */
 export const CLUSTERING_DEFAULTS = {
     PROXIMITY_RADIUS_KM: 50,
     MIN_SPOTS_PER_CLUSTER: 2,
     MAX_SPOTS_PER_CLUSTER: 8,
 } as const;
 
+/**
+ * OpenAI configuration
+ */
 export const OPENAI_CONFIG = {
     MODEL_DEFAULT: 'gpt-4o-mini',
     TEMPERATURE: 0.3,
@@ -69,31 +74,14 @@ export const PREFECTURE_BOUNDARIES = {
  */
 export const REGION_FALLBACK_IMAGES = {
     Kanto: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&h=1080&fit=crop',
-    Kansai: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop',
     Chubu: 'https://images.unsplash.com/photo-1605816626069-40d9da29dded?w=1920&h=1080&fit=crop',
     Tohoku: 'https://images.unsplash.com/photo-1554797589-7241bb691973?w=1920&h=1080&fit=crop',
     Kyushu: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&h=1080&fit=crop',
     Chugoku: 'https://images.unsplash.com/photo-1504109586057-7a2ae83d1338?w=1920&h=1080&fit=crop',
     Shikoku: 'https://images.unsplash.com/photo-1563787263-026ba78cac1b?w=1920&h=1080&fit=crop',
     Hokkaido: 'https://images.unsplash.com/photo-1551524164-6ca04ac833fb?w=1920&h=1080&fit=crop',
-    Tokyo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&h=1080&fit=crop',
     Osaka: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop',
-    Kyoto: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop',
     Oita: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&h=1080&fit=crop',
-} as const;
-
-/**
- * Common tourism keyword mappings for fallback expansion
- */
-export const TOURISM_KEYWORD_MAPPINGS = {
-    food: ['ramen', 'sushi', 'yakitori', 'restaurant', 'cuisine', '食べ物', 'グルメ'],
-    temple: ['shrine', 'buddhist', 'sacred', 'religious', '寺', '神社'],
-    nature: ['hiking', 'mountain', 'forest', 'park', '自然', 'ハイキング'],
-    'hot spring': ['onsen', 'spa', 'thermal', '温泉', '湯'],
-    culture: ['traditional', 'history', 'museum', 'art', '文化', '伝統'],
-    festival: ['matsuri', 'celebration', 'event', '祭り', 'イベント'],
-    shopping: ['market', 'souvenir', 'store', '買い物', 'ショッピング'],
-    nightlife: ['bar', 'entertainment', 'night', '夜', 'バー'],
 } as const;
 
 /**

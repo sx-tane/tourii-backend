@@ -609,6 +609,41 @@ Content-Type: application/json
 }
 ```
 
+### ✅ Enhanced AI Functionality (Production Ready)
+
+**OpenAI Integration Status:** FULLY OPERATIONAL
+
+The AI route generation now leverages **GPT-4o-mini** to create intelligent, culturally-aware route content:
+
+#### AI-Generated Content Features:
+- **Smart Route Names**: Creative, catchy names like "Harajiri Falls Escape" vs generic "Route for waterfall"
+- **Contextual Descriptions**: Culturally authentic descriptions highlighting unique experiences
+- **Intelligent Recommendations**: Domain-driven fallback ensures quality recommendations even when AI is unavailable
+- **Confidence Scoring**: AI routes show `0.9` confidence vs `0.5-0.6` for fallback content
+
+#### Response Indicators:
+```json
+{
+  "summary": {
+    "aiAvailable": true,  // ✅ OpenAI is working
+    "processingTimeMs": 2604  // Includes ~2s for AI generation
+  },
+  "generatedRoutes": [{
+    "routeName": "Harajiri Falls Escape",  // 🤖 AI-generated name
+    "regionDesc": "Experience Japan's majestic waterfalls...",  // 🤖 AI description
+    "recommendations": ["Nature Photography", "Scenic Views", "Adventure"],  // 🤖 AI recommendations
+    "confidenceScore": 0.9,  // 🤖 High confidence = AI generated
+    "estimatedDuration": "1 day"  // 🤖 AI duration estimate
+  }]
+}
+```
+
+#### Fallback System:
+When AI is unavailable, the **Domain-Driven Fallback** provides:
+- Keyword-aware recommendations (e.g., "waterfall" → ["Nature", "Photography"])
+- Hashtag-based recommendations from tourist spot data
+- Always returns meaningful defaults: ["Ideal for First Time Visitors", "Photography", "Local Food"]
+
 ### Real-World Usage Scenarios
 
 #### Quick City Tour (1 Day)
@@ -684,7 +719,7 @@ AI route generation is rate-limited to ensure fair usage:
 ```json
 {
   "statusCode": 404,
-  "errorCode": "E_TB_048",
+  "errorCode": "E_MR_005",
   "message": "No tourist spots found matching keywords",
   "details": {
     "keywords": ["nonexistent-keyword"],
@@ -697,7 +732,7 @@ AI route generation is rate-limited to ensure fair usage:
 ```json
 {
   "statusCode": 400,
-  "errorCode": "E_TB_050", 
+  "errorCode": "E_MR_007", 
   "message": "AI route recommendation validation failed",
   "details": {
     "errors": [
@@ -712,7 +747,7 @@ AI route generation is rate-limited to ensure fair usage:
 ```json
 {
   "statusCode": 503,
-  "errorCode": "E_TB_053",
+  "errorCode": "E_MR_010",
   "message": "AI content generation service unavailable",
   "details": {
     "fallbackMessage": "Existing routes are still available",
@@ -1424,4 +1459,4 @@ GET http://localhost:4000/admin/users?isBanned=true&sortBy=registered_at&sortOrd
 
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

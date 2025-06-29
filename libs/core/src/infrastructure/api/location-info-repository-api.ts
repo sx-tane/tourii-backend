@@ -22,6 +22,38 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
         private readonly cachingService: CachingService,
     ) {}
 
+    async getLocationImage(
+        locationName: string,
+        latitude?: number,
+        longitude?: number,
+        address?: string,
+    ): Promise<string | null> {
+        try {
+            Logger.debug(`Fetching real image for location: ${locationName}`);
+
+            const locationInfo = await this.getLocationInfo(
+                locationName,
+                latitude,
+                longitude,
+                address,
+            );
+
+            if (locationInfo.images && locationInfo.images.length > 0) {
+                // Return the first (usually best quality) image
+                const bestImage = locationInfo.images[0];
+                Logger.debug(`Found real image for ${locationName}: ${bestImage.url}`);
+                return bestImage.url;
+            }
+
+            Logger.debug(`No images found for ${locationName}`);
+            return null;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.warn(`Failed to get location image for ${locationName}: ${errorMessage}`);
+            return null;
+        }
+    }
+
     async getLocationInfo(
         query: string,
         latitude?: number,

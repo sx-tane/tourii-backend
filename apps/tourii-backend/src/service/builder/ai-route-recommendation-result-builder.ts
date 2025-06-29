@@ -1,41 +1,6 @@
-import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
+import { AiRouteUnificationOptions } from '@app/core/domain/ai-route/ai-route';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { AiRouteRecommendationResponseDto } from '@app/tourii-backend/controller/model/tourii-response/ai-route-recommendation-response.model';
-
-export interface AiRouteGenerationResult {
-    generatedRoutes: Array<{
-        modelRoute: ModelRouteEntity;
-        cluster: {
-            spots: TouristSpot[];
-            averageDistance: number;
-        };
-        aiContent: {
-            estimatedDuration: string;
-            confidenceScore: number;
-        };
-        metadata: {
-            sourceKeywords: string[];
-            generatedAt: Date;
-            algorithm: string;
-            spotCount: number;
-        };
-    }>;
-    summary: {
-        totalSpotsFound: number;
-        clustersFormed: number;
-        routesGenerated: number;
-        processingTimeMs: number;
-    };
-}
-
-export interface AiRouteUnificationOptions {
-    keywords: string[];
-    region?: string;
-    existingRoutes: ModelRouteEntity[];
-    aiResult: AiRouteGenerationResult;
-    userId: string;
-    aiAvailable: boolean;
-}
 
 /**
  * Result builder for AI route recommendation responses
@@ -46,15 +11,10 @@ export class AiRouteRecommendationResultBuilder {
      * Build unified AI route recommendation response
      * Combines existing routes and AI-generated routes into a single response
      */
-    static buildUnifiedResponse(options: AiRouteUnificationOptions): AiRouteRecommendationResponseDto {
-        const {
-            keywords,
-            region,
-            existingRoutes,
-            aiResult,
-            userId,
-            aiAvailable,
-        } = options;
+    static buildUnifiedResponse(
+        options: AiRouteUnificationOptions,
+    ): AiRouteRecommendationResponseDto {
+        const { keywords, region, existingRoutes, aiResult, aiAvailable } = options;
 
         return {
             // Transform AI-generated routes
@@ -70,7 +30,10 @@ export class AiRouteRecommendationResultBuilder {
                 confidenceScore: route.aiContent.confidenceScore,
                 spotCount: route.metadata.spotCount,
                 averageDistance: route.cluster.averageDistance,
-                touristSpots: this.transformTouristSpots(route.cluster.spots, keywords),
+                touristSpots: AiRouteRecommendationResultBuilder.transformTouristSpots(
+                    route.cluster.spots,
+                    keywords,
+                ),
                 metadata: {
                     sourceKeywords: route.metadata.sourceKeywords,
                     generatedAt: route.metadata.generatedAt.toISOString(),
@@ -91,7 +54,10 @@ export class AiRouteRecommendationResultBuilder {
                 spotCount: route.touristSpotList?.length || 0,
                 isAiGenerated: route.isAiGenerated || false,
                 matchedKeywords: keywords,
-                touristSpots: this.transformTouristSpots(route.touristSpotList || [], keywords),
+                touristSpots: AiRouteRecommendationResultBuilder.transformTouristSpots(
+                    route.touristSpotList || [],
+                    keywords,
+                ),
             })),
 
             // Build summary
@@ -103,7 +69,7 @@ export class AiRouteRecommendationResultBuilder {
             },
 
             // Generate descriptive message
-            message: this.buildResponseMessage({
+            message: AiRouteRecommendationResultBuilder.buildResponseMessage({
                 existingCount: existingRoutes.length,
                 aiCount: aiResult.generatedRoutes.length,
                 keywords,
@@ -115,7 +81,10 @@ export class AiRouteRecommendationResultBuilder {
     /**
      * Transform tourist spots to response format with matched keywords
      */
-    private static transformTouristSpots(spots: TouristSpot[], keywords: string[]): Array<{
+    private static transformTouristSpots(
+        spots: TouristSpot[],
+        keywords: string[],
+    ): Array<{
         touristSpotId: string;
         touristSpotName: string;
         touristSpotDesc: string | undefined;
@@ -147,7 +116,7 @@ export class AiRouteRecommendationResultBuilder {
         const { existingCount, aiCount, keywords, region } = options;
         const regionText = region ? ` in ${region}` : ' in all regions';
         const keywordText = keywords.join(', ');
-        
+
         return `Found ${existingCount} existing routes and generated ${aiCount} AI routes based on your selected hashtags: ${keywordText}${regionText}`;
     }
 

@@ -10,9 +10,10 @@ x-user-id: {{user-id}}
 Content-Type: application/json
 
 {
-  "keywords": ["shrine"],
+  "keywords": ["waterfall"],
   "mode": "any",
-  "proximityRadiusKm": 50,
+  "region": "Bungo Ono",
+  "proximityRadiusKm": 200,
   "maxRoutes": 2,
   "minSpotsPerCluster": 1
 }

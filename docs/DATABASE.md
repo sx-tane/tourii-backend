@@ -9,7 +9,7 @@ This document provides comprehensive information about the database schema, mode
 ### Technology Stack
 
 - **Database**: PostgreSQL 14+
-- **ORM**: Prisma 6.5.0+
+- **ORM**: Prisma 6.6.0+
 - **Migration Tool**: Prisma Migrate
 - **Query Builder**: Prisma Client with TypeScript
 - **Caching**: Redis for session and API response caching
@@ -774,4 +774,4 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

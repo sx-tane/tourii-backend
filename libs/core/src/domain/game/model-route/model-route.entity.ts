@@ -1,6 +1,20 @@
 import { Entity } from '../../entity';
 import type { TouristSpot } from './tourist-spot';
 
+export enum ModelRouteSource {
+    AI = 'ai',
+    MANUAL = 'manual',
+    ALL = 'all',
+}
+
+export interface ModelRouteFilter {
+    source?: ModelRouteSource;
+    region?: string;
+    userId?: string;
+    limit?: number;
+    offset?: number;
+}
+
 interface ModelRouteProps {
     storyId?: string;
     routeName?: string;

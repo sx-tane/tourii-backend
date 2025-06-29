@@ -1,4 +1,4 @@
-import { ModelRouteEntity } from './model-route.entity';
+import { ModelRouteEntity, ModelRouteFilter } from './model-route.entity';
 import { TouristSpot } from './tourist-spot';
 
 export interface ModelRouteRepository {
@@ -52,6 +52,21 @@ export interface ModelRouteRepository {
     getModelRoutes(): Promise<ModelRouteEntity[]>;
 
     /**
+     * Get model routes filtered by region and AI generation status
+     * @param region Region to filter by (case-insensitive partial match)
+     * @param includeAiGenerated Whether to include AI-generated routes (default: false)
+     * @param limit Optional limit for results
+     * @param offset Optional offset for pagination
+     * @returns ModelRouteEntity[] matching the criteria
+     */
+    getModelRoutesByRegion(
+        region: string,
+        includeAiGenerated?: boolean,
+        limit?: number,
+        offset?: number,
+    ): Promise<ModelRouteEntity[]>;
+
+    /**
      * Create a tourist-generated route (non-AI route created by users)
      * @param routeName Route name
      * @param regionDesc Route description
@@ -73,13 +88,7 @@ export interface ModelRouteRepository {
      * @param filters Filtering options
      * @returns Array of ModelRouteEntity matching filters
      */
-    getUnifiedRoutes(filters?: {
-        source?: 'ai' | 'manual' | 'all';
-        region?: string;
-        userId?: string;
-        limit?: number;
-        offset?: number;
-    }): Promise<ModelRouteEntity[]>;
+    getUnifiedRoutes(filters?: ModelRouteFilter): Promise<ModelRouteEntity[]>;
 
     /**
      * Delete model route and its tourist spots
@@ -125,4 +134,32 @@ export interface ModelRouteRepository {
             createdBy: string;
         }>,
     ): Promise<void>;
+
+    /**
+     * Get standalone tourist spots (not linked to any route)
+     * @param limit Maximum number of results to return
+     * @param offset Number of results to skip for pagination
+     * @returns TouristSpot entities that are standalone
+     */
+    getStandaloneTouristSpots(limit?: number, offset?: number): Promise<TouristSpot[]>;
+
+    /**
+     * Get tourist spot by ID
+     * @param touristSpotId Tourist spot ID
+     * @returns TouristSpot entity or null if not found
+     */
+    getTouristSpotById(touristSpotId: string): Promise<TouristSpot | null>;
+
+    /**
+     * Search tourist spots with filters
+     * @param filters Search filters
+     * @returns TouristSpot entities matching the search criteria
+     */
+    searchTouristSpots(filters: {
+        query?: string;
+        location?: string;
+        hashtags?: string[];
+        limit?: number;
+        offset?: number;
+    }): Promise<TouristSpot[]>;
 }

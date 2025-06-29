@@ -7,7 +7,12 @@ export const ChapterHighlightSchema = z.object({
     chapterNumber: z.string().describe('Chapter number (e.g., "Chapter 1", "Prologue")'),
     title: z.string().describe('Chapter title'),
     imageUrl: z.string().optional().nullable().describe('Cover image URL'),
-    region: z.string().optional().nullable().describe('Region of the story'),
+    region: z
+        .string()
+        .optional()
+        .transform((val) => val?.toLowerCase().trim())
+        .nullable()
+        .describe('Region of the story'),
     link: z.string().nullable().describe('Deep link to chapter'),
 });
 

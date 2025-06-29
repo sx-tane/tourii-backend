@@ -51,6 +51,8 @@ export class RegionDetectionUtil {
     /**
      * Determines the most common region from a collection of spots
      * Used for cluster region determination
+     * @param spots - The tourist spots to determine the region of
+     * @returns The most common region of the tourist spots
      */
     static determineMostCommonRegion(spots: TouristSpot[]): string {
         // Extract regions from first hashtag of each tourist spot

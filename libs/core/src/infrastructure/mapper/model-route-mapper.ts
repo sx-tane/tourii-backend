@@ -85,12 +85,6 @@ export class ModelRouteMapper {
         };
     }
 
-    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
-        return prismaModel.map((touristSpot) =>
-            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
-        );
-    }
-
     static modelRouteEntityToPrismaInput(
         modelRouteEntity: ModelRouteEntity,
     ): Prisma.model_routeUncheckedCreateInput {
@@ -163,6 +157,12 @@ export class ModelRouteMapper {
             upd_date_time: touristSpotEntity.updDateTime,
             request_id: touristSpotEntity.requestId,
         };
+    }
+
+    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
+        return prismaModel.map((touristSpot) =>
+            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+        );
     }
 
     static prismaModelToModelRouteEntity(prismaModel: ModelRouteRelationModel): ModelRouteEntity {
