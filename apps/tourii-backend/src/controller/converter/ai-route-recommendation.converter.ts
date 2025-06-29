@@ -12,7 +12,7 @@ import {
     AiRouteRecommendationResponseDto,
 } from '../model/tourii-response/ai-route-recommendation-response.model';
 
-export class AiRouteRecommendationBuilder {
+export class AiRouteRecommendationConverter {
     static toResponseDto(
         result: AiRouteGenerationResultDto,
         searchKeywords: string[],
@@ -21,9 +21,9 @@ export class AiRouteRecommendationBuilder {
         try {
             return {
                 generatedRoutes: result.generatedRoutes.map((route: GeneratedRoute) =>
-                    AiRouteRecommendationBuilder.mapGeneratedRoute(route, searchKeywords),
+                    AiRouteRecommendationConverter.mapGeneratedRoute(route, searchKeywords),
                 ),
-                summary: AiRouteRecommendationBuilder.mapSummary(result.summary, aiAvailable),
+                summary: AiRouteRecommendationConverter.mapSummary(result.summary, aiAvailable),
                 message: AiRoute.generateSuccessMessage(result.generatedRoutes.length),
             };
         } catch (error) {
@@ -53,9 +53,9 @@ export class AiRouteRecommendationBuilder {
             spotCount: route.metadata.spotCount,
             averageDistance: route.cluster.averageDistance,
             touristSpots: route.cluster.spots.map((spot: TouristSpot) =>
-                AiRouteRecommendationBuilder.touristSpot(spot, searchKeywords),
+                AiRouteRecommendationConverter.touristSpot(spot, searchKeywords),
             ),
-            metadata: AiRouteRecommendationBuilder.metadata(route),
+            metadata: AiRouteRecommendationConverter.metadata(route),
         };
     }
 

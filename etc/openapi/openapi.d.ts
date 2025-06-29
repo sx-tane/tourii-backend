@@ -925,9 +925,9 @@ declare namespace Components {
        */
       mode?: 'all' | 'any';
       /**
-       * Optional region filter
+       * Region filter
        */
-      region?: string;
+      region: string;
       /**
        * Proximity radius in kilometers for clustering spots
        */
@@ -6407,24 +6407,7 @@ declare namespace Paths {
       export type XApiKey = string;
     }
     namespace Responses {
-      export interface $200 {}
-      export interface $400 {
-        /**
-         * example:
-         * E_TB_021
-         */
-        code?: string;
-        /**
-         * example:
-         * Invalid version format
-         */
-        message?: string;
-        /**
-         * example:
-         * BAD_REQUEST
-         */
-        type?: string;
-      }
+      export interface $201 {}
     }
   }
   namespace TouriiBackendControllerGetCheckins {
@@ -6839,7 +6822,19 @@ declare namespace Paths {
     }
     namespace Parameters {
       export type AcceptVersion = string;
+      export type Limit = string;
+      export type Offset = string;
+      export type Region = string;
+      export type Source = 'ai' | 'manual' | 'all';
+      export type UserId = string;
       export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+      userId?: Parameters.UserId;
+      region?: Parameters.Region;
+      source?: Parameters.Source;
     }
     namespace Responses {
       export type $200 = Components.Schemas.ModelRouteResponseDto[];
@@ -6874,6 +6869,43 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.StoryResponseDto[];
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetStandaloneTouristSpots {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type Limit = string;
+      export type Offset = string;
+      export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto[];
       export interface $400 {
         /**
          * example:
@@ -7004,6 +7036,42 @@ declare namespace Paths {
         type?: string;
       }
       export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetTouristSpotById {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type TouristSpotId = string;
+      export type XApiKey = string;
+    }
+    export interface PathParameters {
+      touristSpotId: Parameters.TouristSpotId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
     }
   }
   namespace TouriiBackendControllerGetTouristSpotsByChapterId {
@@ -7434,6 +7502,49 @@ declare namespace Paths {
     }
     namespace Responses {
       export interface $200 {}
+    }
+  }
+  namespace TouriiBackendControllerSearchTouristSpots {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type Hashtags = string;
+      export type Limit = string;
+      export type Location = string;
+      export type Offset = string;
+      export type Query = string;
+      export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+      hashtags?: Parameters.Hashtags;
+      location?: Parameters.Location;
+      query?: Parameters.Query;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto[];
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
     }
   }
   namespace TouriiBackendControllerSignup {

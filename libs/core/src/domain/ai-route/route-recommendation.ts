@@ -52,22 +52,30 @@ export class RouteRecommendation {
      * @returns Array of recommendation strings
      */
     static generateFallbackRecommendations(
-        keywords: string[] = [], 
-        spots: { touristSpotHashtag?: string[] }[] = []
+        keywords: string[] = [],
+        spots: { touristSpotHashtag?: string[] }[] = [],
     ): string[] {
         const recommendations = new Set<string>();
-        
+
         // Map keywords to recommendations
-        keywords.forEach(keyword => {
+        keywords.forEach((keyword) => {
             const lowerKeyword = keyword.toLowerCase();
             if (lowerKeyword.includes('waterfall') || lowerKeyword.includes('nature')) {
                 recommendations.add('Nature');
                 recommendations.add('Photography');
             }
-            if (lowerKeyword.includes('food') || lowerKeyword.includes('restaurant') || lowerKeyword.includes('cuisine')) {
+            if (
+                lowerKeyword.includes('food') ||
+                lowerKeyword.includes('restaurant') ||
+                lowerKeyword.includes('cuisine')
+            ) {
                 recommendations.add('Local Food');
             }
-            if (lowerKeyword.includes('temple') || lowerKeyword.includes('shrine') || lowerKeyword.includes('buddhism')) {
+            if (
+                lowerKeyword.includes('temple') ||
+                lowerKeyword.includes('shrine') ||
+                lowerKeyword.includes('buddhism')
+            ) {
                 recommendations.add('Historical Sites');
             }
             if (lowerKeyword.includes('culture') || lowerKeyword.includes('traditional')) {
@@ -86,18 +94,26 @@ export class RouteRecommendation {
         });
 
         // Map spot hashtags to recommendations
-        spots.forEach(spot => {
+        spots.forEach((spot) => {
             const hashtags = spot.touristSpotHashtag || [];
             hashtags.forEach((tag: string) => {
                 const lowerTag = tag.toLowerCase();
-                if (lowerTag.includes('nature') || lowerTag.includes('waterfall') || lowerTag.includes('park')) {
+                if (
+                    lowerTag.includes('nature') ||
+                    lowerTag.includes('waterfall') ||
+                    lowerTag.includes('park')
+                ) {
                     recommendations.add('Nature');
                     recommendations.add('Photography');
                 }
                 if (lowerTag.includes('food') || lowerTag.includes('restaurant')) {
                     recommendations.add('Local Food');
                 }
-                if (lowerTag.includes('buddhism') || lowerTag.includes('temple') || lowerTag.includes('shrine')) {
+                if (
+                    lowerTag.includes('buddhism') ||
+                    lowerTag.includes('temple') ||
+                    lowerTag.includes('shrine')
+                ) {
                     recommendations.add('Historical Sites');
                 }
                 if (lowerTag.includes('culture') || lowerTag.includes('traditional')) {

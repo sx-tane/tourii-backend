@@ -18,7 +18,8 @@ async function main() {
 
     // Configure base URI for metadata (should point to your backend API)
     const baseURI =
-        process.env['PASSPORT_METADATA_BASE_URI'] || 'https://api.tourii.com/api/passport/metadata/';
+        process.env['PASSPORT_METADATA_BASE_URI'] ||
+        'https://api.tourii.com/api/passport/metadata/';
     console.log(`Using base URI: ${baseURI}`);
 
     const digitalPassport = await TouriiDigitalPassport.deploy(baseURI);

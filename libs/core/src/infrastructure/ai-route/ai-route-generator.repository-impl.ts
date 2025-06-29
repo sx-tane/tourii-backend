@@ -6,15 +6,15 @@ import {
 } from '@app/core/domain/ai-route/ai-route';
 import { RouteRecommendation } from '@app/core/domain/ai-route/route-recommendation';
 import { OpenAiService } from '@app/core/provider/open-ai.service';
+import { TouriiBackendConstants } from '@app/tourii-backend/tourii-backend.constant';
 import { Inject, Logger } from '@nestjs/common';
-import { TouriiBackendConstants } from '../../../../../apps/tourii-backend/src/tourii-backend.constant';
 
 export class AiRouteGeneratorRepositoryImpl {
     private readonly isOpenAiConfigured: boolean;
 
     constructor(
         @Inject(TouriiBackendConstants.OPENAI_SERVICE_TOKEN)
-        private readonly openAiService: OpenAiService
+        private readonly openAiService: OpenAiService,
     ) {
         this.isOpenAiConfigured = this.openAiService?.isOpenAiConfigured() ?? false;
     }
@@ -50,10 +50,10 @@ export class AiRouteGeneratorRepositoryImpl {
 
         // Ultimate fallback if openAiService is not available
         const fallbackRecommendations = RouteRecommendation.generateFallbackRecommendations(
-            request.userKeywords, 
-            request.cluster.spots
+            request.userKeywords,
+            request.cluster.spots,
         );
-        
+
         return {
             routeName: `Route for ${request.userKeywords.join(', ')}`,
             regionDesc: `A curated route featuring ${request.cluster.spots.length} locations related to ${request.userKeywords.join(', ')}.`,

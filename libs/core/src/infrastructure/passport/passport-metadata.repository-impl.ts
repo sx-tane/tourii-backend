@@ -8,9 +8,9 @@ import { R2StorageRepository } from '@app/core/domain/storage/r2-storage.reposit
 import { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { TouriiOnchainConstants } from '@app/tourii-onchain/tourii-onchain.constant';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TouriiOnchainConstants } from 'apps/tourii-onchain/src/tourii-onchain.constant';
 
 @Injectable()
 export class PassportMetadataRepositoryImpl implements PassportMetadataRepository {

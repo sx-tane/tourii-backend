@@ -1,7 +1,8 @@
 import { AiRouteGenerationResultDto } from '@app/core/domain/ai-route/ai-route';
-import { AiRouteRecommendationBuilder } from '../ai-route-recommendation.mapper';
+import { Logger } from '@nestjs/common';
+import { AiRouteRecommendationConverter } from '../ai-route-recommendation.converter';
 
-describe('AiRouteRecommendationMapper', () => {
+describe('AiRouteRecommendationConverter', () => {
     const mockGeneratedRoute = {
         modelRoute: {
             modelRouteId: 'route-123',
@@ -60,7 +61,7 @@ describe('AiRouteRecommendationMapper', () => {
             const searchKeywords = ['anime', 'animation'];
             const aiAvailable = true;
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 mockResult as unknown as AiRouteGenerationResultDto,
                 searchKeywords,
                 aiAvailable,
@@ -165,7 +166,7 @@ describe('AiRouteRecommendationMapper', () => {
                 },
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 incompleteResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 false,
@@ -209,7 +210,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 multipleRoutesResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 true,
@@ -229,7 +230,7 @@ describe('AiRouteRecommendationMapper', () => {
                 },
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 emptyResult as unknown as AiRouteGenerationResultDto,
                 ['nonexistent'],
                 true,
@@ -262,7 +263,7 @@ describe('AiRouteRecommendationMapper', () => {
 
             const searchKeywords = ['anime', 'Culture', 'food', 'nonmatch'];
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 testResult as unknown as AiRouteGenerationResultDto,
                 searchKeywords,
                 true,
@@ -294,7 +295,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 testResult as unknown as AiRouteGenerationResultDto,
                 ['animation', 'SCENIC'],
                 true,
@@ -323,7 +324,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 testResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 true,
@@ -347,7 +348,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: customSummary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 customResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 false,
@@ -373,7 +374,7 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationBuilder.toResponseDto(
+                AiRouteRecommendationConverter.toResponseDto(
                     invalidResult as unknown as AiRouteGenerationResultDto,
                     ['test'],
                     true,
@@ -401,7 +402,7 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             const startTime = Date.now();
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 largeResult as unknown as AiRouteGenerationResultDto,
                 ['common'],
                 true,
@@ -427,7 +428,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 testResult as unknown as AiRouteGenerationResultDto,
                 ['test'],
                 true,
@@ -455,7 +456,7 @@ describe('AiRouteRecommendationMapper', () => {
                 summary: mockResult.summary,
             };
 
-            const result = AiRouteRecommendationBuilder.toResponseDto(
+            const result = AiRouteRecommendationConverter.toResponseDto(
                 testResult as unknown as AiRouteGenerationResultDto,
                 ['animation', 'culture'],
                 true,
@@ -468,7 +469,7 @@ describe('AiRouteRecommendationMapper', () => {
 
     describe('Error Handling', () => {
         it('should log errors during mapping', () => {
-            const loggerSpy = jest.spyOn(AiRouteRecommendationBuilder['logger'], 'error');
+            const loggerSpy = jest.spyOn(Logger, 'error').mockImplementation();
 
             const invalidResult = {
                 generatedRoutes: [null],
@@ -476,7 +477,7 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationBuilder.toResponseDto(
+                AiRouteRecommendationConverter.toResponseDto(
                     invalidResult as unknown as AiRouteGenerationResultDto,
                     ['test'],
                     true,
@@ -490,6 +491,8 @@ describe('AiRouteRecommendationMapper', () => {
                     routesCount: 1,
                 }),
             );
+
+            loggerSpy.mockRestore();
         });
 
         it('should preserve original error when mapping fails', () => {
@@ -505,7 +508,7 @@ describe('AiRouteRecommendationMapper', () => {
             };
 
             expect(() => {
-                AiRouteRecommendationBuilder.toResponseDto(
+                AiRouteRecommendationConverter.toResponseDto(
                     invalidResult as unknown as AiRouteGenerationResultDto,
                     ['test'],
                     true,

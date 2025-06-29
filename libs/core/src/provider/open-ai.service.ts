@@ -165,7 +165,10 @@ Guidelines:
             );
             const recommendations = Array.isArray(parsed.recommendations)
                 ? parsed.recommendations.slice(0, 5).map((r: unknown) => String(r).trim())
-                : RouteRecommendation.generateFallbackRecommendations(request.userKeywords, request.cluster.spots);
+                : RouteRecommendation.generateFallbackRecommendations(
+                      request.userKeywords,
+                      request.cluster.spots,
+                  );
             const estimatedDuration = ValidateUtil.validateAndCleanString(
                 parsed.estimatedDuration,
                 20,
@@ -222,5 +225,4 @@ Guidelines:
             confidenceScore: 0.6, // Lower confidence for fallback content
         };
     }
-
 }
