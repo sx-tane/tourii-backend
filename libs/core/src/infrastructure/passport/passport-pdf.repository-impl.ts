@@ -28,7 +28,8 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
         private readonly config: ConfigService,
     ) {
         // Default to 24 hours if not configured
-        this.pdfQrTokenExpirationHours = this.config.get<number>('PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS') || 24;
+        this.pdfQrTokenExpirationHours =
+            this.config.get<number>('PASSPORT_PDF_QR_TOKEN_EXPIRATION_HOURS') || 24;
     }
 
     async generatePdf(tokenId: string): Promise<PassportPdfData> {
@@ -38,10 +39,15 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
             // TODO: Remove this hardcoded mock and implement proper metadata generation
             // This is a temporary solution for testing without database setup
             if (this.isMockTokenId(tokenId)) {
-                this.logger.log(`Using hardcoded mock response for PDF passport token ID: ${tokenId}`);
+                this.logger.log(
+                    `Using hardcoded mock response for PDF passport token ID: ${tokenId}`,
+                );
 
                 // Generate QR code token for mock
-                const qrToken = this.jwtRepository.generateQrToken(tokenId, this.pdfQrTokenExpirationHours);
+                const qrToken = this.jwtRepository.generateQrToken(
+                    tokenId,
+                    this.pdfQrTokenExpirationHours,
+                );
 
                 // Generate QR code image
                 const qrCodeDataUrl = await QRCode.toDataURL(qrToken, {
@@ -57,7 +63,11 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                 const mockMetadata = this.getMockMetadata(tokenId);
 
                 // Generate PDF with mock data
-                const pdfBuffer = await this.generatePdfFromTemplate(mockMetadata, qrCodeDataUrl, tokenId);
+                const pdfBuffer = await this.generatePdfFromTemplate(
+                    mockMetadata,
+                    qrCodeDataUrl,
+                    tokenId,
+                );
 
                 const expiresAt = new Date();
                 expiresAt.setHours(expiresAt.getHours() + 24);
@@ -71,7 +81,10 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
             }
 
             // Generate QR code token
-            const qrToken = this.jwtRepository.generateQrToken(tokenId, this.pdfQrTokenExpirationHours);
+            const qrToken = this.jwtRepository.generateQrToken(
+                tokenId,
+                this.pdfQrTokenExpirationHours,
+            );
 
             // Generate QR code image
             const qrCodeDataUrl = await QRCode.toDataURL(qrToken, {
@@ -452,7 +465,17 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
      * Check if token ID is a mock/test token
      */
     private isMockTokenId(tokenId: string): boolean {
-        const mockTokenIds = ['123', '456', '789', 'test-user-1', 'test-user-2', 'test-user-3', 'alice', 'bob', 'charlie'];
+        const mockTokenIds = [
+            '123',
+            '456',
+            '789',
+            'test-user-1',
+            'test-user-2',
+            'test-user-3',
+            'alice',
+            'bob',
+            'charlie',
+        ];
         return mockTokenIds.includes(tokenId);
     }
 
@@ -509,8 +532,8 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                     { trait_type: 'CardKanji', value: '人' },
                 ],
             },
-            'alice': {
-                name: 'Alice\'s Travel Pass',
+            alice: {
+                name: "Alice's Travel Pass",
                 description: 'Explorer and Adventure Seeker',
                 image: 'https://example.com/alice-passport.png',
                 attributes: [
@@ -525,8 +548,8 @@ export class PassportPdfRepositoryImpl implements PassportPdfRepository {
                     { trait_type: 'CardKanji', value: '精' },
                 ],
             },
-            'bob': {
-                name: 'Bob\'s Digital ID',
+            bob: {
+                name: "Bob's Digital ID",
                 description: 'Tech Enthusiast Traveler',
                 image: 'https://example.com/bob-passport.png',
                 attributes: [

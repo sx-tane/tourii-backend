@@ -6,6 +6,7 @@ import type { TouriiBackendAppErrorType } from './tourii-backend-app-error-type'
 export interface ErrorMetadata {
     apiKey?: { valid: boolean };
     statusCode?: number;
+    originalError?: string;
 }
 
 export class ApiAppError implements AppError {

@@ -67,7 +67,7 @@
         },
         "summary": "Health Check",
         "tags": [
-          "Health Check"
+          "System Health"
         ]
       }
     },
@@ -5833,6 +5833,10 @@
                   "description": "URL to the region's cover media",
                   "type": "string"
                 },
+                "isAiGenerated": {
+                  "description": "Whether the model route was AI-generated",
+                  "type": "boolean"
+                },
                 "touristSpotList": {
                   "description": "List of tourist spots in the model route",
                   "type": "array",
@@ -6017,6 +6021,7 @@
                 "regionLatitude",
                 "regionLongitude",
                 "regionBackgroundMedia",
+                "isAiGenerated",
                 "touristSpotList",
                 "regionWeatherInfo"
               ]
@@ -6059,13 +6064,63 @@
         },
         "summary": "Create Model Route",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       },
       "get": {
-        "description": "Retrieve a list of all available model routes with their details.",
+        "description": "Retrieve model routes with optional filtering by AI-generated status, region, user, and pagination support.",
         "operationId": "TouriiBackendController_getRoutes",
         "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of routes to skip for pagination (default: 0)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of routes to return (1-100, default: 20)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter routes created by specific user ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "required": false,
+            "in": "query",
+            "description": "Filter routes by region name (case-insensitive partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "required": false,
+            "in": "query",
+            "description": "Filter routes by source: ai (AI-generated), manual (user-created), or all (default: all)",
+            "schema": {
+              "enum": [
+                "ai",
+                "manual",
+                "all"
+              ],
+              "type": "string"
+            }
+          },
           {
             "name": "accept-version",
             "in": "header",
@@ -6087,7 +6142,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all model routes",
+            "description": "Successfully retrieved model routes",
             "schema": {
               "type": "array",
               "items": {
@@ -6131,6 +6186,10 @@
                   "regionBackgroundMedia": {
                     "description": "URL to the region's cover media",
                     "type": "string"
+                  },
+                  "isAiGenerated": {
+                    "description": "Whether the model route was AI-generated",
+                    "type": "boolean"
                   },
                   "touristSpotList": {
                     "description": "List of tourist spots in the model route",
@@ -6316,6 +6375,7 @@
                   "regionLatitude",
                   "regionLongitude",
                   "regionBackgroundMedia",
+                  "isAiGenerated",
                   "touristSpotList",
                   "regionWeatherInfo"
                 ]
@@ -6360,9 +6420,9 @@
             "description": ""
           }
         },
-        "summary": "Get All Model Routes",
+        "summary": "Get Model Routes with Filtering and Pagination",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -6628,7 +6688,1350 @@
         },
         "summary": "Create Tourist Spot",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
+        ]
+      }
+    },
+    "/tourist-spots": {
+      "post": {
+        "description": "Create a standalone tourist spot without associating it to a specific route. This allows creating individual tourist spots that can later be added to multiple routes or used independently.",
+        "operationId": "TouriiBackendController_createStandaloneTouristSpot",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Standalone tourist spot creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter. Leave undefined to skip story chapter linking.",
+                    "type": "string"
+                  },
+                  "touristSpotName": {
+                    "description": "Name of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotDesc": {
+                    "description": "Description of the tourist spot",
+                    "type": "string"
+                  },
+                  "bestVisitTime": {
+                    "description": "Best visit time of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotHashtag": {
+                    "description": "Hashtags associated with this location",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "imageSet": {
+                    "description": "Image set for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "main": {
+                        "description": "Main image of the tourist spot",
+                        "type": "string"
+                      },
+                      "small": {
+                        "description": "Small images of the tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "main",
+                      "small"
+                    ]
+                  },
+                  "address": {
+                    "description": "Address for enhanced search accuracy",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "touristSpotName",
+                  "touristSpotDesc",
+                  "bestVisitTime",
+                  "touristSpotHashtag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created standalone tourist spot",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "touristSpotId": {
+                  "description": "Unique identifier for the tourist spot",
+                  "type": "string"
+                },
+                "storyChapterId": {
+                  "description": "Unique identifier for the story chapter",
+                  "type": "string"
+                },
+                "touristSpotName": {
+                  "description": "Name of the tourist spot",
+                  "type": "string"
+                },
+                "touristSpotDesc": {
+                  "description": "Description of the tourist spot",
+                  "type": "string"
+                },
+                "bestVisitTime": {
+                  "description": "Best visit time of the tourist spot",
+                  "type": "string"
+                },
+                "address": {
+                  "description": "Address of the tourist spot",
+                  "type": "string"
+                },
+                "touristSpotLatitude": {
+                  "description": "Latitude of the tourist spot",
+                  "type": "number"
+                },
+                "touristSpotLongitude": {
+                  "description": "Longitude of the tourist spot",
+                  "type": "number"
+                },
+                "touristSpotHashtag": {
+                  "description": "Hashtags associated with this location",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "storyChapterLink": {
+                  "description": "Link to the related story chapter",
+                  "type": "string"
+                },
+                "imageSet": {
+                  "description": "Image set for the tourist spot",
+                  "type": "object",
+                  "properties": {
+                    "main": {
+                      "description": "Main image of the tourist spot",
+                      "type": "string"
+                    },
+                    "small": {
+                      "description": "Small images of the tourist spot",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "main",
+                    "small"
+                  ]
+                },
+                "weatherInfo": {
+                  "description": "Weather info for the tourist spot",
+                  "type": "object",
+                  "properties": {
+                    "temperatureCelsius": {
+                      "description": "Temperature of the weather",
+                      "type": "number"
+                    },
+                    "weatherName": {
+                      "description": "Name of the weather",
+                      "type": "string"
+                    },
+                    "weatherDesc": {
+                      "description": "Description of the weather",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "temperatureCelsius",
+                    "weatherName",
+                    "weatherDesc"
+                  ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "touristSpotId",
+                "touristSpotName",
+                "touristSpotDesc",
+                "bestVisitTime",
+                "address",
+                "touristSpotLatitude",
+                "touristSpotLongitude",
+                "touristSpotHashtag"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TouristSpotResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Create Standalone Tourist Spot",
+        "tags": [
+          "Routes & Tourist Spots"
+        ]
+      }
+    },
+    "/tourist/routes": {
+      "post": {
+        "description": "Create a user-generated tourist route by combining existing tourist spots. Unlike model routes which are predefined, this allows users to create custom routes from available tourist spots.",
+        "operationId": "TouriiBackendController_createTouristRoute",
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "required": true,
+            "in": "header",
+            "description": "User ID for route ownership",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "User tourist route creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "routeName": {
+                    "description": "Name of the tourist route (1-100 characters)",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "regionDesc": {
+                    "description": "Description of the route (1-500 characters)",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "recommendations": {
+                    "description": "List of recommendations for this route (1-10 items)",
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "touristSpotIds": {
+                    "description": "Array of existing tourist spot IDs to include (1-20 spots)",
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "routeName",
+                  "regionDesc",
+                  "recommendations",
+                  "touristSpotIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created user tourist route",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "modelRouteId": {
+                  "description": "Unique identifier for the model route",
+                  "type": "string"
+                },
+                "storyId": {
+                  "description": "Unique identifier for the story (optional for standalone routes)",
+                  "type": "string"
+                },
+                "routeName": {
+                  "description": "Name of the model route",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "Region of the model route",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "Description of the region",
+                  "type": "string"
+                },
+                "recommendation": {
+                  "description": "Recommendation of the model route",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "regionLatitude": {
+                  "description": "Latitude of the region",
+                  "type": "number"
+                },
+                "regionLongitude": {
+                  "description": "Longitude of the region",
+                  "type": "number"
+                },
+                "regionBackgroundMedia": {
+                  "description": "URL to the region's cover media",
+                  "type": "string"
+                },
+                "isAiGenerated": {
+                  "description": "Whether the model route was AI-generated",
+                  "type": "boolean"
+                },
+                "touristSpotList": {
+                  "description": "List of tourist spots in the model route",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "touristSpotId": {
+                        "description": "Unique identifier for the tourist spot",
+                        "type": "string"
+                      },
+                      "storyChapterId": {
+                        "description": "Unique identifier for the story chapter",
+                        "type": "string"
+                      },
+                      "touristSpotName": {
+                        "description": "Name of the tourist spot",
+                        "type": "string"
+                      },
+                      "touristSpotDesc": {
+                        "description": "Description of the tourist spot",
+                        "type": "string"
+                      },
+                      "bestVisitTime": {
+                        "description": "Best visit time of the tourist spot",
+                        "type": "string"
+                      },
+                      "address": {
+                        "description": "Address of the tourist spot",
+                        "type": "string"
+                      },
+                      "touristSpotLatitude": {
+                        "description": "Latitude of the tourist spot",
+                        "type": "number"
+                      },
+                      "touristSpotLongitude": {
+                        "description": "Longitude of the tourist spot",
+                        "type": "number"
+                      },
+                      "touristSpotHashtag": {
+                        "description": "Hashtags associated with this location",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "storyChapterLink": {
+                        "description": "Link to the related story chapter",
+                        "type": "string"
+                      },
+                      "imageSet": {
+                        "description": "Image set for the tourist spot",
+                        "type": "object",
+                        "properties": {
+                          "main": {
+                            "description": "Main image of the tourist spot",
+                            "type": "string"
+                          },
+                          "small": {
+                            "description": "Small images of the tourist spot",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "main",
+                          "small"
+                        ]
+                      },
+                      "weatherInfo": {
+                        "description": "Weather info for the tourist spot",
+                        "type": "object",
+                        "properties": {
+                          "temperatureCelsius": {
+                            "description": "Temperature of the weather",
+                            "type": "number"
+                          },
+                          "weatherName": {
+                            "description": "Name of the weather",
+                            "type": "string"
+                          },
+                          "weatherDesc": {
+                            "description": "Description of the weather",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "temperatureCelsius",
+                          "weatherName",
+                          "weatherDesc"
+                        ]
+                      },
+                      "delFlag": {
+                        "description": "Flag to indicate if the record is deleted",
+                        "type": "boolean"
+                      },
+                      "insUserId": {
+                        "description": "ID of user who created this record",
+                        "type": "string"
+                      },
+                      "insDateTime": {
+                        "description": "Timestamp of record creation",
+                        "type": "string"
+                      },
+                      "updUserId": {
+                        "description": "ID of user who last updated this record",
+                        "type": "string"
+                      },
+                      "updDateTime": {
+                        "description": "Timestamp of last record update",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "touristSpotId",
+                      "touristSpotName",
+                      "touristSpotDesc",
+                      "bestVisitTime",
+                      "address",
+                      "touristSpotLatitude",
+                      "touristSpotLongitude",
+                      "touristSpotHashtag"
+                    ]
+                  }
+                },
+                "regionWeatherInfo": {
+                  "description": "Current weather info for the region",
+                  "type": "object",
+                  "properties": {
+                    "temperatureCelsius": {
+                      "description": "Temperature of the weather",
+                      "type": "number"
+                    },
+                    "weatherName": {
+                      "description": "Name of the weather",
+                      "type": "string"
+                    },
+                    "weatherDesc": {
+                      "description": "Description of the weather",
+                      "type": "string"
+                    },
+                    "regionName": {
+                      "description": "Name of the region",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "temperatureCelsius",
+                    "weatherName",
+                    "weatherDesc",
+                    "regionName"
+                  ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "modelRouteId",
+                "routeName",
+                "region",
+                "regionDesc",
+                "recommendation",
+                "regionLatitude",
+                "regionLongitude",
+                "regionBackgroundMedia",
+                "isAiGenerated",
+                "touristSpotList",
+                "regionWeatherInfo"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRouteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Create User Tourist Route",
+        "tags": [
+          "Routes & Tourist Spots"
+        ]
+      }
+    },
+    "/ai/routes/recommendations": {
+      "post": {
+        "description": "\n            **Create personalized travel routes using AI!**\n            \n            📍 **How it works:**\n            1. Enter keywords (e.g., \"anime\", \"food\", \"nature\", \"temple\")\n            2. AI finds matching tourist spots and groups them by location\n            3. Generates themed routes with names, descriptions, and recommendations\n            \n            💡 **Examples:**\n            - Keywords: [\"anime\", \"tokyo\"] → \"Otaku Paradise Route in Tokyo\"\n            - Keywords: [\"food\", \"osaka\"] → \"Culinary Adventure in Osaka\"\n            - Keywords: [\"temple\", \"kyoto\"] → \"Sacred Journey Through Kyoto\"\n            \n            ⚡ **Perfect for:** Discovering new travel experiences based on your interests!\n        ",
+        "operationId": "TouriiBackendController_generateAiRouteRecommendations",
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Route recommendation request with keywords and preferences",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keywords": {
+                    "description": "Keywords to search for in tourist spot hashtags",
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 50
+                    }
+                  },
+                  "mode": {
+                    "description": "Matching mode: \"all\" requires all keywords, \"any\" requires any keyword",
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "any"
+                    ],
+                    "x-enumNames": [
+                      "ALL",
+                      "ANY"
+                    ],
+                    "default": "any"
+                  },
+                  "region": {
+                    "description": "Region filter",
+                    "type": "string"
+                  },
+                  "proximityRadiusKm": {
+                    "description": "Proximity radius in kilometers for clustering spots",
+                    "type": "number",
+                    "minimum": 1,
+                    "exclusiveMinimum": false,
+                    "maximum": 200,
+                    "exclusiveMaximum": false,
+                    "default": 50
+                  },
+                  "minSpotsPerCluster": {
+                    "description": "Minimum number of spots required to form a cluster",
+                    "type": "number",
+                    "minimum": 1,
+                    "exclusiveMinimum": false,
+                    "maximum": 10,
+                    "exclusiveMaximum": false,
+                    "default": 2
+                  },
+                  "maxSpotsPerCluster": {
+                    "description": "Maximum number of spots allowed in a cluster",
+                    "type": "number",
+                    "minimum": 2,
+                    "exclusiveMinimum": false,
+                    "maximum": 15,
+                    "exclusiveMaximum": false,
+                    "default": 8
+                  },
+                  "maxRoutes": {
+                    "description": "Maximum number of routes to generate",
+                    "type": "number",
+                    "minimum": 1,
+                    "exclusiveMinimum": false,
+                    "maximum": 20,
+                    "exclusiveMaximum": false,
+                    "default": 5
+                  }
+                },
+                "required": [
+                  "keywords",
+                  "region"
+                ],
+                "$ref": "#/components/schemas/AiRouteRecommendationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "AI route recommendations generated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "generatedRoutes": {
+                  "description": "AI-generated routes based on keyword search",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "modelRouteId": {
+                        "description": "Generated model route ID",
+                        "type": "string"
+                      },
+                      "routeName": {
+                        "description": "AI-generated route name",
+                        "type": "string"
+                      },
+                      "regionDesc": {
+                        "description": "AI-generated region description",
+                        "type": "string"
+                      },
+                      "recommendations": {
+                        "description": "AI-generated recommendation hashtags",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "region": {
+                        "description": "Route region",
+                        "type": "string"
+                      },
+                      "regionBackgroundMedia": {
+                        "description": "Background image URL",
+                        "type": "string"
+                      },
+                      "regionLatitude": {
+                        "description": "Center latitude of the route",
+                        "type": "number"
+                      },
+                      "regionLongitude": {
+                        "description": "Center longitude of the route",
+                        "type": "number"
+                      },
+                      "estimatedDuration": {
+                        "description": "AI-estimated duration for the route",
+                        "type": "string"
+                      },
+                      "confidenceScore": {
+                        "description": "AI confidence score (0-1)",
+                        "type": "number",
+                        "minimum": 0,
+                        "exclusiveMinimum": false,
+                        "maximum": 1,
+                        "exclusiveMaximum": false
+                      },
+                      "spotCount": {
+                        "description": "Number of tourist spots in this route",
+                        "type": "number"
+                      },
+                      "averageDistance": {
+                        "description": "Average distance from center in kilometers",
+                        "type": "number"
+                      },
+                      "touristSpots": {
+                        "description": "Tourist spots included in this route",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "touristSpotId": {
+                              "description": "Tourist spot ID",
+                              "type": "string"
+                            },
+                            "touristSpotName": {
+                              "description": "Tourist spot name",
+                              "type": "string"
+                            },
+                            "touristSpotDesc": {
+                              "description": "Tourist spot description",
+                              "type": "string"
+                            },
+                            "latitude": {
+                              "description": "Latitude coordinate",
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "description": "Longitude coordinate",
+                              "type": "number"
+                            },
+                            "touristSpotHashtag": {
+                              "description": "Hashtags for this tourist spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "matchedKeywords": {
+                              "description": "Keywords that matched for this spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "touristSpotId",
+                            "touristSpotName",
+                            "latitude",
+                            "longitude",
+                            "touristSpotHashtag",
+                            "matchedKeywords"
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "description": "Route generation metadata",
+                        "type": "object",
+                        "properties": {
+                          "sourceKeywords": {
+                            "description": "Original search keywords",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "generatedAt": {
+                            "description": "When the route was generated",
+                            "type": "string"
+                          },
+                          "algorithm": {
+                            "description": "Algorithm version used",
+                            "type": "string"
+                          },
+                          "aiGenerated": {
+                            "description": "Indicates this was AI-generated",
+                            "type": "boolean",
+                            "default": true
+                          }
+                        },
+                        "required": [
+                          "sourceKeywords",
+                          "generatedAt",
+                          "algorithm"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "modelRouteId",
+                      "routeName",
+                      "regionDesc",
+                      "recommendations",
+                      "region",
+                      "regionLatitude",
+                      "regionLongitude",
+                      "estimatedDuration",
+                      "confidenceScore",
+                      "spotCount",
+                      "averageDistance",
+                      "touristSpots",
+                      "metadata"
+                    ]
+                  }
+                },
+                "existingRoutes": {
+                  "description": "Existing routes that match the search keywords",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "modelRouteId": {
+                        "description": "Existing model route ID",
+                        "type": "string"
+                      },
+                      "routeName": {
+                        "description": "Route name",
+                        "type": "string"
+                      },
+                      "regionDesc": {
+                        "description": "Region description",
+                        "type": "string"
+                      },
+                      "recommendations": {
+                        "description": "Route recommendation hashtags",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "region": {
+                        "description": "Route region",
+                        "type": "string"
+                      },
+                      "regionLatitude": {
+                        "description": "Center latitude of the route",
+                        "type": "number"
+                      },
+                      "regionLongitude": {
+                        "description": "Center longitude of the route",
+                        "type": "number"
+                      },
+                      "spotCount": {
+                        "description": "Number of tourist spots in this route",
+                        "type": "number"
+                      },
+                      "isAiGenerated": {
+                        "description": "Whether this route was AI-generated",
+                        "type": "boolean"
+                      },
+                      "matchedKeywords": {
+                        "description": "Keywords that matched this route",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "touristSpots": {
+                        "description": "Tourist spots included in this route",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "touristSpotId": {
+                              "description": "Tourist spot ID",
+                              "type": "string"
+                            },
+                            "touristSpotName": {
+                              "description": "Tourist spot name",
+                              "type": "string"
+                            },
+                            "touristSpotDesc": {
+                              "description": "Tourist spot description",
+                              "type": "string"
+                            },
+                            "latitude": {
+                              "description": "Latitude coordinate",
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "description": "Longitude coordinate",
+                              "type": "number"
+                            },
+                            "touristSpotHashtag": {
+                              "description": "Hashtags for this tourist spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "matchedKeywords": {
+                              "description": "Keywords that matched for this spot",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "touristSpotId",
+                            "touristSpotName",
+                            "latitude",
+                            "longitude",
+                            "touristSpotHashtag",
+                            "matchedKeywords"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "modelRouteId",
+                      "routeName",
+                      "recommendations",
+                      "region",
+                      "spotCount",
+                      "isAiGenerated",
+                      "matchedKeywords",
+                      "touristSpots"
+                    ]
+                  }
+                },
+                "summary": {
+                  "description": "Processing summary and statistics",
+                  "type": "object",
+                  "properties": {
+                    "totalSpotsFound": {
+                      "description": "Total tourist spots found matching keywords",
+                      "type": "number"
+                    },
+                    "clustersFormed": {
+                      "description": "Number of geographic clusters formed",
+                      "type": "number"
+                    },
+                    "routesGenerated": {
+                      "description": "Number of AI routes successfully generated",
+                      "type": "number"
+                    },
+                    "existingRoutesFound": {
+                      "description": "Number of existing routes found",
+                      "type": "number"
+                    },
+                    "totalRoutesReturned": {
+                      "description": "Total routes returned (existing + AI)",
+                      "type": "number"
+                    },
+                    "processingTimeMs": {
+                      "description": "Total processing time in milliseconds",
+                      "type": "number"
+                    },
+                    "aiAvailable": {
+                      "description": "Whether AI content generation was available",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "totalSpotsFound",
+                    "clustersFormed",
+                    "routesGenerated",
+                    "processingTimeMs",
+                    "aiAvailable"
+                  ]
+                },
+                "message": {
+                  "description": "Success message",
+                  "type": "string",
+                  "default": "AI route recommendations generated successfully"
+                }
+              },
+              "required": [
+                "generatedRoutes",
+                "summary"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiRouteRecommendationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "429": {
+            "description": "Rate limit exceeded for AI route generation"
+          },
+          "503": {
+            "description": "AI service temporarily unavailable"
+          }
+        },
+        "summary": "🤖 Get AI Travel Route Recommendations",
+        "tags": [
+          "AI Routes"
+        ]
+      }
+    },
+    "/ai/routes/hashtags/available": {
+      "post": {
+        "description": "Discover what keywords you can use for AI route recommendations",
+        "operationId": "TouriiBackendController_getAvailableHashtags",
+        "parameters": [
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "🏷️ Browse Available Keywords & Hashtags",
+        "tags": [
+          "AI Routes"
+        ]
+      }
+    },
+    "/tourist-spots/standalone": {
+      "get": {
+        "description": "Get only standalone tourist spots (not embedded in routes) with pagination support.",
+        "operationId": "TouriiBackendController_getStandaloneTouristSpots",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of tourist spots to skip for pagination (default: 0)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of tourist spots to return (1-100, default: 20)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved standalone tourist spots",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "touristSpotId": {
+                    "description": "Unique identifier for the tourist spot",
+                    "type": "string"
+                  },
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter",
+                    "type": "string"
+                  },
+                  "touristSpotName": {
+                    "description": "Name of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotDesc": {
+                    "description": "Description of the tourist spot",
+                    "type": "string"
+                  },
+                  "bestVisitTime": {
+                    "description": "Best visit time of the tourist spot",
+                    "type": "string"
+                  },
+                  "address": {
+                    "description": "Address of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotLatitude": {
+                    "description": "Latitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotLongitude": {
+                    "description": "Longitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotHashtag": {
+                    "description": "Hashtags associated with this location",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "storyChapterLink": {
+                    "description": "Link to the related story chapter",
+                    "type": "string"
+                  },
+                  "imageSet": {
+                    "description": "Image set for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "main": {
+                        "description": "Main image of the tourist spot",
+                        "type": "string"
+                      },
+                      "small": {
+                        "description": "Small images of the tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "main",
+                      "small"
+                    ]
+                  },
+                  "weatherInfo": {
+                    "description": "Weather info for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "temperatureCelsius": {
+                        "description": "Temperature of the weather",
+                        "type": "number"
+                      },
+                      "weatherName": {
+                        "description": "Name of the weather",
+                        "type": "string"
+                      },
+                      "weatherDesc": {
+                        "description": "Description of the weather",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "temperatureCelsius",
+                      "weatherName",
+                      "weatherDesc"
+                    ]
+                  },
+                  "delFlag": {
+                    "description": "Flag to indicate if the record is deleted",
+                    "type": "boolean"
+                  },
+                  "insUserId": {
+                    "description": "ID of user who created this record",
+                    "type": "string"
+                  },
+                  "insDateTime": {
+                    "description": "Timestamp of record creation",
+                    "type": "string"
+                  },
+                  "updUserId": {
+                    "description": "ID of user who last updated this record",
+                    "type": "string"
+                  },
+                  "updDateTime": {
+                    "description": "Timestamp of last record update",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "touristSpotId",
+                  "touristSpotName",
+                  "touristSpotDesc",
+                  "bestVisitTime",
+                  "address",
+                  "touristSpotLatitude",
+                  "touristSpotLongitude",
+                  "touristSpotHashtag"
+                ]
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TouristSpotResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Get Standalone Tourist Spots",
+        "tags": [
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -6842,6 +8245,10 @@
                   "description": "URL to the region's cover media",
                   "type": "string"
                 },
+                "isAiGenerated": {
+                  "description": "Whether the model route was AI-generated",
+                  "type": "boolean"
+                },
                 "touristSpotList": {
                   "description": "List of tourist spots in the model route",
                   "type": "array",
@@ -7026,6 +8433,7 @@
                 "regionLatitude",
                 "regionLongitude",
                 "regionBackgroundMedia",
+                "isAiGenerated",
                 "touristSpotList",
                 "regionWeatherInfo"
               ]
@@ -7068,7 +8476,7 @@
         },
         "summary": "Update Model Route",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -7341,19 +8749,56 @@
         },
         "summary": "Update Tourist Spot",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
-    "/routes/{routeId}": {
-      "delete": {
-        "description": "Delete an existing model route.",
-        "operationId": "TouriiBackendController_deleteModelRoute",
+    "/tourist-spots/search": {
+      "get": {
+        "description": "Server-side search with filters for performance. Search in name, description, address, and hashtags.",
+        "operationId": "TouriiBackendController_searchTouristSpots",
         "parameters": [
           {
-            "name": "routeId",
-            "required": true,
-            "in": "path",
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of tourist spots to skip for pagination (default: 0)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of tourist spots to return (1-100, default: 20)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hashtags",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated hashtags to filter by (e.g., \"food,shrine,nature\")",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location",
+            "required": false,
+            "in": "query",
+            "description": "Search in address and location data (case-insensitive partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "required": false,
+            "in": "query",
+            "description": "Search in tourist spot name and description (case-insensitive partial match)",
             "schema": {
               "type": "string"
             }
@@ -7378,8 +8823,143 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Model route deleted"
+          "200": {
+            "description": "Successfully retrieved tourist spots matching search criteria",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "touristSpotId": {
+                    "description": "Unique identifier for the tourist spot",
+                    "type": "string"
+                  },
+                  "storyChapterId": {
+                    "description": "Unique identifier for the story chapter",
+                    "type": "string"
+                  },
+                  "touristSpotName": {
+                    "description": "Name of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotDesc": {
+                    "description": "Description of the tourist spot",
+                    "type": "string"
+                  },
+                  "bestVisitTime": {
+                    "description": "Best visit time of the tourist spot",
+                    "type": "string"
+                  },
+                  "address": {
+                    "description": "Address of the tourist spot",
+                    "type": "string"
+                  },
+                  "touristSpotLatitude": {
+                    "description": "Latitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotLongitude": {
+                    "description": "Longitude of the tourist spot",
+                    "type": "number"
+                  },
+                  "touristSpotHashtag": {
+                    "description": "Hashtags associated with this location",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "storyChapterLink": {
+                    "description": "Link to the related story chapter",
+                    "type": "string"
+                  },
+                  "imageSet": {
+                    "description": "Image set for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "main": {
+                        "description": "Main image of the tourist spot",
+                        "type": "string"
+                      },
+                      "small": {
+                        "description": "Small images of the tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "main",
+                      "small"
+                    ]
+                  },
+                  "weatherInfo": {
+                    "description": "Weather info for the tourist spot",
+                    "type": "object",
+                    "properties": {
+                      "temperatureCelsius": {
+                        "description": "Temperature of the weather",
+                        "type": "number"
+                      },
+                      "weatherName": {
+                        "description": "Name of the weather",
+                        "type": "string"
+                      },
+                      "weatherDesc": {
+                        "description": "Description of the weather",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "temperatureCelsius",
+                      "weatherName",
+                      "weatherDesc"
+                    ]
+                  },
+                  "delFlag": {
+                    "description": "Flag to indicate if the record is deleted",
+                    "type": "boolean"
+                  },
+                  "insUserId": {
+                    "description": "ID of user who created this record",
+                    "type": "string"
+                  },
+                  "insDateTime": {
+                    "description": "Timestamp of record creation",
+                    "type": "string"
+                  },
+                  "updUserId": {
+                    "description": "ID of user who last updated this record",
+                    "type": "string"
+                  },
+                  "updDateTime": {
+                    "description": "Timestamp of last record update",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "touristSpotId",
+                  "touristSpotName",
+                  "touristSpotDesc",
+                  "bestVisitTime",
+                  "address",
+                  "touristSpotLatitude",
+                  "touristSpotLongitude",
+                  "touristSpotHashtag"
+                ]
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TouristSpotResponseDto"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request - Invalid version format",
@@ -7409,21 +8989,22 @@
             "description": ""
           }
         },
-        "summary": "Delete Model Route",
+        "summary": "Search Tourist Spots",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
-    "/routes/tourist-spots/{touristSpotId}": {
-      "delete": {
-        "description": "Delete a tourist spot.",
-        "operationId": "TouriiBackendController_deleteTouristSpot",
+    "/tourist-spots/{touristSpotId}": {
+      "get": {
+        "description": "Get specific tourist spot by ID without searching through routes.",
+        "operationId": "TouriiBackendController_getTouristSpotById",
         "parameters": [
           {
             "name": "touristSpotId",
             "required": true,
             "in": "path",
+            "description": "Tourist spot ID",
             "schema": {
               "type": "string"
             }
@@ -7448,8 +9029,137 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Tourist spot deleted"
+          "200": {
+            "description": "Successfully retrieved tourist spot",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "touristSpotId": {
+                  "description": "Unique identifier for the tourist spot",
+                  "type": "string"
+                },
+                "storyChapterId": {
+                  "description": "Unique identifier for the story chapter",
+                  "type": "string"
+                },
+                "touristSpotName": {
+                  "description": "Name of the tourist spot",
+                  "type": "string"
+                },
+                "touristSpotDesc": {
+                  "description": "Description of the tourist spot",
+                  "type": "string"
+                },
+                "bestVisitTime": {
+                  "description": "Best visit time of the tourist spot",
+                  "type": "string"
+                },
+                "address": {
+                  "description": "Address of the tourist spot",
+                  "type": "string"
+                },
+                "touristSpotLatitude": {
+                  "description": "Latitude of the tourist spot",
+                  "type": "number"
+                },
+                "touristSpotLongitude": {
+                  "description": "Longitude of the tourist spot",
+                  "type": "number"
+                },
+                "touristSpotHashtag": {
+                  "description": "Hashtags associated with this location",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "storyChapterLink": {
+                  "description": "Link to the related story chapter",
+                  "type": "string"
+                },
+                "imageSet": {
+                  "description": "Image set for the tourist spot",
+                  "type": "object",
+                  "properties": {
+                    "main": {
+                      "description": "Main image of the tourist spot",
+                      "type": "string"
+                    },
+                    "small": {
+                      "description": "Small images of the tourist spot",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "main",
+                    "small"
+                  ]
+                },
+                "weatherInfo": {
+                  "description": "Weather info for the tourist spot",
+                  "type": "object",
+                  "properties": {
+                    "temperatureCelsius": {
+                      "description": "Temperature of the weather",
+                      "type": "number"
+                    },
+                    "weatherName": {
+                      "description": "Name of the weather",
+                      "type": "string"
+                    },
+                    "weatherDesc": {
+                      "description": "Description of the weather",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "temperatureCelsius",
+                    "weatherName",
+                    "weatherDesc"
+                  ]
+                },
+                "delFlag": {
+                  "description": "Flag to indicate if the record is deleted",
+                  "type": "boolean"
+                },
+                "insUserId": {
+                  "description": "ID of user who created this record",
+                  "type": "string"
+                },
+                "insDateTime": {
+                  "description": "Timestamp of record creation",
+                  "type": "string"
+                },
+                "updUserId": {
+                  "description": "ID of user who last updated this record",
+                  "type": "string"
+                },
+                "updDateTime": {
+                  "description": "Timestamp of last record update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "touristSpotId",
+                "touristSpotName",
+                "touristSpotDesc",
+                "bestVisitTime",
+                "address",
+                "touristSpotLatitude",
+                "touristSpotLongitude",
+                "touristSpotHashtag"
+              ]
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TouristSpotResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request - Invalid version format",
@@ -7477,11 +9187,14 @@
           },
           "401": {
             "description": ""
+          },
+          "404": {
+            "description": "Tourist spot not found"
           }
         },
-        "summary": "Delete Tourist Spot",
+        "summary": "Get Tourist Spot by ID",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -7686,7 +9399,7 @@
         },
         "summary": "Get Tourist Spots by Story Chapter",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -7766,6 +9479,10 @@
                 "regionBackgroundMedia": {
                   "description": "URL to the region's cover media",
                   "type": "string"
+                },
+                "isAiGenerated": {
+                  "description": "Whether the model route was AI-generated",
+                  "type": "boolean"
                 },
                 "touristSpotList": {
                   "description": "List of tourist spots in the model route",
@@ -7951,6 +9668,7 @@
                 "regionLatitude",
                 "regionLongitude",
                 "regionBackgroundMedia",
+                "isAiGenerated",
                 "touristSpotList",
                 "regionWeatherInfo"
               ]
@@ -7993,7 +9711,7 @@
         },
         "summary": "Get Model Route by ID",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -8168,7 +9886,147 @@
         },
         "summary": "Get Location Info",
         "tags": [
-          "Routes"
+          "Routes & Tourist Spots"
+        ]
+      }
+    },
+    "/routes/{routeId}": {
+      "delete": {
+        "description": "Delete an existing model route.",
+        "operationId": "TouriiBackendController_deleteModelRoute",
+        "parameters": [
+          {
+            "name": "routeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Model route deleted"
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Delete Model Route",
+        "tags": [
+          "Routes & Tourist Spots"
+        ]
+      }
+    },
+    "/routes/tourist-spots/{touristSpotId}": {
+      "delete": {
+        "description": "Delete a tourist spot.",
+        "operationId": "TouriiBackendController_deleteTouristSpot",
+        "parameters": [
+          {
+            "name": "touristSpotId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-version",
+            "in": "header",
+            "description": "API version (e.g., 1.0.0)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Tourist spot deleted"
+          },
+          "400": {
+            "description": "Bad Request - Invalid version format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "E_TB_021"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid version format"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BAD_REQUEST"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Delete Tourist Spot",
+        "tags": [
+          "Routes & Tourist Spots"
         ]
       }
     },
@@ -8660,7 +10518,7 @@
         },
         "summary": "Get quest with pagination",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       },
       "post": {
@@ -9172,7 +11030,7 @@
         },
         "summary": "Create Quest",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -9589,7 +11447,7 @@
         },
         "summary": "Get quest by ID",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       },
       "delete": {
@@ -9657,7 +11515,7 @@
         },
         "summary": "Delete Quest",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -10098,7 +11956,7 @@
         },
         "summary": "Get Quests by Tourist Spot",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -10401,7 +12259,7 @@
         },
         "summary": "Create Quest Task",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11038,7 +12896,7 @@
         },
         "summary": "Update Quest",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11348,7 +13206,7 @@
         },
         "summary": "Update Quest Task",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11418,7 +13276,7 @@
         },
         "summary": "Delete Quest Task",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11534,7 +13392,7 @@
         },
         "summary": "Get Group Members",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11651,7 +13509,7 @@
         },
         "summary": "Start Group Quest",
         "tags": [
-          "Quest"
+          "Quests"
         ]
       }
     },
@@ -11777,7 +13635,7 @@
         },
         "summary": "Upload task photo",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -11909,7 +13767,7 @@
         },
         "summary": "Complete social sharing task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12055,7 +13913,7 @@
         },
         "summary": "Complete QR scan task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12183,7 +14041,7 @@
         },
         "summary": "Submit answer text task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12314,7 +14172,7 @@
         },
         "summary": "Submit select option task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12447,7 +14305,7 @@
         },
         "summary": "Submit checkin task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12713,7 +14571,7 @@
         },
         "summary": "Submit local interaction task",
         "tags": [
-          "Task"
+          "Tasks"
         ]
       }
     },
@@ -12867,7 +14725,7 @@
         },
         "summary": "Get latest moments",
         "tags": [
-          "Moment"
+          "Moments"
         ]
       }
     },
@@ -13024,7 +14882,7 @@
         },
         "summary": "Get homepage highlights",
         "tags": [
-          "Homepage"
+          "Homepage Data"
         ]
       }
     },
@@ -13086,7 +14944,10 @@
             "description": "Passport not found"
           }
         },
-        "summary": "Generate Digital Passport PDF"
+        "summary": "Generate Digital Passport PDF",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/refresh/{tokenId}": {
@@ -13110,7 +14971,10 @@
             "description": "Passport refreshed successfully"
           }
         },
-        "summary": "Refresh Passport with New Achievements"
+        "summary": "Refresh Passport with New Achievements",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/preview/{tokenId}": {
@@ -13142,7 +15006,10 @@
             }
           }
         },
-        "summary": "Generate Passport Preview"
+        "summary": "Generate Passport Preview",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/download/{tokenId}": {
@@ -13174,7 +15041,10 @@
             }
           }
         },
-        "summary": "Download Passport PDF"
+        "summary": "Download Passport PDF",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/verify/{verificationCode}": {
@@ -13232,7 +15102,10 @@
             "description": ""
           }
         },
-        "summary": "Verify Passport Token"
+        "summary": "Verify Passport Token",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/verify/batch": {
@@ -13289,7 +15162,10 @@
             "description": ""
           }
         },
-        "summary": "Batch Verify Multiple Passports"
+        "summary": "Batch Verify Multiple Passports",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/verify/qr/{qrCode}": {
@@ -13347,7 +15223,10 @@
             "description": ""
           }
         },
-        "summary": "Verify QR Code"
+        "summary": "Verify QR Code",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/verify/stats/{tokenId}": {
@@ -13405,7 +15284,10 @@
             "description": ""
           }
         },
-        "summary": "Get Verification Statistics"
+        "summary": "Get Verification Statistics",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/{tokenId}/wallet/apple": {
@@ -13466,7 +15348,10 @@
             "description": "Passport not found"
           }
         },
-        "summary": "Generate Apple Wallet Pass"
+        "summary": "Generate Apple Wallet Pass",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/{tokenId}/wallet/google": {
@@ -13527,7 +15412,10 @@
             "description": "Passport not found"
           }
         },
-        "summary": "Generate Google Pay Pass"
+        "summary": "Generate Google Pay Pass",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/{tokenId}/wallet/both": {
@@ -13588,7 +15476,10 @@
             "description": "Passport not found"
           }
         },
-        "summary": "Generate Both Wallet Passes"
+        "summary": "Generate Both Wallet Passes",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/{tokenId}/wallet/update": {
@@ -13659,7 +15550,10 @@
             "description": "Passport not found"
           }
         },
-        "summary": "Update Wallet Pass"
+        "summary": "Update Wallet Pass",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/api/passport/validate/{tokenId}": {
@@ -13717,7 +15611,10 @@
             "description": ""
           }
         },
-        "summary": "Validate Token ID"
+        "summary": "Validate Token ID",
+        "tags": [
+          "Passport"
+        ]
       }
     },
     "/test/headers": {
@@ -13812,7 +15709,7 @@
         },
         "summary": "Test Security Headers",
         "tags": [
-          "Security Tests"
+          "Testing"
         ]
       }
     },
@@ -13923,7 +15820,7 @@
         },
         "summary": "Test Rate Limiting",
         "tags": [
-          "Security Tests"
+          "Testing"
         ]
       }
     },
@@ -13995,7 +15892,7 @@
         },
         "summary": "Test API Key Validation",
         "tags": [
-          "Security Tests"
+          "Testing"
         ]
       }
     },
@@ -14091,7 +15988,7 @@
         },
         "summary": "Test Version Validation",
         "tags": [
-          "Security Tests"
+          "Testing"
         ]
       }
     }
@@ -15399,6 +17296,10 @@
             "description": "URL to the region's cover media",
             "type": "string"
           },
+          "isAiGenerated": {
+            "description": "Whether the model route was AI-generated",
+            "type": "boolean"
+          },
           "touristSpotList": {
             "description": "List of tourist spots in the model route",
             "type": "array",
@@ -15583,6 +17484,7 @@
           "regionLatitude",
           "regionLongitude",
           "regionBackgroundMedia",
+          "isAiGenerated",
           "touristSpotList",
           "regionWeatherInfo"
         ]
@@ -20599,6 +22501,411 @@
         "required": [
           "valid",
           "tokenId"
+        ]
+      },
+      "AiRouteRecommendationRequestDto": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "description": "Keywords to search for in tourist spot hashtags",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            }
+          },
+          "mode": {
+            "description": "Matching mode: \"all\" requires all keywords, \"any\" requires any keyword",
+            "type": "string",
+            "enum": [
+              "all",
+              "any"
+            ],
+            "x-enumNames": [
+              "ALL",
+              "ANY"
+            ],
+            "default": "any"
+          },
+          "region": {
+            "description": "Region filter",
+            "type": "string"
+          },
+          "proximityRadiusKm": {
+            "description": "Proximity radius in kilometers for clustering spots",
+            "type": "number",
+            "minimum": 1,
+            "exclusiveMinimum": false,
+            "maximum": 200,
+            "exclusiveMaximum": false,
+            "default": 50
+          },
+          "minSpotsPerCluster": {
+            "description": "Minimum number of spots required to form a cluster",
+            "type": "number",
+            "minimum": 1,
+            "exclusiveMinimum": false,
+            "maximum": 10,
+            "exclusiveMaximum": false,
+            "default": 2
+          },
+          "maxSpotsPerCluster": {
+            "description": "Maximum number of spots allowed in a cluster",
+            "type": "number",
+            "minimum": 2,
+            "exclusiveMinimum": false,
+            "maximum": 15,
+            "exclusiveMaximum": false,
+            "default": 8
+          },
+          "maxRoutes": {
+            "description": "Maximum number of routes to generate",
+            "type": "number",
+            "minimum": 1,
+            "exclusiveMinimum": false,
+            "maximum": 20,
+            "exclusiveMaximum": false,
+            "default": 5
+          }
+        },
+        "required": [
+          "keywords",
+          "region"
+        ]
+      },
+      "AiRouteRecommendationResponseDto": {
+        "type": "object",
+        "properties": {
+          "generatedRoutes": {
+            "description": "AI-generated routes based on keyword search",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "modelRouteId": {
+                  "description": "Generated model route ID",
+                  "type": "string"
+                },
+                "routeName": {
+                  "description": "AI-generated route name",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "AI-generated region description",
+                  "type": "string"
+                },
+                "recommendations": {
+                  "description": "AI-generated recommendation hashtags",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "region": {
+                  "description": "Route region",
+                  "type": "string"
+                },
+                "regionBackgroundMedia": {
+                  "description": "Background image URL",
+                  "type": "string"
+                },
+                "regionLatitude": {
+                  "description": "Center latitude of the route",
+                  "type": "number"
+                },
+                "regionLongitude": {
+                  "description": "Center longitude of the route",
+                  "type": "number"
+                },
+                "estimatedDuration": {
+                  "description": "AI-estimated duration for the route",
+                  "type": "string"
+                },
+                "confidenceScore": {
+                  "description": "AI confidence score (0-1)",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": false,
+                  "maximum": 1,
+                  "exclusiveMaximum": false
+                },
+                "spotCount": {
+                  "description": "Number of tourist spots in this route",
+                  "type": "number"
+                },
+                "averageDistance": {
+                  "description": "Average distance from center in kilometers",
+                  "type": "number"
+                },
+                "touristSpots": {
+                  "description": "Tourist spots included in this route",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "touristSpotName": {
+                        "description": "Tourist spot name",
+                        "type": "string"
+                      },
+                      "touristSpotDesc": {
+                        "description": "Tourist spot description",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Latitude coordinate",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Longitude coordinate",
+                        "type": "number"
+                      },
+                      "touristSpotHashtag": {
+                        "description": "Hashtags for this tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "matchedKeywords": {
+                        "description": "Keywords that matched for this spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "touristSpotId",
+                      "touristSpotName",
+                      "latitude",
+                      "longitude",
+                      "touristSpotHashtag",
+                      "matchedKeywords"
+                    ]
+                  }
+                },
+                "metadata": {
+                  "description": "Route generation metadata",
+                  "type": "object",
+                  "properties": {
+                    "sourceKeywords": {
+                      "description": "Original search keywords",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "generatedAt": {
+                      "description": "When the route was generated",
+                      "type": "string"
+                    },
+                    "algorithm": {
+                      "description": "Algorithm version used",
+                      "type": "string"
+                    },
+                    "aiGenerated": {
+                      "description": "Indicates this was AI-generated",
+                      "type": "boolean",
+                      "default": true
+                    }
+                  },
+                  "required": [
+                    "sourceKeywords",
+                    "generatedAt",
+                    "algorithm"
+                  ]
+                }
+              },
+              "required": [
+                "modelRouteId",
+                "routeName",
+                "regionDesc",
+                "recommendations",
+                "region",
+                "regionLatitude",
+                "regionLongitude",
+                "estimatedDuration",
+                "confidenceScore",
+                "spotCount",
+                "averageDistance",
+                "touristSpots",
+                "metadata"
+              ]
+            }
+          },
+          "existingRoutes": {
+            "description": "Existing routes that match the search keywords",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "modelRouteId": {
+                  "description": "Existing model route ID",
+                  "type": "string"
+                },
+                "routeName": {
+                  "description": "Route name",
+                  "type": "string"
+                },
+                "regionDesc": {
+                  "description": "Region description",
+                  "type": "string"
+                },
+                "recommendations": {
+                  "description": "Route recommendation hashtags",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "region": {
+                  "description": "Route region",
+                  "type": "string"
+                },
+                "regionLatitude": {
+                  "description": "Center latitude of the route",
+                  "type": "number"
+                },
+                "regionLongitude": {
+                  "description": "Center longitude of the route",
+                  "type": "number"
+                },
+                "spotCount": {
+                  "description": "Number of tourist spots in this route",
+                  "type": "number"
+                },
+                "isAiGenerated": {
+                  "description": "Whether this route was AI-generated",
+                  "type": "boolean"
+                },
+                "matchedKeywords": {
+                  "description": "Keywords that matched this route",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "touristSpots": {
+                  "description": "Tourist spots included in this route",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "touristSpotId": {
+                        "description": "Tourist spot ID",
+                        "type": "string"
+                      },
+                      "touristSpotName": {
+                        "description": "Tourist spot name",
+                        "type": "string"
+                      },
+                      "touristSpotDesc": {
+                        "description": "Tourist spot description",
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "description": "Latitude coordinate",
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "description": "Longitude coordinate",
+                        "type": "number"
+                      },
+                      "touristSpotHashtag": {
+                        "description": "Hashtags for this tourist spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "matchedKeywords": {
+                        "description": "Keywords that matched for this spot",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "touristSpotId",
+                      "touristSpotName",
+                      "latitude",
+                      "longitude",
+                      "touristSpotHashtag",
+                      "matchedKeywords"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "modelRouteId",
+                "routeName",
+                "recommendations",
+                "region",
+                "spotCount",
+                "isAiGenerated",
+                "matchedKeywords",
+                "touristSpots"
+              ]
+            }
+          },
+          "summary": {
+            "description": "Processing summary and statistics",
+            "type": "object",
+            "properties": {
+              "totalSpotsFound": {
+                "description": "Total tourist spots found matching keywords",
+                "type": "number"
+              },
+              "clustersFormed": {
+                "description": "Number of geographic clusters formed",
+                "type": "number"
+              },
+              "routesGenerated": {
+                "description": "Number of AI routes successfully generated",
+                "type": "number"
+              },
+              "existingRoutesFound": {
+                "description": "Number of existing routes found",
+                "type": "number"
+              },
+              "totalRoutesReturned": {
+                "description": "Total routes returned (existing + AI)",
+                "type": "number"
+              },
+              "processingTimeMs": {
+                "description": "Total processing time in milliseconds",
+                "type": "number"
+              },
+              "aiAvailable": {
+                "description": "Whether AI content generation was available",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "totalSpotsFound",
+              "clustersFormed",
+              "routesGenerated",
+              "processingTimeMs",
+              "aiAvailable"
+            ]
+          },
+          "message": {
+            "description": "Success message",
+            "type": "string",
+            "default": "AI route recommendations generated successfully"
+          }
+        },
+        "required": [
+          "generatedRoutes",
+          "summary"
         ]
       },
       "UserSensitiveInfoResponseDto": {

@@ -1,4 +1,7 @@
-import { DigitalPassportMetadata, PassportAttribute } from '@app/core/domain/passport/digital-passport-metadata';
+import {
+    DigitalPassportMetadata,
+    PassportAttribute,
+} from '@app/core/domain/passport/digital-passport-metadata';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -8,8 +11,15 @@ import { Injectable } from '@nestjs/common';
 export class MockPassportDataService {
     // Mock token IDs that should use test data
     private static readonly MOCK_TOKEN_IDS = [
-        '123', '456', '789', 'test-user-1', 'test-user-2', 'test-user-3', 
-        'alice', 'bob', 'charlie'
+        '123',
+        '456',
+        '789',
+        'test-user-1',
+        'test-user-2',
+        'test-user-3',
+        'alice',
+        'bob',
+        'charlie',
     ] as const;
 
     /**
@@ -144,8 +154,12 @@ export class MockPassportDataService {
     /**
      * Extract a specific attribute value from metadata with type safety
      */
-    extractAttributeValue<T>(attributes: PassportAttribute[], traitType: string, defaultValue: T): T {
-        const attribute = attributes.find(a => a.trait_type === traitType);
+    extractAttributeValue<T>(
+        attributes: PassportAttribute[],
+        traitType: string,
+        defaultValue: T,
+    ): T {
+        const attribute = attributes.find((a) => a.trait_type === traitType);
         return (attribute?.value as T) ?? defaultValue;
     }
 }

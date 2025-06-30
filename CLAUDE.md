@@ -118,6 +118,7 @@ curl "http://localhost:4000/api/passport/alice/wallet/apple" \
 |----------|----------|------|---------|-------------|
 | **🔥 CRITICAL** | [README.md](README.md) | 5 min | Get system running | Day 1, Hour 1 |
 | **🔥 CRITICAL** | [API Examples](docs/API_EXAMPLES.md) | 10 min | Real-world usage patterns | Day 1, Hour 1 |
+| **🔥 CRITICAL** | [AI Route Integration](FRONTEND_INTEGRATION_GUIDE.md) | 12 min | Complete 3-step route discovery | Day 1, Hour 2 |
 | **⚡ HIGH** | [System Architecture](docs/SYSTEM_ARCHITECTURE.md) | 15 min | Understand the system | Day 1, Hour 2 |
 | **⚡ HIGH** | [Error Codes](docs/ERROR_CODES.md) | 5 min | Debug common issues | When stuck |
 | **📖 MEDIUM** | [Database Guide](docs/DATABASE.md) | 10 min | Database operations | When working with data |
@@ -189,6 +190,7 @@ pnpm test
 - **🐛 Bug in code**: Check [Error Codes](docs/ERROR_CODES.md) first
 - **🏗️ Architecture questions**: See [System Architecture](docs/SYSTEM_ARCHITECTURE.md)
 - **🔧 Setup issues**: Follow [README.md](README.md) troubleshooting
+- **🤖 AI Route Features**: See [API Examples](docs/API_EXAMPLES.md) AI route section and [Frontend Guide](FRONTEND_INTEGRATION_GUIDE.md)
 - **📱 Wallet features**: Review [API Examples](docs/API_EXAMPLES.md) wallet section
 - **🗃️ Database problems**: Use [Database Guide](docs/DATABASE.md) troubleshooting
 - **🔒 Security questions**: Consult [Security Guide](docs/SECURITY.md)
@@ -197,10 +199,11 @@ pnpm test
 
 For experienced developers diving deeper:
 
-1. **Quest System**: `docs/quest/` - Advanced group quest mechanics and task management
-2. **Wallet Integration**: `docs/wallet-integration/` - Production deployment guides for Apple/Google
-3. **Blockchain Integration**: `docs/web3/` - Smart contract interactions and NFT systems
-4. **Admin API**: `etc/http/user-request/` - Comprehensive admin API test examples
+1. **AI Route System**: `FRONTEND_INTEGRATION_GUIDE.md` & `docs/API_EXAMPLES.md` - Complete 3-step route discovery with React components
+2. **Quest System**: `docs/quest/` - Advanced group quest mechanics and task management
+3. **Wallet Integration**: `docs/wallet-integration/` - Production deployment guides for Apple/Google
+4. **Blockchain Integration**: `docs/web3/` - Smart contract interactions and NFT systems
+5. **Admin API**: `etc/http/user-request/` - Comprehensive admin API test examples
 
 ## 💰 Recent Cost Optimization Achievements
 
@@ -243,6 +246,8 @@ Implemented comprehensive task management and quest system improvements:
 ### Enhanced Error Handling & Task Management (June 2025)
 
 - **Comprehensive Error Handling**: Replaced all generic `throw new Error()` patterns with `TouriiBackendAppException`
+- **Model Route Error Standardization**: Refactored all model route and tourist spot error codes from E_TB_xxx to E_MR_xxx format
+- **AI Route Error Codes**: Added 14 new error codes (E_MR_005-018) for AI route recommendation system debugging
 - **R2 Storage Error Types**: Added 5 new error codes (E_TB_035-039) for Cloudflare R2 storage configuration and operation failures
 - **Authentication Security Errors**: Added 2 new error codes (E_TB_040-041) for JWT and encryption configuration requirements
 - **JWT & Token Validation**: Added 3 new error codes (E_TB_045-047) for QR token structure and validation failures
@@ -383,6 +388,73 @@ Available Mock Token IDs for wallet testing:
 
 **No authentication required** for testing these mock personas!
 
+### AI Route Recommendation System ✅ FULLY OPERATIONAL
+
+Test the production-ready AI-powered route recommendation system:
+
+```bash
+# Generate AI route recommendations by keywords
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["animation", "scenery"],
+    "mode": "any",
+    "proximityRadiusKm": 50,
+    "maxRoutes": 3
+  }'
+
+# Search with specific region and stricter matching
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["traditional", "culture"],
+    "mode": "all",
+    "region": "Kanto",
+    "minSpotsPerCluster": 3,
+    "maxSpotsPerCluster": 6
+  }'
+
+# Generate with user context (enables rate limiting)
+curl -X POST "http://localhost:4000/ai/routes/recommendations" \
+  -H "accept-version: 1.0.0" \
+  -H "x-api-key: dev-key" \
+  -H "x-user-id: alice" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "keywords": ["food", "nightlife"],
+    "mode": "any",
+    "maxRoutes": 2
+  }'
+```
+
+**System Capabilities:**
+- **✅ OpenAI Integration**: GPT-4o-mini content generation fully operational
+- **🏗️ Domain-Driven Architecture**: Intelligent fallback logic in domain layer ensures quality results
+- **📍 Geographic Clustering**: Proximity-based tourist spot grouping with Haversine formula
+- **🎯 Smart Recommendations**: Hybrid system combining curated routes with AI-generated content
+- **🚀 Performance Optimized**: Caching, rate limiting, and cost optimization
+
+**Environment Setup for AI Features:**
+```bash
+# Required - for AI content generation (falls back to domain logic if unavailable)
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini  # Cost-effective model
+
+# Rate limiting for AI features
+THROTTLE_TTL=60000  # 1 minute
+THROTTLE_LIMIT=10   # 10 requests per minute
+```
+
+**✨ Recent Architecture Improvements (June 2025):**
+- **Fixed OpenAI Dependency Injection**: Proper NestJS service registration with injection tokens
+- **Domain-Driven Fallbacks**: Moved intelligent recommendation logic to domain layer
+- **Enhanced Error Handling**: Standardized error codes (E_MR_005-018) for comprehensive debugging
+- **Production Reliability**: Graceful degradation with domain-driven fallback system
+
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

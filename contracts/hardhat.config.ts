@@ -15,30 +15,30 @@ const config: HardhatUserConfig = {
     networks: {
         // Soneium Testnet
         soneiumTestnet: {
-            url: process.env.SONEIUM_TESTNET_RPC_URL || 'https://rpc.testnet.soneium.org',
-            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            url: process.env['SONEIUM_TESTNET_RPC_URL'] || 'https://rpc.testnet.soneium.org',
+            accounts: process.env['PRIVATE_KEY'] ? [process.env['PRIVATE_KEY']] : [],
             chainId: 1946, // Soneium testnet chain ID
         },
         // Soneium Mainnet
         soneiumMainnet: {
-            url: process.env.SONEIUM_MAINNET_RPC_URL || 'https://rpc.soneium.org',
-            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            url: process.env['SONEIUM_MAINNET_RPC_URL'] || 'https://rpc.soneium.org',
+            accounts: process.env['PRIVATE_KEY'] ? [process.env['PRIVATE_KEY']] : [],
             chainId: 1868, // Soneium mainnet chain ID
         },
         // SKALE Europa Hub Testnet
         skaleTestnet: {
             url:
-                process.env.SKALE_TESTNET_RPC_URL ||
+                process.env['SKALE_TESTNET_RPC_URL'] ||
                 'https://testnet.skalenodes.com/v1/juicy-low-small-testnet',
-            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            accounts: process.env['PRIVATE_KEY'] ? [process.env['PRIVATE_KEY']] : [],
             chainId: 476158412, // SKALE Europa Hub testnet
         },
         // SKALE Europa Hub Mainnet
         skaleMainnet: {
             url:
-                process.env.SKALE_MAINNET_RPC_URL ||
+                process.env['SKALE_MAINNET_RPC_URL'] ||
                 'https://mainnet.skalenodes.com/v1/elated-tan-skat',
-            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            accounts: process.env['PRIVATE_KEY'] ? [process.env['PRIVATE_KEY']] : [],
             chainId: 2046399126, // SKALE Europa Hub mainnet
         },
         // Hardhat local network
@@ -53,10 +53,10 @@ const config: HardhatUserConfig = {
     },
     etherscan: {
         apiKey: {
-            soneiumTestnet: process.env.SONEIUM_API_KEY || '',
-            soneiumMainnet: process.env.SONEIUM_API_KEY || '',
-            skaleTestnet: process.env.SKALE_API_KEY || '',
-            skaleMainnet: process.env.SKALE_API_KEY || '',
+            soneiumTestnet: process.env['SONEIUM_API_KEY'] || '',
+            soneiumMainnet: process.env['SONEIUM_API_KEY'] || '',
+            skaleTestnet: process.env['SKALE_API_KEY'] || '',
+            skaleMainnet: process.env['SKALE_API_KEY'] || '',
         },
         customChains: [
             {

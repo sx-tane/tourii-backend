@@ -163,7 +163,7 @@ libs/core/src/domain/
 {
   "core": {
     "@nestjs/core": "^10.4.15",
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.6.0",
     "ethers": "^6.14.3",
     "axios": "^1.8.4"
   },
@@ -458,6 +458,271 @@ graph TB
 - **Sails.js**: Smart contract interface framework
 - **Ethers.js**: General blockchain operations
 
+### 7. AI Route Recommendation System
+
+**Intelligent Tourism Route Discovery:**
+- **3-Step User Flow**: Region selection → Interest discovery → Unified route results
+- **Hybrid Intelligence**: Combines curated routes with AI-generated recommendations
+- **Geographic Clustering**: Proximity-based tourist spot grouping with Haversine formula
+- **OpenAI Integration**: ✅ **FULLY OPERATIONAL** - GPT-4o-mini powered content generation with cost optimization
+- **Smart Fallback System**: Domain-driven recommendation logic ensures meaningful results even without AI
+
+#### Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Frontend Client"
+        FR[Region Selection<br/>From Existing Routes]
+        FH[Hashtag Discovery<br/>By Region]
+        FU[Unified Route Results<br/>Existing + AI Generated]
+    end
+
+    subgraph "API Layer"
+        CR[GET /routes<br/>Region Discovery]
+        CH[POST /ai/routes/hashtags/available<br/>Regional Hashtags]
+        CU[POST /ai/routes/recommendations<br/>Unified Recommendations]
+    end
+
+    subgraph "Domain Layer"
+        subgraph "AI Route Domain"
+            AIConstants[AI Route Constants<br/>Clustering Config]
+            AIMapper[AI Route Mapper<br/>Response Transformation]
+        end
+        
+        subgraph "Existing Route Domain"
+            MR[Model Route Entity<br/>Curated Routes]
+            TS[Tourist Spot Entity<br/>Location Data]
+        end
+    end
+
+    subgraph "Infrastructure Layer"
+        subgraph "AI Services"
+            ARS[AI Route Service<br/>Route Generation]
+            CS[Clustering Service<br/>Geographic Grouping]
+            OAI[OpenAI Service<br/>Content Generation]
+        end
+        
+        subgraph "Data Repositories"
+            RDB[Route Repository<br/>Existing Routes]
+            TDB[Tourist Spot Repository<br/>Location Data]
+            HDB[Hashtag Repository<br/>Interest Data]
+        end
+        
+        subgraph "External Services"
+            GPT[OpenAI GPT-4o-mini<br/>AI Content Generation]
+        end
+    end
+
+    subgraph "Caching & Performance"
+        REDIS[Redis Cache<br/>Hashtag + Rate Limiting]
+        RL[Rate Limiter<br/>10 req/min auth, 3 anon]
+    end
+
+    FR --> CR
+    FH --> CH
+    FU --> CU
+    
+    CR --> RDB
+    CH --> HDB
+    CH --> REDIS
+    CU --> ARS
+    
+    ARS --> CS
+    ARS --> RDB
+    ARS --> TDB
+    ARS --> OAI
+    OAI --> GPT
+    
+    CU --> RL
+    RL --> REDIS
+    
+    CS --> AIMapper
+    AIMapper --> FU
+```
+
+#### Core Components
+
+**1. Geographic Clustering Service**
+```typescript
+interface ClusteringConfig {
+  DEFAULT_PROXIMITY_RADIUS_KM: 50;     // Search radius
+  MIN_PROXIMITY_RADIUS_KM: 1;          // Minimum allowed
+  MAX_PROXIMITY_RADIUS_KM: 200;        // Maximum allowed
+  DEFAULT_MIN_SPOTS_PER_CLUSTER: 2;    // Minimum spots per route
+  DEFAULT_MAX_SPOTS_PER_CLUSTER: 8;    // Maximum spots per route
+  HAVERSINE_EARTH_RADIUS_KM: 6371;     // Earth radius for calculations
+}
+```
+
+**2. Haversine Distance Algorithm**
+- **Purpose**: Calculate geographic distance between tourist spots
+- **Formula**: Great-circle distance between two points on Earth's surface
+- **Precision**: Accurate to within 0.5% for distances < 1000km
+- **Performance**: O(n²) complexity for spot comparison, optimized with early termination
+
+**3. OpenAI Integration Architecture**
+```typescript
+interface AIContentConfig {
+  MODEL: 'gpt-4o-mini';                // Cost-optimized model
+  MAX_TOKENS: 150;                     // Content generation limit
+  TEMPERATURE: 0.7;                    // Creative vs consistent balance
+  PROMPT_TEMPLATE: 'japanese-tourism'; // Cultural context prompting
+  FALLBACK_ENABLED: true;              // Graceful degradation
+}
+```
+
+#### Request Flow & Processing
+
+**Step 1: Region Discovery**
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as Main API
+    participant DB as Route Repository
+    
+    C->>API: GET /routes
+    API->>DB: getAllRoutes()
+    DB-->>API: Route[]
+    API-->>C: Routes with regions
+    Note over C: Client extracts unique regions
+```
+
+**Step 2: Regional Hashtag Discovery**
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as Main API
+    participant Cache as Redis Cache
+    participant DB as Tourist Spot Repository
+    
+    C->>API: POST /ai/routes/hashtags/available {region}
+    API->>Cache: getHashtagsByRegion(region)
+    alt Cache Hit
+        Cache-->>API: Cached hashtags
+    else Cache Miss
+        API->>DB: getTouristSpotsByRegion(region)
+        DB-->>API: TouristSpot[]
+        API->>API: aggregateHashtags()
+        API->>Cache: cacheHashtags(region, hashtags)
+    end
+    API-->>C: {topHashtags, totalCount, region}
+```
+
+**Step 3: Unified Route Generation**
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as Main API
+    participant ARS as AI Route Service
+    participant CS as Clustering Service
+    participant OAI as OpenAI Service
+    participant DB as Database
+    
+    C->>API: POST /ai/routes/recommendations {keywords, region, options}
+    API->>ARS: generateRecommendations(request)
+    
+    par Existing Routes
+        ARS->>DB: getModelRoutes()
+        ARS->>ARS: filterByRegionAndKeywords()
+    and AI Route Generation
+        ARS->>DB: getTouristSpotsByKeywords()
+        ARS->>CS: clusterByProximity(spots)
+        CS-->>ARS: GeographicCluster[]
+        ARS->>OAI: generateRouteContent(cluster)
+        OAI-->>ARS: RouteContent
+        ARS->>DB: saveGeneratedRoute(route)
+    end
+    
+    ARS->>ARS: combineResults()
+    ARS-->>API: UnifiedRouteResponse
+    API-->>C: {existingRoutes, generatedRoutes, summary}
+```
+
+#### Performance Optimization
+
+**Caching Strategy:**
+- **Hashtag Cache**: 1-hour TTL for regional hashtag aggregations
+- **Route Cache**: 5-minute TTL for AI-generated route content
+- **Rate Limiting**: User-specific quotas with Redis-backed counters
+
+**Algorithm Efficiency:**
+- **Early Termination**: Stop clustering when maximum routes reached
+- **Spatial Indexing**: Tourist spots pre-indexed by region for faster filtering
+- **Batch Processing**: Database operations grouped into 50-item batches
+- **Memory Management**: Process maximum 1000 tourist spots per request
+
+**Cost Optimization:**
+- **Model Selection**: GPT-4o-mini (20x cheaper than GPT-4)
+- **Token Optimization**: Structured prompts with 150-token limit
+- **Intelligent Fallback**: Template-based content when AI unavailable
+- **Request Deduplication**: Cache identical requests for 5 minutes
+
+#### Database Schema Integration
+
+**Extended Model Route Table:**
+```sql
+model_route {
+  -- Existing fields --
+  model_route_id        String   @id
+  route_name           String
+  region               String?
+  region_latitude      Float?
+  region_longitude     Float?
+  
+  -- AI Route Extensions --
+  is_ai_generated      Boolean  @default(false)  -- NEW: AI vs manual flag
+  ai_confidence_score  Float?                    -- NEW: AI quality score
+  ai_algorithm_version String?                   -- NEW: Algorithm tracking
+  created_at          DateTime @default(now())   -- Enhanced with AI metadata
+}
+```
+
+**Junction Table for Route-Spot Relationships:**
+```sql
+route_tourist_spot {
+  route_tourist_spot_id String @id @default(cuid())
+  model_route_id       String
+  tourist_spot_id      String
+  sequence_order       Int?     -- Order within route
+  created_at          DateTime @default(now())
+  
+  @@unique([model_route_id, tourist_spot_id])
+}
+```
+
+#### Error Handling & Resilience
+
+**AI Route Error Codes:**
+- `E_MR_005`: No tourist spots found matching keywords
+- `E_MR_006`: AI content generation failed  
+- `E_MR_007`: AI route recommendation validation failed
+- `E_MR_008`: No tourist spots found matching criteria
+- `E_MR_009`: Geographic clustering failed
+- `E_MR_010`: AI content generation service unavailable
+- `E_MR_011`: Route creation failed during database operation
+- `E_MR_012-018`: Request validation errors (keywords, limits, clustering options)
+
+**Graceful Degradation:**
+1. **AI Service Down**: Domain-driven fallback provides intelligent recommendations based on keywords and hashtags
+2. **Clustering Failure**: Fall back to simple distance-based grouping
+3. **Content Generation Failure**: Enhanced template system with keyword-aware recommendations
+4. **Rate Limit Exceeded**: Provide clear retry guidance and estimated wait time
+5. **Domain-Driven Fallbacks**: RouteRecommendation.generateFallbackRecommendations() ensures consistent quality
+
+#### Quality Assurance
+
+**Content Quality Control:**
+- **Confidence Scoring**: AI routes rated 0.0-1.0 based on keyword match quality
+- **Cultural Validation**: Japan-specific prompting for appropriate content
+- **Length Validation**: Route names (max 100 chars), descriptions (max 500 chars)
+- **Metadata Tracking**: Full audit trail of AI generation parameters
+
+**Performance Monitoring:**
+- **Processing Time**: Track slow requests >5 seconds for optimization
+- **Success Rates**: Monitor AI generation success vs fallback usage
+- **Cache Hit Rates**: Optimize cache TTL based on hit/miss ratios
+- **User Engagement**: Track which AI routes users actually explore
+
 ---
 
 ## 🔒 Security Architecture
@@ -725,4 +990,4 @@ R2_BUCKET=tourii-production
 
 ---
 
-_Last Updated: June 26, 2025_
+_Last Updated: June 29, 2025_

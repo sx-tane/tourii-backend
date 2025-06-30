@@ -1,0 +1,151 @@
+### Get Standalone Tourist Spots (No Filters)
+GET http://localhost:4000/tourist-spots/standalone
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Standalone Tourist Spots with Pagination (First 5)
+GET http://localhost:4000/tourist-spots/standalone?limit=5&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Standalone Tourist Spots with Pagination (Next 5)
+GET http://localhost:4000/tourist-spots/standalone?limit=5&offset=5
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Standalone Tourist Spots Large Limit
+GET http://localhost:4000/tourist-spots/standalone?limit=50&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Tourist Spot by ID (Example ID - replace with actual)
+GET http://localhost:4000/tourist-spots/TST202505-123456-789abc-AAAA
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Get Tourist Spot by ID (Non-existent - should return 404)
+GET http://localhost:4000/tourist-spots/NON_EXISTENT_ID
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search Tourist Spots by Name/Description
+GET http://localhost:4000/tourist-spots/search?query=shrine&limit=10
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search Tourist Spots by Location/Address
+GET http://localhost:4000/tourist-spots/search?location=tokyo&limit=5
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search Tourist Spots by Hashtags
+GET http://localhost:4000/tourist-spots/search?hashtags=food,ramen&limit=8
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search Tourist Spots by Single Hashtag
+GET http://localhost:4000/tourist-spots/search?hashtags=nature&limit=10
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Combined Search (Name + Location + Hashtags)
+GET http://localhost:4000/tourist-spots/search?query=temple&location=kyoto&hashtags=traditional,cultural&limit=5
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search with Pagination (First 3 results)
+GET http://localhost:4000/tourist-spots/search?query=park&limit=3&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search with Pagination (Next 3 results)
+GET http://localhost:4000/tourist-spots/search?query=park&limit=3&offset=3
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Empty Search (should return all with pagination)
+GET http://localhost:4000/tourist-spots/search?limit=20&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search by Food-related terms
+GET http://localhost:4000/tourist-spots/search?query=restaurant&hashtags=food,dining&limit=15
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search by Cultural terms
+GET http://localhost:4000/tourist-spots/search?query=museum&hashtags=culture,art,history&limit=10
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Search by Nature terms
+GET http://localhost:4000/tourist-spots/search?hashtags=nature,mountain,hiking&limit=12
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Performance Test - Large Offset
+GET http://localhost:4000/tourist-spots/search?limit=10&offset=100
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###
+
+### Edge Case - Maximum Limit
+GET http://localhost:4000/tourist-spots/search?limit=100&offset=0
+x-api-key: your-api-key-2       
+accept-version: 1.0.0
+Content-Type: application/json 
+
+###

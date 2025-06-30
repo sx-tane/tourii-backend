@@ -19,7 +19,7 @@ export class SecurityMiddleware implements NestMiddleware {
             if (!apiKey) {
                 throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_010);
             }
-            
+
             if (!validApiKeys.includes(apiKey)) {
                 throw new TouriiOnchainAppException(TouriiOnchainAppErrorType.E_OC_011);
             }

@@ -1,0 +1,210 @@
+### AI Route Recommendations - Anime Pilgrimage Route
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: alice
+Content-Type: application/json
+
+{
+  "keywords": ["anime", "pilgrimage", "studio", "location"],
+  "mode": "any",
+  "region": "Tokyo",
+  "proximityRadiusKm": 60,
+  "minSpotsPerCluster": 3,
+  "maxRoutes": 4
+}
+
+###
+
+### AI Route Recommendations - Traditional Culture Journey  
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: bob
+Content-Type: application/json
+
+{
+  "keywords": ["traditional", "culture", "samurai", "geisha", "tea"],
+  "mode": "any",
+  "region": "Kyoto",
+  "proximityRadiusKm": 40,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 8,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Food Adventure Tour
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: charlie
+Content-Type: application/json
+
+{
+  "keywords": ["ramen", "sushi", "street food", "market", "izakaya"],
+  "mode": "any",
+  "region": "Osaka",
+  "proximityRadiusKm": 25,
+  "minSpotsPerCluster": 4,
+  "maxRoutes": 2
+}
+
+###
+
+### AI Route Recommendations - Nature & Hiking Adventure
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["mountain", "hiking", "nature", "waterfall", "hot spring"],
+  "mode": "any",
+  "region": "Nagano", 
+  "proximityRadiusKm": 100,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 6,
+  "maxRoutes": 5
+}
+
+###
+
+### AI Route Recommendations - Cherry Blossom Season
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["sakura", "cherry blossom", "hanami", "park", "spring"],
+  "mode": "any",
+  "proximityRadiusKm": 80,
+  "minSpotsPerCluster": 3,
+  "maxRoutes": 6
+}
+
+###
+
+### AI Route Recommendations - Photography Spots
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: diana
+Content-Type: application/json
+
+{
+  "keywords": ["photography", "scenic", "viewpoint", "landscape", "sunset"],
+  "mode": "any",
+  "proximityRadiusKm": 120,
+  "minSpotsPerCluster": 2,
+  "maxSpotsPerCluster": 10,
+  "maxRoutes": 4
+}
+
+###
+
+### AI Route Recommendations - Family-Friendly Route
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["family", "children", "playground", "zoo", "aquarium"],
+  "mode": "any",
+  "region": "Yokohama",
+  "proximityRadiusKm": 35,
+  "minSpotsPerCluster": 3,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Historical Sites Tour
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["historical", "castle", "fort", "monument", "heritage"],
+  "mode": "any",
+  "proximityRadiusKm": 150,
+  "minSpotsPerCluster": 2,
+  "maxRoutes": 7
+}
+
+###
+
+### AI Route Recommendations - Shopping & Entertainment
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: eve
+Content-Type: application/json
+
+{
+  "keywords": ["shopping", "entertainment", "arcade", "karaoke", "fashion"],
+  "mode": "any",
+  "region": "Harajuku",
+  "proximityRadiusKm": 15,
+  "minSpotsPerCluster": 4,
+  "maxSpotsPerCluster": 8,
+  "maxRoutes": 2
+}
+
+###
+
+### AI Route Recommendations - Spiritual Journey
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["spiritual", "meditation", "temple", "shrine", "peaceful"],
+  "mode": "all",
+  "proximityRadiusKm": 90,
+  "minSpotsPerCluster": 2,
+  "maxRoutes": 4
+}
+
+###
+
+### AI Route Recommendations - Technology & Innovation Tour
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["technology", "innovation", "robot", "science", "museum"],
+  "mode": "any",
+  "region": "Tokyo",
+  "proximityRadiusKm": 45,
+  "minSpotsPerCluster": 3,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Night Life & Entertainment
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+x-user-id: frank
+Content-Type: application/json
+
+{
+  "keywords": ["nightlife", "bar", "club", "live music", "entertainment"],
+  "mode": "any",
+  "region": "Roppongi",
+  "proximityRadiusKm": 20,
+  "minSpotsPerCluster": 3,
+  "maxSpotsPerCluster": 12,
+  "maxRoutes": 2
+}
+
+###

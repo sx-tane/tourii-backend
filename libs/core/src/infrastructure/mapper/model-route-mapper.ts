@@ -62,10 +62,10 @@ export class ModelRouteMapper {
 
     static touristSpotOnlyEntityToPrismaInput(
         touristSpotEntity: TouristSpot,
-        modelRouteId: string,
+        modelRouteId?: string,
     ): Prisma.tourist_spotUncheckedCreateInput {
         return {
-            model_route_id: modelRouteId,
+            model_route_id: modelRouteId ?? null,
             story_chapter_id: touristSpotEntity.storyChapterId ?? '',
             tourist_spot_name: touristSpotEntity.touristSpotName ?? '',
             tourist_spot_desc: touristSpotEntity.touristSpotDesc ?? '',
@@ -85,12 +85,6 @@ export class ModelRouteMapper {
         };
     }
 
-    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
-        return prismaModel.map((touristSpot) =>
-            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
-        );
-    }
-
     static modelRouteEntityToPrismaInput(
         modelRouteEntity: ModelRouteEntity,
     ): Prisma.model_routeUncheckedCreateInput {
@@ -103,17 +97,24 @@ export class ModelRouteMapper {
             region_longitude: modelRouteEntity.regionLongitude ?? 0,
             region_background_media: modelRouteEntity.regionBackgroundMedia,
             recommendation: modelRouteEntity.recommendation ?? [],
+            is_ai_generated: modelRouteEntity.isAiGenerated ?? false,
             del_flag: modelRouteEntity.delFlag ?? false,
             ins_user_id: modelRouteEntity.insUserId ?? '',
             ins_date_time: modelRouteEntity.insDateTime,
             upd_user_id: modelRouteEntity.updUserId,
             upd_date_time: modelRouteEntity.updDateTime,
             request_id: modelRouteEntity.requestId,
-            tourist_spot: {
-                create: modelRouteEntity.touristSpotList?.map((touristSpot) =>
-                    ModelRouteMapper.touristSpotEntityToPrismaInput(touristSpot),
-                ),
-            },
+            // Only create owned tourist spots if there are spots to create
+            // AI-generated routes use junction table linking instead
+            ...(modelRouteEntity.touristSpotList && modelRouteEntity.touristSpotList.length > 0
+                ? {
+                      owned_tourist_spots: {
+                          create: modelRouteEntity.touristSpotList.map((touristSpot) =>
+                              ModelRouteMapper.touristSpotEntityToPrismaInput(touristSpot),
+                          ),
+                      },
+                  }
+                : {}),
         };
     }
 
@@ -129,6 +130,7 @@ export class ModelRouteMapper {
             region_longitude: modelRouteEntity.regionLongitude,
             region_background_media: modelRouteEntity.regionBackgroundMedia,
             recommendation: modelRouteEntity.recommendation,
+            is_ai_generated: modelRouteEntity.isAiGenerated,
             del_flag: modelRouteEntity.delFlag,
             upd_user_id: modelRouteEntity.updUserId,
             upd_date_time: modelRouteEntity.updDateTime,
@@ -157,6 +159,12 @@ export class ModelRouteMapper {
         };
     }
 
+    static touristSpotToEntity(prismaModel: tourist_spot[]): TouristSpot[] {
+        return prismaModel.map((touristSpot) =>
+            ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+        );
+    }
+
     static prismaModelToModelRouteEntity(prismaModel: ModelRouteRelationModel): ModelRouteEntity {
         return new ModelRouteEntity(
             {
@@ -172,15 +180,23 @@ export class ModelRouteMapper {
                     prismaModel.recommendation.every((item) => typeof item === 'string')
                         ? (prismaModel.recommendation as string[])
                         : [],
+                isAiGenerated: prismaModel.is_ai_generated ?? false,
                 delFlag: prismaModel.del_flag ?? false,
                 insUserId: prismaModel.ins_user_id ?? '',
                 insDateTime: prismaModel.ins_date_time,
                 updUserId: prismaModel.upd_user_id,
                 updDateTime: prismaModel.upd_date_time,
                 requestId: prismaModel.request_id ?? undefined,
-                touristSpotList: prismaModel.tourist_spot.map((touristSpot) =>
-                    ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
-                ),
+                touristSpotList: [
+                    // Include legacy owned spots
+                    ...(prismaModel.owned_tourist_spots || []).map((touristSpot) =>
+                        ModelRouteMapper.prismaModelToTouristSpotEntity(touristSpot),
+                    ),
+                    // Include spots from junction table
+                    ...(prismaModel.route_tourist_spots || []).map((junction) =>
+                        ModelRouteMapper.prismaModelToTouristSpotEntity(junction.tourist_spot),
+                    ),
+                ],
             },
             prismaModel.model_route_id,
         );

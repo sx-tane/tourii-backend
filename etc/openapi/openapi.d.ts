@@ -904,6 +904,267 @@ declare namespace Components {
        */
       sortOrder?: 'asc' | 'desc';
     }
+    export interface AiRouteRecommendationRequestDto {
+      /**
+       * Keywords to search for in tourist spot hashtags
+       */
+      keywords: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+      /**
+       * Matching mode: "all" requires all keywords, "any" requires any keyword
+       */
+      mode?: 'all' | 'any';
+      /**
+       * Region filter
+       */
+      region: string;
+      /**
+       * Proximity radius in kilometers for clustering spots
+       */
+      proximityRadiusKm?: number;
+      /**
+       * Minimum number of spots required to form a cluster
+       */
+      minSpotsPerCluster?: number;
+      /**
+       * Maximum number of spots allowed in a cluster
+       */
+      maxSpotsPerCluster?: number;
+      /**
+       * Maximum number of routes to generate
+       */
+      maxRoutes?: number;
+    }
+    export interface AiRouteRecommendationResponseDto {
+      /**
+       * AI-generated routes based on keyword search
+       */
+      generatedRoutes: {
+        /**
+         * Generated model route ID
+         */
+        modelRouteId: string;
+        /**
+         * AI-generated route name
+         */
+        routeName: string;
+        /**
+         * AI-generated region description
+         */
+        regionDesc: string;
+        /**
+         * AI-generated recommendation hashtags
+         */
+        recommendations: string[];
+        /**
+         * Route region
+         */
+        region: string;
+        /**
+         * Center latitude of the route
+         */
+        regionLatitude: number;
+        /**
+         * Center longitude of the route
+         */
+        regionLongitude: number;
+        /**
+         * AI-estimated duration for the route
+         */
+        estimatedDuration: string;
+        /**
+         * AI confidence score (0-1)
+         */
+        confidenceScore: number;
+        /**
+         * Number of tourist spots in this route
+         */
+        spotCount: number;
+        /**
+         * Average distance from center in kilometers
+         */
+        averageDistance: number;
+        /**
+         * Tourist spots included in this route
+         */
+        touristSpots: {
+          /**
+           * Tourist spot ID
+           */
+          touristSpotId: string;
+          /**
+           * Tourist spot name
+           */
+          touristSpotName: string;
+          /**
+           * Tourist spot description
+           */
+          touristSpotDesc?: string;
+          /**
+           * Latitude coordinate
+           */
+          latitude: number;
+          /**
+           * Longitude coordinate
+           */
+          longitude: number;
+          /**
+           * Hashtags for this tourist spot
+           */
+          touristSpotHashtag: string[];
+          /**
+           * Keywords that matched for this spot
+           */
+          matchedKeywords: string[];
+        }[];
+        /**
+         * Route generation metadata
+         */
+        metadata: {
+          /**
+           * Original search keywords
+           */
+          sourceKeywords: string[];
+          /**
+           * When the route was generated
+           */
+          generatedAt: string;
+          /**
+           * Algorithm version used
+           */
+          algorithm: string;
+          /**
+           * Indicates this was AI-generated
+           */
+          aiGenerated?: boolean;
+        };
+      }[];
+      /**
+       * Existing routes that match the search keywords
+       */
+      existingRoutes?: {
+        /**
+         * Existing model route ID
+         */
+        modelRouteId: string;
+        /**
+         * Route name
+         */
+        routeName: string;
+        /**
+         * Region description
+         */
+        regionDesc?: string;
+        /**
+         * Route recommendation hashtags
+         */
+        recommendations: string[];
+        /**
+         * Route region
+         */
+        region: string;
+        /**
+         * Center latitude of the route
+         */
+        regionLatitude?: number;
+        /**
+         * Center longitude of the route
+         */
+        regionLongitude?: number;
+        /**
+         * Number of tourist spots in this route
+         */
+        spotCount: number;
+        /**
+         * Whether this route was AI-generated
+         */
+        isAiGenerated: boolean;
+        /**
+         * Keywords that matched this route
+         */
+        matchedKeywords: string[];
+        /**
+         * Tourist spots included in this route
+         */
+        touristSpots: {
+          /**
+           * Tourist spot ID
+           */
+          touristSpotId: string;
+          /**
+           * Tourist spot name
+           */
+          touristSpotName: string;
+          /**
+           * Tourist spot description
+           */
+          touristSpotDesc?: string;
+          /**
+           * Latitude coordinate
+           */
+          latitude: number;
+          /**
+           * Longitude coordinate
+           */
+          longitude: number;
+          /**
+           * Hashtags for this tourist spot
+           */
+          touristSpotHashtag: string[];
+          /**
+           * Keywords that matched for this spot
+           */
+          matchedKeywords: string[];
+        }[];
+      }[];
+      /**
+       * Processing summary and statistics
+       */
+      summary: {
+        /**
+         * Total tourist spots found matching keywords
+         */
+        totalSpotsFound: number;
+        /**
+         * Number of geographic clusters formed
+         */
+        clustersFormed: number;
+        /**
+         * Number of AI routes successfully generated
+         */
+        routesGenerated: number;
+        /**
+         * Number of existing routes found
+         */
+        existingRoutesFound?: number;
+        /**
+         * Total routes returned (existing + AI)
+         */
+        totalRoutesReturned?: number;
+        /**
+         * Total processing time in milliseconds
+         */
+        processingTimeMs: number;
+        /**
+         * Whether AI content generation was available
+         */
+        aiAvailable: boolean;
+      };
+      /**
+       * Success message
+       */
+      message?: string;
+    }
     export interface AuthSignupRequestDto {
       /**
        * Email address for signup
@@ -927,6 +1188,254 @@ declare namespace Components {
        * Wallet address for the user
        */
       walletAddress: string;
+    }
+    export interface BatchVerificationRequestDto {
+      /**
+       * Array of verification tokens (JWT) to verify in batch
+       */
+      tokens: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+    }
+    export interface BatchVerificationResultDto {
+      /**
+       * Individual verification results
+       */
+      results: {
+        /**
+         * Whether the verification was successful
+         */
+        valid: boolean;
+        /**
+         * Token ID of the verified passport
+         */
+        tokenId: string;
+        /**
+         * Timestamp of verification
+         */
+        verifiedAt: string; // date-time
+        /**
+         * Token expiration timestamp
+         */
+        expiresAt?: string; // date-time
+        /**
+         * Passport holder data if verification successful
+         */
+        passportData?: {
+          /**
+           * Username of the passport holder
+           */
+          username: string;
+          /**
+           * User level (e.g., E-Class Amatsukami)
+           */
+          level: string;
+          /**
+           * Type of passport (e.g., Amatsukami)
+           */
+          passportType: string;
+          /**
+           * Number of quests completed
+           */
+          questsCompleted: number;
+          /**
+           * Total travel distance in km
+           */
+          travelDistance: number;
+          /**
+           * Total Magatama points earned
+           */
+          magatamaPoints: number;
+          /**
+           * Registration date
+           */
+          registeredAt: string; // date-time
+        };
+        /**
+         * Error message if verification failed
+         */
+        error?: string;
+      }[];
+      /**
+       * Summary statistics
+       */
+      summary: {
+        /**
+         * Total number of tokens verified
+         */
+        total: number;
+        /**
+         * Number of valid tokens
+         */
+        valid: number;
+        /**
+         * Number of invalid tokens
+         */
+        invalid: number;
+      };
+    }
+    export interface BothWalletPassesResultDto {
+      /**
+       * Token ID of the Digital Passport NFT
+       */
+      tokenId: string;
+      /**
+       * Apple Wallet pass data
+       */
+      apple: {
+        /**
+         * Token ID of the Digital Passport NFT
+         */
+        tokenId: string;
+        /**
+         * Wallet platform (apple or google)
+         */
+        platform: 'apple' | 'google';
+        /**
+         * Direct download URL for Apple passes
+         */
+        downloadUrl?: string; // uri
+        /**
+         * URL to add pass to wallet
+         */
+        redirectUrl: string; // uri
+        /**
+         * Pass expiration timestamp
+         */
+        expiresAt: string; // date-time
+        /**
+         * Pass file buffer (for direct downloads)
+         */
+        passBuffer?: any;
+      };
+      /**
+       * Google Pay pass data
+       */
+      google: {
+        /**
+         * Token ID of the Digital Passport NFT
+         */
+        tokenId: string;
+        /**
+         * Wallet platform (apple or google)
+         */
+        platform: 'apple' | 'google';
+        /**
+         * Direct download URL for Apple passes
+         */
+        downloadUrl?: string; // uri
+        /**
+         * URL to add pass to wallet
+         */
+        redirectUrl: string; // uri
+        /**
+         * Pass expiration timestamp
+         */
+        expiresAt: string; // date-time
+        /**
+         * Pass file buffer (for direct downloads)
+         */
+        passBuffer?: any;
+      };
     }
     export interface CheckinsFetchRequestDto {
       /**
@@ -1167,9 +1676,9 @@ declare namespace Components {
     }
     export interface ModelRouteCreateRequestDto {
       /**
-       * Unique identifier for the story
+       * Unique identifier for the story (optional for standalone routes)
        */
-      storyId: string;
+      storyId?: string;
       /**
        * Name of the model route
        */
@@ -1195,9 +1704,9 @@ declare namespace Components {
        */
       touristSpotList: {
         /**
-         * Unique identifier for the story chapter
+         * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -1239,9 +1748,9 @@ declare namespace Components {
        */
       modelRouteId: string;
       /**
-       * Unique identifier for the story
+       * Unique identifier for the story (optional for standalone routes)
        */
-      storyId: string;
+      storyId?: string;
       /**
        * Name of the model route
        */
@@ -1271,6 +1780,10 @@ declare namespace Components {
        */
       regionBackgroundMedia: string;
       /**
+       * Whether the model route was AI-generated
+       */
+      isAiGenerated: boolean;
+      /**
        * List of tourist spots in the model route
        */
       touristSpotList: {
@@ -1281,7 +1794,7 @@ declare namespace Components {
         /**
          * Unique identifier for the story chapter
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -1409,9 +1922,9 @@ declare namespace Components {
     }
     export interface ModelRouteUpdateRequestDto {
       /**
-       * Unique identifier for the story
+       * Unique identifier for the story (optional for standalone routes)
        */
-      storyId: string;
+      storyId?: string;
       /**
        * Name of the model route
        */
@@ -1437,9 +1950,9 @@ declare namespace Components {
        */
       touristSpotList: {
         /**
-         * Unique identifier for the story chapter
+         * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -1561,6 +2074,64 @@ declare namespace Components {
        * Timestamp when the moment occurred
        */
       insDateTime: string;
+    }
+    export interface PassStatusDto {
+      /**
+       * Whether the token ID is valid
+       */
+      valid: boolean;
+      /**
+       * The token ID that was validated
+       */
+      tokenId: string;
+    }
+    export interface PassportDataDto {
+      /**
+       * Username of the passport holder
+       */
+      username: string;
+      /**
+       * User level (e.g., E-Class Amatsukami)
+       */
+      level: string;
+      /**
+       * Type of passport (e.g., Amatsukami)
+       */
+      passportType: string;
+      /**
+       * Number of quests completed
+       */
+      questsCompleted: number;
+      /**
+       * Total travel distance in km
+       */
+      travelDistance: number;
+      /**
+       * Total Magatama points earned
+       */
+      magatamaPoints: number;
+      /**
+       * Registration date
+       */
+      registeredAt: string; // date-time
+    }
+    export interface PassportPdfResponseDto {
+      /**
+       * The token ID of the Digital Passport NFT
+       */
+      tokenId: string;
+      /**
+       * URL to download the generated PDF
+       */
+      downloadUrl: string; // uri
+      /**
+       * JWT token for QR code verification
+       */
+      qrCode: string;
+      /**
+       * Expiration date of the PDF
+       */
+      expiresAt: string; // date-time
     }
     export interface QrScanRequestDto {
       code: string; // ^[A-Za-z0-9_\-:./#]+$
@@ -1778,7 +2349,7 @@ declare namespace Components {
           /**
            * Unique identifier for the story chapter
            */
-          storyChapterId: string;
+          storyChapterId?: string;
           /**
            * Name of the tourist spot
            */
@@ -2028,7 +2599,7 @@ declare namespace Components {
         /**
          * Unique identifier for the story chapter
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -3203,9 +3774,9 @@ declare namespace Components {
     }
     export interface TouristSpotCreateRequestDto {
       /**
-       * Unique identifier for the story chapter
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
        */
-      storyChapterId: string;
+      storyChapterId?: string;
       /**
        * Name of the tourist spot
        */
@@ -3248,7 +3819,7 @@ declare namespace Components {
       /**
        * Unique identifier for the story chapter
        */
-      storyChapterId: string;
+      storyChapterId?: string;
       /**
        * Name of the tourist spot
        */
@@ -3334,9 +3905,9 @@ declare namespace Components {
     }
     export interface TouristSpotUpdateRequestDto {
       /**
-       * Unique identifier for the story chapter
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
        */
-      storyChapterId: string;
+      storyChapterId?: string;
       /**
        * Name of the tourist spot
        */
@@ -4260,6 +4831,96 @@ declare namespace Components {
         totalItems: number;
       };
     }
+    export interface VerificationResultDto {
+      /**
+       * Whether the verification was successful
+       */
+      valid: boolean;
+      /**
+       * Token ID of the verified passport
+       */
+      tokenId: string;
+      /**
+       * Timestamp of verification
+       */
+      verifiedAt: string; // date-time
+      /**
+       * Token expiration timestamp
+       */
+      expiresAt?: string; // date-time
+      /**
+       * Passport holder data if verification successful
+       */
+      passportData?: {
+        /**
+         * Username of the passport holder
+         */
+        username: string;
+        /**
+         * User level (e.g., E-Class Amatsukami)
+         */
+        level: string;
+        /**
+         * Type of passport (e.g., Amatsukami)
+         */
+        passportType: string;
+        /**
+         * Number of quests completed
+         */
+        questsCompleted: number;
+        /**
+         * Total travel distance in km
+         */
+        travelDistance: number;
+        /**
+         * Total Magatama points earned
+         */
+        magatamaPoints: number;
+        /**
+         * Registration date
+         */
+        registeredAt: string; // date-time
+      };
+      /**
+       * Error message if verification failed
+       */
+      error?: string;
+    }
+    export interface VerificationStatsDto {
+      /**
+       * Token ID if specific stats requested
+       */
+      tokenId?: string;
+      /**
+       * Total verification count
+       */
+      totalVerifications: number;
+      /**
+       * Verifications today
+       */
+      todayVerifications: number;
+      /**
+       * Last verification timestamp
+       */
+      lastVerified?: string; // date-time
+      /**
+       * Most verified passports
+       */
+      popularPassports?: {
+        /**
+         * Token ID
+         */
+        tokenId: string;
+        /**
+         * Username
+         */
+        username: string;
+        /**
+         * Number of verifications
+         */
+        verificationCount: number;
+      }[];
+    }
     export interface VerifySubmissionRequestDto {
       /**
        * Action to take on the submission
@@ -4269,6 +4930,48 @@ declare namespace Components {
        * Reason for rejection (required when action is reject)
        */
       rejectionReason?: string;
+    }
+    export interface WalletPassGenerateRequestDto {
+      /**
+       * Token ID of the Digital Passport NFT
+       */
+      tokenId: string;
+    }
+    export interface WalletPassResultDto {
+      /**
+       * Token ID of the Digital Passport NFT
+       */
+      tokenId: string;
+      /**
+       * Wallet platform (apple or google)
+       */
+      platform: 'apple' | 'google';
+      /**
+       * Direct download URL for Apple passes
+       */
+      downloadUrl?: string; // uri
+      /**
+       * URL to add pass to wallet
+       */
+      redirectUrl: string; // uri
+      /**
+       * Pass expiration timestamp
+       */
+      expiresAt: string; // date-time
+      /**
+       * Pass file buffer (for direct downloads)
+       */
+      passBuffer?: any;
+    }
+    export interface WalletPassUpdateRequestDto {
+      /**
+       * Token ID of the Digital Passport NFT
+       */
+      tokenId: string;
+      /**
+       * Wallet platform to update
+       */
+      platform: 'apple' | 'google';
     }
   }
 }
@@ -4458,6 +5161,30 @@ declare namespace Paths {
       }
     }
   }
+  namespace TouriiBackendControllerBatchVerifyPassports {
+    export type RequestBody = Components.Schemas.BatchVerificationRequestDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.BatchVerificationResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerCheckHealth {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -4594,9 +5321,9 @@ declare namespace Paths {
     }
     export interface RequestBody {
       /**
-       * Unique identifier for the story
+       * Unique identifier for the story (optional for standalone routes)
        */
-      storyId: string;
+      storyId?: string;
       /**
        * Name of the model route
        */
@@ -4622,9 +5349,9 @@ declare namespace Paths {
        */
       touristSpotList: {
         /**
-         * Unique identifier for the story chapter
+         * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -4870,6 +5597,76 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerCreateStandaloneTouristSpot {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+    }
+    export interface RequestBody {
+      /**
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
+       */
+      storyChapterId?: string;
+      /**
+       * Name of the tourist spot
+       */
+      touristSpotName: string;
+      /**
+       * Description of the tourist spot
+       */
+      touristSpotDesc: string;
+      /**
+       * Best visit time of the tourist spot
+       */
+      bestVisitTime: string;
+      /**
+       * Hashtags associated with this location
+       */
+      touristSpotHashtag: string[];
+      /**
+       * Image set for the tourist spot
+       */
+      imageSet?: {
+        /**
+         * Main image of the tourist spot
+         */
+        main: string;
+        /**
+         * Small images of the tourist spot
+         */
+        small: string[];
+      };
+      /**
+       * Address for enhanced search accuracy
+       */
+      address?: string;
+    }
+    namespace Responses {
+      export type $201 = Components.Schemas.TouristSpotResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerCreateStory {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -4938,6 +5735,89 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerCreateTouristRoute {
+    export interface HeaderParameters {
+      'x-user-id': Parameters.XUserId;
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+      export type XUserId = string;
+    }
+    export interface RequestBody {
+      /**
+       * Name of the tourist route (1-100 characters)
+       */
+      routeName: string;
+      /**
+       * Description of the route (1-500 characters)
+       */
+      regionDesc: string;
+      /**
+       * List of recommendations for this route (1-10 items)
+       */
+      recommendations: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+      /**
+       * Array of existing tourist spot IDs to include (1-20 spots)
+       */
+      touristSpotIds: [
+        string,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+        string?,
+      ];
+    }
+    namespace Responses {
+      export type $201 = Components.Schemas.ModelRouteResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerCreateTouristSpot {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -4953,9 +5833,9 @@ declare namespace Paths {
     }
     export interface RequestBody {
       /**
-       * Unique identifier for the story chapter
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
        */
-      storyChapterId: string;
+      storyChapterId?: string;
       /**
        * Name of the tourist spot
        */
@@ -5254,6 +6134,210 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerDownloadPdf {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+  }
+  namespace TouriiBackendControllerGenerateAiRouteRecommendations {
+    export interface HeaderParameters {
+      'x-user-id': Parameters.XUserId;
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+      export type XUserId = string;
+    }
+    export type RequestBody =
+      Components.Schemas.AiRouteRecommendationRequestDto;
+    namespace Responses {
+      export type $201 = Components.Schemas.AiRouteRecommendationResponseDto;
+      export interface $400 {}
+      export interface $429 {}
+      export interface $503 {}
+    }
+  }
+  namespace TouriiBackendControllerGenerateAppleWalletPass {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.WalletPassResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
+  namespace TouriiBackendControllerGenerateBothWalletPasses {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.BothWalletPassesResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
+  namespace TouriiBackendControllerGenerateGoogleWalletPass {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.WalletPassResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
+  namespace TouriiBackendControllerGeneratePdf {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $201 = Components.Schemas.PassportPdfResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
+  namespace TouriiBackendControllerGeneratePreview {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+  }
   namespace TouriiBackendControllerGetAllUsersForAdmin {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -5311,6 +6395,19 @@ declare namespace Paths {
         type?: string;
       }
       export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetAvailableHashtags {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type XApiKey = string;
+    }
+    namespace Responses {
+      export interface $201 {}
     }
   }
   namespace TouriiBackendControllerGetCheckins {
@@ -5725,7 +6822,19 @@ declare namespace Paths {
     }
     namespace Parameters {
       export type AcceptVersion = string;
+      export type Limit = string;
+      export type Offset = string;
+      export type Region = string;
+      export type Source = 'ai' | 'manual' | 'all';
+      export type UserId = string;
       export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+      userId?: Parameters.UserId;
+      region?: Parameters.Region;
+      source?: Parameters.Source;
     }
     namespace Responses {
       export type $200 = Components.Schemas.ModelRouteResponseDto[];
@@ -5760,6 +6869,43 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.StoryResponseDto[];
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetStandaloneTouristSpots {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type Limit = string;
+      export type Offset = string;
+      export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto[];
       export interface $400 {
         /**
          * example:
@@ -5892,6 +7038,42 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerGetTouristSpotById {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type TouristSpotId = string;
+      export type XApiKey = string;
+    }
+    export interface PathParameters {
+      touristSpotId: Parameters.TouristSpotId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
   namespace TouriiBackendControllerGetTouristSpotsByChapterId {
     export interface HeaderParameters {
       'accept-version': Parameters.AcceptVersion;
@@ -5940,6 +7122,43 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.UserSensitiveInfoResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerGetVerificationStats {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId?: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.VerificationStatsDto;
       export interface $400 {
         /**
          * example:
@@ -6266,6 +7485,68 @@ declare namespace Paths {
       }
     }
   }
+  namespace TouriiBackendControllerRefreshPassport {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export interface $200 {}
+    }
+  }
+  namespace TouriiBackendControllerSearchTouristSpots {
+    export interface HeaderParameters {
+      'accept-version': Parameters.AcceptVersion;
+      'x-api-key': Parameters.XApiKey;
+    }
+    namespace Parameters {
+      export type AcceptVersion = string;
+      export type Hashtags = string;
+      export type Limit = string;
+      export type Location = string;
+      export type Offset = string;
+      export type Query = string;
+      export type XApiKey = string;
+    }
+    export interface QueryParameters {
+      offset?: Parameters.Offset;
+      limit?: Parameters.Limit;
+      hashtags?: Parameters.Hashtags;
+      location?: Parameters.Location;
+      query?: Parameters.Query;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TouristSpotResponseDto[];
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
   namespace TouriiBackendControllerSignup {
     export type RequestBody = Components.Schemas.AuthSignupRequestDto;
     namespace Responses {
@@ -6430,7 +7711,47 @@ declare namespace Paths {
     export interface PathParameters {
       taskId: Parameters.TaskId;
     }
-    export type RequestBody = Components.Schemas.LocalInteractionSubmissionDto;
+    export type RequestBody =
+      | {
+          /**
+           * Type of interaction content
+           */
+          interactionType: 'text' | 'photo' | 'audio';
+          /**
+           * Text content or base64 encoded file
+           */
+          content: string;
+          /**
+           * Optional latitude for anti-cheat verification
+           */
+          latitude?: number;
+          /**
+           * Optional longitude for anti-cheat verification
+           */
+          longitude?: number;
+        }
+      | {
+          /**
+           * Type of interaction content
+           */
+          interactionType: 'text' | 'photo' | 'audio';
+          /**
+           * Text content (for text type)
+           */
+          content?: string;
+          /**
+           * Photo or audio file (for photo/audio types)
+           */
+          file?: string; // binary
+          /**
+           * Optional latitude for anti-cheat verification
+           */
+          latitude?: number;
+          /**
+           * Optional longitude for anti-cheat verification
+           */
+          longitude?: number;
+        };
     namespace Responses {
       export type $200 = Components.Schemas.LocalInteractionResponseDto;
       export interface $400 {
@@ -6503,9 +7824,9 @@ declare namespace Paths {
     }
     export interface RequestBody {
       /**
-       * Unique identifier for the story
+       * Unique identifier for the story (optional for standalone routes)
        */
-      storyId: string;
+      storyId?: string;
       /**
        * Name of the model route
        */
@@ -6531,9 +7852,9 @@ declare namespace Paths {
        */
       touristSpotList: {
         /**
-         * Unique identifier for the story chapter
+         * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
          */
-        storyChapterId: string;
+        storyChapterId?: string;
         /**
          * Name of the tourist spot
          */
@@ -7131,9 +8452,9 @@ declare namespace Paths {
     }
     export interface RequestBody {
       /**
-       * Unique identifier for the story chapter
+       * Unique identifier for the story chapter. Leave undefined to skip story chapter linking.
        */
-      storyChapterId: string;
+      storyChapterId?: string;
       /**
        * Name of the tourist spot
        */
@@ -7202,6 +8523,45 @@ declare namespace Paths {
       export interface $401 {}
     }
   }
+  namespace TouriiBackendControllerUpdateWalletPass {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    export type RequestBody = Components.Schemas.WalletPassUpdateRequestDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.WalletPassResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+      export interface $404 {}
+    }
+  }
   namespace TouriiBackendControllerUploadTaskPhoto {
     export interface HeaderParameters {
       'x-user-id': Parameters.XUserId;
@@ -7222,6 +8582,117 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.QuestTaskPhotoUploadResponseDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerValidateTokenStatus {
+    namespace Parameters {
+      /**
+       * example:
+       * 123
+       */
+      export type TokenId = string;
+    }
+    export interface PathParameters {
+      tokenId: /**
+       * example:
+       * 123
+       */
+      Parameters.TokenId;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.PassStatusDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerVerifyPassport {
+    namespace Parameters {
+      /**
+       * example:
+       * eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      export type VerificationCode = string;
+    }
+    export interface PathParameters {
+      verificationCode: /**
+       * example:
+       * eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      Parameters.VerificationCode;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.VerificationResultDto;
+      export interface $400 {
+        /**
+         * example:
+         * E_TB_021
+         */
+        code?: string;
+        /**
+         * example:
+         * Invalid version format
+         */
+        message?: string;
+        /**
+         * example:
+         * BAD_REQUEST
+         */
+        type?: string;
+      }
+      export interface $401 {}
+    }
+  }
+  namespace TouriiBackendControllerVerifyQrCode {
+    namespace Parameters {
+      /**
+       * example:
+       * eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      export type QrCode = string;
+    }
+    export interface PathParameters {
+      qrCode: /**
+       * example:
+       * eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      Parameters.QrCode;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.VerificationResultDto;
       export interface $400 {
         /**
          * example:

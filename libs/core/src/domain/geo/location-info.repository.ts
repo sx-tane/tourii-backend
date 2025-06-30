@@ -15,4 +15,19 @@ export interface LocationInfoRepository {
         longitude?: number,
         address?: string,
     ): Promise<LocationInfo>;
+
+    /**
+     * Get location image from Google Maps API
+     * @param locationName - The name of the location
+     * @param latitude - The latitude of the location
+     * @param longitude - The longitude of the location
+     * @param address - The address of the location
+     * @returns The location image
+     */
+    getLocationImage(
+        locationName: string,
+        latitude?: number,
+        longitude?: number,
+        address?: string,
+    ): Promise<string | null>;
 }

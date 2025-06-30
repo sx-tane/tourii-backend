@@ -1,11 +1,12 @@
-POST http://localhost:4000/routes/MRT202506-a9aaa9-221937-99acbc-BAAA/tourist-spots
+POST http://localhost:4000/routes/MRT202506-911b55-291927-f07a2e-BAAA/tourist-spots
 Content-Type: application/json
 x-api-key: your-api-key-2       
 accept-version: 1.0.0
 
 {
     "storyChapterId": "SCT202506-4d19cc-221936-56a0df-BAAA",
-    "touristSpotName": "原尻の滝",
+    "touristSpotName": "Harajiri Falls",
+    "ad"
     "touristSpotDesc": "Ninomiyahachimansha, over 800 years old and nestled on a forested hillside, was established by the noble warrior Ogata No Saburo Koreyoshi during the late Heian Period. Koreyoshi, a key figure in the Kamakura shogunate's establishment and linked to the serpent deity Oodamaki of Anamori Shrine, is celebrated for founding three shrines where his arrows landed, including Ninomiya Hachiman.\r\rThe region, known for its water abundance and rice cultivation, celebrates the Ogata Sansha Kawagoe-shi Matsuri in honor of water and harvest. The festival's centerpiece is the Kawagoe Festival, involving three shrines—Ichinomiya, Ninomiya, and Sannomiya—dedicated to divine figures from Japanese imperial history. It's famous for the ceremonial parade of portable shrines, especially the daring river crossing to Ninomiya Shrine, embodying a storied tradition observed around lunar mid-October.",
     "bestVisitTime": "9:00 am",
     "touristSpotHashtag": ["#Shrine", " #SpiritualSite"],

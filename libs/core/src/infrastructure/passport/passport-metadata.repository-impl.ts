@@ -8,9 +8,9 @@ import { R2StorageRepository } from '@app/core/domain/storage/r2-storage.reposit
 import { UserRepository } from '@app/core/domain/user/user.repository';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
+import { TouriiOnchainConstants } from '@app/tourii-onchain/tourii-onchain.constant';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TouriiOnchainConstants } from 'apps/tourii-onchain/src/tourii-onchain.constant';
 
 @Injectable()
 export class PassportMetadataRepositoryImpl implements PassportMetadataRepository {
@@ -94,7 +94,17 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
      * Check if token ID is a mock/test token
      */
     private isMockTokenId(tokenId: string): boolean {
-        const mockTokenIds = ['123', '456', '789', 'test-user-1', 'test-user-2', 'test-user-3', 'alice', 'bob', 'charlie'];
+        const mockTokenIds = [
+            '123',
+            '456',
+            '789',
+            'test-user-1',
+            'test-user-2',
+            'test-user-3',
+            'alice',
+            'bob',
+            'charlie',
+        ];
         return mockTokenIds.includes(tokenId);
     }
 
@@ -151,8 +161,8 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
                     { trait_type: 'CardKanji', value: '人' },
                 ],
             },
-            'alice': {
-                name: 'Alice\'s Travel Pass',
+            alice: {
+                name: "Alice's Travel Pass",
                 description: 'Explorer and Adventure Seeker',
                 image: 'https://example.com/alice-passport.png',
                 attributes: [
@@ -167,8 +177,8 @@ export class PassportMetadataRepositoryImpl implements PassportMetadataRepositor
                     { trait_type: 'CardKanji', value: '精' },
                 ],
             },
-            'bob': {
-                name: 'Bob\'s Digital ID',
+            bob: {
+                name: "Bob's Digital ID",
                 description: 'Tech Enthusiast Traveler',
                 image: 'https://example.com/bob-passport.png',
                 attributes: [

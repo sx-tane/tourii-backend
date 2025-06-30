@@ -53,6 +53,7 @@ export class ModelRouteResultBuilder {
             regionLongitude: modelRoute.regionLongitude ?? 0,
             regionBackgroundMedia: modelRoute.regionBackgroundMedia ?? '',
             recommendation: modelRoute.recommendation ?? [],
+            isAiGenerated: modelRoute.isAiGenerated ?? false,
             touristSpotList:
                 modelRoute.touristSpotList?.map((touristSpot) =>
                     ModelRouteResultBuilder.touristSpotToDto(

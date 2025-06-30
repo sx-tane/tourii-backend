@@ -71,7 +71,25 @@
       "Bash(npx tsc:*)",
       "Bash(kill:*)",
       "Bash(docker-compose up:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh pr comment:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(psql:*)",
+      "Bash(timeout 30 pnpm start:dev:tourii-backend 2 >& 1)",
+      "Bash(git checkout:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(-H \"accept-version: 1.0.0\" )",
+      "Bash(-H \"x-api-key: test-key\")",
+      "Bash(npx prisma db execute:*)",
+      "Bash(git worktree:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

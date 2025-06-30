@@ -4,6 +4,9 @@ import {
     UserTaskLogRepository,
     UserTravelLogRepository,
 } from '@app/core';
+import { AiRoute } from '@app/core/domain/ai-route/ai-route';
+import { RouteFilter, RouteFilterMode } from '@app/core/domain/ai-route/route-filter';
+import { RouteRecommendation } from '@app/core/domain/ai-route/route-recommendation';
 import type { EncryptionRepository } from '@app/core/domain/auth/encryption.repository';
 import { JwtRepository, QrCodePayload } from '@app/core/domain/auth/jwt.repository';
 import { MomentRepository } from '@app/core/domain/feed/moment.repository';
@@ -28,17 +31,29 @@ import { WeatherInfo } from '@app/core/domain/geo/weather-info';
 import { WeatherInfoRepository } from '@app/core/domain/geo/weather-info.repository';
 import { LocationTrackingService } from '@app/core/domain/location/location-tracking.service';
 import { DigitalPassportRepository } from '@app/core/domain/passport/digital-passport.repository';
+import {
+    BatchVerificationRequest,
+    BatchVerificationResult,
+    BothWalletPassesResult,
+    PassportPdfResult,
+    VerificationResult,
+    VerificationStats,
+    WalletPassResult,
+} from '@app/core/domain/passport/passport';
 import { PassportMetadataRepository } from '@app/core/domain/passport/passport-metadata.repository';
 import { PassportPdfRepository } from '@app/core/domain/passport/passport-pdf.repository';
 import { DeviceInfo, WalletPassRepository } from '@app/core/domain/passport/wallet-pass.repository';
 import { UserEntity } from '@app/core/domain/user/user.entity';
 import type { GetAllUsersOptions, UserRepository } from '@app/core/domain/user/user.repository';
+import { AiRouteGeneratorRepositoryImpl } from '@app/core/infrastructure/ai-route/ai-route-generator.repository-impl';
+import { ContextStorage } from '@app/core/support/context/context-storage';
 import { TouriiBackendAppErrorType } from '@app/core/support/exception/tourii-backend-app-error-type';
 import { TouriiBackendAppException } from '@app/core/support/exception/tourii-backend-app-exception';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { CheckInMethod, QuestType, StoryStatus, TaskStatus } from '@prisma/client';
 import { ethers } from 'ethers';
 import { imageSize } from 'image-size';
+import { AiRouteRecommendationRequestDto } from '../controller/model/tourii-request/ai-route-recommendation-request.model';
 import type { StoryChapterCreateRequestDto } from '../controller/model/tourii-request/create/chapter-story-create-request.model';
 import type { LocalInteractionSubmissionDto } from '../controller/model/tourii-request/create/local-interaction-request.model';
 import type { LoginRequestDto } from '../controller/model/tourii-request/create/login-request.model';
@@ -48,6 +63,7 @@ import type { QuestTaskCreateRequestDto } from '../controller/model/tourii-reque
 import type { StoryCreateRequestDto } from '../controller/model/tourii-request/create/story-create-request.model';
 import type { TouristSpotCreateRequestDto } from '../controller/model/tourii-request/create/tourist-spot-create-request.model';
 import type { CheckinsFetchRequestDto } from '../controller/model/tourii-request/fetch/checkins-fetch-request.model';
+import type { UnifiedRoutesQueryDto } from '../controller/model/tourii-request/query/unified-routes-query.model';
 import type { StoryChapterUpdateRequestDto } from '../controller/model/tourii-request/update/chapter-story-update-request.model';
 import type { ModelRouteUpdateRequestDto } from '../controller/model/tourii-request/update/model-route-update-request.model';
 import type { QuestTaskUpdateRequestDto } from '../controller/model/tourii-request/update/quest-task-update-request.model';
@@ -58,6 +74,7 @@ import {
     AdminUserListResponseDto,
     AdminUserQueryDto,
 } from '../controller/model/tourii-response/admin/admin-user-list-response.model';
+import { AiRouteRecommendationResponseDto } from '../controller/model/tourii-response/ai-route-recommendation-response.model';
 import { AuthSignupResponseDto } from '../controller/model/tourii-response/auth-signup-response.model';
 import type { StoryChapterResponseDto } from '../controller/model/tourii-response/chapter-story-response.model';
 import { HomepageHighlightsResponseDto } from '../controller/model/tourii-response/homepage/highlight-response.model';
@@ -83,73 +100,8 @@ import {
 import type { UserTravelLogListResponseDto } from '../controller/model/tourii-response/user/user-travel-log-list-response.model';
 import { GroupQuestGateway } from '../group-quest/group-quest.gateway';
 import { TouriiBackendConstants } from '../tourii-backend.constant';
+import { AiRouteRecommendationResultBuilder } from './builder/ai-route-recommendation-result-builder';
 import { LocationInfoResultBuilder } from './builder/location-info-result-builder';
-
-// Passport service interfaces
-export interface PassportPdfResult {
-    tokenId: string;
-    downloadUrl: string;
-    qrCode: string;
-    expiresAt: Date;
-}
-
-export interface WalletPassResult {
-    tokenId: string;
-    platform: 'apple' | 'google';
-    downloadUrl?: string;
-    redirectUrl: string;
-    expiresAt: Date;
-    passBuffer?: Buffer;
-}
-
-export interface BothWalletPassesResult {
-    tokenId: string;
-    apple: WalletPassResult;
-    google: WalletPassResult;
-}
-
-export interface VerificationResult {
-    valid: boolean;
-    tokenId: string;
-    verifiedAt: Date;
-    expiresAt?: Date;
-    passportData?: {
-        username: string;
-        level: string;
-        passportType: string;
-        questsCompleted: number;
-        travelDistance: number;
-        magatamaPoints: number;
-        registeredAt: Date;
-    };
-    error?: string;
-}
-
-export interface BatchVerificationRequest {
-    tokens: string[];
-}
-
-export interface BatchVerificationResult {
-    results: VerificationResult[];
-    summary: {
-        total: number;
-        valid: number;
-        invalid: number;
-    };
-}
-
-export interface VerificationStats {
-    tokenId?: string;
-    totalVerifications: number;
-    todayVerifications: number;
-    lastVerified?: Date;
-    popularPassports?: {
-        tokenId: string;
-        username: string;
-        verificationCount: number;
-    }[];
-}
-
 import { ModelRouteCreateRequestBuilder } from './builder/model-route-create-request-builder';
 import { ModelRouteResultBuilder } from './builder/model-route-result-builder';
 import { ModelRouteUpdateRequestBuilder } from './builder/model-route-update-request-builder';
@@ -212,6 +164,7 @@ export class TouriiBackendService {
         @Inject(TouriiBackendConstants.PASSPORT_METADATA_REPOSITORY_TOKEN)
         private readonly passportMetadataRepository: PassportMetadataRepository,
         private readonly groupQuestGateway: GroupQuestGateway,
+        private readonly aiRouteGeneratorRepository: AiRouteGeneratorRepositoryImpl,
     ) {}
 
     // ==========================================
@@ -506,7 +459,7 @@ export class TouriiBackendService {
 
         // 2. Check if story saga is undefined
         if (!storySaga) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         // 3. Return story response DTO list
@@ -522,7 +475,7 @@ export class TouriiBackendService {
         const storyChapter: StoryChapter[] =
             await this.storyRepository.getStoryChaptersByStoryId(storyId);
         if (!storyChapter) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
         return storyChapter.map((storyChapter) =>
             StoryResultBuilder.storyChapterToDto(storyChapter, storyId),
@@ -757,7 +710,9 @@ export class TouriiBackendService {
 
         // Fetch story entity only if storyId is provided
         const [storyEntity, touristSpotGeoInfoList, regionInfo] = await Promise.all([
-            modelRoute.storyId ? this.storyRepository.getStoryById(modelRoute.storyId) : Promise.resolve(null),
+            modelRoute.storyId
+                ? this.storyRepository.getStoryById(modelRoute.storyId)
+                : Promise.resolve(null),
             this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
                 standardizedNames,
                 standardizedAddresses, // Pass addresses for enhanced accuracy
@@ -841,7 +796,7 @@ export class TouriiBackendService {
             await this.modelRouteRepository.getModelRouteByModelRouteId(modelRouteId);
 
         if (!modelRouteEntity.storyId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         // 3. Second pass: Get accurate lat/long using standardized name + address
@@ -894,6 +849,251 @@ export class TouriiBackendService {
         }
 
         return touristSpotResponseDto;
+    }
+
+    /**
+     * Create standalone tourist spot without requiring a model route
+     * @param touristSpotDto Tourist spot create request DTO
+     * @returns Tourist spot response DTO
+     */
+    async createStandaloneTouristSpot(
+        touristSpotDto: TouristSpotCreateRequestDto,
+    ): Promise<TouristSpotResponseDto> {
+        // 1. Standardize tourist spot name and address using Google Places API
+        let standardizedSpotName = touristSpotDto.touristSpotName;
+        let standardizedAddress = touristSpotDto.address;
+
+        try {
+            const locationInfo = await this.locationInfoRepository.getLocationInfo(
+                touristSpotDto.touristSpotName,
+                undefined,
+                undefined,
+                touristSpotDto.address,
+            );
+            standardizedSpotName = locationInfo.name;
+            standardizedAddress = locationInfo.formattedAddress || touristSpotDto.address;
+            Logger.log(
+                `Standardized "${touristSpotDto.touristSpotName}" → "${standardizedSpotName}" with address "${standardizedAddress}"`,
+            );
+        } catch (error) {
+            Logger.warn(`Failed to standardize spot "${touristSpotDto.touristSpotName}": ${error}`);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_006);
+        }
+
+        // 2. Get accurate lat/long using standardized name + address
+        const addresses = standardizedAddress ? [standardizedAddress] : undefined;
+        const [touristSpotGeoInfo] =
+            await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
+                [standardizedSpotName],
+                addresses,
+            );
+
+        // 4. Create tourist spot entity instance with standardized name
+        const modifiedDto = { ...touristSpotDto, touristSpotName: standardizedSpotName };
+        const touristSpotEntityInstance = ModelRouteCreateRequestBuilder.dtoToTouristSpot(
+            [modifiedDto],
+            [touristSpotGeoInfo],
+            null,
+            'admin',
+        )[0];
+
+        // 5. Create standalone tourist spot (no model route ID)
+        const createdTouristSpotEntity: TouristSpot =
+            await this.modelRouteRepository.createTouristSpot(touristSpotEntityInstance);
+
+        // 6. Fetch weather data for the new spot
+        const [currentTouristSpotWeatherInfo] =
+            await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([touristSpotGeoInfo]);
+
+        // 7. Build response DTO
+        const touristSpotResponseDto: TouristSpotResponseDto =
+            ModelRouteResultBuilder.touristSpotToDto(createdTouristSpotEntity, [
+                currentTouristSpotWeatherInfo,
+            ]);
+
+        // 8. Update the corresponding story chapter if needed
+        if (createdTouristSpotEntity.touristSpotId && createdTouristSpotEntity.storyChapterId) {
+            await this.updateStoryChaptersWithTouristSpotIds([
+                {
+                    storyChapterId: createdTouristSpotEntity.storyChapterId,
+                    touristSpotId: createdTouristSpotEntity.touristSpotId,
+                },
+            ]);
+        }
+
+        return touristSpotResponseDto;
+    }
+
+    /**
+     * Create tourist route (user-generated route using existing tourist spots)
+     * @param routeName Name of the route
+     * @param regionDesc Description of the route
+     * @param recommendations Array of recommendations
+     * @param touristSpotIds Array of existing tourist spot IDs
+     * @param userId User creating the route
+     * @returns Model route response DTO
+     */
+    async createTouristRoute(
+        routeName: string,
+        regionDesc: string,
+        recommendations: string[],
+        touristSpotIds: string[],
+        userId: string,
+    ): Promise<ModelRouteResponseDto> {
+        // Create tourist route using repository
+        const modelRouteEntity = await this.modelRouteRepository.createTouristRoute(
+            routeName,
+            regionDesc,
+            recommendations,
+            touristSpotIds,
+            userId,
+        );
+
+        // Get weather info for response
+        const regionInfo: GeoInfo = {
+            touristSpotName: modelRouteEntity.region ?? '',
+            latitude: modelRouteEntity.regionLatitude ?? 0,
+            longitude: modelRouteEntity.regionLongitude ?? 0,
+            formattedAddress: modelRouteEntity.region || '',
+        };
+
+        const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                (modelRouteEntity.touristSpotList || []).map((spot) => ({
+                    touristSpotName: spot.touristSpotName ?? '',
+                    latitude: spot.latitude ?? 0,
+                    longitude: spot.longitude ?? 0,
+                    formattedAddress: spot.address || '',
+                })),
+            ),
+            this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]),
+        ]);
+
+        const currentRegionWeatherInfo = currentRegionWeather[0];
+
+        // Build response DTO
+        return ModelRouteResultBuilder.modelRouteToDto(
+            modelRouteEntity,
+            currentTouristSpotWeatherList,
+            currentRegionWeatherInfo,
+        );
+    }
+
+    /**
+     * Generate AI-powered route recommendations based on user keywords
+     *
+     */
+    async generateUnifiedAiRouteRecommendations(
+        request: AiRouteRecommendationRequestDto,
+        userId: string,
+    ): Promise<AiRouteRecommendationResponseDto> {
+        try {
+            // 1. Validate request
+            RouteRecommendation.validateRequest(request);
+
+            // 2. Get existing routes efficiently by region (excludes AI-generated routes by default)
+            const regionFilteredRoutes: ModelRouteEntity[] =
+                await this.modelRouteRepository.getModelRoutesByRegion(
+                    request.region,
+                    false, // excludeAiGenerated = false (only manual routes)
+                    request.maxRoutes, // optional limit for performance
+                );
+
+            // 3. Apply hashtag filtering using optimized service
+            const matchingExistingRoutes = RouteFilter.filterRoutesByHashtags(
+                regionFilteredRoutes,
+                {
+                    keywords: request.keywords,
+                    mode: request.mode as unknown as RouteFilterMode,
+                    maxRoutes: request.maxRoutes || 5,
+                },
+            );
+
+            // 4. Generate AI routes
+            const aiResult = await AiRoute.generateAiRoutes(
+                {
+                    keywords: request.keywords,
+                    mode: request.mode,
+                    region: request.region,
+                    clusteringOptions: {
+                        proximityRadiusKm: request.proximityRadiusKm,
+                        minSpotsPerCluster: request.minSpotsPerCluster,
+                        maxSpotsPerCluster: request.maxSpotsPerCluster,
+                    },
+                    maxRoutes: request.maxRoutes,
+                    userId,
+                },
+                this.modelRouteRepository,
+                this.aiRouteGeneratorRepository,
+                this.locationInfoRepository,
+            );
+
+            // 5. Build unified response using result builder
+            return AiRouteRecommendationResultBuilder.buildUnifiedResponse({
+                keywords: request.keywords,
+                region: request.region,
+                existingRoutes: matchingExistingRoutes,
+                aiResult,
+                userId: userId || 'anonymous',
+                aiAvailable: this.aiRouteGeneratorRepository.getServiceStatus().aiAvailable,
+            });
+        } catch (error) {
+            // Use result builder for error response
+            return AiRouteRecommendationResultBuilder.buildErrorResponse(
+                error instanceof Error ? error : new Error(String(error)),
+            );
+        }
+    }
+
+    /**
+     * Get available hashtags from the database
+     * @param region Region to filter hashtags by
+     * @returns Object containing hashtags, total count, and top hashtags
+     */
+    async getAvailableHashtags(region?: string): Promise<{
+        hashtags: string[];
+        totalCount: number;
+        topHashtags: Array<{ hashtag: string; count: number }>;
+    }> {
+        try {
+            const allRoutes = await this.modelRouteRepository.getModelRoutes();
+            const filteredRoutes = region
+                ? allRoutes.filter((route) =>
+                      route.region?.toLowerCase().includes(region.toLowerCase()),
+                  )
+                : allRoutes;
+
+            // Extract all hashtags
+            const allHashtags: string[] = [];
+            filteredRoutes.forEach((route) => {
+                route.touristSpotList?.forEach((spot) => {
+                    if (spot.touristSpotHashtag) {
+                        allHashtags.push(...spot.touristSpotHashtag);
+                    }
+                });
+            });
+
+            // Count hashtag occurrences
+            const hashtagCounts = new Map<string, number>();
+            allHashtags.forEach((hashtag) => {
+                hashtagCounts.set(hashtag, (hashtagCounts.get(hashtag) || 0) + 1);
+            });
+
+            // Get unique hashtags and top hashtags
+            const hashtags = Array.from(hashtagCounts.keys());
+            const topHashtags = Array.from(hashtagCounts.entries())
+                .map(([hashtag, count]) => ({ hashtag, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 20);
+
+            return {
+                hashtags,
+                totalCount: hashtags.length,
+                topHashtags,
+            };
+        } catch {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_005);
+        }
     }
 
     /**
@@ -962,7 +1162,7 @@ export class TouriiBackendService {
                     modelRoute.region,
                 );
                 if (!regionGeoInfo) {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_002);
                 }
             } catch (error) {
                 if (error instanceof TouriiBackendAppException) throw error;
@@ -983,7 +1183,7 @@ export class TouriiBackendService {
         );
 
         if (!updated.modelRouteId) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
         }
 
         // 5. Update tourist spots in parallel after model route update succeeds
@@ -1023,29 +1223,17 @@ export class TouriiBackendService {
     async updateTouristSpot(
         touristSpot: TouristSpotUpdateRequestDto,
     ): Promise<TouristSpotResponseDto> {
-        // 1. Get existing tourist spot to check for storyChapterId transition
-        let existingTouristSpot: TouristSpot | undefined;
-        try {
-            // Get the existing tourist spot by querying all model routes that contain it
-            const modelRoutes = await this.modelRouteRepository.getModelRoutes();
-            for (const route of modelRoutes) {
-                if (route.touristSpotList) {
-                    const spot = route.touristSpotList.find(
-                        (s: TouristSpot) => s.touristSpotId === touristSpot.touristSpotId,
-                    );
-                    if (spot) {
-                        existingTouristSpot = spot;
-                        break;
-                    }
-                }
-            }
-        } catch (error) {
-            Logger.warn(`Failed to fetch existing tourist spot: ${error}`);
-        }
-
-        // 2. Standardize tourist spot name using Google Places API (if provided)
+        // 1. Standardize tourist spot name using Google Places API (if provided)
         let standardizedTouristSpot = touristSpot;
         let geoInfo: GeoInfo | undefined;
+
+        // 2. Get existing tourist spot to check for storyChapterId transition
+        const existingTouristSpot: TouristSpot | null =
+            await this.modelRouteRepository.getTouristSpotById(touristSpot.touristSpotId);
+        if (!existingTouristSpot) {
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_005);
+        }
+
         if (touristSpot.touristSpotName) {
             const standardizedSpotName = touristSpot.touristSpotName;
             try {
@@ -1069,7 +1257,7 @@ export class TouriiBackendService {
             //             standardizedSpotName,
             //         ]);
             //     if (!geoInfoList || geoInfoList.length === 0) {
-            //         throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+            //         throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_002);
             //     }
             //     geoInfo = geoInfoList[0];
             // } catch (error) {
@@ -1088,10 +1276,11 @@ export class TouriiBackendService {
         // 4. Handle story chapter linking based on storyChapterId changes
         const oldStoryChapterId = existingTouristSpot?.storyChapterId;
         const newStoryChapterId = updated.storyChapterId;
-        
+
         // Check if we're transitioning from null/undefined to a valid chapter ID, or updating to a new valid chapter
-        const shouldUpdateChapterLink = updated.touristSpotId && 
-            newStoryChapterId && 
+        const shouldUpdateChapterLink =
+            updated.touristSpotId &&
+            newStoryChapterId &&
             (!oldStoryChapterId || oldStoryChapterId !== newStoryChapterId);
 
         if (shouldUpdateChapterLink) {
@@ -1120,7 +1309,7 @@ export class TouriiBackendService {
                     ]);
 
                 if (!geoInfoList || geoInfoList.length === 0) {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_002);
                 }
 
                 geoInfo = geoInfoList[0];
@@ -1138,7 +1327,7 @@ export class TouriiBackendService {
             );
 
             if (!weatherInfoList || weatherInfoList.length === 0) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_003);
             }
 
             weatherInfo = weatherInfoList[0];
@@ -1151,209 +1340,46 @@ export class TouriiBackendService {
     }
 
     /**
-     * Get all model routes
+     * Get model routes with optional filtering and pagination
+     * @param query Optional query parameters for filtering and pagination
      * @returns Model route response DTO list
      */
-    async getModelRoutes(): Promise<ModelRouteResponseDto[]> {
-        const modelRouteEntities = await this.modelRouteRepository.getModelRoutes();
-        if (!modelRouteEntities || modelRouteEntities.length === 0) {
-            return [];
-        }
+    async getModelRoutes(query?: UnifiedRoutesQueryDto): Promise<ModelRouteResponseDto[]> {
+        // Use unified routes with filtering if query parameters are provided
+        const routes = query
+            ? await this.modelRouteRepository.getUnifiedRoutes(query)
+            : await this.modelRouteRepository.getModelRoutes();
 
-        // 1. Collect all unique geo identifiers (spot names and region names)
-        const allSpotNames = new Set<string>();
-        const allRegionNames = new Set<string>();
+        return Promise.all(
+            routes.map(async (route) => {
+                const regionInfo: GeoInfo = {
+                    touristSpotName: route.region ?? '',
+                    latitude: route.regionLatitude ?? 0,
+                    longitude: route.regionLongitude ?? 0,
+                    formattedAddress: route.region || '',
+                };
 
-        for (const entity of modelRouteEntities) {
-            if (entity.region) {
-                allRegionNames.add(entity.region);
-            }
-            entity.touristSpotList?.forEach((spot) => {
-                if (spot.touristSpotName) {
-                    allSpotNames.add(spot.touristSpotName);
-                }
-            });
-        }
+                const [currentTouristSpotWeatherList, currentRegionWeather] = await Promise.all([
+                    this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
+                        (route.touristSpotList || []).map((spot) => ({
+                            touristSpotName: spot.touristSpotName ?? '',
+                            latitude: spot.latitude ?? 0,
+                            longitude: spot.longitude ?? 0,
+                            formattedAddress: spot.address || '',
+                        })),
+                    ),
+                    this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([regionInfo]),
+                ]);
 
-        const uniqueSpotNames = Array.from(allSpotNames);
-        const uniqueRegionNames = Array.from(allRegionNames);
+                const currentRegionWeatherInfo = currentRegionWeather[0];
 
-        // 2. Batch fetch GeoInfo
-        let spotGeoInfos: GeoInfo[] = [];
-        let regionGeoInfos: GeoInfo[] = [];
-
-        try {
-            if (uniqueSpotNames.length > 0) {
-                spotGeoInfos =
-                    await this.geoInfoRepository.getGeoLocationInfoByTouristSpotNameList(
-                        uniqueSpotNames,
-                    );
-                // Ensure all requested spotGeoInfos were found
-                if (spotGeoInfos.length !== uniqueSpotNames.length) {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
-                }
-            }
-            if (uniqueRegionNames.length > 0) {
-                regionGeoInfos = await Promise.all(
-                    uniqueRegionNames.map(async (name) => {
-                        const regionGeo =
-                            await this.geoInfoRepository.getRegionInfoByRegionName(name);
-                        // getRegionInfoByRegionName should throw if not found, but double check
-                        if (!regionGeo)
-                            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
-                        return regionGeo;
-                    }),
+                return ModelRouteResultBuilder.modelRouteToDto(
+                    route,
+                    currentTouristSpotWeatherList,
+                    currentRegionWeatherInfo,
                 );
-            }
-        } catch (error) {
-            if (error instanceof TouriiBackendAppException) throw error;
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_GEO_004); // Generic Geo API error if not already specific
-        }
-
-        const spotGeoInfoMap = new Map(spotGeoInfos.map((geo) => [geo.touristSpotName, geo]));
-        const regionGeoInfoMap = new Map(regionGeoInfos.map((geo) => [geo.touristSpotName, geo])); // Assuming region name was used as touristSpotName in its GeoInfo
-
-        // 3. Batch fetch WeatherInfo
-        const allGeoInfosForWeatherFetch = [...spotGeoInfos, ...regionGeoInfos].filter(
-            (geo): geo is GeoInfo => !!geo, // Ensure only valid GeoInfo objects are passed
+            }),
         );
-        const weatherInfoMap = new Map<string, WeatherInfo>(); // Keyed by spotName/regionName
-        try {
-            if (allGeoInfosForWeatherFetch.length > 0) {
-                const fetchedWeatherInfos =
-                    await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(
-                        allGeoInfosForWeatherFetch,
-                    );
-                // Ensure all requested weatherInfos were found
-                if (fetchedWeatherInfos.length !== allGeoInfosForWeatherFetch.length) {
-                    Logger.error(
-                        `Weather not found for tourist spot: ${allGeoInfosForWeatherFetch.length} ${fetchedWeatherInfos.length}`,
-                        'TouriiBackendService',
-                    );
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
-                }
-                fetchedWeatherInfos.forEach((weather) => {
-                    if (weather.touristSpotName) {
-                        weatherInfoMap.set(weather.touristSpotName, weather);
-                    } else {
-                        // This case should ideally not happen if data from weather repo is consistent
-                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001); // Bad data from weather service
-                    }
-                });
-            }
-        } catch (error) {
-            if (error instanceof TouriiBackendAppException) throw error;
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_WEATHER_004); // Generic Weather API error
-        }
-
-        // 4. Build Response DTOs
-        const responseDtos: ModelRouteResponseDto[] = [];
-        for (const entity of modelRouteEntities) {
-            if (!entity.modelRouteId || !entity.region || !entity.touristSpotList) {
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027); // Route entity incomplete
-            }
-
-            const currentTouristSpotGeoInfos: GeoInfo[] = [];
-            entity.touristSpotList?.forEach((spot) => {
-                if (spot.touristSpotName) {
-                    const geo = spotGeoInfoMap.get(spot.touristSpotName);
-                    if (geo) {
-                        currentTouristSpotGeoInfos.push(geo);
-                    } else {
-                        // This implies a spot name in the entity didn't match any fetched GeoInfo, or was filtered.
-                        // If geoInfoRepository.getGeoLocationInfoByTouristSpotNameList throws/filters, this might not be hit for missing.
-                        // Assuming E_TB_025 was already thrown if a name in uniqueSpotNames wasn't found.
-                        // If it gets here, it implies an internal logic error or inconsistent data.
-                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
-                    }
-                } else {
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_001); // Spot missing name
-                }
-            });
-
-            const currentRegionGeoInfo = regionGeoInfoMap.get(entity.region);
-            if (!currentRegionGeoInfo) {
-                // Similar to above, E_TB_025 should have been thrown if region name wasn't found during batch fetch.
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
-            }
-
-            const currentTouristSpotWeatherList: WeatherInfo[] = [];
-            currentTouristSpotGeoInfos.forEach((geo) => {
-                const weather = weatherInfoMap.get(geo.touristSpotName);
-                if (weather) {
-                    currentTouristSpotWeatherList.push(weather);
-                } else {
-                    // E_TB_026 should have been thrown if weather for a fetched GeoInfo wasn't found.
-                    Logger.error(
-                        `Weather not found for tourist spot: ${geo.touristSpotName} ${geo.touristSpotName}`,
-                        'TouriiBackendService',
-                    );
-                    throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
-                }
-            });
-
-            let currentRegionWeatherInfo: WeatherInfo | undefined;
-            if (currentRegionGeoInfo) {
-                Logger.debug(
-                    `Looking for weather for region: "${currentRegionGeoInfo.touristSpotName}"`,
-                );
-                Logger.debug(
-                    `Available weather keys: ${Array.from(weatherInfoMap.keys()).join(', ')}`,
-                );
-
-                // Primary lookup by exact name match
-                currentRegionWeatherInfo = weatherInfoMap.get(currentRegionGeoInfo.touristSpotName);
-
-                // Fallback: try case-insensitive lookup
-                if (!currentRegionWeatherInfo) {
-                    const regionNameLower = currentRegionGeoInfo.touristSpotName.toLowerCase();
-                    for (const [key, weather] of weatherInfoMap.entries()) {
-                        if (key.toLowerCase() === regionNameLower) {
-                            currentRegionWeatherInfo = weather;
-                            Logger.debug(
-                                `Found weather using case-insensitive match: "${key}" for region "${currentRegionGeoInfo.touristSpotName}"`,
-                            );
-                            break;
-                        }
-                    }
-                }
-
-                // Second fallback: try partial name match (for cases like "Aomori Prefecture" vs "Aomori")
-                if (!currentRegionWeatherInfo) {
-                    const regionNameLower = currentRegionGeoInfo.touristSpotName.toLowerCase();
-                    for (const [key, weather] of weatherInfoMap.entries()) {
-                        const keyLower = key.toLowerCase();
-                        if (
-                            keyLower.includes(regionNameLower) ||
-                            regionNameLower.includes(keyLower)
-                        ) {
-                            currentRegionWeatherInfo = weather;
-                            Logger.debug(
-                                `Found weather using partial match: "${key}" for region "${currentRegionGeoInfo.touristSpotName}"`,
-                            );
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!currentRegionWeatherInfo) {
-                Logger.error(
-                    `Weather not found for region: "${currentRegionGeoInfo.touristSpotName}". Available keys: [${Array.from(weatherInfoMap.keys()).join(', ')}]`,
-                    'TouriiBackendService',
-                );
-                throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
-            }
-
-            responseDtos.push(
-                ModelRouteResultBuilder.modelRouteToDto(
-                    entity,
-                    currentTouristSpotWeatherList, // This should be an array of WeatherInfo
-                    currentRegionWeatherInfo, // Now guaranteed to be WeatherInfo due to the check above
-                ),
-            );
-        }
-        return responseDtos;
     }
 
     /**
@@ -1367,7 +1393,7 @@ export class TouriiBackendService {
         // getModelRouteByModelRouteId in repo already throws if not found, so no need to check here.
 
         if (!modelRouteEntity.region || !modelRouteEntity.touristSpotList) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_027);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_004);
         }
 
         const spotNames = modelRouteEntity.touristSpotList
@@ -1385,14 +1411,14 @@ export class TouriiBackendService {
                 .getGeoLocationInfoByTouristSpotNameList(spotNames)
                 .then((geos) => {
                     if (geos.length !== spotNames.length)
-                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_002);
                     return geos;
                 }),
             this.geoInfoRepository
                 .getRegionInfoByRegionName(modelRouteEntity.region)
                 .then((geo) => {
                     if (!geo)
-                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_025);
+                        throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_002);
                     return geo;
                 }),
         ]).catch((error) => {
@@ -1410,7 +1436,7 @@ export class TouriiBackendService {
             });
 
         if (weatherInfos.length !== allGeoInfosForWeather.length) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_026);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_MR_003);
         }
 
         const currentTouristSpotWeatherList = weatherInfos.slice(0, touristSpotGeoInfoList.length);
@@ -1491,6 +1517,171 @@ export class TouriiBackendService {
      */
     async deleteTouristSpot(touristSpotId: string): Promise<void> {
         await this.modelRouteRepository.deleteTouristSpot(touristSpotId);
+    }
+
+    /**
+     * Get standalone tourist spots (not linked to any route)
+     * @param limit Maximum number of results to return
+     * @param offset Number of results to skip for pagination
+     * @returns Tourist spot response DTOs for standalone spots
+     */
+    async getStandaloneTouristSpots(
+        limit?: number,
+        offset?: number,
+    ): Promise<TouristSpotResponseDto[]> {
+        const touristSpots = await this.modelRouteRepository.getStandaloneTouristSpots(
+            limit,
+            offset,
+        );
+
+        if (!touristSpots || touristSpots.length === 0) {
+            return [];
+        }
+
+        // Batch fetch weather info for all spots using the same pattern as other methods
+        const allGeoInfos = touristSpots
+            .filter((spot) => spot.latitude && spot.longitude)
+            .map((spot) => ({
+                touristSpotName: spot.touristSpotName || '',
+                latitude: spot.latitude!,
+                longitude: spot.longitude!,
+                formattedAddress: spot.address || '',
+            }));
+
+        const weatherInfoMap = new Map<string, WeatherInfo>();
+        if (allGeoInfos.length > 0) {
+            try {
+                const weatherInfoList =
+                    await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(allGeoInfos);
+                weatherInfoList.forEach((weather) => {
+                    if (weather.touristSpotName) {
+                        weatherInfoMap.set(weather.touristSpotName, weather);
+                    }
+                });
+            } catch (fetchError) {
+                this.logger.warn(
+                    `Failed to fetch weather for standalone tourist spots: ${fetchError}`,
+                );
+            }
+        }
+
+        // Convert entities to response DTOs using ModelRouteResultBuilder
+        return touristSpots.map((spot) => {
+            const spotWeatherInfo = spot.touristSpotName
+                ? weatherInfoMap.get(spot.touristSpotName)
+                : undefined;
+            const weatherInfoList = spotWeatherInfo ? [spotWeatherInfo] : [];
+
+            return ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfoList);
+        });
+    }
+
+    /**
+     * Get tourist spot by ID
+     * @param touristSpotId Tourist spot ID
+     * @returns Tourist spot response DTO or null if not found
+     */
+    async getTouristSpotById(touristSpotId: string): Promise<TouristSpotResponseDto | null> {
+        const touristSpot = await this.modelRouteRepository.getTouristSpotById(touristSpotId);
+
+        if (!touristSpot) {
+            return null;
+        }
+
+        // Get weather info using the same pattern as other methods
+        let weatherInfoList: WeatherInfo[] = [];
+        if (touristSpot.latitude && touristSpot.longitude) {
+            try {
+                const geoInfo: GeoInfo = {
+                    touristSpotName: touristSpot.touristSpotName || '',
+                    latitude: touristSpot.latitude,
+                    longitude: touristSpot.longitude,
+                    formattedAddress: touristSpot.address || '',
+                };
+                weatherInfoList = await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList([
+                    geoInfo,
+                ]);
+            } catch (fetchError) {
+                this.logger.warn(
+                    `Failed to fetch weather for tourist spot ${touristSpot.touristSpotId}: ${fetchError}`,
+                );
+            }
+        }
+
+        // Use ModelRouteResultBuilder for consistent DTO creation
+        return ModelRouteResultBuilder.touristSpotToDto(touristSpot, weatherInfoList);
+    }
+
+    /**
+     * Search tourist spots with filters
+     * @param query Search query for name and description
+     * @param location Search query for address
+     * @param hashtags Comma-separated hashtags to filter by
+     * @param limit Maximum number of results to return
+     * @param offset Number of results to skip for pagination
+     * @returns Tourist spot response DTOs matching the search criteria
+     */
+    async searchTouristSpots(
+        query?: string,
+        location?: string,
+        hashtags?: string,
+        limit?: number,
+        offset?: number,
+    ): Promise<TouristSpotResponseDto[]> {
+        // Parse hashtags from comma-separated string
+        const hashtagArray = hashtags
+            ? hashtags
+                  .split(',')
+                  .map((tag) => tag.trim())
+                  .filter((tag) => tag.length > 0)
+            : undefined;
+
+        const touristSpots = await this.modelRouteRepository.searchTouristSpots({
+            query,
+            location,
+            hashtags: hashtagArray,
+            limit,
+            offset,
+        });
+
+        if (!touristSpots || touristSpots.length === 0) {
+            return [];
+        }
+
+        // Batch fetch weather info for all spots using the same pattern as other methods
+        const allGeoInfos = touristSpots
+            .filter((spot) => spot.latitude && spot.longitude)
+            .map((spot) => ({
+                touristSpotName: spot.touristSpotName || '',
+                latitude: spot.latitude!,
+                longitude: spot.longitude!,
+                formattedAddress: spot.address || '',
+            }));
+
+        const weatherInfoMap = new Map<string, WeatherInfo>();
+        if (allGeoInfos.length > 0) {
+            try {
+                const weatherInfoList =
+                    await this.weatherInfoRepository.getCurrentWeatherByGeoInfoList(allGeoInfos);
+                weatherInfoList.forEach((weather) => {
+                    if (weather.touristSpotName) {
+                        weatherInfoMap.set(weather.touristSpotName, weather);
+                    }
+                });
+            } catch (fetchError) {
+                this.logger.warn(`Failed to fetch weather for tourist spots: ${fetchError}`);
+            }
+        }
+
+        // Convert entities to response DTOs using ModelRouteResultBuilder
+        return touristSpots.map((spot) => {
+            const spotWeatherInfo = spot.touristSpotName
+                ? weatherInfoMap.get(spot.touristSpotName)
+                : undefined;
+            const weatherInfoList = spotWeatherInfo ? [spotWeatherInfo] : [];
+
+            return ModelRouteResultBuilder.touristSpotToDto(spot, weatherInfoList);
+        });
     }
 
     // ==========================================
@@ -2249,7 +2440,9 @@ export class TouriiBackendService {
             userTaskLogId,
             action,
             verifiedBy: adminUserId,
-            verifiedAt: new Date().toISOString(),
+            verifiedAt: (
+                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()
+            ).toISOString(),
             ...(rejectionReason && { rejectionReason }),
         };
     }
@@ -2272,7 +2465,7 @@ export class TouriiBackendService {
         const isUpdated = await this.storyRepository.updateTouristSpotIdListInStoryChapter(pairs);
         if (!isUpdated) {
             throw new TouriiBackendAppException(
-                TouriiBackendAppErrorType.E_TB_024, // Update failed
+                TouriiBackendAppErrorType.E_ST_024, // Update failed
             );
         }
     }
@@ -2374,7 +2567,9 @@ export class TouriiBackendService {
             taskId,
             questId: result.questId,
             magatama_point_awarded: result.magatama_point_awarded,
-            completed_at: new Date().toISOString(),
+            completed_at: (
+                ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date()
+            ).toISOString(),
         };
     }
 
@@ -2617,7 +2812,7 @@ export class TouriiBackendService {
                 return {
                     valid: false,
                     tokenId: '',
-                    verifiedAt: new Date(),
+                    verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                     error: 'Invalid or expired verification code',
                 };
             }
@@ -2647,7 +2842,7 @@ export class TouriiBackendService {
                 magatamaPoints:
                     (metadata.attributes.find((a) => a.trait_type === 'Magatama Points')
                         ?.value as number) || 0,
-                registeredAt: new Date(), // Would come from actual user data
+                registeredAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(), // Would come from actual user data
             };
 
             // TODO: Update verification stats in database
@@ -2655,7 +2850,7 @@ export class TouriiBackendService {
             return {
                 valid: true,
                 tokenId: payload.tokenId,
-                verifiedAt: new Date(),
+                verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 expiresAt: new Date((payload['exp'] as number) * 1000),
                 passportData,
             };
@@ -2664,7 +2859,7 @@ export class TouriiBackendService {
             return {
                 valid: false,
                 tokenId: '',
-                verifiedAt: new Date(),
+                verifiedAt: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 error: (error as Error).message || 'Verification failed',
             };
         }

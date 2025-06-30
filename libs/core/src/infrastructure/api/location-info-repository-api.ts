@@ -10,8 +10,8 @@ import { firstValueFrom } from 'rxjs';
 
 const LOCATION_CACHE_PREFIX = 'location_info';
 const CACHE_TTL_SECONDS = 86400; // 24 hours
-const DEFAULT_PHOTO_MAX_WIDTH = 1200; // Increased from 400 for higher resolution
-const DEFAULT_PHOTO_MAX_HEIGHT = 1200; // Increased from 400 for higher resolution
+const DEFAULT_PHOTO_MAX_WIDTH = 1920; // Increased from 400 for higher resolution
+const DEFAULT_PHOTO_MAX_HEIGHT = 1080; // Increased from 400 for higher resolution
 const MAX_PHOTOS = 3; // Maximum number of photos to fetch
 
 @Injectable()
@@ -21,6 +21,38 @@ export class LocationInfoRepositoryApi implements LocationInfoRepository {
         private readonly configService: ConfigService,
         private readonly cachingService: CachingService,
     ) {}
+
+    async getLocationImage(
+        locationName: string,
+        latitude?: number,
+        longitude?: number,
+        address?: string,
+    ): Promise<string | null> {
+        try {
+            Logger.debug(`Fetching real image for location: ${locationName}`);
+
+            const locationInfo = await this.getLocationInfo(
+                locationName,
+                latitude,
+                longitude,
+                address,
+            );
+
+            if (locationInfo.images && locationInfo.images.length > 0) {
+                // Return the first (usually best quality) image
+                const bestImage = locationInfo.images[0];
+                Logger.debug(`Found real image for ${locationName}: ${bestImage.url}`);
+                return bestImage.url;
+            }
+
+            Logger.debug(`No images found for ${locationName}`);
+            return null;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.warn(`Failed to get location image for ${locationName}: ${errorMessage}`);
+            return null;
+        }
+    }
 
     async getLocationInfo(
         query: string,

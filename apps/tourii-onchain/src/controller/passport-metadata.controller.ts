@@ -1,12 +1,5 @@
 import { DigitalPassportMetadata } from '@app/core/domain/passport/digital-passport-metadata';
-import {
-    Controller,
-    Get,
-    HttpException,
-    Logger,
-    Param,
-    UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpException, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PassportMetadataService } from '../service/passport-metadata.service';

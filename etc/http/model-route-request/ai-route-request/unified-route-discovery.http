@@ -1,0 +1,196 @@
+@api-key = dev-key
+@api-version = 1.0.0
+@user-id = alice
+
+### ===================================
+### 🎯 3-STEP USER FLOW TESTING
+### ===================================
+
+### STEP 1: Get Available Regions from Routes
+### User selects region from available options
+GET http://localhost:4000/routes
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+
+# Frontend extracts unique regions from response:
+# - Tokyo
+# - Osaka  
+# - Kyoto
+# - Oita
+# etc.
+
+###
+
+### STEP 2: Get Regional Hashtags
+### After user selects region (e.g., "Tokyo"), get available hashtags
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "region": "Tokyo"
+}
+
+# Returns hashtags popular in Tokyo:
+# - food (25 occurrences)
+# - anime (18 occurrences)
+# - temple (15 occurrences)
+# - modern (12 occurrences)
+# etc.
+
+###
+
+### STEP 3: Get Unified Route Recommendations
+### User selects hashtags, get BOTH existing and AI routes
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["food", "anime"],
+  "mode": "any",
+  "region": "Tokyo",
+  "proximityRadiusKm": 30,
+  "maxRoutes": 5
+}
+
+# Returns:
+# - existingRoutes: Manual routes matching selected hashtags
+# - generatedRoutes: New AI-generated routes
+# - summary: Statistics about results
+
+###
+
+### ===================================
+### 🧪 ADDITIONAL TEST SCENARIOS
+### ===================================
+
+### Test Regional Hashtags - Osaka
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{
+  "region": "Osaka"
+}
+
+###
+
+### Test Regional Hashtags - All Regions (No Filter)
+POST http://localhost:4000/ai/routes/hashtags/available
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+Content-Type: application/json
+
+{}
+
+###
+
+### Unified Routes - Traditional Culture in Kyoto
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["temple", "traditional", "culture"],
+  "mode": "any",
+  "region": "Kyoto",
+  "proximityRadiusKm": 25,
+  "maxRoutes": 3
+}
+
+###
+
+### Unified Routes - Nature in Oita
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["nature", "onsen", "waterfall"],
+  "mode": "any",
+  "region": "Oita",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 4
+}
+
+###
+
+### Unified Routes - Strict Matching (ALL mode)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["food", "modern"],
+  "mode": "all",
+  "region": "Tokyo",
+  "proximityRadiusKm": 20,
+  "minSpotsPerCluster": 3,
+  "maxSpotsPerCluster": 6,
+  "maxRoutes": 2
+}
+
+###
+
+### Unified Routes - Without Region Filter
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: {{api-key}}
+accept-version: {{api-version}}
+x-user-id: {{user-id}}
+Content-Type: application/json
+
+{
+  "keywords": ["shrine", "nature"],
+  "mode": "any",
+  "proximityRadiusKm": 50,
+  "maxRoutes": 5
+}
+
+###
+
+### ===================================
+### 📊 EXPECTED RESPONSE STRUCTURE
+### ===================================
+
+# Unified Route Recommendation Response:
+# {
+#   "existingRoutes": [
+#     {
+#       "modelRouteId": "MRT-existing-123",
+#       "routeName": "Akihabara Food & Anime Tour",
+#       "region": "Tokyo",
+#       "isAiGenerated": false,
+#       "spotCount": 5,
+#       "matchedKeywords": ["food", "anime"],
+#       "touristSpots": [...]
+#     }
+#   ],
+#   "generatedRoutes": [
+#     {
+#       "modelRouteId": "MRT-ai-456", 
+#       "routeName": "Tokyo Anime Gastronomy Experience",
+#       "region": "Tokyo",
+#       "estimatedDuration": "2-3 days",
+#       "confidenceScore": 0.9,
+#       "touristSpots": [...],
+#       "metadata": { "aiGenerated": true }
+#     }
+#   ],
+#   "summary": {
+#     "existingRoutesFound": 1,
+#     "aiRoutesGenerated": 2,
+#     "totalRoutesReturned": 3,
+#     "processingTimeMs": 1234
+#   }
+# }

@@ -132,7 +132,7 @@ export class QuestRepositoryDb implements QuestRepository {
         );
 
         if (!questDb) {
-            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_TB_023);
+            throw new TouriiBackendAppException(TouriiBackendAppErrorType.E_ST_023);
         }
 
         const userCompletedTasksCacheKey = `user-completed-tasks:${userId}:${questId}`;

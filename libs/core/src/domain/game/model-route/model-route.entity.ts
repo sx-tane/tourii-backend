@@ -1,6 +1,20 @@
 import { Entity } from '../../entity';
 import type { TouristSpot } from './tourist-spot';
 
+export enum ModelRouteSource {
+    AI = 'ai',
+    MANUAL = 'manual',
+    ALL = 'all',
+}
+
+export interface ModelRouteFilter {
+    source?: ModelRouteSource;
+    region?: string;
+    userId?: string;
+    limit?: number;
+    offset?: number;
+}
+
 interface ModelRouteProps {
     storyId?: string;
     routeName?: string;
@@ -11,6 +25,7 @@ interface ModelRouteProps {
     regionBackgroundMedia?: string;
     touristSpotList?: TouristSpot[];
     recommendation?: string[];
+    isAiGenerated?: boolean;
     delFlag?: boolean;
     insUserId?: string;
     insDateTime?: Date;
@@ -38,6 +53,10 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
 
     get recommendation(): string[] | undefined {
         return this.props.recommendation;
+    }
+
+    get isAiGenerated(): boolean | undefined {
+        return this.props.isAiGenerated;
     }
 
     get region(): string | undefined {
@@ -100,7 +119,9 @@ export class ModelRouteEntity extends Entity<ModelRouteProps> {
         }
 
         return this.props.touristSpotList
-            .filter((spot) => spot.storyChapterId && spot.storyChapterId !== "No" && spot.touristSpotId) // Ensure IDs are present and exclude "No" values
+            .filter(
+                (spot) => spot.storyChapterId && spot.storyChapterId !== 'No' && spot.touristSpotId,
+            ) // Ensure IDs are present and exclude "No" values
             .map((spot) => ({
                 storyChapterId: spot.storyChapterId as string,
                 touristSpotId: spot.touristSpotId as string,

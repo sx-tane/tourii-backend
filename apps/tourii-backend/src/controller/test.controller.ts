@@ -12,7 +12,7 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
  *
  * This controller helps verify that our security configurations are working correctly.
  */
-@ApiTags('Security Tests')
+@ApiTags('Testing')
 @Controller('test')
 export class TestController {
     /**

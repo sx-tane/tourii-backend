@@ -1,3 +1,4 @@
+import { AiGeneratedRouteContent } from '@app/core/domain/ai-route/ai-route';
 import { ModelRouteEntity } from '@app/core/domain/game/model-route/model-route.entity';
 import { TouristSpot } from '@app/core/domain/game/model-route/tourist-spot';
 import { StoryEntity } from '@app/core/domain/game/story/story.entity';
@@ -24,9 +25,10 @@ export class ModelRouteCreateRequestBuilder {
         return dto.map((spotDto) => {
             const matchingGeoInfo = geoInfoMap.get(spotDto.touristSpotName);
 
-            const storyChapterLink = storyEntity && spotDto.storyChapterId
-                ? `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}` 
-                : null;
+            const storyChapterLink =
+                storyEntity && spotDto.storyChapterId
+                    ? `/v2/touriiverse/${storyEntity.id}/chapters/${spotDto.storyChapterId}`
+                    : null;
 
             if (!matchingGeoInfo) {
                 Logger.warn(
@@ -96,6 +98,37 @@ export class ModelRouteCreateRequestBuilder {
                 insDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
                 updUserId: insUserId,
                 updDateTime: ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date(),
+                requestId: ContextStorage.getStore()?.getRequestId()?.value,
+            },
+            undefined,
+        );
+    }
+
+    static dtoToGeneratedAiRoute(
+        aiContent: AiGeneratedRouteContent,
+        backgroundMedia: string,
+        userId: string,
+        region: string,
+        regionLatitude: number,
+        regionLongitude: number,
+    ): ModelRouteEntity {
+        const now = ContextStorage.getStore()?.getSystemDateTimeJST() ?? new Date();
+        return new ModelRouteEntity(
+            {
+                storyId: undefined,
+                routeName: aiContent.routeName,
+                region: region,
+                regionDesc: aiContent.regionDesc,
+                regionLatitude: regionLatitude,
+                regionLongitude: regionLongitude,
+                recommendation: aiContent.recommendations,
+                regionBackgroundMedia: backgroundMedia,
+                isAiGenerated: true,
+                insUserId: userId,
+                insDateTime: now,
+                updUserId: userId,
+                updDateTime: now,
+                touristSpotList: [],
                 requestId: ContextStorage.getStore()?.getRequestId()?.value,
             },
             undefined,

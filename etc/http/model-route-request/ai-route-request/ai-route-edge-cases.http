@@ -1,0 +1,169 @@
+### AI Route Recommendations - Maximum Keywords (Edge Case)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["anime", "manga", "otaku", "akihabara", "cosplay", "figurines", "maid", "cafe", "electronics", "gaming"],
+  "mode": "any",
+  "proximityRadiusKm": 20,
+  "maxRoutes": 1
+}
+
+###
+
+### AI Route Recommendations - Maximum Routes Request
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["historic", "castle"],
+  "mode": "any",
+  "proximityRadiusKm": 200,
+  "maxRoutes": 20
+}
+
+###
+
+### AI Route Recommendations - Minimum Cluster Size
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["mountains", "hiking"],
+  "mode": "any",
+  "proximityRadiusKm": 80,
+  "minSpotsPerCluster": 1,
+  "maxSpotsPerCluster": 15,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Maximum Proximity Radius
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["beach", "summer"],
+  "mode": "any",
+  "proximityRadiusKm": 200
+}
+
+###
+
+### AI Route Recommendations - Minimum Proximity Radius
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["shrine", "temple"],
+  "mode": "all",
+  "proximityRadiusKm": 1,
+  "maxRoutes": 2
+}
+
+###
+
+### AI Route Recommendations - Very Specific Region
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["art", "museum"],
+  "mode": "any",
+  "region": "Shibuya",
+  "proximityRadiusKm": 5,
+  "maxRoutes": 3
+}
+
+###
+
+### AI Route Recommendations - Empty Keywords (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": [],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Invalid Mode (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["test"],
+  "mode": "invalid_mode"
+}
+
+###
+
+### AI Route Recommendations - Radius Too Large (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["test"],
+  "mode": "any",
+  "proximityRadiusKm": 999
+}
+
+###
+
+### AI Route Recommendations - Too Many Keywords (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Missing API Key (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+accept-version: 1.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["test"],
+  "mode": "any"
+}
+
+###
+
+### AI Route Recommendations - Invalid Accept Version (Should Fail)
+POST http://localhost:4000/ai/routes/recommendations
+x-api-key: dev-key
+accept-version: 2.0.0
+Content-Type: application/json
+
+{
+  "keywords": ["test"],
+  "mode": "any"
+}
+
+###
