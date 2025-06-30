@@ -1,3 +1,4 @@
+import { CalculateDistanceUtil } from '@app/core/utils/calculate-distance.util';
 import { RegionDetectionUtil } from '@app/core/utils/region-detection.util';
 import { Logger } from '@nestjs/common';
 import { REGION_FALLBACK_IMAGES } from '../../ai-route/ai-route-constants';
