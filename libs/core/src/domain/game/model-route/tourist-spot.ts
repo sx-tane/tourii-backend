@@ -202,6 +202,98 @@ export class TouristSpot {
     }
 
     /**
+     * Calculates a quality score for this tourist spot based on completeness and attributes
+     * @param centerSpot Optional center spot for distance-based scoring
+     * @returns Numeric score (higher is better)
+     */
+    calculateQualityScore(centerSpot?: TouristSpot): number {
+        let score = 0;
+
+        // Base score for having essential information
+        if (this.touristSpotName?.trim()) {
+            score += 10;
+        }
+        if (this.touristSpotDesc?.trim()) {
+            score += 5;
+        }
+
+        // Hashtag diversity bonus (more hashtags = more discoverable)
+        const hashtagCount = this.touristSpotHashtag?.length || 0;
+        score += Math.min(hashtagCount * 2, 10); // Max 10 points for hashtags
+
+        // Distance factor if center spot provided
+        if (centerSpot && centerSpot.latitude && centerSpot.longitude) {
+            const distance = this.calculateDistanceTo(centerSpot);
+            // Subtract distance penalty (max 5 points penalty for 50km)
+            score -= Math.min(distance / 10, 5);
+        }
+
+        // Media and completeness bonuses
+        if (this.backgroundMedia?.trim()) {
+            score += 5;
+        }
+        if (this.address?.trim()) {
+            score += 3;
+        }
+
+        // Recent creation bonus
+        if (this.insDateTime) {
+            const daysSinceCreation = (Date.now() - new Date(this.insDateTime).getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceCreation < 30) {
+                score += 2;
+            }
+        }
+
+        return Math.max(score, 0);
+    }
+
+    /**
+     * Calculates distance to another tourist spot
+     * @param otherSpot The other tourist spot
+     * @returns Distance in kilometers
+     */
+    calculateDistanceTo(otherSpot: TouristSpot): number {
+        if (!this.latitude || !this.longitude || !otherSpot.latitude || !otherSpot.longitude) {
+            return Number.MAX_VALUE; // Invalid coordinates
+        }
+
+        return CalculateDistanceUtil.calculateDistance(
+            this.latitude,
+            this.longitude,
+            otherSpot.latitude,
+            otherSpot.longitude,
+        );
+    }
+
+    /**
+     * Selects the best tourist spots from a collection based on quality and criteria
+     * @param spots Available spots to select from
+     * @param maxCount Maximum number of spots to select
+     * @param centerSpot Optional center spot for distance-based ranking
+     * @returns Array of selected spots ordered by quality
+     */
+    static selectBestSpots(
+        spots: TouristSpot[],
+        maxCount: number,
+        centerSpot?: TouristSpot,
+    ): TouristSpot[] {
+        if (spots.length <= maxCount) {
+            return spots;
+        }
+
+        // Score and sort spots by quality
+        const scoredSpots = spots
+            .map((spot) => ({
+                spot,
+                score: spot.calculateQualityScore(centerSpot),
+            }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, maxCount);
+
+        return scoredSpots.map((item) => item.spot);
+    }
+
+    /**
      * Tries to get a real image from the LocationInfo API
      * @param spot - The spot to get the real image from
      * @returns The real image

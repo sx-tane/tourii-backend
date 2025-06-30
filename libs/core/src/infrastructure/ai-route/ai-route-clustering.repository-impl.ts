@@ -65,8 +65,12 @@ export class AiRouteClusteringRepositoryImpl {
 
             // Only create cluster if we have enough spots
             if (availableNearbySpots.length >= config.minSpotsPerCluster) {
-                // Limit cluster size
-                const clusterSpots = availableNearbySpots.slice(0, config.maxSpotsPerCluster);
+                // Select best spots using domain logic
+                const clusterSpots = TouristSpot.selectBestSpots(
+                    availableNearbySpots,
+                    config.maxSpotsPerCluster,
+                    spot // center spot for distance calculation
+                );
 
                 const cluster = AiRouteClusteringRepositoryImpl.createCluster(clusterSpots);
                 clusters.push(cluster);
